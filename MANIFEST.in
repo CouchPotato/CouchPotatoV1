@@ -1,0 +1,4 @@
+
+include moviemanager/config/deployment.ini_tmpl
+recursive-include moviemanager/public *
+recursive-include moviemanager/templates *

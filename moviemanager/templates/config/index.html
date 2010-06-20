@@ -1,0 +1,104 @@
+<form id="configForm" class="uniForm" action="${url(controller="config", action="save")}" method="post">
+	<fieldset class="inlineLabels left">
+		<h3>General Settings</h3>
+		<div class="ctrlHolder">
+			<label for="">Host</label>
+			<input type="text" name="server:main.host" value="${c.parser.get('server:main', 'host')}" class="textInput large"/>
+		</div>
+		<div class="ctrlHolder">
+			<label for="">Port</label>
+			<input type="text" name="server:main.port" value="${c.parser.get('server:main', 'port')}" class="textInput large"/>
+		</div>
+		<div class="ctrlHolder">
+			<label for="">Username</label>
+			<input type="text" name="app:main.username" value="${c.parser.get('app:main', 'username')}" class="textInput large"/>
+		</div>
+		<div class="ctrlHolder">
+			<label for="">Password</label>
+			<input type="password" name="app:main.password" value="${c.parser.get('app:main', 'password')}" class="textInput large"/>
+		</div>
+	</fieldset>
+	<fieldset class="inlineLabels right">
+		<h3>SABnzbd</h3>
+		<div class="ctrlHolder">
+			<label for="">Host</label>
+			<input type="text" name="Sabnzbd.host" value="${c.parser.get('Sabnzbd', 'host')}" class="textInput large"/>
+			<p class="formHint">
+				Where does SABnzbd run? Usually <i>localhost:8080</i>
+			</p>
+		</div>
+		<div class="ctrlHolder">
+			<label for="">Apikey</label>
+			<input type="text" name="Sabnzbd.apikey" value="${c.parser.get('Sabnzbd', 'apikey')}" class="textInput large"/>
+			<p class="formHint">
+				Can be found in general config on SABnzbd
+			</p>
+		</div>
+		<div class="ctrlHolder">
+			<label for="">Username</label>
+			<input type="text" name="Sabnzbd.username" value="${c.parser.get('Sabnzbd', 'username')}" class="textInput large"/>
+		</div>
+		<div class="ctrlHolder">
+			<label for="">Password</label>
+			<input type="password" name="Sabnzbd.password" value="${c.parser.get('Sabnzbd', 'password')}" class="textInput large"/>
+		</div>
+		<div class="ctrlHolder">
+			<label for="">Category</label>
+			<input type="text" name="Sabnzbd.category" value="${c.parser.get('Sabnzbd', 'category')}" class="textInput large"/>
+			<p class="formHint">
+				Category where NZBs should be put.
+			</p>
+		</div>
+	</fieldset>
+	<fieldset class="inlineLabels right">
+		<h3>NZB.org</h3>
+		<div class="ctrlHolder">
+			<label for="">Id</label>
+			<input type="text" name="NZBsorg.id" value="${c.parser.get('NZBsorg', 'id')}" class="textInput large"/>
+			<p class="formHint">
+				Can be found <a href="http://nzbs.org/index.php?action=rss" target="_blank">here</a>, number after "&i="
+			</p>
+		</div>
+		<div class="ctrlHolder">
+			<label for="">Key</label>
+			<input type="text" name="NZBsorg.key" value="${c.parser.get('NZBsorg', 'key')}" class="textInput large"/>
+			<p class="formHint">
+				Can be found <a href="http://nzbs.org/index.php?action=rss" target="_blank">here</a>, string after "&h="
+			</p>
+		</div>
+		<div class="ctrlHolder">
+			<label for="">Retention</label>
+			<input type="text" name="NZBsorg.retention" value="${c.parser.get('NZBsorg', 'retention')}" class="textInput large"/>
+		</div>
+	</fieldset>
+	<fieldset class="inlineLabels right">
+		<h3>TheMovieDB</h3>
+		<div class="ctrlHolder">
+			<label for="">Apikey</label>
+			<input type="text" name="TheMovieDB.key" value="${c.parser.get('TheMovieDB', 'key')}" class="textInput large"/>
+			<p class="formHint">
+				Only change if you want to use your own key.
+			</p>
+		</div>
+	</fieldset>
+	<div class="buttonHolder">
+		<button type="submit" class="primaryAction">
+			Save &raquo;
+		</button>
+	</div>
+</form>
+<script type="text/javascript">
+	
+	var form = $('configForm');
+	window.addEvent('domready', function(){
+	    form.getElement('button[type=submit]').addEvent('click', function(e){
+	        (e).stop();
+	        new Spinner(form);
+	        form.submit()
+	    });
+		
+		new Uniform();
+	});
+	
+</script>
+<%inherit file="/base.html" />

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie Manager</title>
+	
+    ${h.stylesheet_link('/media/style/Base.css')}
+    ${h.stylesheet_link('/media/style/Main.css')}
+    ${h.stylesheet_link('/media/style/Uniform.css')}
+    ${h.stylesheet_link('/media/style/UniformGeneric.css')}
+</head>
+<body>
+	
+    ${h.javascript_link('/media/script/Mootools.js')}
+    ${h.javascript_link('/media/script/MootoolsMore.js')}
+    ${h.javascript_link('/media/script/Uniform.js')}
+	
+	<div id="header">
+	    <div class="navigation">
+	        <ul>
+	            <li><a href="${url(controller='movie')}">Home</a></li>
+	            <li><a href="${url(controller='config')}">Config</a></li>
+	        </ul>
+			
+			<div id="addForm">
+		    	<form method="post" id="addNew" class="addNew" action="${url(controller='movie',action='search')}">
+					<div class="row">
+						<span>Name</span>
+						<span><input type="text" name="movie" /></span>
+					</div>
+					<div class="row">
+						<span>Quality</span>
+						<span>
+							<select name="quality">
+								% for order, quality in c.qualityList.iteritems():
+								<option value="${quality['name']}"${' selected=selected' if quality.get('default') else ''}>${quality['name']}</option>
+								% endfor
+							</select>
+						</span>
+					</div>
+					<input type="hidden" name="search" value="Add" />
+					<a href="" class="submit">Add &raquo;</a>
+				</form>
+			</div>
+			
+			<script type="text/javascript">
+				
+				window.addEvent('domready', function(){
+					var form = $('addNew');
+					form.addEvent('submit', function(e){
+						(e).stop();
+						
+						req()
+						
+					});
+					form.getElement('.submit').addEvent('click', function(e){
+						(e).stop();
+						req()
+					})
+					
+					var req = function(){
+						new Spinner(form);
+						new Request.HTML({
+							'url': form.get('action'),
+							'data': form,
+							'update': 'addForm'
+						}).send()
+					}
+				});
+				
+			</script>
+
+	    </div>
+	</div>
+	<div class="page">
+	    <div class="content">
+	        ${next.body()}
+	    </div>
+		<div class="footer">
+			<div>This is version: <em>very early release</em></div>
+			<div>Newest version can be found at github: <a href="http://github.com/RuudBurger/Movie-Manager">http://github.com/RuudBurger/Movie-Manager</a></div>
+		</div>
+	</div>
+</body>
+</html>

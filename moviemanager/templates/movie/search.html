@@ -1,0 +1,46 @@
+
+<form method="post" id="movieResults" class="addNew" action="${url(controller='movie',action='search')}">
+	<input type="hidden" name="quality" value="${c.quality}" />
+	
+	<div class="row">
+		<span>Select the right movie:</span>
+		<span>
+			<select name="movie">
+				% for movie in c.results:
+				<option value="${movie.id}">${movie.name} (${movie.year})</option>
+				% endfor
+			</select>
+		</span>
+	</div>
+	<div class="row">
+		<span>Quality</span>
+		<span>
+			<select name="quality">
+				% for order, quality in c.qualityList.iteritems():
+				<option value="${quality['name']}"${' selected=selected' if quality.get('name') == c.quality else ''}>${quality['name']}</option>
+				% endfor
+			</select>
+		</span>
+	</div>
+
+	<input type="hidden" name="add" value="Add" />
+	<a href="" class="submit">Add &raquo;</a>
+</form>
+
+<script type="text/javascript">
+	
+	var form = $('movieResults');
+	window.addEvent('domready', function(){
+		form.getElement('.submit').addEvent('click', function(e){
+			(e).stop();
+			new Spinner(form);
+			form.submit()
+		})
+	});
+		
+% if len(c.results) == 1:
+		window.location.reload()
+		form.submit()
+% endif
+	
+</script>
