@@ -45,7 +45,7 @@ keys = console
 
 [formatter_generic]
 datefmt = %H:%M:%S
-format = %(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] [%(threadName)s] %(message)s
+format = %(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s
 
 [logger_moviemanager]
 handlers = 
