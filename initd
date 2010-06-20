@@ -18,7 +18,7 @@ APP_PATH=/usr/local/sbin/moviemanager
 DAEMON=/usr/local/bin/paster
 
 # startup args
-DAEMON_OPTS=" serve --log-file moviemanager.log --server-name=main config.ini"
+DAEMON_OPTS=" serve --log-file moviemanager.log --server-name=main --reload config.ini"
 
 # script name
 NAME=MovieManager
