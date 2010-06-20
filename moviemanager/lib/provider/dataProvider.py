@@ -40,6 +40,35 @@ class dataProvider(rssFeed):
             score = score + 1
 
         return score
+    
+    def isCorrectMovie(self, nzb, movie):
+        
+        # Check if nzb contains imdb link
+        if self.checkIMDB([nzb.content], movie.imdb):
+            return True
+        
+        # if no IMDB link, at least check year
+        if self.correctYear([nzb.name], movie.year):
+            return True
+        
+        return False
+        
+    def checkIMDB(self, haystack, imdbId):
+        
+        for string in haystack:
+            if 'imdb.com/title/'+imdbId in string:
+                return True
+        
+        return False
+        
+    def correctYear(self, haystack, year):
+        
+        for string in haystack:
+            if str(year) in string:
+                return True
+        
+        return False
+        
 
     def searchString(self, string):
         safe_chars = ascii_letters + digits + '_ '

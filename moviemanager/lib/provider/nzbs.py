@@ -4,6 +4,7 @@ import os.path
 import re
 import time
 import urllib
+import datetime
 import xml.etree.ElementTree as XMLTree
 
 log = logging.getLogger(__name__)
@@ -32,13 +33,13 @@ class nzbs(dataProvider):
         self.apiKey = config.get('key')
         self.retention = config.get('retention', 400)
 
-    def find(self, q, quality):
-        log.info('Searching for movie: %s', q)
+    def find(self, movie):
+        log.info('Searching for movie: %s', movie.name)
 
         arguments = urllib.urlencode({
             'action':'search',
-            'q': self.searchString(q + ' ' + quality),
-            'catid':self.getCatId(quality),
+            'q': self.searchString(movie.name + ' ' + movie.quality),
+            'catid':self.getCatId(movie.quality),
             'i':self.apiId,
             'h':self.apiKey,
             'age':self.retention
@@ -63,12 +64,17 @@ class nzbs(dataProvider):
 
                     new = self.feedItem()
                     new.id = id
+                    new.type = 'NZB.org'
                     new.name = self.gettextelement(nzb, "title")
-                    new.date = str(self.gettextelement(nzb, "pubDate"))
+                    new.date = datetime.datetime.strptime(str(self.gettextelement(nzb, "pubDate")), '%a, %d %b %Y %H:%M:%S +0000')
                     new.size = size
-                    results.append(new)
+                    new.url = self.downloadLink(id)
+                    new.content = self.gettextelement(nzb, "description")
 
-                log.info('Found: %s', results)
+                    if self.isCorrectMovie(new, movie):
+                        results.append(new)
+                        log.info('Found: %s', new.name)
+
                 return results
             except SyntaxError:
                 log.error('Failed to parse XML response from NZBs.org')

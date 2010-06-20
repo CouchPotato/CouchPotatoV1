@@ -2,7 +2,6 @@
 from moviemanager.model import Movie, Feed
 from moviemanager.model.meta import Session as Db
 import Queue
-import datetime
 import logging
 import threading
 import time
@@ -45,39 +44,45 @@ class NzbCron(threading.Thread):
         for movie in movies:
             self._searchNzb(movie)
 
-            log.info('Sleeping search for 2 sec')
-            time.sleep(2)
+            log.info('Sleeping search for 5 sec')
+            time.sleep(5)
 
     def _searchNzb(self, movie):
 
-        results = self.provider.find(movie.name, movie.quality)
+        results = self.provider.find(movie)
 
         #remove old cached feeds
-        [Db.delete(x) for x in movie.Feeds]
-        Db.commit()
+#        [Db.delete(x) for x in movie.Feeds]
+#        Db.commit()
 
         #add results to feed cache
+        highest = None
+        highestScore = 0
         for result in results:
-            new = Feed()
-            new.movieId = movie.id
-            new.name = result.name
-            new.dateAdded = datetime.datetime.strptime(result.date, '%a, %d %b %Y %H:%M:%S +0000')
-            new.link = self.provider.downloadLink(result.id)
-            new.contentId = result.id
-            new.score = self.provider.calcScore(result, movie)
-            new.size = result.size
-
-            Db.add(new)
-
+            
+            score = self.provider.calcScore(result, movie)
+            if score > highestScore:
+                highest = result
+                
+#            new = Feed()
+#            new.movieId = movie.id
+#            new.name = result.name
+#            new.dateAdded = datetime.datetime.strptime(result.date, '%a, %d %b %Y %H:%M:%S +0000')
+#            new.link = self.provider.downloadLink(result.id)
+#            new.contentId = result.id
+#            new.score = self.provider.calcScore(result, movie)
+#            new.size = result.size
+#
+#            Db.add(new)
+        
         #send highest to SABnzbd & mark as snatched
-        if len(movie.Feeds) > 0:
-            nzb = movie.Feeds.pop(0)
-            success = self.sabNzbd.send(nzb.link)
-            if success:
-                movie.status = u'snatched'
-                Db.commit()
+        if highest:
+            success = self.sabNzbd.send(highest)
+#            if success:
+#                movie.status = u'snatched'
+#                Db.commit()
                     
-        Db.commit()
+#        Db.commit()
 
 def startNzbCron():
     cron = NzbCron()

@@ -1,5 +1,4 @@
 from pylons import config
-import datetime
 import logging
 import urllib
 import urllib2
@@ -15,7 +14,7 @@ class sabNzbd():
         self.config = config
 
     def send(self, nzb):
-        log.info("Sending NZB to SABnzbd.")
+        log.info("Sending '%s' to SABnzbd." % nzb.name)
 
         if self.isDisabled():
             log.error("Config properties are not filled in correctly.")
@@ -27,7 +26,7 @@ class sabNzbd():
             'apikey': self.config.get('apikey'),
             'cat': self.config.get('category'),
             'mode': 'addurl',
-            'name': nzb
+            'name': nzb.url
         })
 
         log.info("URL: " + url)
