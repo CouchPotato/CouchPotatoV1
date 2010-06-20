@@ -1,7 +1,7 @@
 Movie Manager
 =====
 
-*This is my first Python app, so the it WILL contain lots of bugs and crappy code.*
+*This is my first Python app, so it WILL contain lots of bugs and crappy code.*
 
 Movie Manager (MM) is an automatic NZB downloader. You can keep a "movies I want"-list and it will search for NZBs of these movies every X minutes.
 Once a movie is found, it will send it to SABnzbd.
@@ -20,6 +20,8 @@ Todo:
 * Find providers that don't need login/registration
 * Create .app for OSX
 * Create .exe for Windows
+* Think of a better name
+* Make movie adding easy, by providing a Firefox & Chrome userscript/addon on IMDB, theMovieDB, Apple Trailers
 * Feed the cats
 
 ## Dependencies
