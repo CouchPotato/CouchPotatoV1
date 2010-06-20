@@ -48,14 +48,6 @@ class NzbCron(threading.Thread):
             log.info('Sleeping search for 2 sec')
             time.sleep(2)
 
-            #send highest to SABnzbd & mark as snatched
-            if len(movie.Feeds) > 0:
-                nzb = movie.Feeds.pop(0)
-                success = self.sabNzbd.send(nzb.link)
-                if success:
-                    movie.status = u'snatched'
-                    Db.commit()
-
     def _searchNzb(self, movie):
 
         results = self.provider.find(movie.name, movie.quality)
@@ -77,6 +69,14 @@ class NzbCron(threading.Thread):
 
             Db.add(new)
 
+        #send highest to SABnzbd & mark as snatched
+        if len(movie.Feeds) > 0:
+            nzb = movie.Feeds.pop(0)
+            success = self.sabNzbd.send(nzb.link)
+            if success:
+                movie.status = u'snatched'
+                Db.commit()
+                    
         Db.commit()
 
 def startNzbCron():

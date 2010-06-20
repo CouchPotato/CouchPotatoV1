@@ -30,7 +30,6 @@ class sabNzbd():
             'name': nzb
         })
 
-        log.info("Sending NZB to SABnzbd")
         log.info("URL: " + url)
 
         try:
