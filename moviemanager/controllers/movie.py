@@ -112,14 +112,28 @@ class MovieController(BaseController):
             return redirect(url(controller = 'movie', action = 'add'))
 
         return render('/movie/search.html')
+    
+    
+    def imdbAdd(self, id):
+        '''
+        Add movie by imdbId
+        '''
 
+        c.id = id
+        c.success = False
+        
+        c.result = self.qMovie.filter_by(imdb = id, status = u'want').first()
+        if c.result:
+            c.success = True
 
-    def getNzb(self, id):
+        if request.params.get('add'):
+            provider = theMovieDb(config.get('TheMovieDB'))
+            c.result = provider.findByImdbId(id)
+            self._addMovie(c.result, request.params['quality'])
+            log.info('Added : %s', c.result.name)
+            c.success = True
 
-        c.movie = self.qMovie.filter_by(id = id).one()
-        c.results = c.movie.Feeds
-
-        return render('/movie/nzbs.html')
+        return render('/movie/imdbAdd.html')
 
 
     def _addMovie(self, movie, quality):

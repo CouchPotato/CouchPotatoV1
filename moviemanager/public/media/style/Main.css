@@ -8,7 +8,6 @@ html {
 body {
 	margin: 0;
 	padding: 0;
-	overflow-y: scroll;
 }
 
 input, textarea {
@@ -46,6 +45,11 @@ a {
 	.footer .check {
 		color: #333;
 	}
+	
+form {
+	padding:0;
+	margin:0;
+}
 
 /*** Navigation ***/
 #header {
@@ -113,7 +117,12 @@ a {
 		#header .addNew .row > span {
 			display:block;
 		}
-		#header .addNew .submit {
+		
+		#header form a.submit {
+			margin-top:23px;
+		}
+		
+		form a.submit {
 			background: #222 url(/media/images/button.png) repeat-x; 
 			display: inline-block; 
 			padding: 4px 10px 4px; 
@@ -127,7 +136,6 @@ a {
 			border-bottom: 1px solid rgba(0,0,0,0.25);
 			position: relative;
 			cursor: pointer;
-			margin-top:23px;
 		}
 
 #movies {
@@ -220,4 +228,11 @@ a {
 	input {
 		-webkit-border-radius: 3px;
 		-moz-border-radius: 3px;
+	}
+	
+	#configForm .userscriptInstall {
+		padding: 20px 15px 10px;
+		text-align: center;
+		font-weight:bold;
+		font-size: 15px;
 	}

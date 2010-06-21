@@ -48,6 +48,19 @@ class theMovieDb(infoProvider):
 
         return results.pop(0)
 
+    def findByImdbId(self, id):
+        ''' Find movie by IMDB ID '''
+        
+        if self.isDisabled():
+            return False
+
+        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.imdbLookup', self.apiKey, id)
+        data = urllib.urlopen(url)
+
+        results = self.parseXML(data)
+
+        return results.pop(0)
+
     def parseXML(self, data):
         if data:
             log.info('Parsing RSS')

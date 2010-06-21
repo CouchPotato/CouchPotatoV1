@@ -24,5 +24,7 @@ def make_map(config):
     map.connect('/{controller}/', action = 'index')
     map.connect('/{controller}/{action}/')
     map.connect('/{controller}/{action}/{id}/')
+    
+    map.connect('/mmImdbAdd.user.js', controller = 'config', action = 'imdbScript')
 
     return map

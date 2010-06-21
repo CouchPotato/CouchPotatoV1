@@ -46,6 +46,11 @@ class ConfigController(BaseController):
             c.parser.write(configfile)
 
         return redirect(url(controller = 'config', action = 'index'))
+    
+    def imdbScript(self):
+        
+        response.headers['content-type'] = 'text/javascript; charset=utf-8'
+        return render('/config/imdbScript.js')
 
     def initConfig(self):
         '''
