@@ -28,9 +28,9 @@ apikey =
 category = 
 
 [winservice]
-service_name =
-service_display_name =
-service_description = 
+service_name = Moviemanager
+service_display_name = Movie Manager
+service_description = Movie Manager - Automatic NZB downloading
 
 [loggers]
 keys = root, routes, moviemanager, sqlalchemy
