@@ -53,7 +53,13 @@ class nzbs(dataProvider):
         if data:
             log.info('Parsing NZBs.org RSS.')
             try:
-                xml = XMLTree.parse(data).findall('channel/item')
+                try:
+                    xml = self.getItems(data)
+                except e:
+                    log.error('No valid xml, to many requests? Try again in 15sec.')
+                    log.error(e)
+                    time.sleep(15)
+                    return self.find(movie)
 
                 results = []
                 for nzb in xml:
@@ -70,6 +76,7 @@ class nzbs(dataProvider):
                     new.size = size
                     new.url = self.downloadLink(id)
                     new.content = self.gettextelement(nzb, "description")
+                    new.score = self.calcScore(new, movie)
 
                     if self.isCorrectMovie(new, movie):
                         results.append(new)
@@ -79,6 +86,9 @@ class nzbs(dataProvider):
             except SyntaxError:
                 log.error('Failed to parse XML response from NZBs.org')
                 return False
+            
+    def getItems(self, data):
+        return XMLTree.parse(data).findall('channel/item')
 
     def getCatId(self, prefQuality):
         ''' Selecting category by quality '''

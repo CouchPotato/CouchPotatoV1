@@ -43,6 +43,10 @@ a {
 	font-size: 10px;
 }
 
+	.footer .check {
+		color: #333;
+	}
+
 /*** Navigation ***/
 #header {
 	background: #f7f7f7;

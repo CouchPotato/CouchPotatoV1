@@ -10,33 +10,51 @@ log = logging.getLogger(__name__)
 
 NzbCronQueue = Queue.Queue()
 class NzbCron(threading.Thread):
-    
+
     ''' Cronjob for searching for NZBs '''
 
     lastChecked = 0
     interval = 60 #minutes
     provider = None
     sabNzbd = None
+    intervalSec = 10
+    checking = False
+    checkTheseMovies = []
 
     def run(self):
         log.info('NzbCron thread is running.')
+
+        self.intervalSec = (self.interval * 60)
+        self.forceCheck()
         time.sleep(10)
 
-        self.lastChecked = time.time()
-        self.intervalSec = (self.interval * 60)
-
         while True:
+
+            #check single movie
+            for movie in self.checkTheseMovies:
+                self._searchNzb(movie)
+                self.checkTheseMovies.pop(0)
+                log.info('Sleeping search for 5 sec')
+                time.sleep(5)
+
+            #check all movies
             now = time.time()
+            if (self.lastChecked + self.intervalSec) < now:
+                self.lastChecked = now
+                self.searchNzbs()
 
-            self.searchNzbs()
+            #log.info('Sleeping NzbCron for %d seconds' % 10)
+            time.sleep(10)
 
-            self.lastChecked = now
-
-            log.info('Sleeping NzbCron for %d seconds' % self.intervalSec)
-            time.sleep(self.intervalSec)
+    def forceCheck(self, movie = None):
+        if movie == None:
+            self.lastChecked = time.time() - self.intervalSec + 10
+        else:
+            self.checkTheseMovies.append(movie)
 
     def searchNzbs(self):
         log.info('Searching for NZB.')
+        self.doCheck()
 
         #get al wanted movies
         movies = Db.query(Movie).filter_by(status = u'want')
@@ -47,42 +65,53 @@ class NzbCron(threading.Thread):
             log.info('Sleeping search for 5 sec')
             time.sleep(5)
 
+        self.doCheck(False)
+        log.info('Finished search.')
+
+
     def _searchNzb(self, movie):
 
         results = self.provider.find(movie)
 
-        #remove old cached feeds
-#        [Db.delete(x) for x in movie.Feeds]
-#        Db.commit()
-
-        #add results to feed cache
+        #search for highest score
         highest = None
         highestScore = 0
         for result in results:
-            
-            score = self.provider.calcScore(result, movie)
-            if score > highestScore:
+            if result.score > highestScore:
                 highest = result
-                
-#            new = Feed()
-#            new.movieId = movie.id
-#            new.name = result.name
-#            new.dateAdded = datetime.datetime.strptime(result.date, '%a, %d %b %Y %H:%M:%S +0000')
-#            new.link = self.provider.downloadLink(result.id)
-#            new.contentId = result.id
-#            new.score = self.provider.calcScore(result, movie)
-#            new.size = result.size
-#
-#            Db.add(new)
-        
+
         #send highest to SABnzbd & mark as snatched
         if highest:
             success = self.sabNzbd.send(highest)
-#            if success:
-#                movie.status = u'snatched'
-#                Db.commit()
-                    
-#        Db.commit()
+
+
+    def doCheck(self, bool = True):
+        self.checking = bool
+        self.lastChecked = time.time()
+
+    def isChecking(self):
+        return self.checking
+
+    def lastCheck(self):
+        return self.lastChecked
+
+    def nextCheck(self):
+
+        t = (self.lastChecked + self.intervalSec) - time.time()
+
+        if t >= 60:
+            mins = int(t / 60)
+            rsecs = t % 60
+        else:
+            mins = 0
+            rsecs = t
+
+        s = "%.2f minutes" % (mins + rsecs / 100.0)
+
+        return {
+            'timestamp': t,
+            'string': s
+        }
 
 def startNzbCron():
     cron = NzbCron()

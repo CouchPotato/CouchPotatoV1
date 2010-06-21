@@ -14,8 +14,7 @@ class ConfigController(BaseController):
     """ Edit Config file"""
 
     def __before__(self):
-        # This should be somewhere global.. have no idea where.
-        c.qualityList = Quality().all()
+        self.setGlobals()
         
         # Load config file
         c.configfile = config.get('__file__')

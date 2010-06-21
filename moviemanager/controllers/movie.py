@@ -1,6 +1,5 @@
 from moviemanager.lib.base import BaseController, render
 from moviemanager.lib.provider.theMovieDb import theMovieDb
-from moviemanager.lib.quality import Quality
 from moviemanager.model import Movie, RenameHistory
 from moviemanager.model.meta import Session as Db
 from pylons import request, response, session, tmpl_context as c, url, config
@@ -15,9 +14,7 @@ log = logging.getLogger(__name__)
 class MovieController(BaseController):
 
     def __before__(self):
-        # This should be somewhere global.. have no idea where.
-        c.qualityList = Quality().all()
-
+        self.setGlobals()
 
         self.qMovie = Db.query(Movie)
         #self.qRename = Db.query(RenameHistory)
@@ -58,7 +55,7 @@ class MovieController(BaseController):
         '''
         Mark movie as downloaded
         '''
-        
+
         movie = self.qMovie.filter_by(id = id).one()
 
         #delete feeds
@@ -99,7 +96,7 @@ class MovieController(BaseController):
         c.quality = request.params['quality']
         c.movie = request.params['movie']
         log.info('Searching for: %s', c.movie)
-        
+
         provider = theMovieDb(config.get('TheMovieDB'))
 
         if request.params.get('add'):

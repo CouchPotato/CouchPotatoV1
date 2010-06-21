@@ -1,6 +1,4 @@
 * Move & rename script
-* "Last searched was at"-info somewhere
-* Force search button
 * Rework quality,
 * Rework nzb provider
 * Find providers that don't need login/registration

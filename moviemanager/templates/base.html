@@ -76,8 +76,14 @@
 	        ${next.body()}
 	    </div>
 		<div class="footer">
-			<div>This is version: <em>very early release</em></div>
-			<div>Newest version can be found at github: <a href="http://github.com/RuudBurger/Movie-Manager">http://github.com/RuudBurger/Movie-Manager</a></div>
+			<div class="check">
+			% if c.checking:
+				Now checking.			
+			% else:
+				Next check: ${c.nextCheck['string']} (<a href="${url(controller='cron', action='force')}">Force check</a>)
+			% endif
+			</div>
+			<div class="version">This is version: <em>very early release</em>, newest version can be found <a href="http://github.com/RuudBurger/Movie-Manager">here on github.</a></div>
 		</div>
 	</div>
 </body>
