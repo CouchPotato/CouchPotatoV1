@@ -1,5 +1,5 @@
 * Move & rename script
-* Rework quality,
+* Rework quality: download best available
 * Rework nzb provider
 * Find providers that don't need login/registration
 * Create .app for OSX
