@@ -10,19 +10,9 @@ Once a movie is found, it will send it to SABnzbd.
 
 If you find a bug or need a feature that you think is awesome! Let me know!
 
-Todo:
+## Todo
 
-* Move & rename script
-* "Last searched was at"-info somewhere
-* Force search button
-* Rework quality stuff
-* Rework nzb provider
-* Find providers that don't need login/registration
-* Create .app for OSX
-* Create .exe for Windows
-* Think of a better name
-* Make movie adding easy, by providing a Firefox & Chrome userscript/addon on IMDB, theMovieDB, Apple Trailers
-* Feed the cats
+[Can be found here](http://github.com/RuudBurger/Movie-Manager/blob/master/todo.md)
 
 ## Dependencies
 
