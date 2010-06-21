@@ -6,7 +6,11 @@ Movie Manager
 Movie Manager (MM) is an automatic NZB downloader. You can keep a "movies I want"-list and it will search for NZBs of these movies every X minutes.
 Once a movie is found, it will send it to SABnzbd.
 
-![preview thumb](http://cl.ly/0076fc11775785f260ed/content)
+![preview thumb](http://github.com/RuudBurger/Movie-Manager/raw/master/moviemanager/public/media/images/screenshot.png)
+
+IMDB UserScript:
+
+![imdb](http://github.com/RuudBurger/Movie-Manager/raw/master/moviemanager/public/media/images/imdbScriptPreview.png)
 
 If you find a bug or need a feature that you think is awesome! Let me know!
 
