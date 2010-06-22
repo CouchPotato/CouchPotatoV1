@@ -42,7 +42,7 @@ class RenamerCron(threading.Thread):
 
             self.doRename()
 
-            log.info('Sleeping RenamingCron for %d minutes.' % self.interval)
+            #log.info('Sleeping RenamingCron for %d minutes.' % self.interval)
             time.sleep(self.intervalSec)
 
     def isDisabled(self):

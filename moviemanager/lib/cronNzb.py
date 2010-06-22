@@ -33,7 +33,7 @@ class NzbCron(threading.Thread):
             for movie in self.checkTheseMovies:
                 self._searchNzb(movie)
                 self.checkTheseMovies.pop(0)
-                log.info('Sleeping search for 5 sec')
+                #log.info('Sleeping search for 5 sec')
                 time.sleep(5)
 
             #check all movies
@@ -61,7 +61,7 @@ class NzbCron(threading.Thread):
         for movie in movies:
             self._searchNzb(movie)
 
-            log.info('Sleeping search for 5 sec')
+            #log.info('Sleeping search for 5 sec')
             time.sleep(5)
 
         self.doCheck(False)
