@@ -236,3 +236,9 @@ form {
 		font-weight:bold;
 		font-size: 15px;
 	}
+	
+	#configForm .formHint span {
+		background: #f5f5f5;
+		padding: 2px;
+		margin-right: 1px;
+	}

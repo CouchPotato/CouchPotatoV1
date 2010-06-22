@@ -1,5 +1,5 @@
 
-from moviemanager.model import Movie, Feed
+from moviemanager.model import Movie, History
 from moviemanager.model.meta import Session as Db
 import Queue
 import logging
@@ -8,7 +8,6 @@ import time
 
 log = logging.getLogger(__name__)
 
-NzbCronQueue = Queue.Queue()
 class NzbCron(threading.Thread):
 
     ''' Cronjob for searching for NZBs '''
@@ -83,6 +82,14 @@ class NzbCron(threading.Thread):
         #send highest to SABnzbd & mark as snatched
         if highest:
             success = self.sabNzbd.send(highest)
+            
+            # Add name to history for renaming
+            if success:
+                newHistory = History()
+                newHistory.movieId = movie.id
+                newHistory.name = highest.name
+                Db.add(newHistory)
+                Db.commit()
 
 
     def doCheck(self, bool = True):

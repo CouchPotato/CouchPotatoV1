@@ -1,6 +1,5 @@
 from moviemanager.lib.provider.dataProvider import dataProvider
 import logging
-import os.path
 import re
 import time
 import urllib

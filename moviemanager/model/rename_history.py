@@ -1,4 +1,4 @@
-"""Person model"""
+"""RenameHistory model"""
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.types import Integer, String
 from sqlalchemy.orm import relation, backref
@@ -13,7 +13,7 @@ class RenameHistory(Base):
     old = Column(String(200))
     new = Column(String(200))
     
-    movie = relation('Movie', backref=backref('History', order_by=id))
+    movie = relation('Movie', backref=backref('RenameHistory', order_by=id))
 
 
     def __init__(self, name=''):

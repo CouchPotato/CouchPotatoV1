@@ -18,7 +18,6 @@
 			<input type="password" name="app:main.password" value="${c.parser.get('app:main', 'password')}" class="textInput large"/>
 		</div>
 	</fieldset>
-	
 	<fieldset class="inlineLabels right">
 		<h3>SABnzbd</h3>
 		<div class="ctrlHolder">
@@ -52,16 +51,46 @@
 		</div>
 	</fieldset>
 
-	<fieldset class="inlineLabels left">
-		<h3>Other</h3>
+	<fieldset class="inlineLabels left" id="renamingFieldset">
+		<input type="hidden" name="Renamer.enabled" value="false" />
+		<h3>Renaming <input type="checkbox" name="Renamer.enabled" value="true" ${' checked' if c.parser.get('Renamer', 'enabled') == 'true' else ''} /></h3>
 		<div class="ctrlHolder">
-			<a href="/mmImdbAdd.user.js" class="submit userscriptInstall">
-				<img src="/media/images/imdbScriptPreview.png" />
-				Install IMDB UserScript
-			</a>
+			<label for="">Download folder</label>
+			<input type="text" name="Renamer.download" value="${c.parser.get('Renamer', 'download')}" class="textInput large"/>
+			<p class="formHint">
+				Your SABnzbd movie download folder
+			</p>
+		</div>
+		<div class="ctrlHolder">
+			<label for="">Movie destination</label>
+			<input type="text" name="Renamer.destination" value="${c.parser.get('Renamer', 'destination')}" class="textInput large"/>
+			<p class="formHint">
+				Where the movies should be moved to
+			</p>
+		</div>
+		<div class="ctrlHolder">
+			<label for="">Folder naming</label>
+			<input type="text" name="Renamer.foldernaming" value="${c.parser.get('Renamer', 'foldernaming')}" class="textInput large"/>
+			<p class="formHint">
+				<span id="foldernameResult"><strong>Result</strong>: ${c.foldernameResult}</span>
+			</p>
+		</div>
+		<div class="ctrlHolder">
+			<label for="">File naming</label>
+			<input type="text" name="Renamer.filenaming" value="${c.parser.get('Renamer', 'filenaming')}" class="textInput large"/>
+			<p class="formHint">
+				<span id="filenameResult"><strong>Result</strong>: ${c.filenameResult}</span><br />
+				<span><strong>thename</strong>: The Movie</span>
+				<span><strong>ext</strong>: ext</span>
+				<span><strong>year</strong>: 2010</span>
+				<span><strong>namethe</strong>: Movie, The</span>
+				<span><strong>first</strong>: First character of movie (without "The")</span><br />
+				Only with multiple files:
+				<span><strong>cd</strong>: cd1</span>
+				<span><strong>cdNr</strong>: 1</span>
+			</p>
 		</div>
 	</fieldset>
-
 	<fieldset class="inlineLabels right">
 		<h3>NZB.org</h3>
 		<div class="ctrlHolder">
@@ -81,6 +110,12 @@
 		<div class="ctrlHolder">
 			<label for="">Retention</label>
 			<input type="text" name="NZBsorg.retention" value="${c.parser.get('NZBsorg', 'retention')}" class="textInput large"/>
+		</div>
+	</fieldset>
+	<fieldset class="inlineLabels left">
+		<h3>Other</h3>
+		<div class="ctrlHolder">
+			<a href="/mmImdbAdd.user.js" class="submit userscriptInstall"><img src="/media/images/imdbScriptPreview.png" />Install IMDB UserScript</a>
 		</div>
 	</fieldset>
 	<fieldset class="inlineLabels right">
@@ -108,8 +143,25 @@
 	        new Spinner(form);
 	        form.submit()
 	    });
+	    
+	    new Uniform();
 		
-		new Uniform();
+		
+		var renaming = $('renamingFieldset')
+		var renamingCheckbox = renaming.getElement('[type=checkbox]')
+		
+		var renameEnabled = function(){
+			if(renamingCheckbox.get('checked'))
+				renaming.getElements('div.ctrlHolder').setStyle('opacity', 1)
+			else
+				renaming.getElements('div.ctrlHolder').setStyle('opacity', 0.5)
+		}
+		
+		renameEnabled()
+		renamingCheckbox.addEvent('change', function(){
+			renameEnabled()
+		})
+		
 	});
 	
 </script>
