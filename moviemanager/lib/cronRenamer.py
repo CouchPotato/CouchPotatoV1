@@ -18,6 +18,8 @@ class RenamerCron(threading.Thread):
     interval = 1 #minutes
     intervalSec = 10
     config = {}
+    minimalFileSize = 1024 * 1024 * 10 # 10MB
+    ignoredInPath = ['_unpack', '.appledouble', '/._'] #unpacking, smb-crap
 
     def run(self):
         log.info('Renamer thread is running.')
@@ -34,19 +36,19 @@ class RenamerCron(threading.Thread):
 
             #log.info('Sleeping NzbCron for %d seconds' % 10)
             time.sleep(self.intervalSec)
-            
+
     def isDisabled(self):
-        
+
         if (self.config.get('enabled').lower() == 'true' and self.config.get('download') and self.config.get('destination') and self.config.get('foldernaming') and self.config.get('filenaming')):
             return False
         else:
             return True
-    
+
     def doRename(self):
         '''
         Go find files and rename them!
         '''
-        
+
         if self.isDisabled():
             return
 
@@ -65,7 +67,7 @@ class RenamerCron(threading.Thread):
             # Try other methods
             else:
                 movie = self.determineMovie(files)
-            
+
             if movie:
                 self.renameFiles(files, movie)
             else:
@@ -83,14 +85,14 @@ class RenamerCron(threading.Thread):
         destination = self.config.get('destination')
         folderNaming = self.config.get('foldernaming')
         fileNaming = self.config.get('filenaming')
-        
+
         # Remove weird chars from moviename
         moviename = replaced = re.sub(r"[\x00\/\\:\*\?\"<>\|]", '', movie.name)
-       
+
         # Put 'The' at the end
         namethe = moviename
         if moviename[:3].lower() == 'the':
-            namethe = moviename[3:]+', The'
+            namethe = moviename[3:] + ', The'
 
         replacements = {
              'cd': '',
@@ -122,12 +124,12 @@ class RenamerCron(threading.Thread):
             log.info('Moving file "%s" to %s.' % (old, dest))
             if not os.path.isdir(os.path.split(dest)[0]):
                 os.makedirs(os.path.split(dest)[0])
-                
+
             if not os.path.isfile(dest):
                 os.rename(old, dest)
             else:
                 log.error('File %s already exists.' % filename)
-            
+
             # Add to renaming history
             h = RenameHistory()
             h.movieId = movie.id
@@ -202,7 +204,7 @@ class RenamerCron(threading.Thread):
                     if wordCount == len(words) and len(words) > 0:
                         log.info('Found via last resort searching.')
                         return l
-            
+
             # Try finding movie on theMovieDB
             # more checking here..
 
@@ -241,12 +243,32 @@ class RenamerCron(threading.Thread):
                         if(new.get('ext') == 'nfo'):
                             subfiles['nfo'] = new
                         else:
-                            subfiles['files'].append(new)
+
+                            #ignore
+                            if not self.ignoreFile(os.path.join(root, filename)):
+                                subfiles['files'].append(new)
 
                 if subfiles['files']:
                     files.append(subfiles)
 
         return files
+
+    def ignoreFile(self, file):
+        
+        # minimal size
+        if os.path.getsize(file) < self.minimalFileSize:
+            log.info('File to small.')
+            return True
+        
+        # ignoredpaths
+        for i in self.ignoredInPath:
+            if i in file.lower():
+                log.info('File still unpacking.')
+                return True
+
+        # All is OK
+        return False
+
 
 def startRenamerCron(config):
     cron = RenamerCron()
