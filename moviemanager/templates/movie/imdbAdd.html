@@ -6,7 +6,7 @@
 	<form method="post" action="${url(controller='movie',action='imdbAdd', id=c.id)}">
 		<select name="quality">
 			% for order, quality in c.qualityList.iteritems():
-			<option value="${quality['name']}">${quality['name']}</option>
+			<option value="${quality['name']}"${' selected=selected' if quality.get('default') else ''}>${quality['name']}</option>
 			% endfor
 		</select>
 		<a href="" class="submit">Add &raquo;</a>
