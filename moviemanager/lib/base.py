@@ -1,4 +1,4 @@
-from moviemanager.lib.quality import Quality, Quality
+from moviemanager.lib.quality import Quality
 from moviemanager.model.meta import Session
 from pylons import config, tmpl_context as c
 from pylons.controllers import WSGIController
