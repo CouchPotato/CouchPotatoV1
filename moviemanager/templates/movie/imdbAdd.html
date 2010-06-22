@@ -1,10 +1,9 @@
 
-<div id="imdbAdd">
+<div id="imdbAdd" style="padding:30px 20px;">
 % if c.success:
 	<div style="text-align:center;"><strong>${c.result.name}</strong> added!</div>
 % else: 
 	<form method="post" action="${url(controller='movie',action='imdbAdd', id=c.id)}">
-		<div>Add to Movie Manager</div>
 		<select name="quality">
 			% for order, quality in c.qualityList.iteritems():
 			<option value="${quality['name']}">${quality['name']}</option>
