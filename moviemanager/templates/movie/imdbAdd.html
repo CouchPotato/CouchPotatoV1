@@ -3,7 +3,7 @@
 % if c.success:
 	<div style="text-align:center;"><strong>${c.result.name}</strong> added!</div>
 % else: 
-	<form method="post" action="${url(controller='movie',action='imdbAdd', id=c.id)}">
+	<form method="post" action="${url(controller='movie',action='imdbAdd', id=c.id, year=request.params.get('year'))}">
 		<select name="quality">
 			% for order, quality in c.qualityList.iteritems():
 			<option value="${quality['name']}"${' selected=selected' if quality.get('default') else ''}>${quality['name']}</option>

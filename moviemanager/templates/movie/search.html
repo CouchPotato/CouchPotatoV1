@@ -10,6 +10,16 @@
 			</select>
 		</span>
 	</div>
+	
+	% if movie.year == 'None':
+	<div class="row">
+		<span>Year:</span>
+		<span>
+			<input type="text" name="year" value="" style="width:40px; border: 1px solid red;" />
+		</span>
+	</div>
+	% endif
+	
 	<div class="row">
 		<span>Quality</span>
 		<span>
@@ -32,11 +42,25 @@
 		form.getElement('.submit').addEvent('click', function(e){
 			(e).stop();
 			new Spinner(form);
-			form.submit()
+			req()
 		})
+		
+		var req = function(){
+			new Request({
+				'url': form.get('action'),
+				'data': form,
+				'onSuccess': function(){
+					window.location.reload()
+				},
+				'onFailure': function(){
+					alert('Couldn\'t find the year on TheMovieDB, so you have to fill it in yourself.\nTo make other people happy, you could go to TheMovieDB and fill in the year.')
+				}
+			}).send()
+		}
+
 	});
 		
-% if len(c.results) == 1:
+% if len(c.results) == 1 and movie.year != 'None':
 		window.location.reload()
 		form.submit()
 % endif
