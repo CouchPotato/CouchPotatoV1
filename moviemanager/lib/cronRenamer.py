@@ -137,7 +137,8 @@ class RenamerCron(threading.Thread):
                 os.rename(old, dest)
             else:
                 log.error('File %s already exists.' % filename)
-
+                break
+            
             # Add to renaming history
             h = RenameHistory()
             h.movieId = movie.id
@@ -145,6 +146,10 @@ class RenamerCron(threading.Thread):
             h.new = dest
             Db.add(h)
             Db.commit()
+        
+        # Mark movie downloaded
+        movie.status = u'downloaded'
+        Db.commit()
 
     def doReplace(self, string, replacements):
         '''
