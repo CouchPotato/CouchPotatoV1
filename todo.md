@@ -6,4 +6,5 @@
 * Think of a better name
 * Make movie adding easy, by providing a Firefox & Chrome userscript/addon theMovieDB, Apple Trailers
 * Max downloads per day
+* Manual add for movies that aren't available on TheMovieDB
 * Import function
