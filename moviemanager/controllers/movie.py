@@ -26,9 +26,9 @@ class MovieController(BaseController):
         Show all wanted, snatched, downloaded movies
         '''
 
-        c.movies = self.qMovie.filter_by(status = u'want')
-        c.snatched = self.qMovie.filter_by(status = u'snatched')
-        c.downloaded = self.qMovie.filter_by(status = u'downloaded')
+        c.movies = self.qMovie.order_by(Movie.name).filter_by(status = u'want')
+        c.snatched = self.qMovie.order_by(Movie.name).filter_by(status = u'snatched')
+        c.downloaded = self.qMovie.order_by(Movie.name).filter_by(status = u'downloaded')
 
         return render('/movie/index.html')
 
@@ -101,19 +101,16 @@ class MovieController(BaseController):
 
         if request.params.get('add'):
             result = provider.findById(request.params['movie'])
-            self._addMovie(result, c.quality)
-            return redirect(url(controller = 'movie', action = 'index'))
+            
+            if result.year != 'None' or request.params.get('year'):
+                self._addMovie(result, c.quality, request.params.get('year'))
+                return redirect(url(controller = 'movie', action = 'index'))
 
         c.results = provider.find(c.movie)
 
-        #redirect if none found
-        if len(c.results) == 0:
-            log.info('No movies found.')
-            return redirect(url(controller = 'movie', action = 'add'))
-
         return render('/movie/search.html')
-    
-    
+
+
     def imdbAdd(self, id):
         '''
         Add movie by imdbId
@@ -121,7 +118,7 @@ class MovieController(BaseController):
 
         c.id = id
         c.success = False
-        
+
         c.result = self.qMovie.filter_by(imdb = id, status = u'want').first()
         if c.result:
             c.success = True
@@ -129,14 +126,15 @@ class MovieController(BaseController):
         if request.params.get('add'):
             provider = theMovieDb(config.get('TheMovieDB'))
             c.result = provider.findByImdbId(id)
-            self._addMovie(c.result, request.params['quality'])
+
+            self._addMovie(c.result, request.params['quality'], request.params.get('year'))
             log.info('Added : %s', c.result.name)
             c.success = True
 
         return render('/movie/imdbAdd.html')
 
 
-    def _addMovie(self, movie, quality):
+    def _addMovie(self, movie, quality, year = None):
         log.info('Adding movie to database: %s', movie.name)
 
         exists = self.qMovie.filter_by(movieDb = movie.id).first()
@@ -152,7 +150,11 @@ class MovieController(BaseController):
         new.imdb = movie.imdb
         new.movieDb = movie.id
         new.quality = quality
-        new.year = movie.year
+
+        if year and movie.year == 'None':
+            new.year = year
+        else:
+            new.year = movie.year
         Db.commit()
 
         #gogo find nzb for added movie via Cron
