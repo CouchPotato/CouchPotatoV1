@@ -59,7 +59,10 @@ class ConfigController(BaseController):
         return redirect(url(controller = 'config', action = 'index'))
     
     def imdbScript(self):
-        
+        '''
+        imdb UserScript, for easy movie adding
+        '''
+        c.host = request.host
         response.headers['content-type'] = 'text/javascript; charset=utf-8'
         return render('/config/imdbScript.js')
 
