@@ -25,8 +25,13 @@ class RenamerCron(threading.Thread):
         log.info('Renamer thread is running.')
 
         self.intervalSec = (self.interval * 60)
-        #time.sleep(10)
-
+        
+        #sleep longer if renaming is disabled
+        if self.config.get('enabled').lower() != 'true':
+            log.info('Sleeping renaming thread');
+            self.intervalSec = 36000
+        
+        time.sleep(10)
         while True:
 
             #check all movies
@@ -34,7 +39,7 @@ class RenamerCron(threading.Thread):
 
             self.doRename()
 
-            #log.info('Sleeping NzbCron for %d seconds' % 10)
+            log.info('Sleeping RenamingCron for %d minutes.' % self.interval)
             time.sleep(self.intervalSec)
 
     def isDisabled(self):
