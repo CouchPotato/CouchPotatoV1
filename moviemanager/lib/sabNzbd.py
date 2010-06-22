@@ -63,7 +63,7 @@ class sabNzbd():
         return True
 
     def isDisabled(self):
-        if self.config.get('host') and self.config.get('username') and self.config.get('password') and self.config.get('apikey'):
+        if self.config.get('host') and self.config.get('apikey'):
             return False
         else:
             return True
