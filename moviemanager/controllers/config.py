@@ -7,7 +7,7 @@ import logging
 import time
 import ConfigParser
 
-
+cron = config.get('pylons.app_globals').cron
 log = logging.getLogger(__name__)
 
 class ConfigController(BaseController):
@@ -21,12 +21,23 @@ class ConfigController(BaseController):
         c.parser = ConfigParser.RawConfigParser()
         c.parser.read(c.configfile)
 
-        self.initConfig()
-
     def index(self):
         '''
         Config form
         '''
+        
+        renamer = cron.get('renamer')
+        replacements = {
+             'cd': ' cd1',
+             'cdNr': ' 1',
+             'ext': 'mkv',
+             'namethe': 'Big Lebowski, The',
+             'thename': 'The Big Lebowski',
+             'year': 1998,
+             'first': 'B'
+        }
+        c.foldernameResult = renamer.doReplace(c.parser.get('Renamer', 'foldernaming'), replacements)
+        c.filenameResult = renamer.doReplace(c.parser.get('Renamer', 'filenaming'), replacements)
 
         return render('/config/index.html')
 
@@ -52,26 +63,4 @@ class ConfigController(BaseController):
         response.headers['content-type'] = 'text/javascript; charset=utf-8'
         return render('/config/imdbScript.js')
 
-    def initConfig(self):
-        '''
-        Create sections, in case the make-config didnt work properly
-        '''
-
-        if not c.parser.has_section('NZBsorg'):
-            c.parser.add_section('NZBsorg')
-            c.parser.set('NZBsorg', 'id', '')
-            c.parser.set('NZBsorg', 'key', '')
-            c.parser.set('NZBsorg', 'retention', '')
-
-        if not c.parser.has_section('Sabnzbd'):
-            c.parser.add_section('Sabnzbd')
-            c.parser.set('Sabnzbd', 'host', '')
-            c.parser.set('Sabnzbd', 'apikey', '')
-            c.parser.set('Sabnzbd', 'username', '')
-            c.parser.set('Sabnzbd', 'password', '')
-            c.parser.set('Sabnzbd', 'category', '')
-
-        if not c.parser.has_section('TheMovieDB'):
-            c.parser.add_section('TheMovieDB')
-            c.parser.set('TheMovieDB', 'key', '')
 

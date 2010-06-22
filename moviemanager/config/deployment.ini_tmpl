@@ -1,14 +1,6 @@
 [DEFAULT]
 debug = false
 
-[TheMovieDB]
-key = 9b939aee0aaafc12a65bf448e4af9543
-
-[NZBsorg]
-id = 
-key = 
-retention = 
-
 [server:main]
 use = egg:Paste#http
 host = 127.0.0.1
@@ -19,13 +11,6 @@ use = egg:MovieManager
 static_files = true
 username = username
 password = password
-
-[Sabnzbd]
-username = 
-password = 
-host = 
-apikey = 
-category = 
 
 [winservice]
 service_name = Moviemanager

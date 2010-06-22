@@ -54,23 +54,20 @@ def make_app(global_conf, full_stack = True, static_files = True, **app_conf):
 
     # Get custom config section
     configfile = config['global_conf'].get('__file__')
-    parser = ConfigParser.RawConfigParser()
-    parser.read(configfile)
+    ca = configApp(configfile)
+    parser = ca.parser()
 
-    for section in ['Sabnzbd', 'TheMovieDB', 'NZBsorg']:
+    for section in ca.sections():
         config[section] = {}
         for option in parser.options(section):
             config[section][option] = parser.get(section, option)
-
-
 
     # Init db and create tables
     Base.metadata.create_all(bind = Db.bind)
 
 
-
-    #cronjob thread
-    from moviemanager.lib.cron import startNzbCron, NzbCron
+    #nzbcron thread
+    from moviemanager.lib.cronNzb import startNzbCron
     from moviemanager.lib.provider.nzbs import nzbs
     from moviemanager.lib.sabNzbd import sabNzbd
 
@@ -79,6 +76,15 @@ def make_app(global_conf, full_stack = True, static_files = True, **app_conf):
     nzbCronJob.provider = nzbs(config['NZBsorg'])
     nzbCronJob.sabNzbd = sabNzbd(config['Sabnzbd'])
     config['pylons.app_globals'].cron['nzb'] = nzbCronJob
+    
+    #renamer thread
+    from moviemanager.lib.cronRenamer import startRenamerCron
+    from moviemanager.lib.provider.nzbs import nzbs
+    from moviemanager.lib.sabNzbd import sabNzbd
+
+    #renamer cron
+    renamerCronJob = startRenamerCron(config.get('Renamer'))
+    config['pylons.app_globals'].cron['renamer'] = renamerCronJob
 
 
 
@@ -105,6 +111,57 @@ def make_app(global_conf, full_stack = True, static_files = True, **app_conf):
 
 
     return app
+
+class configApp():
+    
+    s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer']
+    
+    def __init__(self, file):
+        self.file= file
+        
+        self.p = ConfigParser.RawConfigParser()
+        self.p.read(file)
+        
+        self.initConfig()
+
+    def parser(self):
+        return self.p
+    
+    def sections(self):
+        return self.s
+    
+    def initConfig(self):
+        '''
+        Create sections, in case the make-config didnt work properly
+        '''
+        if not self.p.has_section('Renamer'):
+            self.p.add_section('Renamer')
+            self.p.set('Renamer', 'enabled', 'false')
+            self.p.set('Renamer', 'download', '')
+            self.p.set('Renamer', 'destination', '')
+            self.p.set('Renamer', 'folderNaming', '<namethe> (<year>)')
+            self.p.set('Renamer', 'fileNaming', '<thename><cd>.<ext>')
+
+        if not self.p.has_section('NZBsorg'):
+            self.p.add_section('NZBsorg')
+            self.p.set('NZBsorg', 'id', '')
+            self.p.set('NZBsorg', 'key', '')
+            self.p.set('NZBsorg', 'retention', '')
+
+        if not self.p.has_section('Sabnzbd'):
+            self.p.add_section('Sabnzbd')
+            self.p.set('Sabnzbd', 'host', 'localhost:8080')
+            self.p.set('Sabnzbd', 'apikey', '')
+            self.p.set('Sabnzbd', 'username', '')
+            self.p.set('Sabnzbd', 'password', '')
+            self.p.set('Sabnzbd', 'category', '')
+
+        if not self.p.has_section('TheMovieDB'):
+            self.p.add_section('TheMovieDB')
+            self.p.set('TheMovieDB', 'key', '9b939aee0aaafc12a65bf448e4af9543')
+
+        with open(self.file, 'wb') as configfile:
+            self.p.write(configfile)
 
 class Auth():
 
