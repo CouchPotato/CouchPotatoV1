@@ -25,12 +25,15 @@ class RenamerCron(threading.Thread):
         log.info('Renamer thread is running.')
 
         self.intervalSec = (self.interval * 60)
-        
+
         #sleep longer if renaming is disabled
         if self.config.get('enabled').lower() != 'true':
             log.info('Sleeping renaming thread');
             self.intervalSec = 36000
-        
+
+        if not os.path.isdir(self.config.get('download')):
+            log.info("Watched folder doesn't exist.")
+
         time.sleep(10)
         while True:
 
@@ -44,7 +47,7 @@ class RenamerCron(threading.Thread):
 
     def isDisabled(self):
 
-        if (self.config.get('enabled').lower() == 'true' and self.config.get('download') and self.config.get('destination') and self.config.get('foldernaming') and self.config.get('filenaming')):
+        if (self.config.get('enabled').lower() == 'true' and os.path.isdir(self.config.get('download')) and self.config.get('download') and self.config.get('destination') and self.config.get('foldernaming') and self.config.get('filenaming')):
             return False
         else:
             return True
@@ -259,12 +262,12 @@ class RenamerCron(threading.Thread):
         return files
 
     def ignoreFile(self, file):
-        
+
         # minimal size
         if os.path.getsize(file) < self.minimalFileSize:
             log.info('File to small.')
             return True
-        
+
         # ignoredpaths
         for i in self.ignoredInPath:
             if i in file.lower():
