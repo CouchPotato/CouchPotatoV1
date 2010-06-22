@@ -85,6 +85,8 @@ class NzbCron(threading.Thread):
             
             # Add name to history for renaming
             if success:
+                movie.status = u'snatched'
+                
                 newHistory = History()
                 newHistory.movieId = movie.id
                 newHistory.name = highest.name

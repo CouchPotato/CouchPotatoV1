@@ -59,6 +59,8 @@ class sabNzbd():
         else:
             log.error("Unknown error: " + sabText)
             return False
+        
+        return True
 
     def isDisabled(self):
         if self.config.get('host') and self.config.get('username') and self.config.get('password') and self.config.get('apikey'):
