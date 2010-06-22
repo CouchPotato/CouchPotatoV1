@@ -127,7 +127,7 @@ class RenamerCron(threading.Thread):
             filename = self.doReplace(fileNaming, replacements)
 
             old = os.path.join(file['path'], file['filename'])
-            dest = os.path.join(destination, 'test', folder, filename)
+            dest = os.path.join(destination, folder, filename)
 
             log.info('Moving file "%s" to %s.' % (old, dest))
             if not os.path.isdir(os.path.split(dest)[0]):
