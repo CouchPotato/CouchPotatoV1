@@ -121,7 +121,6 @@ class RenamerCron(threading.Thread):
             if multiple:
                 replacements['cd'] = ' cd' + str(cd)
                 replacements['cdNr'] = ' ' + str(cd)
-                cd += 1
 
             folder = self.doReplace(folderNaming, replacements)
             filename = self.doReplace(fileNaming, replacements)
@@ -139,6 +138,14 @@ class RenamerCron(threading.Thread):
                 log.error('File %s already exists.' % filename)
                 break
             
+            #get subtitle if any & move
+            if len(files['subtitles']) > 0:
+                log.info('Moving matching subtitle.')
+                subtitle = files['subtitles'].pop(0)
+                replacements['ext'] = subtitle['ext']
+                subFilename = self.doReplace(fileNaming, replacements)
+                os.rename(os.path.join(subtitle['path'], subtitle['filename']), os.path.join(destination, folder, subFilename))
+            
             # Add to renaming history
             h = RenameHistory()
             h.movieId = movie.id
@@ -146,6 +153,9 @@ class RenamerCron(threading.Thread):
             h.new = dest
             Db.add(h)
             Db.commit()
+            
+            if multiple:
+                cd += 1
         
         # Mark movie downloaded
         movie.status = u'downloaded'
@@ -241,9 +251,17 @@ class RenamerCron(threading.Thread):
 
             for root, dirnames, filenames in os.walk(fullDirPath):
 
-                subfiles = {'nfo':{}, 'files':[]}
-
-                patterns = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso', '*.nfo']
+                subfiles = {'nfo':{}, 'files':[], 'subtitles':[]}
+                
+                movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso']
+                nfoExt = ['*.nfo']
+                subExt = ['*.sub','*.srt','*.idx','*.ssa', '*.ass']
+                
+                patterns = []
+                patterns.extend(movieExt)
+                patterns.extend(nfoExt)
+                patterns.extend(subExt)
+                
                 for pattern in patterns:
                     for filename in fnmatch.filter(filenames, pattern):
 
@@ -252,12 +270,15 @@ class RenamerCron(threading.Thread):
                            'filename': filename,
                            'ext': os.path.splitext(filename)[1].lower()[1:]
                         }
-
-                        if(new.get('ext') == 'nfo'):
+                        
+                        #nfo file
+                        if('*.'+new.get('ext') in nfoExt):
                             subfiles['nfo'] = new
+                        #subtitle file
+                        elif('*.'+new.get('ext') in subExt):
+                            subfiles['subtitles'].append(new)
                         else:
-
-                            #ignore
+                            #ignore movies files / or not
                             if not self.ignoreFile(os.path.join(root, filename)):
                                 subfiles['files'].append(new)
 
@@ -267,6 +288,9 @@ class RenamerCron(threading.Thread):
         return files
 
     def ignoreFile(self, file):
+        
+        if re.search('(^|[\W_])sample\d*[\W_]', file.lower()):
+            return True
 
         # minimal size
         if os.path.getsize(file) < self.minimalFileSize:
