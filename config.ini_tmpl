@@ -1,0 +1,56 @@
+[DEFAULT]
+debug = false
+
+[server:main]
+use = egg:Paste#http
+host = 127.0.0.1
+port = 5000
+
+[app:main]
+use = egg:MovieManager
+static_files = true
+username = username
+password = password
+
+[winservice]
+service_name = Moviemanager
+service_display_name = Movie Manager
+service_description = Movie Manager - Automatic NZB downloading
+
+[loggers]
+keys = root, routes, moviemanager, sqlalchemy
+
+[logger_sqlalchemy]
+handlers = 
+qualname = sqlalchemy.engine
+level = WARN
+
+[handlers]
+keys = console
+
+[formatter_generic]
+datefmt = %H:%M:%S
+format = %(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s
+
+[logger_moviemanager]
+handlers = 
+qualname = moviemanager
+level = DEBUG
+
+[logger_root]
+handlers = console
+level = INFO
+
+[formatters]
+keys = generic
+
+[logger_routes]
+handlers = 
+qualname = routes.middleware
+level = INFO
+
+[handler_console]
+formatter = generic
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET

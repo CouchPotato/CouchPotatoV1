@@ -29,7 +29,7 @@ OSx & Linux:
 * Install Python 2.6 or higher
 * git clone/extract MM wherever you like
 * Run "sudo python setup.py install"
-* Run "paster make-config MovieManager config.ini" to create config
+* Rename "config.ini_tmpl" to "config.ini"
 * Run "paster serve --log-file moviemanager.log --reload config.ini" to start
 * Goto http://localhost:5000 and login using "username" & "password"
 * Change username & password
@@ -47,7 +47,7 @@ Windows (as service):
 * Install PyWin32 (http://sourceforge.net/projects/pywin32/files/)
 * git clone/extract MM wherever you like
 * Run "setup.py install"
-* Run "c:\path\to\python\Scripts\paster make-config MovieManager config.ini" to create config
+* Rename "config.ini_tmpl" to "config.ini"
 * Run "WindowsService.py install" as admin
 * Run "WindowService.py start" as admin
 * Goto http://localhost:5000 and login using "username" & "password"
