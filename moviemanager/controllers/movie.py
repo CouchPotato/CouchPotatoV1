@@ -1,12 +1,10 @@
 from moviemanager.lib.base import BaseController, render
 from moviemanager.lib.provider.theMovieDb import theMovieDb
-from moviemanager.model import Movie, RenameHistory
+from moviemanager.model import Movie
 from moviemanager.model.meta import Session as Db
-from pylons import request, response, session, tmpl_context as c, url, config
-from pylons.controllers.util import abort, redirect
-import datetime
+from pylons import request, tmpl_context as c, url, config
+from pylons.controllers.util import redirect
 import logging
-import time
 
 cron = config.get('pylons.app_globals').cron
 log = logging.getLogger(__name__)

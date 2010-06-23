@@ -76,11 +76,9 @@ def make_app(global_conf, full_stack = True, static_files = True, **app_conf):
     nzbCronJob.provider = nzbs(config['NZBsorg'])
     nzbCronJob.sabNzbd = sabNzbd(config['Sabnzbd'])
     config['pylons.app_globals'].cron['nzb'] = nzbCronJob
-    
+
     #renamer thread
     from moviemanager.lib.cronRenamer import startRenamerCron
-    from moviemanager.lib.provider.nzbs import nzbs
-    from moviemanager.lib.sabNzbd import sabNzbd
 
     #renamer cron
     renamerCronJob = startRenamerCron(config.get('Renamer'))
@@ -113,23 +111,23 @@ def make_app(global_conf, full_stack = True, static_files = True, **app_conf):
     return app
 
 class configApp():
-    
+
     s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer']
-    
+
     def __init__(self, file):
-        self.file= file
-        
+        self.file = file
+
         self.p = ConfigParser.RawConfigParser()
         self.p.read(file)
-        
+
         self.initConfig()
 
     def parser(self):
         return self.p
-    
+
     def sections(self):
         return self.s
-    
+
     def initConfig(self):
         '''
         Create sections, in case the make-config didnt work properly
