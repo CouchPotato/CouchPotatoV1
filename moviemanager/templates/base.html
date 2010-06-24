@@ -58,11 +58,15 @@
 					})
 					
 					var req = function(){
-						new Spinner(form);
+						var s = new Spinner(form)
+							s.show();
 						new Request.HTML({
 							'url': form.get('action'),
 							'data': form,
-							'update': 'addForm'
+							'update': 'addForm',
+							'onComplete': function(){
+								s.hide()
+							}
 						}).send()
 					}
 				});
