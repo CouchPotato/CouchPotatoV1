@@ -24,9 +24,9 @@ class MovieController(BaseController):
         Show all wanted, snatched, downloaded movies
         '''
 
-        c.movies = self.qMovie.order_by(Movie.name).filter_by(status = u'want')
-        c.snatched = self.qMovie.order_by(Movie.name).filter_by(status = u'snatched')
-        c.downloaded = self.qMovie.order_by(Movie.name).filter_by(status = u'downloaded')
+        c.movies = self.qMovie.order_by(Movie.name).filter_by(status = u'want').all()
+        c.snatched = self.qMovie.order_by(Movie.name).filter_by(status = u'snatched').all()
+        c.downloaded = self.qMovie.order_by(Movie.name).filter_by(status = u'downloaded').all()
 
         return render('/movie/index.html')
 

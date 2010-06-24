@@ -1,3 +1,4 @@
+% if len(c.movies) > 0:
 <div id="movies">
 	<div class="header">
 		<span class="title">Title</span>
@@ -12,30 +13,52 @@
 		<span class="year">${movie.year}</span>
 		<span class="quality">${movie.quality}</span>
 		<span class="info">
-			<span class="imdb"><a href="http://www.imdb.com/title/${movie.imdb}/" target="_blank"><img src="/media/images/imdb.png" /></a></span>
-			<span class="moviedb"><a href="http://www.themoviedb.org/movie/${movie.movieDb}" target="_blank"><img src="/media/images/moviedb.png" /></a></span>
+			<span class="imdb"><a href="http://www.imdb.com/title/${movie.imdb}/" target="_blank"><img src="/media/images/imdb.png" alt="IMDB" /></a></span>
+			<span class="moviedb"><a href="http://www.themoviedb.org/movie/${movie.movieDb}" target="_blank"><img src="/media/images/moviedb.png" alt="TheMovieDB" /></a></span>
 		</span>
 		<span class="actions">
-			<a href="${url(controller='movie', action='delete', id=movie.id)}"><img src="/media/images/delete.png" /></a>
-			<a href="${url(controller='cron', action='forceSingle', id=movie.id)}"><img src="/media/images/reload.png" /></a>
+			<a href="${url(controller='movie', action='delete', id=movie.id)}" title="Delete this movie"><img src="/media/images/delete.png" alt="Delete" /></a>
+			<a href="${url(controller='cron', action='forceSingle', id=movie.id)}" title="Force search"><img src="/media/images/reload.png" alt="Reload" /></a>
 		</span>
 	</div>
 	% endfor
 </div>
+% else:
+<div id="movies">
+	
+	<a href="#" id="firstAdd">No movies added, click here to add a movie.</a>
+	<script type="text/javascript">
+	
+		window.addEvent('domready', function(){
+			$('firstAdd').addEvent('click', function(e){
+				(e).stop();
+				var firstEl = $('addForm').getElement('input');
+				if (firstEl)
+					firstEl.focus()
+					firstEl.highlight()
+			});
+		});
+	</script>
+	
+</div>
+% endif
 
+% if len(c.snatched) > 0:
 <div id="snatched" class="smallList">
 	<h1>Snatched:</h1>
 	% for movie in c.snatched:
 	<span>
 		${movie}
 		<span class="actions">
-			<a href="${url(controller='movie', action='downloaded', id=movie.id)}"><img src="/media/images/ok.png" title="Movie downloaded correctly." /></a>
-			<a href="${url(controller='movie', action='reAdd', id=movie.id)}"><img src="/media/images/undo.png" title="Movie didnt download, re-add it." /></a>
+			<a href="${url(controller='movie', action='downloaded', id=movie.id)}"><img src="/media/images/ok.png" title="Movie downloaded correctly." alt="OK" /></a>
+			<a href="${url(controller='movie', action='reAdd', id=movie.id)}"><img src="/media/images/undo.png" title="Movie didnt download, re-add it." alt="Undo" /></a>
 		</span>
 	</span>
 	% endfor
 </div>
+% endif
 
+% if len(c.downloaded) > 0:
 <div id="downloaded" class="smallList">
 	<h1>Downloaded:</h1>
 	% for movie in c.downloaded:
@@ -47,24 +70,6 @@
 	</span>
 	% endfor
 </div>
-
-<!---
-<script type="text/javascript">
-	
-	window.addEvent('domready', function(){
-	
-	    $('movies').getElements('.item').each(function(item){
-	    	new Request.HTML({
-				'method': 'get',
-				'url': '${url(controller='movie', action='getNzb')}'+item.get('data-id')+'/',
-				'update': item.getElement('.nzbs'),
-				'async': false
-			}).send()
-	    })
-	    
-	});
-	
-</script>
---->
+% endif
 
 <%inherit file="/base.html" />

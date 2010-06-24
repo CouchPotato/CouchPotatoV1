@@ -145,6 +145,16 @@ form {
 	overflow:hidden;
 }
 
+	#movies #firstAdd {
+		display: block;
+		padding: 50px 10px;
+		margin: 30px 0 10px;
+		font-size: 26px;
+		text-align: center;
+		background: #f7f7f7;
+
+	}
+
 	#movies .header {
 		font-weight: bold;
 	}
