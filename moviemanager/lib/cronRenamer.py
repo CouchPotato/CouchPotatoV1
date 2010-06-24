@@ -1,7 +1,5 @@
-
 from moviemanager.model import Movie, History, RenameHistory
 from moviemanager.model.meta import Session as Db
-import Queue
 import logging
 import threading
 import time
@@ -36,13 +34,7 @@ class RenamerCron(threading.Thread):
 
         time.sleep(10)
         while True:
-
-            #check all movies
-            now = time.time()
-
             self.doRename()
-
-            #log.info('Sleeping RenamingCron for %d minutes.' % self.interval)
             time.sleep(self.intervalSec)
 
     def isDisabled(self):
@@ -95,7 +87,7 @@ class RenamerCron(threading.Thread):
         fileNaming = self.config.get('filenaming')
 
         # Remove weird chars from moviename
-        moviename = replaced = re.sub(r"[\x00\/\\:\*\?\"<>\|]", '', movie.name)
+        moviename = re.sub(r"[\x00\/\\:\*\?\"<>\|]", '', movie.name)
 
         # Put 'The' at the end
         namethe = moviename
@@ -184,7 +176,7 @@ class RenamerCron(threading.Thread):
 
         if not movie:
             from moviemanager.lib.provider.theMovieDb import theMovieDb
-            movie = theMovieDb.findByImdbId(imdb)
+            movie = theMovieDb.findByImdbId(imdbId)
 
         return movie
 
@@ -249,7 +241,7 @@ class RenamerCron(threading.Thread):
         for dir in os.listdir(path):
             fullDirPath = os.path.join(path, dir)
 
-            for root, dirnames, filenames in os.walk(fullDirPath):
+            for root, subfiles, filenames in os.walk(fullDirPath):
 
                 subfiles = {'nfo':{}, 'files':[], 'subtitles':[]}
                 

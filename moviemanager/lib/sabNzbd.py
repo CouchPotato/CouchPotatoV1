@@ -1,8 +1,5 @@
-from pylons import config
 import logging
 import urllib
-import urllib2
-import cookielib
 
 log = logging.getLogger(__name__)
 
