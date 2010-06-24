@@ -2,9 +2,10 @@ from moviemanager.lib.quality import Quality
 from moviemanager.model.meta import Session
 from pylons import config, tmpl_context as c
 from pylons.controllers import WSGIController
-from pylons.templating import render_mako as render
+from pylons.templating import render_mako
 
 cron = config.get('pylons.app_globals').cron
+render = render_mako
 
 class BaseController(WSGIController):
     
