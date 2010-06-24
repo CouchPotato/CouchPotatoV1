@@ -51,6 +51,10 @@ form {
 	margin:0;
 }
 
+.spinner{
+	background: #f7f7f7 url('/media/images/spinner.gif') no-repeat center;
+}
+
 /*** Navigation ***/
 #header {
 	background: #f7f7f7;
@@ -136,6 +140,7 @@ form {
 			border-bottom: 1px solid rgba(0,0,0,0.25);
 			position: relative;
 			cursor: pointer;
+			margin-right: 3px;
 		}
 
 #movies {

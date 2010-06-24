@@ -71,7 +71,7 @@ class RenamerCron(threading.Thread):
             if movie:
                 self.renameFiles(files, movie)
             else:
-                log.error('Renamer: No movie match found.')
+                log.info('No Match found for: %s' % str(files['files']))
 
     def renameFiles(self, files, movie):
         '''
@@ -129,7 +129,7 @@ class RenamerCron(threading.Thread):
             else:
                 log.error('File %s already exists.' % filename)
                 break
-            
+
             #get subtitle if any & move
             if len(files['subtitles']) > 0:
                 log.info('Moving matching subtitle.')
@@ -137,7 +137,7 @@ class RenamerCron(threading.Thread):
                 replacements['ext'] = subtitle['ext']
                 subFilename = self.doReplace(fileNaming, replacements)
                 os.rename(os.path.join(subtitle['path'], subtitle['filename']), os.path.join(destination, folder, subFilename))
-            
+
             # Add to renaming history
             h = RenameHistory()
             h.movieId = movie.id
@@ -145,10 +145,10 @@ class RenamerCron(threading.Thread):
             h.new = dest
             Db.add(h)
             Db.commit()
-            
+
             if multiple:
                 cd += 1
-        
+
         # Mark movie downloaded
         movie.status = u'downloaded'
         Db.commit()
@@ -175,8 +175,7 @@ class RenamerCron(threading.Thread):
         movie = Db.query(Movie).filter_by(imdb = imdbId).first()
 
         if not movie:
-            from moviemanager.lib.provider.theMovieDb import theMovieDb
-            movie = theMovieDb.findByImdbId(imdbId)
+            movie = self.searcher.get('movie').findByImdbId(imdbId)
 
         return movie
 
@@ -191,7 +190,6 @@ class RenamerCron(threading.Thread):
             dirnames.reverse()
 
             for dir in dirnames:
-                print dir
                 # check and see if name is in history
                 history = Db.query(History).filter_by(name = dir).first()
                 if history:
@@ -219,7 +217,6 @@ class RenamerCron(threading.Thread):
                     if wordCount == len(words) and len(words) > 0:
                         log.info('Found via last resort searching.')
                         return l
-
             # Try finding movie on theMovieDB
             # more checking here..
 
@@ -244,16 +241,16 @@ class RenamerCron(threading.Thread):
             for root, subfiles, filenames in os.walk(fullDirPath):
 
                 subfiles = {'nfo':{}, 'files':[], 'subtitles':[]}
-                
+
                 movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso']
                 nfoExt = ['*.nfo']
-                subExt = ['*.sub','*.srt','*.idx','*.ssa', '*.ass']
-                
+                subExt = ['*.sub', '*.srt', '*.idx', '*.ssa', '*.ass']
+
                 patterns = []
                 patterns.extend(movieExt)
                 patterns.extend(nfoExt)
                 patterns.extend(subExt)
-                
+
                 for pattern in patterns:
                     for filename in fnmatch.filter(filenames, pattern):
 
@@ -262,12 +259,12 @@ class RenamerCron(threading.Thread):
                            'filename': filename,
                            'ext': os.path.splitext(filename)[1].lower()[1:]
                         }
-                        
+
                         #nfo file
-                        if('*.'+new.get('ext') in nfoExt):
+                        if('*.' + new.get('ext') in nfoExt):
                             subfiles['nfo'] = new
                         #subtitle file
-                        elif('*.'+new.get('ext') in subExt):
+                        elif('*.' + new.get('ext') in subExt):
                             subfiles['subtitles'].append(new)
                         else:
                             #ignore movies files / or not
@@ -280,7 +277,7 @@ class RenamerCron(threading.Thread):
         return files
 
     def ignoreFile(self, file):
-        
+
         if re.search('(^|[\W_])sample\d*[\W_]', file.lower()):
             return True
 
@@ -301,7 +298,8 @@ class RenamerCron(threading.Thread):
 
 def startRenamerCron(config):
     cron = RenamerCron()
-    cron.config = config
+    cron.config = config.get('Renamer')
+    cron.searcher = config.get('pylons.app_globals')
     cron.start()
 
     return cron

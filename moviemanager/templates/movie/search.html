@@ -3,9 +3,9 @@
 	<div class="row">
 		<span>Select the right movie:</span>
 		<span>
-			<select name="movie">
+			<select name="movienr">
 				% for movie in c.results:
-				<option value="${movie.id}">${movie.name} (${movie.year})</option>
+				<option value="${c.results.index(movie)}">${movie.name} (${movie.year})</option>
 				% endfor
 			</select>
 		</span>
@@ -31,6 +31,7 @@
 		</span>
 	</div>
 
+	<input type="hidden" name="movie" value="${c.movie}" />
 	<input type="hidden" name="add" value="Add" />
 	<a href="" class="submit">Add &raquo;</a>
 </form>
@@ -41,11 +42,12 @@
 	window.addEvent('domready', function(){
 		form.getElement('.submit').addEvent('click', function(e){
 			(e).stop();
-			new Spinner(form);
 			req()
 		})
 		
 		var req = function(){
+			var s = new Spinner(form)
+				s.show();
 			new Request({
 				'url': form.get('action'),
 				'data': form,
@@ -54,15 +56,20 @@
 				},
 				'onFailure': function(){
 					alert('Couldn\'t find the year on TheMovieDB, so you have to fill it in yourself.\nTo make other people happy, you could go to TheMovieDB and fill in the year.')
+				},
+				'onComplete': function(){
+					s.hide();
 				}
 			}).send()
 		}
-
-	});
 		
-% if len(c.results) == 1 and movie.year != 'None':
+	% if len(c.results) == 1 and movie.year != 'None':
+		var s = new Spinner(form)
+			s.show();
 		window.location.reload()
 		form.submit()
-% endif
+	% endif
+
+	});
 	
 </script>

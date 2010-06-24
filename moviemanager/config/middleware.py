@@ -1,7 +1,13 @@
 """Pylons middleware initialization"""
 from beaker.middleware import SessionMiddleware
 from moviemanager.config.environment import load_environment
+from moviemanager.lib.cronNzb import startNzbCron
+from moviemanager.lib.cronRenamer import startRenamerCron
+from moviemanager.lib.provider.movie.search import movieSearcher
+from moviemanager.lib.provider.nzb.search import nzbSearcher
+from moviemanager.lib.sabNzbd import sabNzbd
 from moviemanager.model.meta import Session as Db, Base
+from paste.auth.basic import AuthBasicHandler
 from paste.cascade import Cascade
 from paste.deploy.converters import asbool
 from paste.registry import RegistryManager
@@ -9,7 +15,6 @@ from paste.urlparser import StaticURLParser
 from pylons.middleware import ErrorHandler, StatusCodeRedirect
 from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
-from paste.auth.basic import AuthBasicHandler
 import ConfigParser
 
 
@@ -65,26 +70,21 @@ def make_app(global_conf, full_stack = True, static_files = True, **app_conf):
     # Init db and create tables
     Base.metadata.create_all(bind = Db.bind)
 
-
-    #nzbcron thread
-    from moviemanager.lib.cronNzb import startNzbCron
-    from moviemanager.lib.provider.nzbs import nzbs
-    from moviemanager.lib.sabNzbd import sabNzbd
+    #searchers
+    nzbSearch = nzbSearcher(config);
+    movieSearch = movieSearcher(config);
+    config['pylons.app_globals'].searcher['nzb'] = nzbSearch
+    config['pylons.app_globals'].searcher['movie'] = movieSearch
 
     #nzb search cron
     nzbCronJob = startNzbCron()
-    nzbCronJob.provider = nzbs(config['NZBsorg'])
+    nzbCronJob.provider = nzbSearch
     nzbCronJob.sabNzbd = sabNzbd(config['Sabnzbd'])
     config['pylons.app_globals'].cron['nzb'] = nzbCronJob
 
-    #renamer thread
-    from moviemanager.lib.cronRenamer import startRenamerCron
-
     #renamer cron
-    renamerCronJob = startRenamerCron(config.get('Renamer'))
+    renamerCronJob = startRenamerCron(config)
     config['pylons.app_globals'].cron['renamer'] = renamerCronJob
-
-
 
 
     if asbool(full_stack):
@@ -112,7 +112,7 @@ def make_app(global_conf, full_stack = True, static_files = True, **app_conf):
 
 class configApp():
 
-    s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer']
+    s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer', 'IMDB']
 
     def __init__(self, file):
         self.file = file
@@ -157,6 +157,9 @@ class configApp():
         if not self.p.has_section('TheMovieDB'):
             self.p.add_section('TheMovieDB')
             self.p.set('TheMovieDB', 'key', '9b939aee0aaafc12a65bf448e4af9543')
+            
+        if not self.p.has_section('IMDB'):
+            self.p.add_section('IMDB')
 
         with open(self.file, 'wb') as configfile:
             self.p.write(configfile)

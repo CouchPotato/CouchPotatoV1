@@ -1,12 +1,12 @@
 from moviemanager.lib.base import BaseController, render
-from moviemanager.lib.provider.theMovieDb import theMovieDb
 from moviemanager.model import Movie
 from moviemanager.model.meta import Session as Db
-from pylons import request, tmpl_context as c, url, config
+from pylons import cache, request, tmpl_context as c, url, config
 from pylons.controllers.util import redirect
 import logging
 
 cron = config.get('pylons.app_globals').cron
+searcher = config.get('pylons.app_globals').searcher
 log = logging.getLogger(__name__)
 
 class MovieController(BaseController):
@@ -95,16 +95,22 @@ class MovieController(BaseController):
         c.movie = request.params['movie']
         log.info('Searching for: %s', c.movie)
 
-        provider = theMovieDb(config.get('TheMovieDB'))
+
+        # easier for caching
+        def goFind():
+            return searcher.get('movie').find(c.movie)
+
+        #store results
+        mycache = cache.get_cache('goFind', type = "memory")
+        c.results = mycache.get_value(key = c.movie, createfunc = goFind, expiretime = 3600)
 
         if request.params.get('add'):
-            result = provider.findById(request.params['movie'])
-            
+            result = c.results[int(request.params['movienr'])]
+            print result
+
             if result.year != 'None' or request.params.get('year'):
                 self._addMovie(result, c.quality, request.params.get('year'))
                 return redirect(url(controller = 'movie', action = 'index'))
-
-        c.results = provider.find(c.movie)
 
         return render('/movie/search.html')
 
@@ -122,8 +128,7 @@ class MovieController(BaseController):
             c.success = True
 
         if request.params.get('add'):
-            provider = theMovieDb(config.get('TheMovieDB'))
-            c.result = provider.findByImdbId(id)
+            c.result = searcher.get('movie').findByImdbId(id)
 
             self._addMovie(c.result, request.params['quality'], request.params.get('year'))
             log.info('Added : %s', c.result.name)
@@ -134,10 +139,13 @@ class MovieController(BaseController):
 
     def _addMovie(self, movie, quality, year = None):
         log.info('Adding movie to database: %s', movie.name)
-
-        exists = self.qMovie.filter_by(movieDb = movie.id).first()
+        
+        if movie.id:
+            exists = self.qMovie.filter_by(movieDb = movie.id).first()
+        else:
+            exists = self.qMovie.filter_by(imdb = movie.imdb).first()
         if exists:
-            log.error('Movie already exists.')
+            log.info('Movie already exists, do update.')
             new = exists
         else:
             new = Movie()
@@ -149,6 +157,7 @@ class MovieController(BaseController):
         new.movieDb = movie.id
         new.quality = quality
 
+        # Year from custom imput
         if year and movie.year == 'None':
             new.year = year
         else:

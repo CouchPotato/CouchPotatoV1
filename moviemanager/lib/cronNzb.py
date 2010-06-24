@@ -1,7 +1,5 @@
-
 from moviemanager.model import Movie, History
 from moviemanager.model.meta import Session as Db
-import Queue
 import logging
 import threading
 import time
