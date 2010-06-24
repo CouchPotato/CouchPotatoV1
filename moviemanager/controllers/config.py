@@ -1,10 +1,7 @@
 from moviemanager.lib.base import BaseController, render
-from moviemanager.model.meta import Session as Db
-from pylons import request, response, session, tmpl_context as c, url, config
-from pylons.controllers.util import abort, redirect
-from moviemanager.lib.quality import Quality
+from pylons import request, response, tmpl_context as c, url, config
+from pylons.controllers.util import redirect
 import logging
-import time
 import ConfigParser
 
 cron = config.get('pylons.app_globals').cron
