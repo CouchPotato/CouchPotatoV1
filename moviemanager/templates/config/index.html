@@ -1,50 +1,50 @@
 <form id="configForm" class="uniForm" action="${url(controller="config", action="save")}" method="post">
 	<fieldset class="inlineLabels left">
-		<h3>General Settings</h3>
+		<h3>General Settings (need manual restart)</h3>
 		<div class="ctrlHolder">
 			<label for="">Host</label>
-			<input type="text" name="server:main.host" value="${c.parser.get('server:main', 'host')}" class="textInput large"/>
+			<input type="text" name="server:main.host" value="${c.config.get('server:main', 'host')}" class="textInput large"/>
 		</div>
 		<div class="ctrlHolder">
 			<label for="">Port</label>
-			<input type="text" name="server:main.port" value="${c.parser.get('server:main', 'port')}" class="textInput large"/>
+			<input type="text" name="server:main.port" value="${c.config.get('server:main', 'port')}" class="textInput large"/>
 		</div>
 		<div class="ctrlHolder">
 			<label for="">Username</label>
-			<input type="text" name="app:main.username" value="${c.parser.get('app:main', 'username')}" class="textInput large"/>
+			<input type="text" name="app:main.username" value="${c.config.get('app:main', 'username')}" class="textInput large"/>
 		</div>
 		<div class="ctrlHolder">
 			<label for="">Password</label>
-			<input type="password" name="app:main.password" value="${c.parser.get('app:main', 'password')}" class="textInput large"/>
+			<input type="password" name="app:main.password" value="${c.config.get('app:main', 'password')}" class="textInput large"/>
 		</div>
 	</fieldset>
 	<fieldset class="inlineLabels right">
 		<h3>SABnzbd</h3>
 		<div class="ctrlHolder">
 			<label for="">Host</label>
-			<input type="text" name="Sabnzbd.host" value="${c.parser.get('Sabnzbd', 'host')}" class="textInput large"/>
+			<input type="text" name="Sabnzbd.host" value="${c.config.get('Sabnzbd', 'host')}" class="textInput large"/>
 			<p class="formHint">
 				Where does SABnzbd run? Usually <i>localhost:8080</i>
 			</p>
 		</div>
 		<div class="ctrlHolder">
 			<label for="">Apikey</label>
-			<input type="text" name="Sabnzbd.apikey" value="${c.parser.get('Sabnzbd', 'apikey')}" class="textInput large"/>
+			<input type="text" name="Sabnzbd.apikey" value="${c.config.get('Sabnzbd', 'apikey')}" class="textInput large"/>
 			<p class="formHint">
 				Can be found in general config on SABnzbd
 			</p>
 		</div>
 		<div class="ctrlHolder">
 			<label for="">Username</label>
-			<input type="text" name="Sabnzbd.username" value="${c.parser.get('Sabnzbd', 'username')}" class="textInput large"/>
+			<input type="text" name="Sabnzbd.username" value="${c.config.get('Sabnzbd', 'username')}" class="textInput large"/>
 		</div>
 		<div class="ctrlHolder">
 			<label for="">Password</label>
-			<input type="password" name="Sabnzbd.password" value="${c.parser.get('Sabnzbd', 'password')}" class="textInput large"/>
+			<input type="password" name="Sabnzbd.password" value="${c.config.get('Sabnzbd', 'password')}" class="textInput large"/>
 		</div>
 		<div class="ctrlHolder">
 			<label for="">Category</label>
-			<input type="text" name="Sabnzbd.category" value="${c.parser.get('Sabnzbd', 'category')}" class="textInput large"/>
+			<input type="text" name="Sabnzbd.category" value="${c.config.get('Sabnzbd', 'category')}" class="textInput large"/>
 			<p class="formHint">
 				Category where NZBs should be put.
 			</p>
@@ -53,31 +53,31 @@
 
 	<fieldset class="inlineLabels left" id="renamingFieldset">
 		<input type="hidden" name="Renamer.enabled" value="false" />
-		<h3>Renaming <input type="checkbox" name="Renamer.enabled" value="true" ${' checked' if c.parser.get('Renamer', 'enabled') == 'true' else ''} /></h3>
+		<h3>Renaming <input type="checkbox" name="Renamer.enabled" value="true" ${' checked' if c.config.get('Renamer', 'enabled') == 'true' else ''} /></h3>
 		<div class="ctrlHolder">
 			<label for="">Download folder</label>
-			<input type="text" name="Renamer.download" value="${c.parser.get('Renamer', 'download')}" class="textInput large"/>
+			<input type="text" name="Renamer.download" value="${c.config.get('Renamer', 'download')}" class="textInput large"/>
 			<p class="formHint">
 				Your SABnzbd movie download folder
 			</p>
 		</div>
 		<div class="ctrlHolder">
 			<label for="">Movie destination</label>
-			<input type="text" name="Renamer.destination" value="${c.parser.get('Renamer', 'destination')}" class="textInput large"/>
+			<input type="text" name="Renamer.destination" value="${c.config.get('Renamer', 'destination')}" class="textInput large"/>
 			<p class="formHint">
 				Where the movies should be moved to
 			</p>
 		</div>
 		<div class="ctrlHolder">
 			<label for="">Folder naming</label>
-			<input type="text" name="Renamer.foldernaming" value="${c.parser.get('Renamer', 'foldernaming')}" class="textInput large"/>
+			<input type="text" name="Renamer.foldernaming" value="${c.config.get('Renamer', 'foldernaming')}" class="textInput large"/>
 			<p class="formHint">
 				<span id="foldernameResult"><strong>Result</strong>: ${c.foldernameResult}</span>
 			</p>
 		</div>
 		<div class="ctrlHolder">
 			<label for="">File naming</label>
-			<input type="text" name="Renamer.filenaming" value="${c.parser.get('Renamer', 'filenaming')}" class="textInput large"/>
+			<input type="text" name="Renamer.filenaming" value="${c.config.get('Renamer', 'filenaming')}" class="textInput large"/>
 			<p class="formHint">
 				<span id="filenameResult"><strong>Result</strong>: ${c.filenameResult}</span><br />
 				<span><strong>thename</strong>: The Movie</span>
@@ -90,26 +90,38 @@
 				<span><strong>cdNr</strong>: 1</span>
 			</p>
 		</div>
+		<div class="ctrlHolder">
+			<label for="">Download trailer</label>
+			<select name="Renamer.trailerQuality" class="textInput large"/>
+				<option value="false">None</option>
+				% for format in c.trailerFormats:
+				<option value="${format['key']}"${' selected=selected' if str(format['key']) == c.config.get('Renamer', 'trailerQuality') else ''}>${format['quality']} ${format['format']}</option>
+				% endfor
+			</select>
+			<p class="formHint">
+				Minimal quality, if None, no trailer will be downloaded.
+			</p>
+		</div>
 	</fieldset>
 	<fieldset class="inlineLabels right">
 		<h3>NZB.org</h3>
 		<div class="ctrlHolder">
 			<label for="">Id</label>
-			<input type="text" name="NZBsorg.id" value="${c.parser.get('NZBsorg', 'id')}" class="textInput large"/>
+			<input type="text" name="NZBsorg.id" value="${c.config.get('NZBsorg', 'id')}" class="textInput large"/>
 			<p class="formHint">
 				Can be found <a href="http://nzbs.org/index.php?action=rss" target="_blank">here</a>, number after "&i="
 			</p>
 		</div>
 		<div class="ctrlHolder">
 			<label for="">Key</label>
-			<input type="text" name="NZBsorg.key" value="${c.parser.get('NZBsorg', 'key')}" class="textInput large"/>
+			<input type="text" name="NZBsorg.key" value="${c.config.get('NZBsorg', 'key')}" class="textInput large"/>
 			<p class="formHint">
 				Can be found <a href="http://nzbs.org/index.php?action=rss" target="_blank">here</a>, string after "&h="
 			</p>
 		</div>
 		<div class="ctrlHolder">
 			<label for="">Retention</label>
-			<input type="text" name="NZBsorg.retention" value="${c.parser.get('NZBsorg', 'retention')}" class="textInput large"/>
+			<input type="text" name="NZBsorg.retention" value="${c.config.get('NZBsorg', 'retention')}" class="textInput large"/>
 		</div>
 	</fieldset>
 	<fieldset class="inlineLabels left">
@@ -122,7 +134,7 @@
 		<h3>TheMovieDB</h3>
 		<div class="ctrlHolder">
 			<label for="">Apikey</label>
-			<input type="text" name="TheMovieDB.key" value="${c.parser.get('TheMovieDB', 'key')}" class="textInput large"/>
+			<input type="text" name="TheMovieDB.key" value="${c.config.get('TheMovieDB', 'key')}" class="textInput large"/>
 			<p class="formHint">
 				Only change if you want to use your own key.
 			</p>
