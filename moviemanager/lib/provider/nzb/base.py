@@ -1,7 +1,5 @@
 
 from moviemanager.lib.provider.rss import rss
-from string import ascii_letters, digits
-import unicodedata
 
 class nzbBase(rss):
 
@@ -69,12 +67,6 @@ class nzbBase(rss):
                 return True
         
         return False
-        
-
-    def searchString(self, string):
-        string =  ''.join((c for c in unicodedata.normalize('NFD', string) if unicodedata.category(c) != 'Mn'))
-        safe_chars = ascii_letters + digits + '_ '
-        return ''.join([char if char in safe_chars else '' for char in string])
 
     def downloadLink(self, id):
         return self.downloadUrl % (id, self.getApiExt())

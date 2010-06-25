@@ -1,4 +1,12 @@
+from string import ascii_letters, digits
+import unicodedata
+
 class rss:
+
+    def toSaveString(self, string):
+        string =  ''.join((c for c in unicodedata.normalize('NFD', string) if unicodedata.category(c) != 'Mn'))
+        safe_chars = ascii_letters + digits + '_ '
+        return ''.join([char if char in safe_chars else '' for char in string])
 
     def gettextelements(self, xml, path):
         ''' Find elements and return tree'''

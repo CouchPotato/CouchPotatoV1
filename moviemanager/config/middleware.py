@@ -1,8 +1,10 @@
 """Pylons middleware initialization"""
 from beaker.middleware import SessionMiddleware
+from moviemanager.config.configApp import configApp, Auth
 from moviemanager.config.environment import load_environment
 from moviemanager.lib.cronNzb import startNzbCron
 from moviemanager.lib.cronRenamer import startRenamerCron
+from moviemanager.lib.cronTrailer import startTrailerCron, trailerQueue
 from moviemanager.lib.provider.movie.search import movieSearcher
 from moviemanager.lib.provider.nzb.search import nzbSearcher
 from moviemanager.lib.sabNzbd import sabNzbd
@@ -15,32 +17,14 @@ from paste.urlparser import StaticURLParser
 from pylons.middleware import ErrorHandler, StatusCodeRedirect
 from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
-import ConfigParser
+import atexit
+import logging
+import os
+import time
 
+log = logging.getLogger(__name__)
 
 def make_app(global_conf, full_stack = True, static_files = True, **app_conf):
-    """Create a Pylons WSGI application and return it
-
-    ``global_conf``
-        The inherited configuration for this application. Normally from
-        the [DEFAULT] section of the Paste ini file.
-
-    ``full_stack``
-        Whether this application provides a full WSGI stack (by default,
-        meaning it handles its own exceptions and errors). Disable
-        full_stack when this application is "managed" by another WSGI
-        middleware.
-
-    ``static_files``
-        Whether this application serves its own static files; disable
-        when another web server is responsible for serving them.
-
-    ``app_conf``
-        The application's local configuration. Normally specified in
-        the [app:<name>] section of the Paste ini file (where <name>
-        defaults to main).
-
-    """
 
     # Configure the Pylons environment
     config = load_environment(global_conf, app_conf)
@@ -60,32 +44,48 @@ def make_app(global_conf, full_stack = True, static_files = True, **app_conf):
     # Get custom config section
     configfile = config['global_conf'].get('__file__')
     ca = configApp(configfile)
-    parser = ca.parser()
-
-    for section in ca.sections():
-        config[section] = {}
-        for option in parser.options(section):
-            config[section][option] = parser.get(section, option)
+    config['pylons.app_globals'].config = ca
 
     # Init db and create tables
     Base.metadata.create_all(bind = Db.bind)
 
     #searchers
-    nzbSearch = nzbSearcher(config);
-    movieSearch = movieSearcher(config);
+    nzbSearch = nzbSearcher(ca);
+    movieSearch = movieSearcher(ca);
     config['pylons.app_globals'].searcher['nzb'] = nzbSearch
     config['pylons.app_globals'].searcher['movie'] = movieSearch
+
+    #trailer cron
+    trailerCronJob = startTrailerCron(ca)
+    config['pylons.app_globals'].cron['trailer'] = trailerCronJob
+    config['pylons.app_globals'].cron['trailerQueue'] = trailerQueue
 
     #nzb search cron
     nzbCronJob = startNzbCron()
     nzbCronJob.provider = nzbSearch
-    nzbCronJob.sabNzbd = sabNzbd(config['Sabnzbd'])
+    nzbCronJob.sabNzbd = sabNzbd(ca)
     config['pylons.app_globals'].cron['nzb'] = nzbCronJob
 
     #renamer cron
-    renamerCronJob = startRenamerCron(config)
+    renamerCronJob = startRenamerCron(ca, config['pylons.app_globals'].searcher, trailerQueue)
     config['pylons.app_globals'].cron['renamer'] = renamerCronJob
 
+
+    #when exit app and finish the running crons
+    def exitApp():
+        log.info('Starting shutdown.')
+        nzbCronJob.quit()
+        renamerCronJob.quit()
+        trailerCronJob.quit()
+
+        while not nzbCronJob.canShutdown() or not renamerCronJob.canShutdown() or not trailerCronJob.canShutdown():
+            time.sleep(1)
+
+        log.info('Shutdown successful.')
+        os._exit(1)
+
+    config['pylons.app_globals'].cron['quiter'] = exitApp
+    atexit.register(exitApp)
 
     if asbool(full_stack):
         # Handle Python exceptions
@@ -109,69 +109,3 @@ def make_app(global_conf, full_stack = True, static_files = True, **app_conf):
 
 
     return app
-
-class configApp():
-
-    s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer', 'IMDB']
-
-    def __init__(self, file):
-        self.file = file
-
-        self.p = ConfigParser.RawConfigParser()
-        self.p.read(file)
-
-        self.initConfig()
-
-    def parser(self):
-        return self.p
-
-    def sections(self):
-        return self.s
-
-    def initConfig(self):
-        '''
-        Create sections, in case the make-config didnt work properly
-        '''
-        if not self.p.has_section('Renamer'):
-            self.p.add_section('Renamer')
-            self.p.set('Renamer', 'enabled', 'false')
-            self.p.set('Renamer', 'download', '')
-            self.p.set('Renamer', 'destination', '')
-            self.p.set('Renamer', 'folderNaming', '<namethe> (<year>)')
-            self.p.set('Renamer', 'fileNaming', '<thename><cd>.<ext>')
-
-        if not self.p.has_section('NZBsorg'):
-            self.p.add_section('NZBsorg')
-            self.p.set('NZBsorg', 'id', '')
-            self.p.set('NZBsorg', 'key', '')
-            self.p.set('NZBsorg', 'retention', '')
-
-        if not self.p.has_section('Sabnzbd'):
-            self.p.add_section('Sabnzbd')
-            self.p.set('Sabnzbd', 'host', 'localhost:8080')
-            self.p.set('Sabnzbd', 'apikey', '')
-            self.p.set('Sabnzbd', 'username', '')
-            self.p.set('Sabnzbd', 'password', '')
-            self.p.set('Sabnzbd', 'category', '')
-
-        if not self.p.has_section('TheMovieDB'):
-            self.p.add_section('TheMovieDB')
-            self.p.set('TheMovieDB', 'key', '9b939aee0aaafc12a65bf448e4af9543')
-            
-        if not self.p.has_section('IMDB'):
-            self.p.add_section('IMDB')
-
-        with open(self.file, 'wb') as configfile:
-            self.p.write(configfile)
-
-class Auth():
-
-    def __init__(self, username, password):
-        self.u = username
-        self.p = password
-
-    def test(self, environ, username, password):
-        if username == self.u and password == self.p:
-            return True
-        else:
-            return False

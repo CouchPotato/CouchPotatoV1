@@ -13,11 +13,9 @@ class nzbs(nzbBase):
     downloadUrl = 'http://nzbs.org/index.php?action=getnzb&nzbid=%s%s'
     nfoUrl = 'http://nzbs.org/index.php?action=view&nzbid=%s&nfo=1'
     detailUrl = 'http://nzbs.org/index.php?action=view&nzbid=%s'
-
+    
+    config = None
     apiUrl = 'http://nzbs.org/rss.php'
-    apiId = 0
-    apiKey = ''
-    retention = 400
 
     catIds = {
         4: ['720p', '1080p'],
@@ -26,21 +24,22 @@ class nzbs(nzbBase):
 
     def __init__(self, config):
         log.info('Using NZBs.org provider')
-
-        self.apiId = config.get('id')
-        self.apiKey = config.get('key')
-        self.retention = config.get('retention', 400)
+        
+        self.config = config
+        
+    def conf(self, option):
+        return self.config.get('NZBsorg', option)
 
     def find(self, movie):
         log.info('Searching for movie: %s', movie.name)
 
         arguments = urllib.urlencode({
             'action':'search',
-            'q': self.searchString(movie.name + ' ' + movie.quality),
+            'q': self.toSaveString(movie.name + ' ' + movie.quality),
             'catid':self.getCatId(movie.quality),
-            'i':self.apiId,
-            'h':self.apiKey,
-            'age':self.retention
+            'i':self.conf('id'),
+            'h':self.conf('key'),
+            'age':self.conf('retention')
         })
         url = "%s?%s" % (self.apiUrl, arguments)
 
@@ -96,4 +95,4 @@ class nzbs(nzbBase):
                     return id
 
     def getApiExt(self):
-        return '&i=%s&h=%s' % (self.apiId, self.apiKey)
+        return '&i=%s&h=%s' % (self.conf('id'), self.conf('key'))

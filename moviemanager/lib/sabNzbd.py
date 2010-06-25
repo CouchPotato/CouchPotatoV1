@@ -9,6 +9,9 @@ class sabNzbd():
 
     def __init__(self, config):
         self.config = config
+        
+    def conf(self, option):
+        return self.config.get('Sabnzbd', option)
 
     def send(self, nzb):
         log.info("Sending '%s' to SABnzbd." % nzb.name)
@@ -17,11 +20,11 @@ class sabNzbd():
             log.error("Config properties are not filled in correctly.")
             return False
 
-        url = 'http://' + self.config.get('host') + "/sabnzbd/api?" + urllib.urlencode({
-            'ma_username': self.config.get('username'),
-            'ma_password': self.config.get('password'),
-            'apikey': self.config.get('apikey'),
-            'cat': self.config.get('category'),
+        url = 'http://' + self.conf('host') + "/sabnzbd/api?" + urllib.urlencode({
+            'ma_username': self.conf('username'),
+            'ma_password': self.conf('password'),
+            'apikey': self.conf('apikey'),
+            'cat': self.conf('category'),
             'mode': 'addurl',
             'name': nzb.url
         })
@@ -60,7 +63,7 @@ class sabNzbd():
         return True
 
     def isDisabled(self):
-        if self.config.get('host') and self.config.get('apikey'):
+        if self.conf('host') and self.conf('apikey'):
             return False
         else:
             return True

@@ -10,12 +10,13 @@ class theMovieDb(movieBase):
     """Api for theMovieDb"""
 
     apiUrl = 'http://api.themoviedb.org/2.1'
-    apiKey = ''
 
     def __init__(self, config):
         log.info('Using TheMovieDb provider.')
-
-        self.apiKey = config.get('key')
+        self.config = config
+        
+    def conf(self, option):
+        return self.config.get('TheMovieDB', option)
 
     def find(self, q):
         ''' Find movie by name '''
@@ -25,7 +26,7 @@ class theMovieDb(movieBase):
         
         log.info('TheMovieDB - Searching for movie: %s', q)
 
-        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.apiKey, urllib.quote_plus(q))
+        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.conf('key'), urllib.quote_plus(self.toSaveString(q)))
 
         log.info('Search url: %s', url)
 
@@ -39,7 +40,7 @@ class theMovieDb(movieBase):
         if self.isDisabled():
             return False
 
-        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.apiKey, id)
+        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.conf('key'), id)
         data = urllib.urlopen(url)
 
         results = self.parseXML(data)
@@ -52,7 +53,7 @@ class theMovieDb(movieBase):
         if self.isDisabled():
             return False
 
-        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.imdbLookup', self.apiKey, id)
+        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.imdbLookup', self.conf('key'), id)
         data = urllib.urlopen(url)
 
         results = self.parseXML(data)
@@ -95,7 +96,7 @@ class theMovieDb(movieBase):
                 return False
             
     def isDisabled(self):
-        if self.apiKey == '':
+        if self.conf('key') == '':
             log.error('TheMovieDB - No API key provided for TheMovieDB')
             True
         else:

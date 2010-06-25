@@ -1,12 +1,12 @@
+from moviemanager.lib.cronBase import cronBase
 from moviemanager.model import Movie, History
 from moviemanager.model.meta import Session as Db
 import logging
-import threading
 import time
 
 log = logging.getLogger(__name__)
 
-class NzbCron(threading.Thread):
+class NzbCron(cronBase):
 
     ''' Cronjob for searching for NZBs '''
 
@@ -15,7 +15,6 @@ class NzbCron(threading.Thread):
     provider = None
     sabNzbd = None
     intervalSec = 10
-    checking = False
     checkTheseMovies = []
 
     def run(self):
@@ -25,7 +24,7 @@ class NzbCron(threading.Thread):
         self.forceCheck()
         time.sleep(10)
 
-        while True:
+        while True and not self.abort:
 
             #check single movie
             for movie in self.checkTheseMovies:
@@ -42,6 +41,8 @@ class NzbCron(threading.Thread):
 
             #log.info('Sleeping NzbCron for %d seconds' % 10)
             time.sleep(10)
+
+        log.info('NzbCron has shutdown.')
 
     def forceCheck(self, movie = None):
         if movie == None:
@@ -80,11 +81,11 @@ class NzbCron(threading.Thread):
         #send highest to SABnzbd & mark as snatched
         if highest:
             success = self.sabNzbd.send(highest)
-            
+
             # Add name to history for renaming
             if success:
                 movie.status = u'snatched'
-                
+
                 newHistory = History()
                 newHistory.movieId = movie.id
                 newHistory.name = highest.name
@@ -93,11 +94,11 @@ class NzbCron(threading.Thread):
 
 
     def doCheck(self, bool = True):
-        self.checking = bool
+        self.running = bool
         self.lastChecked = time.time()
 
     def isChecking(self):
-        return self.checking
+        return self.running
 
     def lastCheck(self):
         return self.lastChecked

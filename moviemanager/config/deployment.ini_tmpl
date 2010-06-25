@@ -26,7 +26,7 @@ qualname = sqlalchemy.engine
 level = WARN
 
 [handlers]
-keys = console
+keys = console, accesslog
 
 [formatter_generic]
 datefmt = %H:%M:%S
@@ -38,7 +38,7 @@ qualname = moviemanager
 level = DEBUG
 
 [logger_root]
-handlers = console
+handlers = console, accesslog
 level = INFO
 
 [formatters]
@@ -54,3 +54,9 @@ formatter = generic
 class = StreamHandler
 args = (sys.stderr,)
 level = NOTSET
+
+[handler_accesslog]
+formatter = generic
+class = handlers.RotatingFileHandler
+args = ('logs/MovieManager.log','a', 10000, 4)
+level = INFO

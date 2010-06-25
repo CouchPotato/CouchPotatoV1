@@ -30,7 +30,7 @@ OSx & Linux:
 * git clone/extract MM wherever you like
 * Run "sudo python setup.py install"
 * Rename "config.ini_tmpl" to "config.ini"
-* Run "paster serve --log-file moviemanager.log --reload config.ini" to start
+* Run "paster serve config.ini" to start
 * Goto http://localhost:5000 and login using "username" & "password"
 * Change username & password
 * Fill in all the config stuff

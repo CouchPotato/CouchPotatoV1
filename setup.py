@@ -7,7 +7,7 @@ except ImportError:
 
 setup(
     name = 'MovieManager',
-    version = '0.1',
+    version = '0.2',
     description = 'Automatic NZB downloader',
     author = 'Ruud Burger',
     author_email = 'ruud@crashdummy.nl',
@@ -15,6 +15,7 @@ setup(
     install_requires = [
         "Pylons>=1.0",
         "SQLAlchemy>=0.5",
+        "IMDbPY>=4.6"
     ],
     setup_requires = ["PasteScript>=1.6.3"],
     packages = find_packages(exclude = ['ez_setup']),

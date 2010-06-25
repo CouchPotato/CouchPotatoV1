@@ -6,8 +6,10 @@ class nzbSearcher():
     
     def __init__(self, config):
         
+        self.config = config
+        
         #config nzbs
-        s = nzbs(config['NZBsorg'])
+        s = nzbs(config)
         self.sources.append(s)
         
     

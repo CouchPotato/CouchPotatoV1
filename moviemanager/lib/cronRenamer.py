@@ -1,23 +1,27 @@
+from moviemanager.lib.cronBase import cronBase
 from moviemanager.model import Movie, History, RenameHistory
 from moviemanager.model.meta import Session as Db
-import logging
-import threading
-import time
-import os
 import fnmatch
+import logging
+import os
 import re
+import time
 
 log = logging.getLogger(__name__)
 
-class RenamerCron(threading.Thread):
+class RenamerCron(cronBase):
 
     ''' Cronjob for renaming movies '''
 
     interval = 1 #minutes
     intervalSec = 10
     config = {}
+    trailer = {}
     minimalFileSize = 1024 * 1024 * 10 # 10MB
     ignoredInPath = ['_unpack', '.appledouble', '/._'] #unpacking, smb-crap
+
+    def conf(self, option):
+        return self.config.get('Renamer', option)
 
     def run(self):
         log.info('Renamer thread is running.')
@@ -25,21 +29,25 @@ class RenamerCron(threading.Thread):
         self.intervalSec = (self.interval * 60)
 
         #sleep longer if renaming is disabled
-        if self.config.get('enabled').lower() != 'true':
+        if self.conf('enabled').lower() != 'true':
             log.info('Sleeping renaming thread');
             self.intervalSec = 36000
 
-        if not os.path.isdir(self.config.get('download')):
+        if not os.path.isdir(self.conf('download')):
             log.info("Watched folder doesn't exist.")
 
         time.sleep(10)
-        while True:
+        while True and not self.abort:
+            self.running = True
             self.doRename()
+            self.running = False
             time.sleep(self.intervalSec)
+
+        log.info('Renamer has shutdown.')
 
     def isDisabled(self):
 
-        if (self.config.get('enabled').lower() == 'true' and os.path.isdir(self.config.get('download')) and self.config.get('download') and self.config.get('destination') and self.config.get('foldernaming') and self.config.get('filenaming')):
+        if (self.conf('enabled').lower() == 'true' and os.path.isdir(self.conf('download')) and self.conf('download') and self.conf('destination') and self.conf('foldernaming') and self.conf('filenaming')):
             return False
         else:
             return True
@@ -69,22 +77,23 @@ class RenamerCron(threading.Thread):
                 movie = self.determineMovie(files)
 
             if movie:
-                self.renameFiles(files, movie)
+                finalDestination = self.renameFiles(files, movie)
+                self.trailerQueue.put({'id': movie.imdb, 'movie': movie, 'destination':finalDestination})
             else:
                 log.info('No Match found for: %s' % str(files['files']))
 
     def renameFiles(self, files, movie):
         '''
-        rename files based on movie data en config
+        rename files based on movie data & conf
         '''
 
         multiple = False
         if len(files['files']) > 1:
             multiple = True
 
-        destination = self.config.get('destination')
-        folderNaming = self.config.get('foldernaming')
-        fileNaming = self.config.get('filenaming')
+        destination = self.conf('destination')
+        folderNaming = self.conf('foldernaming')
+        fileNaming = self.conf('filenaming')
 
         # Remove weird chars from moviename
         moviename = re.sub(r"[\x00\/\\:\*\?\"<>\|]", '', movie.name)
@@ -106,6 +115,7 @@ class RenamerCron(threading.Thread):
         if multiple:
             cd = 1
 
+        finalDestination = None
         for file in files['files']:
 
             replacements['ext'] = file['ext']
@@ -146,12 +156,16 @@ class RenamerCron(threading.Thread):
             Db.add(h)
             Db.commit()
 
+            finalDestination = os.path.join(destination, folder)
+
             if multiple:
                 cd += 1
 
         # Mark movie downloaded
         movie.status = u'downloaded'
         Db.commit()
+
+        return finalDestination
 
     def doReplace(self, string, replacements):
         '''
@@ -234,7 +248,7 @@ class RenamerCron(threading.Thread):
 
         files = []
 
-        path = self.config.get('download')
+        path = self.conf('download')
         for dir in os.listdir(path):
             fullDirPath = os.path.join(path, dir)
 
@@ -296,10 +310,11 @@ class RenamerCron(threading.Thread):
         return False
 
 
-def startRenamerCron(config):
+def startRenamerCron(config, searcher, trailerQueue):
     cron = RenamerCron()
-    cron.config = config.get('Renamer')
-    cron.searcher = config.get('pylons.app_globals')
+    cron.config = config
+    cron.searcher = searcher
+    cron.trailerQueue = trailerQueue
     cron.start()
 
     return cron

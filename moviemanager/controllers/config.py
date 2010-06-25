@@ -1,10 +1,10 @@
 from moviemanager.lib.base import BaseController, render
-from pylons import request, response, tmpl_context as c, url, config
+from pylons import request, response, tmpl_context as c, url, config as conf
 from pylons.controllers.util import redirect
 import logging
-import ConfigParser
 
-cron = config.get('pylons.app_globals').cron
+cron = conf.get('pylons.app_globals').cron
+config = conf.get('pylons.app_globals').config
 log = logging.getLogger(__name__)
 
 class ConfigController(BaseController):
@@ -12,17 +12,17 @@ class ConfigController(BaseController):
 
     def __before__(self):
         self.setGlobals()
-        
+
+        c.trailerFormats = cron.get('trailer').formats
+
         # Load config file
-        c.configfile = config.get('__file__')
-        c.parser = ConfigParser.RawConfigParser()
-        c.parser.read(c.configfile)
+        c.config = config
 
     def index(self):
         '''
         Config form
         '''
-        
+
         renamer = cron.get('renamer')
         replacements = {
              'cd': ' cd1',
@@ -33,8 +33,8 @@ class ConfigController(BaseController):
              'year': 1998,
              'first': 'B'
         }
-        c.foldernameResult = renamer.doReplace(c.parser.get('Renamer', 'foldernaming'), replacements)
-        c.filenameResult = renamer.doReplace(c.parser.get('Renamer', 'filenaming'), replacements)
+        c.foldernameResult = renamer.doReplace(c.config.get('Renamer', 'foldernaming'), replacements)
+        c.filenameResult = renamer.doReplace(c.config.get('Renamer', 'filenaming'), replacements)
 
         return render('/config/index.html')
 
@@ -42,19 +42,26 @@ class ConfigController(BaseController):
         '''
         Save all config settings
         '''
-        
+
         # Save post data
         for name in request.params:
             section = name.split('.')[0]
             var = name.split('.')[1]
-            c.parser.set(section, var, request.params[name])
+            c.config.set(section, var, request.params[name])
 
         # Writing our configuration file to 'example.cfg'
-        with open(c.configfile, 'wb') as configfile:
-            c.parser.write(configfile)
+        c.config.save()
 
         return redirect(url(controller = 'config', action = 'index'))
-    
+
+    def exit(self):
+
+        exitrender = render('/config/exit.html')
+
+        cron.get('quiter')()
+
+        return exitrender
+
     def imdbScript(self):
         '''
         imdb UserScript, for easy movie adding
