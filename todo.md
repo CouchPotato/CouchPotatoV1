@@ -6,3 +6,4 @@
 * Make movie adding easy, by providing a Firefox & Chrome userscript/addon theMovieDB, Apple Trailers
 * Max downloads per day
 * SceneRelease search and add. Use: rating, nr of ratings, genre
+* Search for missing trailers button
