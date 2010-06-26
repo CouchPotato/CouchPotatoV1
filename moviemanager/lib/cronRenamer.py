@@ -1,10 +1,12 @@
 from moviemanager.lib.cronBase import cronBase
 from moviemanager.model import Movie, History, RenameHistory
 from moviemanager.model.meta import Session as Db
+from stat import ST_MODE
 import fnmatch
 import logging
 import os
 import re
+import stat
 import time
 
 log = logging.getLogger(__name__)
@@ -131,8 +133,17 @@ class RenamerCron(cronBase):
             dest = os.path.join(destination, folder, filename)
 
             log.info('Moving file "%s" to %s.' % (old, dest))
-            if not os.path.isdir(os.path.split(dest)[0]):
-                os.makedirs(os.path.split(dest)[0])
+            
+            finalDestination = os.path.dirname(dest)
+            if not os.path.isdir(finalDestination):
+                mode = os.stat(destination)
+ 
+                # Use same permissions as conf('destination') folder
+                try:
+                    os.makedirs(finalDestination, stat.S_IMODE(mode[ST_MODE]))
+                except:
+                    os.makedirs(finalDestination)
+                    log.error('Failed setting permissions for %s' % finalDestination)
 
             if not os.path.isfile(dest):
                 os.rename(old, dest)
@@ -156,7 +167,6 @@ class RenamerCron(cronBase):
             Db.add(h)
             Db.commit()
 
-            finalDestination = os.path.join(destination, folder)
 
             if multiple:
                 cd += 1

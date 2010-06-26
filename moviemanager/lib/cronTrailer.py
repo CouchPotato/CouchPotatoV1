@@ -1,9 +1,11 @@
 from moviemanager.lib.cronBase import cronBase
 from moviemanager.lib.provider.rss import rss
+from stat import ST_MODE
 import Queue
 import logging
 import os
 import re
+import stat
 import urllib
 import xml.etree.ElementTree as XMLTree
 
@@ -113,9 +115,20 @@ class TrailerCron(rss, cronBase):
 
                         #trails destination
                         trailerFile = os.path.join(destination, 'movie-trailer' + '.' + format['format'])
+                        tempTrailerFile = os.path.join(destination, '_DOWNLOADING-trailer' + '.' + format['format'])
                         if not os.path.isfile(trailerFile):
-                            with open(trailerFile, 'w') as f:
+                            with open(tempTrailerFile, 'w') as f:
                                 f.write(videoData.read())
+                        
+                        #temp to real
+                        os.rename(tempTrailerFile, trailerFile)
+
+                        # Use same permissions as parent dir
+                        mode = os.stat(destination)
+                        try:
+                            os.chmod(trailerFile, stat.S_IMODE(mode[ST_MODE]))
+                        except:
+                            log.error('Failed setting permissions for %s' % trailerFile)
 
                         return
                     if int(self.config.get('Renamer', 'trailerQuality')) == format['key']:
