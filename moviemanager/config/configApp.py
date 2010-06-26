@@ -2,7 +2,7 @@ import ConfigParser
 
 class configApp():
 
-    s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer', 'IMDB']
+    s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer', 'IMDB', 'Intervals']
 
     def __init__(self, file):
         self.file = file
@@ -53,6 +53,10 @@ class configApp():
         self.setDefault('TheMovieDB', 'key', '9b939aee0aaafc12a65bf448e4af9543')
 
         self.addSection('IMDB')
+        
+        self.addSection('Intervals')
+        self.setDefault('Intervals', 'nzb', '24')
+        self.setDefault('Intervals', 'renamer', '5')
         
         #setup logging
         if not self.p.has_section('handler_accesslog'):

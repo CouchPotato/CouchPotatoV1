@@ -50,7 +50,6 @@
 			</p>
 		</div>
 	</fieldset>
-
 	<fieldset class="inlineLabels left" id="renamingFieldset">
 		<input type="hidden" name="Renamer.enabled" value="false" />
 		<h3>Renaming <input type="checkbox" name="Renamer.enabled" value="true" ${' checked' if c.config.get('Renamer', 'enabled') == 'true' else ''} /></h3>
@@ -123,11 +122,9 @@
 			<label for="">Retention</label>
 			<input type="text" name="NZBsorg.retention" value="${c.config.get('NZBsorg', 'retention')}" class="textInput large"/>
 		</div>
-	</fieldset>
-	<fieldset class="inlineLabels left">
-		<h3>Other</h3>
 		<div class="ctrlHolder">
-			<a href="/mmImdbAdd.user.js" class="submit userscriptInstall"><img src="/media/images/imdbScriptPreview.png" />Install IMDB UserScript</a>
+			<label for="">Search every</label>
+			<input type="text" name="Intervals.nzb" value="${c.config.get('Intervals', 'nzb')}" class="textInput small"/>hour(s)
 		</div>
 	</fieldset>
 	<fieldset class="inlineLabels right">
@@ -140,14 +137,21 @@
 			</p>
 		</div>
 	</fieldset>
+	<fieldset class="inlineLabels left">
+		<h3>Other</h3>
+		<div class="ctrlHolder">
+			<a href="/mmImdbAdd.user.js" class="submit userscriptInstall"><img src="/media/images/imdbScriptPreview.png" />Install IMDB UserScript</a>
+		</div>
+	</fieldset>
 	<div class="buttonHolder">
 		<button type="submit" class="primaryAction">
 			Save &raquo;
 		</button>
 	</div>
 </form>
+
 <script type="text/javascript">
-	
+
 	var form = $('configForm');
 	window.addEvent('domready', function(){
 	    form.getElement('button[type=submit]').addEvent('click', function(e){
@@ -155,26 +159,25 @@
 	        new Spinner(form);
 	        form.submit()
 	    });
-	    
+
 	    new Uniform();
-		
-		
-		var renaming = $('renamingFieldset')
-		var renamingCheckbox = renaming.getElement('[type=checkbox]')
-		
-		var renameEnabled = function(){
-			if(renamingCheckbox.get('checked'))
-				renaming.getElements('div.ctrlHolder').setStyle('opacity', 1)
-			else
-				renaming.getElements('div.ctrlHolder').setStyle('opacity', 0.5)
-		}
-		
-		renameEnabled()
-		renamingCheckbox.addEvent('change', function(){
-			renameEnabled()
-		})
-		
+
+	    var renaming = $('renamingFieldset')
+	    var renamingCheckbox = renaming.getElement('[type=checkbox]')
+
+	    var renameEnabled = function(){
+	        if (renamingCheckbox.get('checked')) 
+	            renaming.getElements('div.ctrlHolder').setStyle('opacity', 1)
+	        else 
+	            renaming.getElements('div.ctrlHolder').setStyle('opacity', 0.5)
+	    }
+
+	    renameEnabled()
+	    renamingCheckbox.addEvent('change', function(){
+	        renameEnabled()
+	    })
+
 	});
-	
+
 </script>
-<%inherit file="/base.html" />
+		<%inherit file="/base.html" />

@@ -1,6 +1,7 @@
 from moviemanager.lib.cronBase import cronBase
 from moviemanager.model import Movie, History
 from moviemanager.model.meta import Session as Db
+import datetime
 import logging
 import time
 
@@ -11,7 +12,6 @@ class NzbCron(cronBase):
     ''' Cronjob for searching for NZBs '''
 
     lastChecked = 0
-    interval = 60 #minutes
     provider = None
     sabNzbd = None
     intervalSec = 10
@@ -20,7 +20,7 @@ class NzbCron(cronBase):
     def run(self):
         log.info('NzbCron thread is running.')
 
-        self.intervalSec = (self.interval * 60)
+        self.setInterval(self.config.get('Intervals', 'nzb'))
         self.forceCheck()
         time.sleep(10)
 
@@ -40,9 +40,12 @@ class NzbCron(cronBase):
                 self.searchNzbs()
 
             #log.info('Sleeping NzbCron for %d seconds' % 10)
-            time.sleep(10)
+            time.sleep(60)
 
         log.info('NzbCron has shutdown.')
+        
+    def setInterval(self, interval):
+        self.intervalSec = int(interval) * 60 * 60
 
     def forceCheck(self, movie = None):
         if movie == None:
@@ -106,23 +109,24 @@ class NzbCron(cronBase):
     def nextCheck(self):
 
         t = (self.lastChecked + self.intervalSec) - time.time()
-
-        if t >= 60:
-            mins = int(t / 60)
-            rsecs = t % 60
-        else:
-            mins = 0
-            rsecs = t
-
-        s = "%.2f minutes" % (mins + rsecs / 100.0)
+        
+        s = ''
+        tm = time.gmtime(t)
+        if tm.tm_hour > 0:
+            s += '%d hours' % tm.tm_hour
+        if tm.tm_min > 0:
+            s += ' %d minutes' % tm.tm_min
+        if tm.tm_sec > 0 and not tm.tm_hour > 0 and not tm.tm_min > 15:
+            s += ' %d seconds' % tm.tm_sec
 
         return {
             'timestamp': t,
             'string': s
         }
 
-def startNzbCron():
+def startNzbCron(config):
     cron = NzbCron()
+    cron.config = config
     cron.start()
 
     return cron

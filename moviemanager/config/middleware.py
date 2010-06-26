@@ -61,7 +61,7 @@ def make_app(global_conf, full_stack = True, static_files = True, **app_conf):
     config['pylons.app_globals'].cron['trailerQueue'] = trailerQueue
 
     #nzb search cron
-    nzbCronJob = startNzbCron()
+    nzbCronJob = startNzbCron(ca)
     nzbCronJob.provider = nzbSearch
     nzbCronJob.sabNzbd = sabNzbd(ca)
     config['pylons.app_globals'].cron['nzb'] = nzbCronJob

@@ -48,6 +48,9 @@ class ConfigController(BaseController):
             section = name.split('.')[0]
             var = name.split('.')[1]
             c.config.set(section, var, request.params[name])
+            
+        # Change cron interval
+        cron.get('nzb').setInterval(c.config.get('Intervals', 'nzb'))
 
         # Writing our configuration file to 'example.cfg'
         c.config.save()
