@@ -6,6 +6,14 @@ Movie Manager
 Movie Manager (MM) is an automatic NZB downloader. You can keep a "movies I want"-list and it will search for NZBs of these movies every X minutes.
 Once a movie is found, it will send it to SABnzbd.
 
+Features:
+
+* Automatic downloading and sending of NZBs to SABnzbd
+* Easy adding movies via IMDB UserScript
+* Movie sorting & renaming
+* Trailer downloading
+
+
 ![preview thumb](http://github.com/RuudBurger/Movie-Manager/raw/master/moviemanager/public/media/images/screenshot.png)
 
 IMDB UserScript:
@@ -38,6 +46,7 @@ OSx & Linux:
 Ubuntu (init.d script):
 
 * Copy "initd" to /etc/init.d/moviemanager - > "sudo cp initd /etc/init.d/moviemanager"
+* If you want, change "RUN_AS=root" to another user.
 * Make executable "sudo chmod a+x /etc/init.d/moviemanager"
 * Start "sudo /etc/init.d/moviemanager start"
 
