@@ -20,7 +20,7 @@ class LogController(BaseController):
         '''
 
         c.file = 'MovieManager.log'
-        if int(request.params.get('nr')) > 0:
+        if request.params.get('nr') and int(request.params.get('nr')) > 0:
             c.file += '.'+request.params.get('nr')
 
         f = open(os.path.join(os.path.abspath(os.path.curdir), 'logs', c.file), 'r')
