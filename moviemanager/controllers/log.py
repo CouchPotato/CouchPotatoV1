@@ -1,6 +1,5 @@
 from moviemanager.lib.base import BaseController, render
 from pylons import request, config, tmpl_context as c
-from pylons.controllers.util import redirect
 from webhelpers.html.builder import literal
 import logging
 import os

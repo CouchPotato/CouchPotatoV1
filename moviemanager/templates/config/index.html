@@ -1,168 +1,205 @@
-<form id="configForm" class="uniForm" action="${url(controller="config", action="save")}" method="post">
-	<fieldset class="inlineLabels left">
-		<h3>General Settings (need manual restart)</h3>
-		<div class="ctrlHolder">
-			<label for="">Host</label>
-			<input type="text" name="server:main.host" value="${c.config.get('server:main', 'host')}" class="textInput large"/>
+<div id="configForm">
+	<ul>
+		<li><a href="#general">General</a></li>
+		<li><a href="#sabnzbd">Sabnzbd</a></li>
+		<li><a href="#renaming">Renaming</a></li>
+		<li><a href="#providers">Providers</a></li>
+	</ul>
+		
+	<form class="uniForm" action="${url(controller="config", action="save")}" method="post">
+		<fieldset class="general inlineLabels">
+			<h3>General (need manual restart)</h3>
+			<div class="ctrlHolder">
+				<label for="">Host</label>
+				<input type="text" name="server:main.host" value="${c.config.get('server:main', 'host')}" class="textInput large"/>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Port</label>
+				<input type="text" name="server:main.port" value="${c.config.get('server:main', 'port')}" class="textInput large"/>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Username</label>
+				<input type="text" name="app:main.username" value="${c.config.get('app:main', 'username')}" class="textInput large"/>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Password</label>
+				<input type="password" name="app:main.password" value="${c.config.get('app:main', 'password')}" class="textInput large"/>
+			</div>
+		</fieldset>
+		<fieldset class="general inlineLabels">
+			<h3>Usenet</h3>
+			<div class="ctrlHolder">
+				<label for="">Retention</label>
+				<input type="text" name="NZBsorg.retention" value="${c.config.get('NZBsorg', 'retention')}" class="textInput large"/>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Search every</label>
+				<input type="text" name="Intervals.nzb" value="${c.config.get('Intervals', 'nzb')}" class="textInput xsmall"/>&nbsp;hour(s)
+			</div>
+		</fieldset>
+		<fieldset class="sabnzbd inlineLabels">
+			<div class="ctrlHolder">
+				<label for="">Host</label>
+				<input type="text" name="Sabnzbd.host" value="${c.config.get('Sabnzbd', 'host')}" class="textInput large"/>
+				<p class="formHint">
+					Where does SABnzbd run? Usually <i>localhost:8080</i>
+				</p>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Apikey</label>
+				<input type="text" name="Sabnzbd.apikey" value="${c.config.get('Sabnzbd', 'apikey')}" class="textInput large"/>
+				<p class="formHint">
+					Can be found in general config on SABnzbd
+				</p>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Username</label>
+				<input type="text" name="Sabnzbd.username" value="${c.config.get('Sabnzbd', 'username')}" class="textInput large"/>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Password</label>
+				<input type="password" name="Sabnzbd.password" value="${c.config.get('Sabnzbd', 'password')}" class="textInput large"/>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Category</label>
+				<input type="text" name="Sabnzbd.category" value="${c.config.get('Sabnzbd', 'category')}" class="textInput large"/>
+				<p class="formHint">
+					Category where NZBs should be put.
+				</p>
+			</div>
+		</fieldset>
+		<fieldset class="renaming inlineLabels" id="renamingFieldset">
+			<input type="hidden" name="Renamer.enabled" value="false" />
+			<div class="ctrlHolder checkbox">
+				<label for="">Enable</label>
+				<input type="checkbox" name="Renamer.enabled" value="true" ${' checked' if c.config.get('Renamer', 'enabled') == 'true' else ''} />
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Download folder</label>
+				<input type="text" name="Renamer.download" value="${c.config.get('Renamer', 'download')}" class="textInput large"/>
+				<p class="formHint">
+					Your SABnzbd movie download folder
+				</p>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Movie destination</label>
+				<input type="text" name="Renamer.destination" value="${c.config.get('Renamer', 'destination')}" class="textInput large"/>
+				<p class="formHint">
+					Where the movies should be moved to
+				</p>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Folder naming</label>
+				<input type="text" name="Renamer.foldernaming" value="${c.config.get('Renamer', 'foldernaming')}" class="textInput large"/>
+				<p class="formHint">
+					<span id="foldernameResult"><strong>Result</strong>: ${c.foldernameResult}</span>
+				</p>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">File naming</label>
+				<input type="text" name="Renamer.filenaming" value="${c.config.get('Renamer', 'filenaming')}" class="textInput large"/>
+				<p class="formHint">
+					<span id="filenameResult"><strong>Result</strong>: ${c.filenameResult}</span><br />
+					<span><strong>thename</strong>: The Movie</span>
+					<span><strong>ext</strong>: ext</span>
+					<span><strong>year</strong>: 2010</span>
+					<span><strong>namethe</strong>: Movie, The</span>
+					<span><strong>first</strong>: First character of movie (without "The")</span><br />
+					Only with multiple files:
+					<span><strong>cd</strong>: cd1</span>
+					<span><strong>cdNr</strong>: 1</span>
+				</p>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Download trailer</label>
+				<select name="Renamer.trailerQuality" class="textInput large"/>
+					<option value="false">None</option>
+					% for format in c.trailerFormats:
+					<option value="${format['key']}"${' selected=selected' if str(format['key']) == c.config.get('Renamer', 'trailerQuality') else ''}>${format['quality']} ${format['format']}</option>
+					% endfor
+				</select>
+				<p class="formHint">
+					Minimal quality, if None, no trailer will be downloaded.
+				</p>
+			</div>
+		</fieldset>
+		<fieldset class="providers inlineLabels">
+			<h3>NZB.org</h3>
+			<div class="ctrlHolder">
+				<label for="">Id</label>
+				<input type="text" name="NZBsorg.id" value="${c.config.get('NZBsorg', 'id')}" class="textInput large"/>
+				<p class="formHint">
+					Can be found <a href="http://nzbs.org/index.php?action=rss" target="_blank">here</a>, number after "&i="
+				</p>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Key</label>
+				<input type="text" name="NZBsorg.key" value="${c.config.get('NZBsorg', 'key')}" class="textInput large"/>
+				<p class="formHint">
+					Can be found <a href="http://nzbs.org/index.php?action=rss" target="_blank">here</a>, string after "&h="
+				</p>
+			</div>
+		</fieldset>
+		<fieldset class="providers inlineLabels">
+			<h3>TheMovieDB</h3>
+			<div class="ctrlHolder">
+				<label for="">Apikey</label>
+				<input type="text" name="TheMovieDB.key" value="${c.config.get('TheMovieDB', 'key')}" class="textInput large"/>
+				<p class="formHint">
+					Only change if you want to use your own key.
+				</p>
+			</div>
+		</fieldset>
+		<fieldset class="inlineLabels">
+			<h3>Other</h3>
+				<a href="/mmImdbAdd.user.js" class="submit userscriptInstall"><img src="/media/images/imdbScriptPreview.png" />Install IMDB UserScript</a>
+				<p style="font-size:11px">
+					Need a recent version of <a href="http://www.google.com/chrome/" target="_blank">Chrome</a> or when using Firefox, the <a href="https://addons.mozilla.org/en-US/firefox/addon/748/" target="_blank">Greasemonkey addon</a>.
+				</p>
+		</fieldset>
+		<div class="buttonHolder">
+			<span class="cancel"><a href="#cancel">Cancel</a> or</span> 
+			<button type="submit" class="primaryAction">
+				Save &raquo;
+			</button>
 		</div>
-		<div class="ctrlHolder">
-			<label for="">Port</label>
-			<input type="text" name="server:main.port" value="${c.config.get('server:main', 'port')}" class="textInput large"/>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">Username</label>
-			<input type="text" name="app:main.username" value="${c.config.get('app:main', 'username')}" class="textInput large"/>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">Password</label>
-			<input type="password" name="app:main.password" value="${c.config.get('app:main', 'password')}" class="textInput large"/>
-		</div>
-	</fieldset>
-	<fieldset class="inlineLabels right">
-		<h3>SABnzbd</h3>
-		<div class="ctrlHolder">
-			<label for="">Host</label>
-			<input type="text" name="Sabnzbd.host" value="${c.config.get('Sabnzbd', 'host')}" class="textInput large"/>
-			<p class="formHint">
-				Where does SABnzbd run? Usually <i>localhost:8080</i>
-			</p>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">Apikey</label>
-			<input type="text" name="Sabnzbd.apikey" value="${c.config.get('Sabnzbd', 'apikey')}" class="textInput large"/>
-			<p class="formHint">
-				Can be found in general config on SABnzbd
-			</p>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">Username</label>
-			<input type="text" name="Sabnzbd.username" value="${c.config.get('Sabnzbd', 'username')}" class="textInput large"/>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">Password</label>
-			<input type="password" name="Sabnzbd.password" value="${c.config.get('Sabnzbd', 'password')}" class="textInput large"/>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">Category</label>
-			<input type="text" name="Sabnzbd.category" value="${c.config.get('Sabnzbd', 'category')}" class="textInput large"/>
-			<p class="formHint">
-				Category where NZBs should be put.
-			</p>
-		</div>
-	</fieldset>
-	<fieldset class="inlineLabels left" id="renamingFieldset">
-		<input type="hidden" name="Renamer.enabled" value="false" />
-		<h3>Renaming <input type="checkbox" name="Renamer.enabled" value="true" ${' checked' if c.config.get('Renamer', 'enabled') == 'true' else ''} /></h3>
-		<div class="ctrlHolder">
-			<label for="">Download folder</label>
-			<input type="text" name="Renamer.download" value="${c.config.get('Renamer', 'download')}" class="textInput large"/>
-			<p class="formHint">
-				Your SABnzbd movie download folder
-			</p>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">Movie destination</label>
-			<input type="text" name="Renamer.destination" value="${c.config.get('Renamer', 'destination')}" class="textInput large"/>
-			<p class="formHint">
-				Where the movies should be moved to
-			</p>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">Folder naming</label>
-			<input type="text" name="Renamer.foldernaming" value="${c.config.get('Renamer', 'foldernaming')}" class="textInput large"/>
-			<p class="formHint">
-				<span id="foldernameResult"><strong>Result</strong>: ${c.foldernameResult}</span>
-			</p>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">File naming</label>
-			<input type="text" name="Renamer.filenaming" value="${c.config.get('Renamer', 'filenaming')}" class="textInput large"/>
-			<p class="formHint">
-				<span id="filenameResult"><strong>Result</strong>: ${c.filenameResult}</span><br />
-				<span><strong>thename</strong>: The Movie</span>
-				<span><strong>ext</strong>: ext</span>
-				<span><strong>year</strong>: 2010</span>
-				<span><strong>namethe</strong>: Movie, The</span>
-				<span><strong>first</strong>: First character of movie (without "The")</span><br />
-				Only with multiple files:
-				<span><strong>cd</strong>: cd1</span>
-				<span><strong>cdNr</strong>: 1</span>
-			</p>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">Download trailer</label>
-			<select name="Renamer.trailerQuality" class="textInput large"/>
-				<option value="false">None</option>
-				% for format in c.trailerFormats:
-				<option value="${format['key']}"${' selected=selected' if str(format['key']) == c.config.get('Renamer', 'trailerQuality') else ''}>${format['quality']} ${format['format']}</option>
-				% endfor
-			</select>
-			<p class="formHint">
-				Minimal quality, if None, no trailer will be downloaded.
-			</p>
-		</div>
-	</fieldset>
-	<fieldset class="inlineLabels right">
-		<h3>NZB.org</h3>
-		<div class="ctrlHolder">
-			<label for="">Id</label>
-			<input type="text" name="NZBsorg.id" value="${c.config.get('NZBsorg', 'id')}" class="textInput large"/>
-			<p class="formHint">
-				Can be found <a href="http://nzbs.org/index.php?action=rss" target="_blank">here</a>, number after "&i="
-			</p>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">Key</label>
-			<input type="text" name="NZBsorg.key" value="${c.config.get('NZBsorg', 'key')}" class="textInput large"/>
-			<p class="formHint">
-				Can be found <a href="http://nzbs.org/index.php?action=rss" target="_blank">here</a>, string after "&h="
-			</p>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">Retention</label>
-			<input type="text" name="NZBsorg.retention" value="${c.config.get('NZBsorg', 'retention')}" class="textInput large"/>
-		</div>
-		<div class="ctrlHolder">
-			<label for="">Search every</label>
-			<input type="text" name="Intervals.nzb" value="${c.config.get('Intervals', 'nzb')}" class="textInput small"/>hour(s)
-		</div>
-	</fieldset>
-	<fieldset class="inlineLabels right">
-		<h3>TheMovieDB</h3>
-		<div class="ctrlHolder">
-			<label for="">Apikey</label>
-			<input type="text" name="TheMovieDB.key" value="${c.config.get('TheMovieDB', 'key')}" class="textInput large"/>
-			<p class="formHint">
-				Only change if you want to use your own key.
-			</p>
-		</div>
-	</fieldset>
-	<fieldset class="inlineLabels left">
-		<h3>Other</h3>
-			<a href="/mmImdbAdd.user.js" class="submit userscriptInstall"><img src="/media/images/imdbScriptPreview.png" />Install IMDB UserScript</a>
-			<p style="font-size:11px">
-				Need a recent version of <a href="http://www.google.com/chrome/" target="_blank">Chrome</a> or when using Firefox, the <a href="https://addons.mozilla.org/en-US/firefox/addon/748/" target="_blank">Greasemonkey addon</a>.
-			</p>
-	</fieldset>
-	<div class="buttonHolder">
-		<button type="submit" class="primaryAction">
-			Save &raquo;
-		</button>
-	</div>
-</form>
-
+	</form>
+</div>
 <script type="text/javascript">
 
-	var form = $('configForm');
+	var form = $('configForm').getElement('form');
 	window.addEvent('domready', function(){
+		
+		$('configForm').position({
+			'position': 'center'
+		});
+		
+		// Match label to input, cause i'm lazy
+		form.getElements('label').each(function(el, nr){
+			var id = 'formItem-'+nr
+			el.set('for', id)
+			el.getNext().set('id', id)
+		});
+		
+		// Nice button, submit
 	    form.getElement('button[type=submit]').addEvent('click', function(e){
 	        (e).stop();
-	        new Spinner(form);
-	        form.submit()
+			
+	        new Spinner(form).show();
+			new Request({
+				'url': form.get('action'),
+				'data': form,
+				'onComplete': function(){
+					$('configForm').getParent().destroy();
+					$(document.body).get('mask').destroy();
+				}
+			}).send()
 	    });
-
+	
+		// Form highlight
 	    new Uniform();
 
+		// Renaming disabled stuff
 	    var renaming = $('renamingFieldset')
 	    var renamingCheckbox = renaming.getElement('[type=checkbox]')
 
@@ -170,15 +207,48 @@
 	        if (renamingCheckbox.get('checked')) 
 	            renaming.getElements('div.ctrlHolder').setStyle('opacity', 1)
 	        else 
-	            renaming.getElements('div.ctrlHolder').setStyle('opacity', 0.5)
+	            renaming.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
 	    }
 
 	    renameEnabled()
 	    renamingCheckbox.addEvent('change', function(){
 	        renameEnabled()
-	    })
+	    });
+		
+		// Cancel button
+		form.getElement('.cancel a').addEvent('click', function(e){
+			(e).stop()
+			$('configForm').getParent().destroy();
+			$(document.body).get('mask').destroy();
+		});
+		
+		// Menu
+		$('configForm').getElements('ul a').addEvent('click', function(e){
+			(e).stop()
+			
+			showForm(e.target, e.target.get('href').substr(1))
+
+		});
+		var showForm = function(el, name){
+			form.getElements('fieldset').setStyle('display', 'none');
+			form.getElements('fieldset.'+name).setStyle('display', 'block')
+
+			$('configForm').getElements('ul a').removeClass('current');
+			el.addClass('current');
+			
+			$(document.body).get('mask').position()
+		}
+		var firstItem = $('configForm').getElement('ul a');
+		showForm(firstItem, firstItem.get('href').substr(1));
+					
+		$(document.body).mask({
+			'hideOnClick': true,
+			'destroyOnHide': true,
+			'onHide': function(){
+				$('configForm').getParent().destroy();
+			}
+		}).show();
 
 	});
 
 </script>
-<%inherit file="/base.html" />

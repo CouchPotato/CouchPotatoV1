@@ -1,34 +1,30 @@
 
 <form method="post" id="movieResults" class="addNew" action="${url(controller='movie',action='search')}">
 	<div class="row">
-		<span>Select the right movie:</span>
-		<span>
-			<select name="movienr">
-				% for movie in c.results:
-				<option value="${c.results.index(movie)}">${movie.name} (${movie.year})</option>
-				% endfor
-			</select>
-		</span>
+		<select name="movienr">
+			% for movie in c.results:
+			<option value="${c.results.index(movie)}">${movie.name} (${movie.year})</option>
+			% endfor
+		</select>
 	</div>
 	
 	% if movie.year == 'None':
 	<div class="row">
-		<span>Year:</span>
-		<span>
-			<input type="text" name="year" value="" style="width:40px; border: 1px solid red;" />
-		</span>
+		<input type="text" name="year" id="yearInput" value="" style="width:40px; border: 1px solid red;" />
+		<script type="text/javascript">
+			window.addEvent('domready', function(){
+				new OverText('yearInput')
+			});
+		</script>
 	</div>
 	% endif
 	
 	<div class="row">
-		<span>Quality</span>
-		<span>
-			<select name="quality">
-				% for order, quality in c.qualityList.iteritems():
-				<option value="${quality['name']}"${' selected=selected' if quality.get('name') == c.quality else ''}>${quality['name']}</option>
-				% endfor
-			</select>
-		</span>
+		<select name="quality">
+			% for order, quality in c.qualityList.iteritems():
+			<option value="${quality['name']}"${' selected=selected' if quality.get('name') == c.quality else ''}>${quality['name']}</option>
+			% endfor
+		</select>
 	</div>
 
 	<input type="hidden" name="movie" value="${c.movie}" />

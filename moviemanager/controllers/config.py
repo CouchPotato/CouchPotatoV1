@@ -1,6 +1,5 @@
 from moviemanager.lib.base import BaseController, render
-from pylons import request, response, tmpl_context as c, url, config as conf
-from pylons.controllers.util import redirect
+from pylons import request, response, tmpl_context as c, config as conf
 import logging
 
 cron = conf.get('pylons.app_globals').cron
@@ -54,8 +53,6 @@ class ConfigController(BaseController):
 
         # Writing our configuration file to 'example.cfg'
         c.config.save()
-
-        return redirect(url(controller = 'config', action = 'index'))
 
     def exit(self):
 

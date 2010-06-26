@@ -16,26 +16,23 @@
 	
 	<div id="header">
 	    <div class="navigation">
+
 	        <ul>
-	            <li><a href="${url(controller='movie')}">Home</a></li>
-	            <li><a href="${url(controller='config')}">Config</a></li>
+	            <li><a href="${url(controller='movie')}">NZB Movie Manager</a></li>
+	            <li><a href="${url(controller='config')}" id="showConfig">Setting</a></li>
 	        </ul>
 			
 			<div id="addForm">
 		    	<form method="post" id="addNew" class="addNew" action="${url(controller='movie',action='search')}">
 					<div class="row">
-						<span>Name</span>
-						<span><input type="text" name="movie" /></span>
+						<input type="text" name="movie" title="Movie name" />
 					</div>
 					<div class="row">
-						<span>Quality</span>
-						<span>
-							<select name="quality">
-								% for order, quality in c.qualityList.iteritems():
-								<option value="${quality['name']}"${' selected=selected' if quality.get('default') else ''}>${quality['name']}</option>
-								% endfor
-							</select>
-						</span>
+						<select name="quality">
+							% for order, quality in c.qualityList.iteritems():
+							<option value="${quality['name']}"${' selected=selected' if quality.get('default') else ''}>${quality['name']}</option>
+							% endfor
+						</select>
 					</div>
 					<input type="hidden" name="search" value="Add" />
 					<a href="" class="submit">Add &raquo;</a>
@@ -56,6 +53,9 @@
 						(e).stop();
 						req()
 					})
+					var newMovieName = form.getElement('input[name=movie]')
+					newMovieName.set('value','')
+					new OverText(newMovieName);
 					
 					var req = function(){
 						var s = new Spinner(form)
@@ -69,6 +69,23 @@
 							}
 						}).send()
 					}
+					
+					
+					var showConfigPopup = function(e){
+						(e).stop()
+
+						var popup = new Element('div', {
+							'class':'configPopup'
+						}).inject(document.body);
+						
+						new Request.HTML({
+							'url': $('showConfig').get('href'),
+							'update': popup
+						}).send()
+						
+					}
+					$('showConfig').addEvent('click', showConfigPopup);
+					
 				});
 				
 			</script>
