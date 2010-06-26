@@ -1,7 +1,6 @@
 from moviemanager.lib.cronBase import cronBase
 from moviemanager.model import Movie, History
 from moviemanager.model.meta import Session as Db
-import datetime
 import logging
 import time
 

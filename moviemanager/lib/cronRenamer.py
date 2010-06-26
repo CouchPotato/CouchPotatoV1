@@ -140,8 +140,11 @@ class RenamerCron(cronBase):
  
                 # Use same permissions as conf('destination') folder
                 try:
-                    os.makedirs(finalDestination, stat.S_IMODE(mode[ST_MODE]))
-                except:
+                    chmod = stat.S_IMODE(mode[ST_MODE])
+                    os.makedirs(finalDestination, chmod) #chmod doesn't work properly here?
+                    os.chmod(finalDestination, chmod)
+                    log.error('Creating directory %s, chmod: %d' % (finalDestination, chmod))
+                except OSError:
                     os.makedirs(finalDestination)
                     log.error('Failed setting permissions for %s' % finalDestination)
 
