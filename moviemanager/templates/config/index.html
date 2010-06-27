@@ -190,7 +190,6 @@
 				'url': form.get('action'),
 				'data': form,
 				'onComplete': function(){
-					$('configForm').getParent().destroy();
 					$(document.body).get('mask').destroy();
 				}
 			}).send()
@@ -218,7 +217,6 @@
 		// Cancel button
 		form.getElement('.cancel a').addEvent('click', function(e){
 			(e).stop()
-			$('configForm').getParent().destroy();
 			$(document.body).get('mask').destroy();
 		});
 		
