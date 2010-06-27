@@ -4,6 +4,7 @@
 		<li><a href="#sabnzbd">Sabnzbd</a></li>
 		<li><a href="#renaming">Renaming</a></li>
 		<li><a href="#providers">Providers</a></li>
+		<li><a href="#userscript">Userscript</a></li>
 	</ul>
 		
 	<form class="uniForm" action="${url(controller="config", action="save")}" method="post">
@@ -150,12 +151,11 @@
 				</p>
 			</div>
 		</fieldset>
-		<fieldset class="inlineLabels">
-			<h3>Other</h3>
-				<a href="/mmImdbAdd.user.js" class="submit userscriptInstall"><img src="/media/images/imdbScriptPreview.png" />Install IMDB UserScript</a>
-				<p style="font-size:11px">
-					Need a recent version of <a href="http://www.google.com/chrome/" target="_blank">Chrome</a> or when using Firefox, the <a href="https://addons.mozilla.org/en-US/firefox/addon/748/" target="_blank">Greasemonkey addon</a>.
-				</p>
+		<fieldset class="userscript inlineLabels">
+			<a href="/mmImdbAdd.user.js" class="submit userscriptInstall"><img src="/media/images/imdbScriptPreview.png" /><br />Install IMDB UserScript</a>
+			<p style="font-size:11px">
+				Need a recent version of <a href="http://www.google.com/chrome/" target="_blank">Chrome</a> or when using Firefox, the <a href="https://addons.mozilla.org/en-US/firefox/addon/748/" target="_blank">Greasemonkey addon</a>.
+			</p>
 		</fieldset>
 		<div class="buttonHolder">
 			<span class="cancel"><a href="#cancel">Cancel</a> or</span> 
