@@ -19,10 +19,12 @@ class LogController(BaseController):
         '''
 
         c.file = 'MovieManager.log'
-        if request.params.get('nr') and int(request.params.get('nr')) > 0:
+        fileAbs = os.path.join(os.path.abspath(os.path.curdir), 'logs', c.file)
+        if request.params.get('nr') and int(request.params.get('nr')) > 0 and os.path.isfile(fileAbs+'.'+request.params.get('nr')):
+            fileAbs += '.'+request.params.get('nr')
             c.file += '.'+request.params.get('nr')
 
-        f = open(os.path.join(os.path.abspath(os.path.curdir), 'logs', c.file), 'r')
+        f = open(fileAbs, 'r')
         c.log = literal(f.read().replace('\n', '<br />\n'))
 
         return render('/log/index.html')

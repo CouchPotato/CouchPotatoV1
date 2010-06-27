@@ -12,11 +12,6 @@ static_files = true
 username = username
 password = password
 
-[winservice]
-service_name = Moviemanager
-service_display_name = Movie Manager
-service_description = Movie Manager - Automatic NZB downloading
-
 [loggers]
 keys = root, routes, moviemanager, sqlalchemy
 
