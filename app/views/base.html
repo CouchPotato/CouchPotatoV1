@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie Manager</title>
+	
+	<link href="/media/style/Base.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="/media/style/Main.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="/media/style/Uniform.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="/media/style/UniformGeneric.css" media="screen" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	
+	<script src="/media/script/Mootools.js" type="text/javascript"></script>
+	<script src="/media/script/MootoolsMore.js" type="text/javascript"></script>
+	<script src="/media/script/Uniform.js" type="text/javascript"></script>
+
+	
+	<div id="header">
+	    <div class="navigation">
+
+	        <ul>
+	            <li><a href="${url(controller='movie', action='index')}">NZB Movie Manager</a></li>
+	            <li><a href="${url(controller='config', action='index')}" id="showConfig">Settings</a></li>
+	        </ul>
+			
+			<div id="addForm">
+		    	<form method="post" id="addNew" class="addNew" action="${url(controller='movie',action='search')}">
+					<div class="row">
+						<input type="text" name="movie" title="Movie name" />
+					</div>
+					<div class="row">
+						<select name="quality">
+							% for order, quality in qualityList.iteritems():
+							<option value="${quality['name']}"${' selected=selected' if quality.get('default') else ''}>${quality['name']}</option>
+							% endfor
+						</select>
+					</div>
+					<input type="hidden" name="search" value="Add" />
+					<a href="" class="submit">Add &raquo;</a>
+				</form>
+			</div>
+			
+			<script type="text/javascript">
+				
+				window.addEvent('domready', function(){
+					var form = $('addNew');
+					form.addEvent('submit', function(e){
+						(e).stop();
+						
+						req()
+						
+					});
+					form.getElement('.submit').addEvent('click', function(e){
+						(e).stop();
+						req()
+					})
+					var newMovieName = form.getElement('input[name=movie]')
+					newMovieName.set('value','')
+					new OverText(newMovieName);
+					
+					var req = function(){
+						var s = new Spinner(form)
+							s.show();
+						new Request.HTML({
+							'url': form.get('action'),
+							'data': form,
+							'update': 'addForm',
+							'onComplete': function(){
+								s.hide()
+							}
+						}).send()
+					}
+					
+					
+					var showConfigPopup = function(e){
+						(e).stop()
+
+						var popup = new Element('div', {
+							'class':'configPopup'
+						}).inject(document.body);
+						
+						new Request.HTML({
+							'url': $('showConfig').get('href'),
+							'update': popup
+						}).send()
+						
+					}
+					$('showConfig').addEvent('click', showConfigPopup);
+					
+				});
+				
+			</script>
+
+	    </div>
+	</div>
+	<div class="page">
+	    <div class="content">
+	        ${next.body()}
+	    </div>
+		<div class="footer">
+			<div class="check">
+			% if checking:
+				Now checking.			
+			% else:
+				Next check in ${nextCheck.get('string')} (<a href="${url(controller='cron', action='force')}">Force check</a>)
+			% endif
+			</div>
+			<div class="version">This is version: <em>very early release</em> (<a href="${url(controller='log', action='index')}">see logs</a>), newest version available <a href="http://github.com/RuudBurger/Movie-Manager">on github.</a></div>
+		</div>
+	</div>
+</body>
+</html>

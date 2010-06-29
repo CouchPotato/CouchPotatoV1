@@ -1,0 +1,71 @@
+
+<form method="post" id="movieResults" class="addNew" action="${url(controller='movie',action='search')}">
+	<div class="row">
+		<select name="movienr">
+			% for movie in results:
+			<option value="${results.index(movie)}">${movie.name} (${movie.year})</option>
+			% endfor
+		</select>
+	</div>
+	
+	% if movie.year == 'None':
+	<div class="row">
+		<input type="text" name="year" id="yearInput" value="" style="width:40px; border: 1px solid red;" />
+		<script type="text/javascript">
+			window.addEvent('domready', function(){
+				new OverText('yearInput')
+			});
+		</script>
+	</div>
+	% endif
+	
+	<div class="row">
+		<select name="quality">
+			% for qualityItem in qualityList.itervalues():
+			<option value="${qualityItem['name']}"${' selected=selected' if qualityItem.get('name') == quality else ''}>${qualityItem['name']}</option>
+			% endfor
+		</select>
+	</div>
+
+	<input type="hidden" name="movie" value="${movie}" />
+	<input type="hidden" name="add" value="Add" />
+	<a href="" class="submit">Add &raquo;</a>
+</form>
+
+<script type="text/javascript">
+	
+	var form = $('movieResults');
+	window.addEvent('domready', function(){
+		form.getElement('.submit').addEvent('click', function(e){
+			(e).stop();
+			req()
+		})
+		
+		var req = function(){
+			var s = new Spinner(form)
+				s.show();
+			new Request({
+				'url': form.get('action'),
+				'data': form,
+				'onSuccess': function(){
+					window.location.reload()
+				},
+				'onFailure': function(){
+					alert('Couldn\'t find the year on TheMovieDB, so you have to fill it in yourself.\nTo make other people happy, you could go to TheMovieDB and fill in the year.')
+				},
+				'onComplete': function(){
+					s.hide();
+				}
+			}).send()
+		}
+		
+	% if len(results) == 1 and movie.year != 'None':
+		var s = new Spinner(form)
+			s.show();
+		window.location.reload()
+		form.submit()
+	% endif
+
+	});
+	
+</script>

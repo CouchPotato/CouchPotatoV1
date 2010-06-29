@@ -1,10 +1,6 @@
 *.db
 *.ini
 .pydevproject
-dist/
-MovieManager.egg-info/
-cache/
-build/
 *.pyc
 .DS_Store
 .tmp*

@@ -1,0 +1,39 @@
+[Renamer]
+filenaming = <thename><cd>.<ext>
+destination = /Users/ruud/Downloads/
+enabled = False
+foldernaming = <namethe> (<year>)
+download = 
+trailerquality = 22
+
+[global]
+username = username
+server.thread_pool = 10
+tools.mako.collection_size = 500
+tools.mako.directories = app/views/
+host = 127.0.0.1
+password = password
+server.environment = production
+port = 5000
+
+[Intervals]
+renamer = 5
+nzb = 24
+
+[IMDB]
+
+[NZBsorg]
+id = 
+key = 
+retention = 400
+
+[TheMovieDB]
+key = 9b939aee0aaafc12a65bf448e4af9543
+
+[Sabnzbd]
+username = 
+category = Movies
+apikey = 
+host = localhost:8080
+password = 
+
