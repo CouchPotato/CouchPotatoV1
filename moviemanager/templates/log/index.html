@@ -1,9 +1,0 @@
-<div>
-	<h2>${c.file} (
-	% for nr in range(0, 5):
-	<a href="${url(controller='log', action='index', nr=nr)}">${nr}</a>
-	% endfor
-	)</h2>
-	${c.log}
-</div>
-<%inherit file="/base.html" />
