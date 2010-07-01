@@ -92,7 +92,6 @@ class NzbCron(cronBase):
                 newHistory.movieId = movie.id
                 newHistory.name = highest.name
                 Db.add(newHistory)
-                Db.commit()
 
 
     def doCheck(self, bool = True):
