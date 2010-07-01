@@ -1,7 +1,7 @@
 
 <form method="post" id="movieResults" class="addNew" action="${url(controller='movie',action='search')}">
 	<div class="row">
-		<select name="movienr">
+		<select name="movienr" class="movieselect">
 			% for movie in results:
 			<option value="${results.index(movie)}">${movie.name} (${movie.year})</option>
 			% endfor
@@ -60,9 +60,7 @@
 		}
 		
 	% if len(results) == 1 and movie.year != 'None':
-		var s = new Spinner(form)
-			s.show();
-		window.location.reload()
+		var s = new Spinner(form).show();
 		form.submit()
 	% endif
 

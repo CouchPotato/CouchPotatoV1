@@ -10,6 +10,7 @@ html {
 body {
 	margin: 0;
 	padding: 0;
+	background: #fff;
 }
 
 input, textarea {
@@ -75,24 +76,26 @@ form {
 
 	#header .navigation ul {
 		float: left;
-		padding: 5px 5px 0;
+		padding: 0;
 		margin: 0;
+		width: 400px;
 	}
 
 	#header .navigation ul li {
 		color: #8b8b8b;
-		display: inline-block;
+		display: block;
 		font-size:20px;
 		font-weight: bold;
 		margin: 0;
 		text-align: center;
+		float: left;
 	}
 
 		#header .navigation ul li a {
 			display: block;
-			line-height: 0;
-			padding: 30px 30px 0 0;
+			padding: 15px;
 		}
+			#header .navigation ul li:first-child a { padding-left: 0; }
 
 			#header .navigation ul li span {
 				display: block;
@@ -114,6 +117,8 @@ form {
 	#header .addNew {
 		float: right;
 		padding: 20px 0 0;
+		width: 350px;
+		text-align: right;
 	}
 		#header .addNew .row {
 			float: left;
@@ -130,6 +135,10 @@ form {
 		
 		#header .addNew .row select {
 			margin-top: 5px;
+		}
+		
+		#header .addNew .row .movieselect {
+			width: 200px;
 		}
 		
 		#header .addNew .row .overTxtLabel {
@@ -242,7 +251,7 @@ form {
 .configPopup {
 }
 .mask {
-	background: rgba(0,0,0,0.75);
+	background: url('/media/images/mask.png');
 }
 
 	.configPopup ul {

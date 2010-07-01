@@ -72,12 +72,15 @@ def server_start():
         '/': {
             'request.dispatch': Routes(),
             'tools.sessions.on':  True,
-            'tools.gzip.on': True
+            'tools.gzip.on': True,
+            'tools.gzip.mime_types': ['text/html', 'text/plain', 'text/css', 'text/javascript', 'application/javascript']
         },
         '/media':{
             'tools.staticdir.on': True,
             'tools.staticdir.root': os.path.abspath(os.path.curdir),
-            'tools.staticdir.dir': "media"
+            'tools.staticdir.dir': "media",
+            'tools.expires.on': True,
+            'tools.expires.secs': 3600*24*7
         }
     }
 

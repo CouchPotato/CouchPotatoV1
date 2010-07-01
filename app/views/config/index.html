@@ -180,6 +180,12 @@
 	var form = $('configForm').getElement('form');
 	window.addEvent('domready', function(){
 		
+		// Replace Userscrip IE
+		if (Browser.Engine.trident){
+			form.getElement('fieldset.userscript a').destroy()
+			form.getElement('fieldset.userscript p').setStyles({height:'300px', 'display':'block'})
+		}
+		
 		$('configForm').position({
 			'position': 'center'
 		});
