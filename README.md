@@ -51,7 +51,7 @@ Ubuntu (init.d script):
 
 Windows:
 
-* Download the latest Windows build (http://cl.ly/8482178457ef26bfcc88)
+* Download the latest Windows build: [Can be found here](http://cl.ly/8482178457ef26bfcc88)
 * Extract it wherever you like
 * Start MovieManager.exe
 * Default login is "username" & "password"
