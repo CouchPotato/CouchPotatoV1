@@ -38,7 +38,7 @@ class TrailerCron(rss, cronBase):
 
         while True and not self.abort:
             try:
-                movie = trailerQueue.get(timeout = 5)
+                movie = trailerQueue.get(timeout = 1)
 
                 #do a search
                 self.running = True
@@ -56,7 +56,9 @@ class TrailerCron(rss, cronBase):
 
         for video in self.getVideos(movie, destination):
             key = self.findKey(video.id)
-            self.download(movie, video.id, key, destination)
+            downloaded = self.download(movie, video.id, key, destination)
+            if downloaded:
+                break
 
     def getVideos(self, movie, destination):
         arguments = urllib.urlencode({
@@ -64,7 +66,7 @@ class TrailerCron(rss, cronBase):
             'orderby':'relevance',
             'alt':'rss',
             'q': self.toSaveString(movie.name + ' ' + str(movie.year)),
-            'max-results': 1
+            'max-results': 5
         })
         url = "%s?%s" % (self.apiUrl, arguments)
 
@@ -108,35 +110,40 @@ class TrailerCron(rss, cronBase):
         minimumExceeded = False
 
         for format in self.formats:
+            log.debug('Format %d >= %d' % (format['key'], int(self.config.get('Renamer', 'trailerQuality'))))
             videoUrl = self.getVideoUrl % (videoId, key, int(format['key']))
             videoData = urllib.urlopen(videoUrl)
             if videoData:
                 meta = videoData.info()
                 size = int(meta.getheaders("Content-Length")[0])
                 if size > 0:
-                    if not minimumExceeded:
-                        log.info('Downloading trailer (%s) to "%s", size: %s' % (format['quality'], destination, str(size / 1024 / 1024) + 'MB'))
+                    log.info('Downloading trailer in %s too "%s", size: %s' % (format['quality'], destination, str(size / 1024 / 1024) + 'MB'))
 
-                        #trails destination
-                        trailerFile = os.path.join(destination, 'movie-trailer' + '.' + format['format'])
-                        tempTrailerFile = os.path.join(destination, '_DOWNLOADING-trailer' + '.' + format['format'])
-                        if not os.path.isfile(trailerFile):
-                            with open(tempTrailerFile, 'w') as f:
-                                f.write(videoData.read())
+                    #trails destination
+                    trailerFile = os.path.join(destination, 'movie-trailer' + '.' + format['format'])
+                    tempTrailerFile = os.path.join(destination, '_DOWNLOADING-trailer' + '.' + format['format'])
+                    if os.path.isfile(tempTrailerFile): os.remove(tempTrailerFile)
+                    if not os.path.isfile(trailerFile):
+                        with open(tempTrailerFile, 'w') as f:
+                            f.write(videoData.read())
 
-                        #temp to real
-                        os.rename(tempTrailerFile, trailerFile)
+                    #temp to real
+                    os.rename(tempTrailerFile, trailerFile)
 
-                        # Use same permissions as parent dir
-                        mode = os.stat(destination)
-                        try:
-                            os.chmod(trailerFile, stat.S_IMODE(mode[ST_MODE]))
-                        except:
-                            log.error('Failed setting permissions for %s' % trailerFile)
+                    # Use same permissions as parent dir
+                    mode = os.stat(destination)
+                    try:
+                        os.chmod(trailerFile, stat.S_IMODE(mode[ST_MODE]))
+                    except:
+                        log.error('Failed setting permissions for %s' % trailerFile)
 
-                        return
-                    if int(self.config.get('Renamer', 'trailerQuality')) == format['key']:
-                        minimumExceeded = True
+                    return True
+
+            if format['key'] == int(self.config.get('Renamer', 'trailerQuality')):
+                log.debug('Minumum trailer quality exceeded.')
+                return False
+
+        return False
 
     def getItems(self, data):
         return XMLTree.parse(data).findall('channel/item')

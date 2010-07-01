@@ -75,7 +75,7 @@ class theMovieDb(movieBase):
 
                     new = self.feedItem()
                     new.id = id
-                    new.name = self.gettextelement(movie, "name")
+                    new.name = self.toSaveString(self.gettextelement(movie, "name"))
                     new.imdb = self.gettextelement(movie, "imdb_id")
                     new.year = str(self.gettextelement(movie, "released"))[:4]
                     

@@ -65,7 +65,7 @@ if (!p){
 var year = document.getElementById('tn15title').getElementsByTagName('a')[0].text
 
 var iFrame = create('iframe', {
-	src: mmLocation + link + id + '/?year='+year,
+	src: mmLocation + link + '?id='+id + '&year='+year,
 	frameborder: 0,
 	scrolling: 'no' 
 })

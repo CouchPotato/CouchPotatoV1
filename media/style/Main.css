@@ -306,6 +306,15 @@ form {
 			float: right;
 			background: #fff;
 		}
+	
+			#configForm fieldset.shutdown {
+				padding: 145px 20px;
+				text-align:center;
+			}
+	
+			#configForm fieldset.shutdown .submit {
+				background-color: #ff0000;
+			}
 		
 		#configForm .ctrlHolder {
 			line-height: 25px;

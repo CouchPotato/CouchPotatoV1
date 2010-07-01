@@ -11,7 +11,6 @@ import logging
 log = logging.getLogger(__name__)
 
 class CronJobs(plugins.SimplePlugin):
-    """A feature that does something."""
 
     config = {}
     threads = {}
@@ -19,6 +18,12 @@ class CronJobs(plugins.SimplePlugin):
 
     def __init__(self, bus, config):
         plugins.SimplePlugin.__init__(self, bus)
+        
+        self.config = config
+
+    def start(self):
+        
+        config = self.config
 
         log.info("Starting Cronjobs.")
         self.config = config
@@ -44,15 +49,14 @@ class CronJobs(plugins.SimplePlugin):
         renamerCronJob = startRenamerCron(config, self.searchers)
         self.threads['renamer'] = renamerCronJob
 
-    def start(self):
-        return True
-
     def stop(self):
         log.info("Stopping Cronjobs.")
         for t in self.threads.itervalues():
             if t.quit:
                 t.quit()
             t.join()
+    
+    start.priority = 70
 
 
 ##searchers

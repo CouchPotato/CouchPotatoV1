@@ -28,7 +28,7 @@ If you find a bug or need a feature that you think is awesome! Let me know!
 
 ## Dependencies
 
-To run MM you will need Python, Pylons and SQLAlchemy.
+To run MM you will need Python.
 
 ## Installation and Setup
 
@@ -36,10 +36,9 @@ OSx & Linux:
 
 * Install Python 2.6 or higher
 * git clone/extract MM wherever you like
-* Run "sudo python setup.py install"
 * Rename "config.ini_tmpl" to "config.ini"
-* Run "paster serve config.ini" to start
-* Goto http://localhost:5000 and login using "username" & "password"
+* Run "python MovieManager.py -d" to start in deamon mode
+* Default login is "username" & "password"
 * Change username & password
 * Fill in all the config stuff
 
@@ -50,15 +49,16 @@ Ubuntu (init.d script):
 * Make executable "sudo chmod a+x /etc/init.d/moviemanager"
 * Start "sudo /etc/init.d/moviemanager start"
 
-Windows (as service):
+Windows:
 
 * Install Python 2.6 or higher (http://www.python.org/download/)
-* Install PyWin32 (http://sourceforge.net/projects/pywin32/files/)
-* git clone/extract MM wherever you like
-* Run "setup.py install"
-* Rename "config.ini_tmpl" to "config.ini"
-* Run "WindowsService.py install" as admin
-* Run "WindowService.py start" as admin
-* Goto http://localhost:5000 and login using "username" & "password"
+* Download the latest Windows build (http://cl.ly/8482178457ef26bfcc88)
+* Extract it wherever you like
+* Start MovieManager.exe
+* Default login is "username" & "password"
 * Change username & password
 * Fill in all the config stuff
+
+## Update
+
+To update just overwrite all the files with the new ones. Config.ini and data.db should be untouched.

@@ -31,13 +31,8 @@ class MovieController(BaseController):
 
         movie = qMovie.filter_by(id = id).one()
 
-        #delete feeds
-        #[Db.delete(x) for x in movie.Feeds]
-
         #set status
         movie.status = u'deleted'
-
-        Db.flush()
 
         return redirect(url(controller = 'movie', action = 'index'))
 
@@ -50,13 +45,8 @@ class MovieController(BaseController):
 
         movie = qMovie.filter_by(id = id).one()
 
-        #delete feeds
-        #[Db.delete(x) for x in movie.Feeds]
-
         #set status
         movie.status = u'downloaded'
-
-        Db.flush()
 
         return redirect(url(controller = 'movie', action = 'index'))
 
@@ -71,8 +61,6 @@ class MovieController(BaseController):
 
         #set status
         movie.status = u'want'
-
-        Db.flush()
 
         #gogo find nzb for added movie via Cron
         self.cron.get('nzb')._searchNzb(movie)
@@ -156,8 +144,6 @@ class MovieController(BaseController):
             new.year = year
         else:
             new.year = movie.year
-
-        Db.flush()
 
         #gogo find nzb for added movie via Cron
         self.cron.get('nzb')._searchNzb(new)

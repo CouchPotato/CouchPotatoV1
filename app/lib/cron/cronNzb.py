@@ -60,10 +60,10 @@ class NzbCron(cronBase):
         movies = Db.query(Movie).filter_by(status = u'want')
 
         for movie in movies:
-            self._searchNzb(movie)
-
-            #log.info('Sleeping search for 5 sec')
-            time.sleep(5)
+            
+            if not self.abort:
+                self._searchNzb(movie)
+                time.sleep(5)
 
         self.doCheck(False)
         log.info('Finished search.')

@@ -1,7 +1,7 @@
-from controllers.config import ConfigController
-from controllers.cron import CronController
-from controllers.movie import MovieController
-from controllers.log import LogController
+from app.controllers.config import ConfigController
+from app.controllers.cron import CronController
+from app.controllers.movie import MovieController
+from app.controllers.log import LogController
 import cherrypy
 
 def setup():

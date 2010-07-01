@@ -1,7 +1,7 @@
 * Find providers that don't need login/registration
 * Search for missing trailers button / and make seperate from renaming
 * SABnzbd SSL option to include HTTPS
-* Make username/password optional
+* Edit movie info
 
 Userscript:
 
@@ -34,4 +34,3 @@ Later:
 * Think of a better name
 * Max downloads per day
 * Create .app for OSX
-* Create .exe for Windows

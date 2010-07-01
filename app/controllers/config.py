@@ -1,6 +1,7 @@
 from app.controllers import BaseController
 import cherrypy
 import logging
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -40,6 +41,8 @@ class ConfigController(BaseController):
         
         if not data.get('Renamer.enabled'):
             data['Renamer.enabled'] = False
+        if not data.get('global.launchbrowser'):
+            data['global.launchbrowser'] = False
 
         # Save post data
         for name in data:
@@ -55,6 +58,8 @@ class ConfigController(BaseController):
 
     @cherrypy.expose
     def exit(self):
+        
+        sys.exit()
 
         ## quit, or somethign..
         print 'Exit doesnt work yet..'

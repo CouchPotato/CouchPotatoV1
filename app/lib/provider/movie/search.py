@@ -20,6 +20,8 @@ class movieSearcher():
 
     def find(self, q):
         ''' Find movie by name '''
+        
+        q = unicode(q)
 
         for source in self.sources:
             result = source.find(q)[:8]
@@ -60,10 +62,10 @@ class movieSearcher():
             q = result.name;
             if result.year:
                 q += ' (' + result.year + ')'
-            r = self.imdb.find(q)[0]
-            if r:
-                result.year = r.year
-                result.imdb = r.imdb
+            r = self.imdb.find(q)
+            if len(r) > 0:
+                result.year = r[0].year
+                result.imdb = r[0].imdb
 
         if not result.id:
             r = self.theMovieDb.findByImdbId(result.imdb)

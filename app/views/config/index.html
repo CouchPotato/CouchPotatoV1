@@ -5,6 +5,7 @@
 		<li><a href="#renaming">Renaming</a></li>
 		<li><a href="#providers">Providers</a></li>
 		<li><a href="#userscript">Userscript</a></li>
+		<li><a href="#shutdown">Shutdown</a></li>
 	</ul>
 		
 	<form class="uniForm" action="${url(controller="config", action="save")}" method="post">
@@ -25,6 +26,10 @@
 			<div class="ctrlHolder">
 				<label for="">Password</label>
 				<input type="password" name="global.password" value="${config.get('global', 'password')}" class="textInput large"/>
+			</div>
+			<div class="ctrlHolder">
+				<label for="">Launch browser</label>
+				<input type="checkbox" name="global.launchbrowser" value="True" ${' checked' if config.get('global', 'launchbrowser') == 'True' else ''} />
 			</div>
 		</fieldset>
 		<fieldset class="general inlineLabels">
@@ -156,6 +161,12 @@
 				Need a recent version of <a href="http://www.google.com/chrome/" target="_blank">Chrome</a> or when using Firefox, the <a href="https://addons.mozilla.org/en-US/firefox/addon/748/" target="_blank">Greasemonkey addon</a>.
 			</p>
 		</fieldset>
+		<fieldset class="shutdown inlineLabels">
+			<div>
+				<span class="cancel"><a href="#cancel">Cancel</a> or</span>
+				<a href="/config/exit/" class="submit">Shutdown</a>
+			</div>
+		</fieldset>
 		<div class="buttonHolder">
 			<span class="cancel"><a href="#cancel">Cancel</a> or</span> 
 			<button type="submit" class="primaryAction">
@@ -214,9 +225,22 @@
 	    });
 		
 		// Cancel button
-		form.getElement('.cancel a').addEvent('click', function(e){
+		form.getElements('.cancel a').addEvent('click', function(e){
 			(e).stop()
 			$(document.body).get('mask').destroy();
+		});
+		
+		// Shutdown button
+		form.getElements('.shutdown a.submit').addEvent('click', function(e){
+			(e).stop()
+	        new Spinner(e.target).show();
+			new Request({
+				'url': e.target.get('href'),
+				'onComplete': function(){
+					e.target.getParent().set('text', 'Movie Manager has shutdown.')
+	        		new Spinner(e.target).hide();
+				}
+			}).send()
 		});
 		
 		// Menu

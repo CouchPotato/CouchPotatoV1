@@ -6,3 +6,10 @@
 .tmp*
 *.log
 *.log.*
+logs/debug.conf
+*.spec
+pyInstaller/
+*.exe
+setup.py
+warnMovieManager.txt
+build/

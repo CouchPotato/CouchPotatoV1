@@ -5,6 +5,7 @@ import fnmatch
 import logging
 import os
 import re
+import shutil
 import stat
 import time
 
@@ -42,7 +43,7 @@ class RenamerCron(cronBase):
                 self.doRename()
                 self.running = False
 
-            time.sleep(5)
+            time.sleep(1)
 
         log.info('Renamer has shutdown.')
 
@@ -78,7 +79,8 @@ class RenamerCron(cronBase):
 
             if movie:
                 finalDestination = self.renameFiles(files, movie)
-                self.trailerQueue.put({'id': movie.imdb, 'movie': movie, 'destination':finalDestination})
+                if self.config.get('Renamer', 'trailerQuality').lower() != 'false':
+                    self.trailerQueue.put({'id': movie.imdb, 'movie': movie, 'destination':finalDestination})
             else:
                 log.info('No Match found for: %s' % str(files['files']))
 
@@ -147,7 +149,7 @@ class RenamerCron(cronBase):
                     log.error('Failed setting permissions for %s' % finalDestination)
 
             if not os.path.isfile(dest):
-                os.rename(old, dest)
+                shutil.move(old, dest)
             else:
                 log.error('File %s already exists.' % filename)
                 break
@@ -158,7 +160,7 @@ class RenamerCron(cronBase):
                 subtitle = files['subtitles'].pop(0)
                 replacements['ext'] = subtitle['ext']
                 subFilename = self.doReplace(fileNaming, replacements)
-                os.rename(os.path.join(subtitle['path'], subtitle['filename']), os.path.join(destination, folder, subFilename))
+                shutil.move(os.path.join(subtitle['path'], subtitle['filename']), os.path.join(destination, folder, subFilename))
 
             # Add to renaming history
             h = RenameHistory()
@@ -166,15 +168,12 @@ class RenamerCron(cronBase):
             h.old = old
             h.new = dest
             Db.add(h)
-            Db.flush()
-
 
             if multiple:
                 cd += 1
 
         # Mark movie downloaded
         movie.status = u'downloaded'
-        Db.flush()
 
         return finalDestination
 
