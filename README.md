@@ -51,7 +51,6 @@ Ubuntu (init.d script):
 
 Windows:
 
-* Install Python 2.6 or higher (http://www.python.org/download/)
 * Download the latest Windows build (http://cl.ly/8482178457ef26bfcc88)
 * Extract it wherever you like
 * Start MovieManager.exe
