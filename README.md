@@ -34,19 +34,17 @@ To run MM you will need Python.
 
 Windows:
 
-* Download the latest Windows build: [Can be found here](http://cl.ly/8482178457ef26bfcc88)
+* Download the latest Windows build "r2": [Can be found here](http://cl.ly/a9e0706e203396d87f77)
 * Extract it wherever you like
 * Start MovieManager.exe
-* Default login is "username" & "password"
-* Change username & password
+* Set your username & password in the settings
 * Fill in all the config stuff
 
 OSx
 * Install Python 2.6 or higher (should be default on 10.5+)
 * Git clone/extract MM wherever you like
 * Run "MovieManager.app"
-* Default login is "username" & "password"
-* Change username & password
+* Set your username & password in the settings
 * Fill in all the config stuff
 
 Linux:
@@ -54,8 +52,7 @@ Linux:
 * Install Python 2.6 or higher
 * Git clone/extract MM wherever you like
 * Run "python MovieManager.py -d" to start in deamon mode
-* Default login is "username" & "password"
-* Change username & password
+* Set your username & password in the settings
 * Fill in all the config stuff
 
 Ubuntu (init.d script):

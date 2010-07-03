@@ -42,8 +42,8 @@ class configApp():
         self.setDefault('global', 'tools.mako.directories', 'app/views/')
         self.setDefault('global', 'host', '0.0.0.0')
         self.setDefault('global', 'port', 5000)
-        self.setDefault('global', 'username', 'username')
-        self.setDefault('global', 'password', 'password')
+        self.setDefault('global', 'username', '')
+        self.setDefault('global', 'password', '')
         self.setDefault('global', 'launchbrowser', 'True')
 
         self.addSection('Renamer')
