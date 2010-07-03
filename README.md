@@ -41,7 +41,7 @@ Windows:
 * Fill in all the config stuff
 
 OSx
-* Install Python 2.6 or higher (should be default on 10.5+)
+* If you're on Leopard (10.5) install Python 2.6+: [Python 2.6.5](http://www.python.org/download/releases/2.6.5/)
 * Git clone/extract MM wherever you like
 * Run "MovieManager.app"
 * Set your username & password in the settings
