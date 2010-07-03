@@ -26,18 +26,26 @@ class imdbWrapper(movieBase):
 
         return self.toResults(r)
 
-    def toResults(self, r):
+    def toResults(self, r, one = False):
         results = []
-
-        for movie in r:
+        
+        if one:
             new = self.feedItem()
-            new.imdb = 'tt' + movie.movieID
-            new.name = movie['title']
-            new.year = movie['year']
+            new.imdb = 'tt' + r.movieID
+            new.name = r['title']
+            new.year = r['year']
 
-            results.append(new)
+            return new
+        else :
+            for movie in r:
+                new = self.feedItem()
+                new.imdb = 'tt' + movie.movieID
+                new.name = movie['title']
+                new.year = movie['year']
+    
+                results.append(new)
 
-        return results
+            return results
 
 
     def findById(self, id):
@@ -52,4 +60,4 @@ class imdbWrapper(movieBase):
         log.info('IMDB - Searching for movie: %s', str(id))
 
         r = self.p.get_movie(id.replace('tt', ''))
-        return self.toResults(r)
+        return self.toResults(r, True)
