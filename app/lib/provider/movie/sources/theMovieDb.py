@@ -73,27 +73,39 @@ class theMovieDb(movieBase):
                 for movie in xml:
                     id = int(self.gettextelement(movie, "id"))
 
-                    new = self.feedItem()
-                    new.id = id
-                    new.name = self.toSaveString(self.gettextelement(movie, "name"))
-                    new.imdb = self.gettextelement(movie, "imdb_id")
-                    new.year = str(self.gettextelement(movie, "released"))[:4]
+                    name = self.toSaveString(self.gettextelement(movie, "name"))
+                    imdb = self.gettextelement(movie, "imdb_id")
+                    year = str(self.gettextelement(movie, "released"))[:4]
                     
                     # do some IMDB searching if needed
-                    if new.year == 'None' and new.imdb:
+                    if year == 'None' and imdb:
                         i = IMDb()
-                        r = i.search_movie(new.name)
-                        new.name = r[0]['title']
-                        new.imdb = 'tt'+r[0].movieID
-                        new.year = r[0]['year']
+                        r = i.search_movie(name)
+                        name = r[0]['title']
+                        imdb = 'tt'+r[0].movieID
+                        year = r[0]['year']
 
-                    results.append(new)
+                    results.append(self.fillFeedItem(id, name, imdb, year))
+                    
+                    alternativeName = self.toSaveString(self.gettextelement(movie, "alternative_name"))
+                    if alternativeName.lower() != name.lower():
+                        results.append(self.fillFeedItem(id, alternativeName, imdb, year))
 
                 log.info('TheMovieDB - Found: %s', results)
                 return results
             except SyntaxError:
                 log.error('TheMovieDB - Failed to parse XML response from TheMovieDb')
                 return False
+            
+    def fillFeedItem(self, id, name, imdb, year):
+
+        item = self.feedItem()
+        item.id = id
+        item.name = name
+        item.imdb = imdb
+        item.year = year
+        
+        return item
             
     def isDisabled(self):
         if self.conf('key') == '':
