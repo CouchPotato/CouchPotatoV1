@@ -88,7 +88,7 @@ class theMovieDb(movieBase):
                     results.append(self.fillFeedItem(id, name, imdb, year))
                     
                     alternativeName = self.toSaveString(self.gettextelement(movie, "alternative_name"))
-                    if alternativeName.lower() != name.lower():
+                    if alternativeName.lower() != name.lower() and alternativeName.lower() != 'none' and alternativeName != None:
                         results.append(self.fillFeedItem(id, alternativeName, imdb, year))
 
                 log.info('TheMovieDB - Found: %s', results)
