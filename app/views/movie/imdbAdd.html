@@ -5,8 +5,8 @@
 % else: 
 	<form method="post" action="${url(controller='movie',action='imdbAdd', id=id, year=year)}">
 		<select name="quality">
-			% for order, quality in qualityList.iteritems():
-			<option value="${quality['name']}"${' selected=selected' if quality.get('default') else ''}>${quality['name']}</option>
+			% for qualityItem in Qualities.all(enabled=True):
+			<option value="${qualityItem.id}"${' selected="selected"' if Qualities.default() == qualityItem.name else ''}>${qualityItem.label}</option>
 			% endfor
 		</select>
 		<a href="" class="submit">Add &raquo;</a>

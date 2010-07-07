@@ -1,6 +1,6 @@
+from app.config.db import Movie, Session as Db
 from app.lib.cron.cronBase import cronBase
-from app.config.db import Movie, History
-from app.config.db import Session as Db
+from sqlalchemy.sql.expression import or_
 import logging
 import time
 
@@ -21,7 +21,7 @@ class NzbCron(cronBase):
 
         self.setInterval(self.config.get('Intervals', 'nzb'))
         self.forceCheck()
-        #time.sleep(10)
+        time.sleep(10)
 
         while True and not self.abort:
 
@@ -42,13 +42,13 @@ class NzbCron(cronBase):
             time.sleep(1)
 
         log.info('NzbCron has shutdown.')
-        
+
     def setInterval(self, interval):
         self.intervalSec = int(interval) * 60 * 60
 
     def forceCheck(self, movie = None):
         if movie == None:
-            self.lastChecked = time.time() - self.intervalSec + 10
+            self.lastChecked = time.time() - self.intervalSec # + 10
         else:
             self.checkTheseMovies.append(movie)
 
@@ -56,14 +56,11 @@ class NzbCron(cronBase):
         log.info('Searching for NZB.')
         self.doCheck()
 
-        #get al wanted movies
-        movies = Db.query(Movie).filter_by(status = u'want')
-
+        #get all wanted movies
+        movies = Db.query(Movie).filter(or_(Movie.status == 'want', Movie.status == 'waiting')).all()
         for movie in movies:
-            
             if not self.abort:
                 self._searchNzb(movie)
-                time.sleep(5)
 
         self.doCheck(False)
         log.info('Finished search.')
@@ -71,27 +68,55 @@ class NzbCron(cronBase):
 
     def _searchNzb(self, movie):
 
-        results = self.provider.find(movie)
+        for queue in movie.queue:
 
-        #search for highest score
-        highest = None
-        highestScore = 0
-        for result in results:
-            if result.score > highestScore:
-                highest = result
+            # Movie already found, don't search further 
+            if queue.completed:
+                log.debug('%s already completed. Not searching for any qualities below.' % queue.qualityType)
+                return True
 
-        #send highest to SABnzbd & mark as snatched
-        if highest:
-            success = self.sabNzbd.send(highest)
+            # only search for active and not completed
+            if queue.active and not queue.completed and not self.abort:
 
-            # Add name to history for renaming
-            if success:
-                movie.status = u'snatched'
+                results = self.provider.find(movie, queue)
 
-                newHistory = History()
-                newHistory.movieId = movie.id
-                newHistory.name = highest.name
-                Db.add(newHistory)
+                #search for highest score
+                highest = None
+                highestScore = 0
+                for result in results:
+                    if result.score > highestScore:
+                        # Wait for download if complete = false
+                        highest = result
+                        highestScore = result.score
+
+                #send highest to SABnzbd & mark as snatched
+                if highest:
+
+                    #update what I found
+                    queue.name = highest.name
+                    queue.link = highest.detailUrl
+
+                    waitFor = queue.waitFor * (60 * 60 * 24)
+
+                    if queue.markComplete or (not queue.markComplete and result.date + waitFor < time.time()):
+                        success = self.sabNzbd.send(highest)
+                    else:
+                        success = False
+                        log.info('Found %s but waiting for %d hours.' % (result.name, ((result.date + waitFor) - time.time()) / (60 * 60)))
+
+                    # Set status
+                    if success:
+                        if queue.markComplete:
+                            movie.status = u'snatched'
+                        else:
+                            movie.status = u'waiting'
+
+                        queue.completed = True
+
+                    return True
+                time.sleep(5)
+
+        return False
 
 
     def doCheck(self, bool = True):
@@ -107,7 +132,7 @@ class NzbCron(cronBase):
     def nextCheck(self):
 
         t = (self.lastChecked + self.intervalSec) - time.time()
-        
+
         s = ''
         tm = time.gmtime(t)
         if tm.tm_hour > 0:

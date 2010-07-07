@@ -1,4 +1,4 @@
-from app.lib.quality import Quality
+from app.lib.qualities import Qualities
 import cherrypy
 import routes
 
@@ -15,7 +15,7 @@ class BaseController:
 
     globals = {
         'url': url,
-        'qualityList': Quality().all()
+        'Qualities': Qualities()
     }
 
     def __init__(self):

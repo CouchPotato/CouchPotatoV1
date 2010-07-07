@@ -1,5 +1,8 @@
+from app.config.db import QualityTemplate, Session as Db
 from app.controllers import BaseController
+from app.lib.qualities import Qualities
 import cherrypy
+import json
 import logging
 import sys
 
@@ -38,11 +41,22 @@ class ConfigController(BaseController):
         Save all config settings
         '''
         config = cherrypy.config.get('config')
-        
+
         if not data.get('Renamer.enabled'):
             data['Renamer.enabled'] = False
         if not data.get('global.launchbrowser'):
             data['global.launchbrowser'] = False
+            
+        # Do quality order
+        order = data.get('Quality.order').split(',')
+        data['Quality.order'] = None
+        for id in order:
+            Db.query(QualityTemplate).filter_by(id = int(id)).one().order = order.index(id)
+            
+        # Save templates
+        templates = json.loads(data.get('Quality.templates'))
+        data['Quality.templates'] = None
+        Qualities().saveTemplates(templates)
 
         # Save post data
         for name in data:
@@ -58,11 +72,8 @@ class ConfigController(BaseController):
 
     @cherrypy.expose
     def exit(self):
-        
-        sys.exit()
 
-        ## quit, or somethign..
-        print 'Exit doesnt work yet..'
+        sys.exit()
 
     @cherrypy.expose
     @cherrypy.tools.mako(filename = "config/imdbScript.js")

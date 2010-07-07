@@ -1,5 +1,4 @@
 from app.lib.provider.nzb.base import nzbBase
-import datetime
 import logging
 import time
 import urllib
@@ -13,30 +12,31 @@ class nzbs(nzbBase):
     downloadUrl = 'http://nzbs.org/index.php?action=getnzb&nzbid=%s%s'
     nfoUrl = 'http://nzbs.org/index.php?action=view&nzbid=%s&nfo=1'
     detailUrl = 'http://nzbs.org/index.php?action=view&nzbid=%s'
-    
+
     config = None
     apiUrl = 'http://nzbs.org/rss.php'
 
     catIds = {
         4: ['720p', '1080p'],
-        2: ['cam', 'ts', 'dvdrip']
+        2: ['cam', 'ts', 'dvdrip', 'tc', 'brrip', 'r5', 'scr'],
+        9: ['dvdr']
     }
+    catBackupId = 't2'
 
     def __init__(self, config):
         log.info('Using NZBs.org provider')
-        
+
         self.config = config
-        
+
     def conf(self, option):
         return self.config.get('NZBsorg', option)
 
-    def find(self, movie):
-        log.info('Searching for movie: %s', movie.name)
+    def find(self, movie, quality, type):
 
         arguments = urllib.urlencode({
             'action':'search',
-            'q': self.toSaveString(movie.name + ' ' + movie.quality),
-            'catid':self.getCatId(movie.quality),
+            'q': self.toSaveString(movie.name + ' ' + quality),
+            'catid':self.getCatId(type),
             'i':self.conf('id'),
             'h':self.conf('key'),
             'age':self.conf('retention')
@@ -68,9 +68,10 @@ class nzbs(nzbBase):
                     new.id = id
                     new.type = 'NZB.org'
                     new.name = self.gettextelement(nzb, "title")
-                    new.date = datetime.datetime.strptime(str(self.gettextelement(nzb, "pubDate")), '%a, %d %b %Y %H:%M:%S +0000')
+                    new.date = time.mktime(time.strptime(str(self.gettextelement(nzb, "pubDate")), '%a, %d %b %Y %H:%M:%S +0000'))
                     new.size = size
                     new.url = self.downloadLink(id)
+                    new.detailUrl = self.detailLink(id)
                     new.content = self.gettextelement(nzb, "description")
                     new.score = self.calcScore(new, movie)
 
@@ -82,7 +83,7 @@ class nzbs(nzbBase):
             except SyntaxError:
                 log.error('Failed to parse XML response from NZBs.org')
                 return False
-            
+
     def getItems(self, data):
         return XMLTree.parse(data).findall('channel/item')
 
@@ -93,6 +94,8 @@ class nzbs(nzbBase):
             for q in quality:
                 if q == prefQuality:
                     return id
+
+        return self.catBackupId
 
     def getApiExt(self):
         return '&i=%s&h=%s' % (self.conf('id'), self.conf('key'))

@@ -9,7 +9,7 @@ class nzbBase(rss):
         'proper:2', 'repack:2',
         'unrated:1',
         'x264:1',
-        '720p:2', '1080p:2', 'dvd:1', 'dvdrip:1', 'bluray:2',
+        '720p:2', '1080p:2', 'bluray:2', 'dvd:1', 'dvdrip:1', 'brrip:1', 'bdrip:1',
         'metis:1', 'diamond:1', 'wiki:1', 'CBGB:1'
     ]
 

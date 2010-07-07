@@ -118,11 +118,10 @@ form {
 	#header .addNew {
 		float: right;
 		padding: 20px 0 0;
-		width: 350px;
-		text-align: right;
+		width: 420px;
 	}
 		#header .addNew .row {
-			float: left;
+			float: right;
 			padding: 5px;
 		}
 		
@@ -142,14 +141,20 @@ form {
 			width: 200px;
 		}
 		
+		#header .addNew .row .quality {
+			width: 70px;
+		}
+		
+		#header .addNew .row #yearInput {
+			width: 40px; 
+			border: 1px 
+			solid red;
+		}
+		
 		#header .addNew .row .overTxtLabel {
 			padding: 2px 3px;
 			font-size: 15px;
 			color: #999;
-		}
-		
-		#header form a.submit {
-			margin-top:5px;
 		}
 		
 		form a.submit {
@@ -193,32 +198,87 @@ form {
 	#movies .header > span, #movies .item > span {
 		float:left;
 		display:block;
-		padding: 10px 5px;
+		padding: 19px 9px 6px;
 	}
 	
-	#movies .header, #movies .item {
+	#movies .header, #movies > .item {
 		clear:both;
 		text-align: center;
 	}
 	
-	#movies .item {
+	#movies > .item {
 		overflow:hidden;
-	}
-	#movies .item:nth-child(even) {
-		background: #f7f7f7;
+		background: #fff;
+		padding-bottom: 5px;
 	}
 
+	#movies > .item:nth-child(even) {
+		background: #f7f7f7;
+	}
 	
+	#movies > .item.waiting {
+		background: #ffeeca;
+	}
+	
+	#movies > .item.active {
+		border-bottom: 2px solid #d7ebee;
+		background: #edf7f9 !important;
+		margin-bottom: 3px;
+		padding-bottom: 0;
+		-webkit-box-shadow: 0 2px 2px rgba(0,0,0,0.25);
+		-moz-box-shadow: 0 2px 2px rgba(0,0,0,0.25);
+	}
+
 		#movies .title {
-			width: 620px;
+			width: 555px;
 			text-align: left;
 		}
 		#movies .year {
 			width: 70px;
 		}
 		#movies .quality {
-			width: 70px;
+			width: 92px;
 		}
+		#movies .item .quality {
+			padding: 5px 9px;
+		}
+		#movies .item .quality span {
+			font-size: 10px;
+			width: 10px;
+			height: 45px;
+			display: block;
+			float: left;
+			padding: 0 3px 0 0;
+			color: #333;
+			background: url('/media/images/qualities.png') no-repeat;
+		}
+			/** ACTIVE **/
+			#movies .item .quality .q1080P.active { background-position: -85px -63px; }
+			#movies .item .quality .q720P.active { background-position: -71px -63px; }
+			#movies .item .quality .qBR-Rip.active { background-position: -58px -63px; }
+			#movies .item .quality .qDVD-R.active { background-position: -44px -63px; }
+			#movies .item .quality .qDVD-Rip.active { background-position: -30px -63px; }
+			#movies .item .quality .qScreener.active { background-position: -17px -63px; }
+			#movies .item .quality .qR5.active, #movies .item .quality .qTeleCine.active, #movies .item .quality .qTeleSync.active, #movies .item .quality .qCam.active { background-position: -3px -63px; }
+			
+			/** INACTIVE **/
+			#movies .item .quality .q1080P { background-position: -85px -115px; }
+			#movies .item .quality .q720P { background-position: -71px -115px; }
+			#movies .item .quality .qBR-Rip { background-position: -58px -115px; }
+			#movies .item .quality .qDVD-R { background-position: -44px -115px; }
+			#movies .item .quality .qDVD-Rip { background-position: -30px -115px; }
+			#movies .item .quality .qScreener { background-position: -17px -115px; }
+			#movies .item .quality .qR5, #movies .item .quality .qTeleCine, #movies .item .quality .qTeleSync, #movies .item .quality .qCam { background-position: -3px -115px; }
+			
+			/** COMPLETED **/
+			#movies .item .quality .q1080P.completed { background-position: -85px -13px; }
+			#movies .item .quality .q720P.completed { background-position: -71px -13px; }
+			#movies .item .quality .qBR-Rip.completed { background-position: -58px -13px; }
+			#movies .item .quality .qDVD-R.completed { background-position: -44px -13px; }
+			#movies .item .quality .qDVD-Rip.completed { background-position: -30px -13px; }
+			#movies .item .quality .qScreener.completed { background-position: -17px -13px; }
+			#movies .item .quality .qR5.completed , #movies .item .quality .qTeleCine.completed , #movies .item .quality .qTeleSync.completed , #movies .item .quality .qCam.completed { background-position: -3px -13px; }
+		
 		#movies .info {
 			width: 70px;
 		}
@@ -229,6 +289,67 @@ form {
 	#movies img {
 		vertical-align: middle;
 	}
+	
+	#movies > .item .queue { display: none; }
+	#movies > .item.active .queue { display: block; }
+	
+	#movies > .item .queue {
+		font-size: 12px;
+		position: absolute;
+		background: #edf7f9;
+		z-index: 199;
+		border: 2px solid #d7ebee;
+		border-top: none;
+		-webkit-box-shadow: 0 4px 4px rgba(0,0,0,0.25);
+		-moz-box-shadow: 0 4px 4px rgba(0,0,0,0.25);
+		-moz-border-radius-bottomleft: 6px;
+		-moz-border-radius-bottomright: 6px;
+		-webkit-border-bottom-left-radius: 6px;
+		-webkit-border-bottom-right-radius: 6px;
+		margin: 55px 0 0 520px;
+	}
+	
+		#movies > .item .queue .header {
+			padding: 2px 5px;
+			overflow: hidden;
+			background: #fff;
+		}
+	
+		#movies > .item .queue .item {
+			clear: both;
+			overflow: hidden;
+			padding: 2px 5px;
+		}
+		
+		#movies > .item .queue .item:nth-child(odd) {
+			background: #fff;
+		}
+		
+		#movies > .item .queue .item:last-child {
+			-moz-border-radius-bottomleft: 6px;
+			-moz-border-radius-bottomright: 6px;
+			-webkit-border-bottom-left-radius: 6px;
+			-webkit-border-bottom-right-radius: 6px;
+		}
+		
+		#movies > .item .queue .inactive {
+			color: #999;
+		}
+		
+		#movies > .item .queue .completed {
+			background: #dffbbe !important;
+		}
+	
+			#movies > .item .queue span {
+				display: block;
+				float: left;
+				text-align: left;
+				padding: 2px 5px;
+			}
+	
+			#movies > .item .queue .found { width: 200px; overflow: hidden; height: 24px; }
+			#movies > .item .queue .qualityType { width: 60px; text-align: center; }
+			#movies > .item .queue .markComplete { width: 40px; text-align: center; }
 
 
 .smallList {
@@ -301,6 +422,16 @@ form {
 	position:absolute;
 	z-index:101;
 }
+
+	#configForm .formContent {
+		height: 510px;
+		overflow: auto;
+		background: #fff;
+		display: block;
+		clear: both;
+		float: right;
+		width: 500px;
+	}
 	
 		#configForm h3 {
 			font-size: 19px;
@@ -315,9 +446,7 @@ form {
 	
 		#configForm fieldset {
 			width: 460px;
-			padding: 20px;
-			float: right;
-			background: #fff;
+			padding: 20px 0 20px 20px;
 		}
 	
 			#configForm fieldset.shutdown {
@@ -328,6 +457,10 @@ form {
 			#configForm fieldset.shutdown .submit {
 				background-color: #ff0000;
 			}
+			
+		#configForm .buttonHolder {
+			margin-top: 0;
+		}
 		
 		#configForm .ctrlHolder {
 			line-height: 25px;
@@ -348,6 +481,8 @@ form {
 			
 			input.xsmall {
 				width: 5% !important;
+				text-align: center !important;
+				margin-right: 4px !important;
 			}
 			
 			#configForm .userscriptInstall {
@@ -357,10 +492,18 @@ form {
 				font-size: 15px;
 			}
 			
+				#configForm fieldset p {
+					text-align: center;
+				}
+			
 			#configForm .formHint span {
 				background: #f5f5f5;
 				padding: 2px;
 				margin-right: 1px;
+			}
+			
+			#configForm .formHint {
+				text-align: left;
 			}
 			
 			#configForm span.cancel {
@@ -372,4 +515,123 @@ form {
 				#configForm span.cancel a {
 					padding-right: 10px;
 				}
+		
+		#configForm .standardQualities {
+			float: left;
+			width: 275px;
+		}
+			#configForm .standardQualities .item {
+				clear: both;
+				border-bottom: 1px solid #f3f3f3;
+				overflow: hidden;
+				background: #fff;
+			}
+				#configForm .standardQualities .item:last-child { border: none; }
+			#configForm .standardQualities .item:hover {
+				background: #f3f3f3;
+			}
+				#configForm .standardQualities .item .label {
+					padding: 4px 10px;
+				}
+		
+				#configForm .standardQualities input {
+					clear: both;
+					float: left;
+					margin: 6px 0;
+				}
+				
+				#configForm .handle {
+					background: #fff url('/media/images/handle.png') center no-repeat;
+					display: block;
+					width: 24px;
+					height: 24px;
+					float: right;
+					cursor: move;
+				}
+		
+		#configForm .qualityTemplates .template {
+			border-bottom: 1px solid #f0f0f0;
+			margin-bottom: 30px;
+		}
+		
+		#configForm .qualityTemplates .template h4 {
+			margin: 0 0 0 160px;
+			font-size: 16px;
+			float: left;
+			display: block;
+			padding: 0;
+		}
+		
+		#configForm .qualityTemplates .template > .delete {
+			float: left;
+			display: block;
+			width: 20px;
+			padding: 5px;
+		}
+		
+		#configForm .qualityTemplates .types {
+			float: left;
+			width: 275px;
+		}
+		
+			#configForm .qualityTemplates .header {
+				font-weight: bold;
+			}
+		
+			#configForm .qualityTemplates .qualityType {
+				display: block;
+				float: left;
+				width: 190px;
+			}
+		
+			#configForm .qualityTemplates span.markComplete {
+				display: block;
+				float: left;
+				width: 40px;
+				text-align: center;
+			}
+		
+			#configForm .qualityTemplates .item {
+				display: block;
+				clear: both;
+				border-bottom: 1px solid #f3f3f3;
+				overflow: hidden;
+				background: #fff;
+			}
+			#configForm .qualityTemplates .item:last-child { border: none; }
+				#configForm .qualityTemplates .item:hover {
+					background: #f3f3f3;
+				}
+				
+				#configForm .qualityTemplates select {
+					width: 90%;
+					margin: 3px 0 0 0;
+				}
+				
+				#configForm .qualityTemplates textarea {
+					display: none;
+				}
+		
+				#configForm .qualityTemplates .item .delete {
+					float: left;
+					line-height: 0;
+					padding: 5px 0;
+					cursor: pointer;
+				}
+		
+			#configForm .qualityTemplates .addType {
+				clear: both;
+				text-align: center;
+				width: 290px;
+				display: block;
+				float: right;
+			}
+		
+			#configForm .qualityTemplates #newTemplate {
+				clear: both;
+				text-align: center;
+				display: block;
+				font-size: 16px;
+				padding: 20px;
+			}
 

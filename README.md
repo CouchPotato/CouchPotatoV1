@@ -12,6 +12,7 @@ Features:
 * Easy adding movies via IMDB UserScript
 * Movie sorting & renaming
 * Trailer downloading
+* Quality options to download best available. Overwrite if better is found.
 
 
 ![preview thumb](http://github.com/RuudBurger/Movie-Manager/raw/master/media/images/screenshot.png)
@@ -34,7 +35,7 @@ To run MM you will need Python.
 
 Windows:
 
-* Download the latest Windows build "r2": [Can be found here](http://cl.ly/a9e0706e203396d87f77)
+* Download the latest Windows build "r3": [Can be found here](http://cl.ly/d7297d841db541145c1f)
 * Extract it wherever you like
 * Start MovieManager.exe
 * Set your username & password in the settings
@@ -61,6 +62,10 @@ Ubuntu (init.d script):
 * If you want, change "RUN_AS=root" to another user.
 * Make executable "sudo chmod a+x /etc/init.d/moviemanager"
 * Start "sudo /etc/init.d/moviemanager start"
+
+Other:
+
+* [QNAP Guide can be found here](http://forums.sabnzbd.org/index.php?topic=4636.msg33541#msg33541)
 
 ## Update
 

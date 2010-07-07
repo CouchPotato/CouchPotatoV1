@@ -1,5 +1,5 @@
 from app.config.db import Session as Db, Movie
-from app.controllers import BaseController, url, redirect
+from app.controllers import BaseController, redirect
 import cherrypy
 import logging
 

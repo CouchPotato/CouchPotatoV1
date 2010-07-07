@@ -1,5 +1,6 @@
-from app.config.db import Session as Db, Movie
+from app.config.db import Session as Db, Movie, QualityTemplate, MovieQueue
 from app.controllers import BaseController, url, redirect
+from sqlalchemy.sql.expression import or_
 import cherrypy
 import logging
 
@@ -16,7 +17,7 @@ class MovieController(BaseController):
         Show all wanted, snatched, downloaded movies
         '''
 
-        movies = qMovie.order_by(Movie.name).filter_by(status = u'want').all()
+        movies = qMovie.order_by(Movie.name).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
         snatched = qMovie.order_by(Movie.name).filter_by(status = u'snatched').all()
         downloaded = qMovie.order_by(Movie.name).filter_by(status = u'downloaded').all()
 
@@ -75,25 +76,30 @@ class MovieController(BaseController):
         Search for added movie. 
         Add if only 1 is found
         '''
-        movie = data.get('movie')
+        moviename = data.get('moviename')
         movienr = data.get('movienr')
         quality = data.get('quality')
         year = data.get('year')
 
-        log.info('Searching for: %s', movie)
+        log.info('Searching for: %s', moviename)
 
         if data.get('add'):
             results = cherrypy.session['results']
             result = results[int(movienr)]
 
-            if result.year != 'None' or year:
-                self._addMovie(result, quality, year)
+            if year:
+                result.year = year
+
+            if result.year == 'None':
+                return self.render({'error': 'year'})
+            else:
+                self._addMovie(result, quality)
                 return redirect(url(controller = 'movie', action = 'index'))
         else:
-            results = self.searchers.get('movie').find(movie)
+            results = self.searchers.get('movie').find(moviename)
             cherrypy.session['results'] = results
 
-        return self.render({'movie':movie, 'results': results, 'quality':quality})
+        return self.render({'moviename':moviename, 'results': results, 'quality':quality})
 
     @cherrypy.expose
     @cherrypy.tools.mako(filename = "movie/imdbAdd.html")
@@ -126,13 +132,21 @@ class MovieController(BaseController):
             exists = qMovie.filter_by(movieDb = movie.id).first()
         else:
             exists = qMovie.filter_by(imdb = movie.imdb).first()
+
         if exists:
             log.info('Movie already exists, do update.')
+
+            # Delete old qualities
+            for x in exists.queue:
+                x.active = False
+            Db.expire(exists) #This is lame! :(
+
             new = exists
         else:
             new = Movie()
             Db.add(new)
-
+        
+        # Update the stuff
         new.status = u'want'
         new.name = movie.name
         new.imdb = movie.imdb
@@ -145,5 +159,19 @@ class MovieController(BaseController):
         else:
             new.year = movie.year
 
+        # Add qualities to the queue
+        quality = Db.query(QualityTemplate).filter_by(id = quality).one()
+        for type in quality.types:
+            queue = MovieQueue()
+            queue.qualityType = type.type
+            queue.movieId = new.id
+            queue.order = type.order
+            queue.active = True
+            queue.completed = False
+            queue.waitFor = 0 if type.markComplete else quality.waitFor
+            queue.markComplete = type.markComplete
+            Db.add(queue)
+
+
         #gogo find nzb for added movie via Cron
-        self.cron.get('nzb')._searchNzb(new)
+        self.cron.get('nzb').forceCheck(new)

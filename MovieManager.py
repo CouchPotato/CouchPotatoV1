@@ -22,6 +22,7 @@ from app.config.configApp import configApp
 import app.config.render
 from app.config.routes import setup as Routes
 from app.lib.cron import CronJobs
+from app.lib.qualities import Qualities
 
 import cherrypy
 from cherrypy.process import plugins
@@ -80,7 +81,7 @@ def server_start():
             'tools.staticdir.root': os.path.abspath(os.path.curdir),
             'tools.staticdir.dir': "media",
             'tools.expires.on': True,
-            'tools.expires.secs': 3600*24*7
+            'tools.expires.secs': 3600 * 24 * 7
         }
     }
 

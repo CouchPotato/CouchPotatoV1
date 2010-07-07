@@ -5,6 +5,7 @@ import Queue
 import logging
 import os
 import re
+import shutil
 import stat
 import urllib
 import xml.etree.ElementTree as XMLTree
@@ -107,8 +108,6 @@ class TrailerCron(rss, cronBase):
 
     def download(self, movie, videoId, key, destination):
 
-        minimumExceeded = False
-
         for format in self.formats:
             log.debug('Format %d >= %d' % (format['key'], int(self.config.get('Renamer', 'trailerQuality'))))
             videoUrl = self.getVideoUrl % (videoId, key, int(format['key']))
@@ -117,27 +116,29 @@ class TrailerCron(rss, cronBase):
                 meta = videoData.info()
                 size = int(meta.getheaders("Content-Length")[0])
                 if size > 0:
-                    log.info('Downloading trailer in %s too "%s", size: %s' % (format['quality'], destination, str(size / 1024 / 1024) + 'MB'))
 
                     #trails destination
                     trailerFile = os.path.join(destination, 'movie-trailer' + '.' + format['format'])
                     tempTrailerFile = os.path.join(destination, '_DOWNLOADING-trailer' + '.' + format['format'])
                     if os.path.isfile(tempTrailerFile): os.remove(tempTrailerFile)
                     if not os.path.isfile(trailerFile):
+                        log.info('Downloading trailer in %s too "%s", size: %s' % (format['quality'], destination, str(size / 1024 / 1024) + 'MB'))
                         with open(tempTrailerFile, 'w') as f:
                             f.write(videoData.read())
 
-                    #temp to real
-                    os.rename(tempTrailerFile, trailerFile)
+                        #temp to real
+                        log.info('Download finished, renaming trailer temp-download to final.')
+                        os.rename(tempTrailerFile, trailerFile)
 
-                    # Use same permissions as parent dir
-                    mode = os.stat(destination)
-                    try:
-                        os.chmod(trailerFile, stat.S_IMODE(mode[ST_MODE]))
-                    except:
-                        log.error('Failed setting permissions for %s' % trailerFile)
+                        # Use same permissions as parent dir
+                        try:
+                            #mode = os.stat(destination)
+                            #os.chmod(trailerFile, mode[ST_MODE] & 07777)
+                            shutil.copymode(destination, trailerFile)
+                        except OSError:
+                            log.error('Failed setting permissions for %s' % trailerFile)
 
-                    return True
+                        return True
 
             if format['key'] == int(self.config.get('Renamer', 'trailerQuality')):
                 log.debug('Minumum trailer quality exceeded.')

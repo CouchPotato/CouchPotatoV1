@@ -3,7 +3,6 @@ import cherrypy
 import logging
 import os
 from string import ascii_letters, digits
-import unicodedata
 
 log = logging.getLogger(__name__)
 file = 'MovieManager.log'

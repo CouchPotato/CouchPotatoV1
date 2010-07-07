@@ -75,6 +75,10 @@ class configApp():
         self.setDefault('Intervals', 'nzb', '24')
         self.setDefault('Intervals', 'renamer', '5')
 
+        self.addSection('Quality')
+        self.setDefault('Quality', 'hide', 'cam')
+        self.setDefault('Quality', 'default', '720p')
+
         self.save()
 
     def save(self):
