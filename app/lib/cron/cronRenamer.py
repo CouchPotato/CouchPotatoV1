@@ -79,12 +79,15 @@ class RenamerCron(cronBase):
                 imdbId = self.getImdb(nfoFile)
                 if imdbId:
                     log.info('Found movie via nfo file.')
-                    movie = self.getMovie(imdbId)
+                    movie = {
+                        'movie': self.getMovie(imdbId),
+                        'queue': None
+                    }
             # Try other methods
             else:
                 movie = self.determineMovie(files)
 
-            if movie:
+            if movie['movie']:
                 finalDestination = self.renameFiles(files, movie['movie'], movie['queue'])
                 if self.config.get('Renamer', 'trailerQuality').lower() != 'false':
                     self.trailerQueue.put({'id': movie['movie'].imdb, 'movie': movie['movie'], 'destination':finalDestination})

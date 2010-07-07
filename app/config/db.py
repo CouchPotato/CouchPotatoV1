@@ -1,5 +1,5 @@
 from sqlalchemy import *
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, NoSuchTableError
 from sqlalchemy.ext.sqlsoup import SqlSoup
 from sqlalchemy.orm import mapper, create_session, relation
 import datetime
@@ -169,27 +169,27 @@ def migrateVersion2():
     try:
         db.execute('DROP TABLE Feed')
         log.info('Removed old Feed table.')
-    except OperationalError:
+    except (OperationalError, NoSuchTableError):
         log.debug('No Feed table found.')
 
     # History add column
     try:
         db.execute('DROP TABLE History')
         log.info('Removed History table.')
-    except OperationalError:
+    except (OperationalError, NoSuchTableError):
         log.debug('No History table found.')
 
     # RenameHistory add column
     try:
         Session.query(RenameHistory).filter_by(movieQueue = '').all()
         log.debug('Column "RenameHistory:movieQueue" exists, not necessary.')
-    except OperationalError:
-        db.execute("CREATE TEMPORARY TABLE movie_backup(id, movieId, old, new);")
-        db.execute("INSERT INTO movie_backup SELECT id, movieId, old, new FROM RenameHistory;")
+    except (OperationalError, NoSuchTableError):
+        db.execute("CREATE TABLE RenameHistoryBackup(id, movieId, old, new);")
+        db.execute("INSERT INTO RenameHistoryBackup SELECT id, movieId, old, new FROM RenameHistory;")
         db.execute("DROP TABLE RenameHistory;")
-        db.execute("CREATE TABLE RenameHistory(id, movieQueue, old VARCHAR, new VARCHAR);")
-        db.execute("INSERT INTO RenameHistory SELECT id, movieId, old, new FROM movie_backup;")
-        db.execute("DROP TABLE movie_backup;")
+        db.execute("CREATE TABLE RenameHistory (id, movieQueue, old VARCHAR, new VARCHAR);")
+        db.execute("INSERT INTO RenameHistory SELECT id, movieId, old, new FROM RenameHistoryBackup;")
+        db.execute("DROP TABLE RenameHistoryBackup;")
         log.info('Added "movieQueue" column to existing RenameHistory Table.')
 
     # Mark all history

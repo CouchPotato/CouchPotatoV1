@@ -1,7 +1,7 @@
 import sys
 import os
 
-path_base = os.path.abspath(os.path.curdir)
+path_base = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(path_base, 'library'))
 
 # Use debug conf if available
