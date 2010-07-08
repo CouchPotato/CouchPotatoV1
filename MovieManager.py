@@ -73,6 +73,7 @@ def server_start():
         '/': {
             'request.dispatch': Routes(),
             'tools.sessions.on':  True,
+            'tools.sessions.timeout': 240,
 
             'tools.gzip.on': True,
             'tools.gzip.mime_types': ['text/html', 'text/plain', 'text/css', 'text/javascript', 'application/javascript']
@@ -131,7 +132,7 @@ def server_start():
     else:
 
         # Launch browser
-        if ca.get('global', 'launchbrowser').lower() == 'true':
+        if str(ca.get('global', 'launchbrowser')).lower() == 'true':
             app.launchBrowser(ca.get('global', 'host'), ca.get('global', 'port'))
 
         cherrypy.engine.block()
