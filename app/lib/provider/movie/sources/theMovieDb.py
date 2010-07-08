@@ -43,7 +43,7 @@ class theMovieDb(movieBase):
         url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.conf('key'), id)
         data = urllib.urlopen(url)
 
-        results = self.parseXML(data)
+        results = self.parseXML(data, limit = 8)
 
         return results.pop(0)
 
@@ -56,7 +56,7 @@ class theMovieDb(movieBase):
         url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.imdbLookup', self.conf('key'), id)
         data = urllib.urlopen(url)
 
-        results = self.parseXML(data)
+        results = self.parseXML(data, limit = 8)
 
         if results:
             return results.pop(0)

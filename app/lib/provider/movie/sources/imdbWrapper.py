@@ -26,7 +26,7 @@ class imdbWrapper(movieBase):
 
         return self.toResults(r, limit)
 
-    def toResults(self, r, limit, one = False):
+    def toResults(self, r, limit = 8, one = False):
         results = []
         
         if one:
