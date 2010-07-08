@@ -7,8 +7,24 @@ from app.lib.sabNzbd import sabNzbd
 from cherrypy.process import plugins
 import cherrypy
 import logging
+import sys
 
 log = logging.getLogger(__name__)
+
+# Log error to file
+class LogFile(object):
+    """File-like object to log text using the `logging` module."""
+
+    def __init__(self, name = None):
+        self.logger = logging.getLogger(name)
+
+    def write(self, msg, level = logging.INFO):
+        if 'Traceback' in msg and not 'bsouplxml' in msg:
+            self.logger.critical(msg)
+
+    def flush(self):
+        for handler in self.logger.handlers:
+            handler.flush()
 
 class CronJobs(plugins.SimplePlugin):
 
@@ -48,6 +64,9 @@ class CronJobs(plugins.SimplePlugin):
         #renamer cron
         renamerCronJob = startRenamerCron(config, self.searchers)
         self.threads['renamer'] = renamerCronJob
+        
+        #log all files to logfile
+        sys.stderr = LogFile('stderr')
 
     def stop(self):
         log.info("Stopping Cronjobs.")

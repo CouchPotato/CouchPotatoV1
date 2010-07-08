@@ -15,23 +15,6 @@ else:
 
 log = logging.getLogger(__name__)
 
-# Log error to file
-class LogFile(object):
-    """File-like object to log text using the `logging` module."""
-
-    def __init__(self, name = None):
-        self.logger = logging.getLogger(name)
-
-    def write(self, msg, level = logging.INFO):
-        if 'Traceback' in msg and not 'bsouplxml' in msg:
-            self.logger.critical(msg)
-
-    def flush(self):
-        for handler in self.logger.handlers:
-            handler.flush()
-
-sys.stderr = LogFile('stderr')
-
 from app.config.db import initDb
 from optparse import OptionParser
 import app
@@ -137,6 +120,7 @@ def server_start():
         cherrypy.engine.signal_handler.subscribe()
     if hasattr(cherrypy.engine, "console_control_handler"):
         cherrypy.engine.console_control_handler.subscribe()
+
 
     ## start the app
     try:
