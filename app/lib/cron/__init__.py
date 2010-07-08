@@ -23,8 +23,9 @@ class LogFile(object):
             self.logger.critical(msg)
 
     def flush(self):
-        for handler in self.logger.handlers:
-            handler.flush()
+        pass
+        #for handler in self.logger.handlers:
+        #    handler.flush()
 
 class CronJobs(plugins.SimplePlugin):
 
