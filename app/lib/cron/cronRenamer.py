@@ -52,7 +52,7 @@ class RenamerCron(cronBase):
         log.info('Renamer has shutdown.')
 
     def isDisabled(self):
-        if (self.conf('enabled').lower() == 'true' and os.path.isdir(self.conf('download')) and self.conf('download') and self.conf('destination') and self.conf('foldernaming') and self.conf('filenaming')):
+        if (str(self.conf('enabled')).lower() == 'true' and os.path.isdir(self.conf('download')) and self.conf('download') and self.conf('destination') and self.conf('foldernaming') and self.conf('filenaming')):
             return False
         else:
             return True
