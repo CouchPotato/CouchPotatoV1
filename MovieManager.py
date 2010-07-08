@@ -59,7 +59,7 @@ def server_start():
             'server.environment':               ca.get('global', 'server.environment'),
             'engine.autoreload_on':            (ca.get('global', 'engine.autoreload_on') == 'True' and not options.daemonize),
             'tools.mako.collection_size':   int(ca.get('global', 'tools.mako.collection_size')),
-            'tools.mako.directories':           path_base + '/' + ca.get('global', 'tools.mako.directories'),
+            'tools.mako.directories':           os.path.join(path_base, ca.get('global', 'tools.mako.directories')),
 
             # Global workers
             'config':                           ca,
@@ -73,6 +73,7 @@ def server_start():
         '/': {
             'request.dispatch': Routes(),
             'tools.sessions.on':  True,
+
             'tools.gzip.on': True,
             'tools.gzip.mime_types': ['text/html', 'text/plain', 'text/css', 'text/javascript', 'application/javascript']
         },

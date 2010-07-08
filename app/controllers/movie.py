@@ -81,10 +81,11 @@ class MovieController(BaseController):
         quality = data.get('quality')
         year = data.get('year')
 
-        log.info('Searching for: %s', moviename)
-
         if data.get('add'):
-            results = cherrypy.session['results']
+            results = cherrypy.session.get('searchresults')
+            if not results:
+                log.error('Researching for results..')
+                results = self.searchers.get('movie').find(moviename)
             result = results[int(movienr)]
 
             if year:
@@ -97,7 +98,7 @@ class MovieController(BaseController):
                 return redirect(url(controller = 'movie', action = 'index'))
         else:
             results = self.searchers.get('movie').find(moviename)
-            cherrypy.session['results'] = results
+            cherrypy.session['searchresults'] = results
 
         return self.render({'moviename':moviename, 'results': results, 'quality':quality})
 
