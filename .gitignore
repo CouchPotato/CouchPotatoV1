@@ -4,12 +4,11 @@
 *.pyc
 .DS_Store
 .tmp*
-*.log
-*.log.*
-logs/debug.conf
+logs/
 *.spec
 pyInstaller/
 *.exe
 setup.py
 warnMovieManager.txt
 build/
+debug.conf
