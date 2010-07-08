@@ -21,10 +21,10 @@ class movieSearcher():
     def find(self, q):
         ''' Find movie by name '''
         
-        q = unicode(q)
+        q = unicode(q).lower()
 
         for source in self.sources:
-            result = source.find(q)[:8]
+            result = source.find(q, limit = 8)
             if result:
                 results = []
                 for r in result:

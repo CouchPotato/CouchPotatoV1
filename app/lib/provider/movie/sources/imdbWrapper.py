@@ -17,16 +17,16 @@ class imdbWrapper(movieBase):
     def conf(self, option):
         return self.config.get('IMDB', option)
 
-    def find(self, q):
+    def find(self, q, limit = 8):
         ''' Find movie by name '''
 
         log.info('IMDB - Searching for movie: %s', q)
 
         r = self.p.search_movie(q)
 
-        return self.toResults(r)
+        return self.toResults(r, limit)
 
-    def toResults(self, r, one = False):
+    def toResults(self, r, limit, one = False):
         results = []
         
         if one:
@@ -37,6 +37,7 @@ class imdbWrapper(movieBase):
 
             return new
         else :
+            nr = 0
             for movie in r:
                 new = self.feedItem()
                 new.imdb = 'tt' + movie.movieID
@@ -44,6 +45,9 @@ class imdbWrapper(movieBase):
                 new.year = movie['year']
     
                 results.append(new)
+                nr += 1
+                if nr == limit:
+                    break
 
             return results
 
@@ -60,4 +64,4 @@ class imdbWrapper(movieBase):
         log.info('IMDB - Searching for movie: %s', str(id))
 
         r = self.p.get_movie(id.replace('tt', ''))
-        return self.toResults(r, True)
+        return self.toResults(r, one = True)
