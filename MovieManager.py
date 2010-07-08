@@ -6,14 +6,31 @@ sys.path.append(os.path.join(path_base, 'library'))
 
 # Use debug conf if available
 import logging.config
+
 debugconfig = os.path.join(path_base, 'logs', 'debug.conf')
 if os.path.isfile(debugconfig):
     logging.config.fileConfig(debugconfig)
 else:
     logging.config.fileConfig(os.path.join(path_base, 'logs', 'logging.conf'))
 
-
 log = logging.getLogger(__name__)
+
+# Log error to file
+class LogFile(object):
+    """File-like object to log text using the `logging` module."""
+
+    def __init__(self, name = None):
+        self.logger = logging.getLogger(name)
+
+    def write(self, msg, level = logging.INFO):
+        if 'Traceback' in msg and not 'bsouplxml' in msg:
+            self.logger.critical(msg)
+
+    def flush(self):
+        for handler in self.logger.handlers:
+            handler.flush()
+
+sys.stderr = LogFile('stderr')
 
 from app.config.db import initDb
 from optparse import OptionParser
