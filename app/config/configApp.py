@@ -38,8 +38,6 @@ class configApp():
         self.setDefault('global', 'server.thread_pool', 10)
         self.setDefault('global', 'server.environment', 'production')
         self.setDefault('global', 'engine.autoreload_on', 'False')
-        self.setDefault('global', 'tools.mako.collection_size', 500)
-        self.setDefault('global', 'tools.mako.directories', 'app/views/')
         self.setDefault('global', 'host', '0.0.0.0')
         self.setDefault('global', 'port', 5000)
         self.setDefault('global', 'username', '')

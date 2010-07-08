@@ -1,17 +1,29 @@
 import sys
 import os
 
-path_base = os.path.dirname(os.path.abspath(__file__))
+rundir = os.path.dirname(os.path.abspath(__file__))
+try:
+    if sys.frozen:
+        frozen = True
+except AttributeError:
+    frozen = False
+
+if frozen:
+    path_base = os.environ['_MEIPASS2']
+else:
+    path_base = rundir
 sys.path.append(os.path.join(path_base, 'library'))
 
 # Use debug conf if available
 import logging.config
-
-debugconfig = os.path.join(path_base, 'logs', 'debug.conf')
+logdir = os.path.join(rundir, 'logs')
+if not os.path.isdir(logdir):
+    os.mkdir(logdir)
+debugconfig = os.path.join(path_base, 'debug.conf')
 if os.path.isfile(debugconfig):
     logging.config.fileConfig(debugconfig)
 else:
-    logging.config.fileConfig(os.path.join(path_base, 'logs', 'logging.conf'))
+    logging.config.fileConfig(os.path.join(path_base, 'logging.conf'))
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +52,7 @@ def server_start():
 
     options, args = p.parse_args()
 
-    config = os.path.join(path_base, 'config.ini')
+    config = os.path.join(rundir, 'config.ini')
 
     # Config app
     ca = configApp(config)
@@ -58,8 +70,8 @@ def server_start():
             'server.socket_host':               ca.get('global', 'host'),
             'server.environment':               ca.get('global', 'server.environment'),
             'engine.autoreload_on':            (ca.get('global', 'engine.autoreload_on') == 'True' and not options.daemonize),
-            'tools.mako.collection_size':   int(ca.get('global', 'tools.mako.collection_size')),
-            'tools.mako.directories':           os.path.join(path_base, ca.get('global', 'tools.mako.directories')),
+            'tools.mako.collection_size':       500,
+            'tools.mako.directories':           os.path.join(path_base, 'app', 'views'),
 
             # Global workers
             'config':                           ca,
@@ -80,7 +92,7 @@ def server_start():
         },
         '/media':{
             'tools.staticdir.on': True,
-            'tools.staticdir.root': os.path.abspath(os.path.curdir),
+            'tools.staticdir.root': path_base,
             'tools.staticdir.dir': "media",
             'tools.expires.on': True,
             'tools.expires.secs': 3600 * 24 * 7
