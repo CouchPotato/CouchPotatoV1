@@ -77,20 +77,23 @@ class theMovieDb(movieBase):
                     name = self.toSaveString(self.gettextelement(movie, "name"))
                     imdb = self.gettextelement(movie, "imdb_id")
                     year = str(self.gettextelement(movie, "released"))[:4]
+                    
+                    # 1900 is the same as None
+                    if year == '1900':
+                        year = 'None'
 
                     # do some IMDB searching if needed
-                    if (year == 'None' or year == '1900'):
+                    if year == 'None':
+                        i = IMDb('mobile')
                         if imdb:
                             log.info('Found movie, but with no date, getting data from %s.' % imdb)
-                            i = IMDb()
-                            r = i.get_movie(imdb.replace('tt',''))
+                            r = i.get_movie(imdb.replace('tt', ''))
                             if r:
                                 year = r['year']
                         else:
                             log.info('Found movie, but with no date, searching IMDB.')
-                            i = IMDb()
                             r = i.search_movie(name)
-                            if r.get(0):
+                            if len(r) > 0 and r.get(0):
                                 imdb = 'tt' + r[0].movieID
                                 year = r[0]['year']
 
@@ -99,7 +102,7 @@ class theMovieDb(movieBase):
                     alternativeName = self.toSaveString(self.gettextelement(movie, "alternative_name"))
                     if alternativeName.lower() != name.lower() and alternativeName.lower() != 'none' and alternativeName != None:
                         results.append(self.fillFeedItem(id, alternativeName, imdb, year))
-                    
+
                     nr += 1
                     if nr == limit:
                         break

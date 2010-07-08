@@ -12,7 +12,7 @@ class imdbWrapper(movieBase):
 
         self.config = config
 
-        self.p = IMDb()
+        self.p = IMDb('mobile')
 
     def conf(self, option):
         return self.config.get('IMDB', option)
