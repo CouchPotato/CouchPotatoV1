@@ -25,10 +25,10 @@ class LogController(BaseController):
             file += '.' + data.get('nr')
 
         f = open(fileAbs, 'r')
-        log = f.read().replace('\n', '<br />\n')
+        log = f.read()
 
         return self.render({'file':file, 'log':self.toSafeString(log)})
     
     def toSafeString(self, string):
-        safe_chars = ascii_letters + digits + '_ </\>[]-&?=.,;:+!@#$%^&*()\'"'
+        safe_chars = ascii_letters + digits + '_ </\>[]-&?=.,;:+!@#$%^&*()\'"{}\n\t'
         return ''.join([char if char in safe_chars else '' for char in string])
