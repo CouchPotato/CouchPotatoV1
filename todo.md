@@ -2,7 +2,7 @@
 * Search for missing trailers button / and make separate from renaming
 * SABnzbd SSL option to include HTTPS
 * Edit movie info
-* Restart button
+* Download nzb to dir (black hole)
 
 Userscript:
 
@@ -33,3 +33,4 @@ Later:
 * Think of a better name
 * Max downloads per day
 * Create .app for OSX
+* Restart button
