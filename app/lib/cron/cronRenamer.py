@@ -26,6 +26,7 @@ class RenamerCron(cronBase):
     movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso']
     nfoExt = ['*.nfo']
     subExt = ['*.sub', '*.srt', '*.idx', '*.ssa', '*.ass']
+    saveRemove = ['*.nfo', '*.nzb', '*.par2', '*.txt', '*.idx', '*.srr']
 
     def conf(self, option):
         return self.config.get('Renamer', option)
@@ -93,6 +94,28 @@ class RenamerCron(cronBase):
                     self.trailerQueue.put({'id': movie['movie'].imdb, 'movie': movie['movie'], 'destination':finalDestination})
             else:
                 log.info('No Match found for: %s' % str(files['files']))
+
+        # Cleanup
+        path = self.conf('download')
+        for dir in os.listdir(path):
+            fullDirPath = os.path.join(path, dir)
+
+            for root, subfiles, filenames in os.walk(fullDirPath):
+
+                for pattern in self.saveRemove:
+                    for filename in fnmatch.filter(filenames, pattern):
+                        try:
+                            fullFilePath = os.path.join(root, filename)
+                            os.remove(fullFilePath)
+                            log.info('Removing file %s.' % fullFilePath)
+                        except OSError:
+                            log.error('Couldn\'t remove file' % fullFilePath)
+
+                try:
+                    os.removedirs(root)
+                    log.info('Removing dir: %s in download dir.' % os.path.dirname(root))
+                except OSError:
+                    log.error('Tried to clean-up download folder, but "%s" isn\'t empty.' % os.path.dirname(root))
 
     def getQueue(self, movie):
 
@@ -210,6 +233,7 @@ class RenamerCron(cronBase):
             # Add to renaming history
             h = RenameHistory()
             h.movieId = movie.id
+            h.movieQueue = queue.id
             h.old = old
             h.new = dest
             Db.add(h)
