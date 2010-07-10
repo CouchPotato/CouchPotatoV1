@@ -1,12 +1,10 @@
 from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
-from stat import ST_MODE
 import Queue
 import logging
 import os
 import re
 import shutil
-import stat
 import urllib
 import xml.etree.ElementTree as XMLTree
 
