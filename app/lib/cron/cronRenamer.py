@@ -360,10 +360,14 @@ class RenamerCron(cronBase):
         return False
 
     def getImdb(self, txt):
-        m = re.search('imdb.com/title/(?P<id>tt[0-9]+)', txt)
-        id = m.group('id')
-        if id:
-            return id
+        
+        try:
+            m = re.search('imdb.com/title/(?P<id>tt[0-9]+)', txt)
+            id = m.group('id')
+            if id:
+                return id
+        except AttributeError:
+            return False
 
         return False
 
