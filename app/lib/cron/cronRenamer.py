@@ -152,7 +152,9 @@ class RenamerCron(cronBase):
         #quality
         if not queue:
             queue = self.getQueue(movie)
-        quality = Qualities.types[queue.qualityType]['label']
+        if queue:
+            quality = Qualities.types[queue.qualityType]['label']
+
         if not quality:
             quality = ''
 
@@ -360,7 +362,7 @@ class RenamerCron(cronBase):
         return False
 
     def getImdb(self, txt):
-        
+
         try:
             m = re.search('imdb.com/title/(?P<id>tt[0-9]+)', txt)
             id = m.group('id')
