@@ -48,7 +48,7 @@ class nzbs(nzbBase):
         data = urllib.urlopen(url)
 
         if data:
-            log.info('Parsing NZBs.org RSS.')
+            log.debug('Parsing NZBs.org RSS.')
             try:
                 try:
                     xml = self.getItems(data)

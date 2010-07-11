@@ -20,8 +20,7 @@ class nzbSearcher():
 
     def find(self, movie, queue):
         ''' Find movie by name '''
-        log.info('Searching for movie: %s', movie.name)
-
+        log.debug('Searching for movie: %s', movie.name)
 
         qualities = Qualities()
 
