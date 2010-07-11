@@ -99,6 +99,10 @@ class RenamerCron(cronBase):
         path = self.conf('download')
         for dir in os.listdir(path):
             fullDirPath = os.path.join(path, dir)
+            
+            # Stop if something is unpacking
+            if '_unpack' in fullDirPath.lower():
+                break
 
             for root, subfiles, filenames in os.walk(fullDirPath):
 
