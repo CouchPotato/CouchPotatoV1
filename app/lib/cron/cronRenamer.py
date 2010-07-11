@@ -125,8 +125,9 @@ class RenamerCron(cronBase):
         for queue in movie.queue:
             if(queue.name):
                 return queue
-
-        return False
+            
+        # If there all empty, just return the first..
+        return movie.queue.first()
 
     def renameFiles(self, files, movie, queue = None):
         '''
@@ -152,8 +153,7 @@ class RenamerCron(cronBase):
         #quality
         if not queue:
             queue = self.getQueue(movie)
-        if queue:
-            quality = Qualities.types[queue.qualityType]['label']
+        quality = Qualities.types[queue.qualityType]['label']
 
         if not quality:
             quality = ''
@@ -182,9 +182,11 @@ class RenamerCron(cronBase):
             ext = os.path.splitext(file['filename'])[1].lower()[1:]
             if ext == 'iso':
                 totalSize -= (os.path.getsize(fullPath) / 1.6)
+        log.info('Total size of new files is %s.' % int(totalSize / 1024 / 1024))
 
         finalDestination = None
         for file in files['files']:
+            log.info('Trying to find a home for: %s' % file['filename'])
 
             replacements['ext'] = file['ext']
 
