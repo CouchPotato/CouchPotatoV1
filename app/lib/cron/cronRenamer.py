@@ -116,8 +116,8 @@ class RenamerCron(cronBase):
                             log.error('Couldn\'t remove file' % fullFilePath)
 
             try:
-                os.removedirs(fullDirPath)
-                log.info('Removing dir: %s in download dir.' % os.path.dirname(fullDirPath))
+                os.rmdir(fullDirPath)
+                log.info('Removing dir: %s in download dir.' % fullDirPath)
             except OSError:
                 log.error('Tried to clean-up download folder, but "%s" isn\'t empty.' % os.path.dirname(fullDirPath))
 
