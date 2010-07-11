@@ -111,11 +111,11 @@ class RenamerCron(cronBase):
                         except OSError:
                             log.error('Couldn\'t remove file' % fullFilePath)
 
-                try:
-                    os.removedirs(root)
-                    log.info('Removing dir: %s in download dir.' % os.path.dirname(root))
-                except OSError:
-                    log.error('Tried to clean-up download folder, but "%s" isn\'t empty.' % os.path.dirname(root))
+            try:
+                os.removedirs(fullDirPath)
+                log.info('Removing dir: %s in download dir.' % os.path.dirname(fullDirPath))
+            except OSError:
+                log.error('Tried to clean-up download folder, but "%s" isn\'t empty.' % os.path.dirname(fullDirPath))
 
     def getQueue(self, movie):
 
