@@ -22,7 +22,9 @@ if not os.path.isdir(logdir):
 debugconfig = os.path.join(path_base, 'debug.conf')
 if os.path.isfile(debugconfig):
     logging.config.fileConfig(debugconfig)
+    debug = True
 else:
+    debug = False
     logging.config.fileConfig(os.path.join(path_base, 'logging.conf'))
 
 log = logging.getLogger(__name__)
@@ -59,7 +61,7 @@ def server_start():
     initDb()
 
     # Start threads
-    myCrons = CronJobs(cherrypy.engine, ca)
+    myCrons = CronJobs(cherrypy.engine, ca, debug)
     myCrons.subscribe()
 
     # User config, use own stuff to prevent unexpected results
@@ -72,7 +74,8 @@ def server_start():
             'engine.autoreload_on':            (ca.get('global', 'engine.autoreload_on') == 'True' and not options.daemonize),
             'tools.mako.collection_size':       500,
             'tools.mako.directories':           os.path.join(path_base, 'app', 'views'),
-
+            
+            'debug':                            debug,
             # Global workers
             'config':                           ca,
             'cron':                             myCrons.threads,

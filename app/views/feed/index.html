@@ -1,0 +1,19 @@
+<div id="feed">
+	<div class="running">
+	% if not running:
+		<a href="${url(controller='feed', action='renewEta')}">Search for release dates.</a>
+	% else:
+		<span>Searching for new release dates.</span>
+	% endif
+	</div>
+	% if len(dvd) > 0:
+		<h2>Dvd releases</h2>
+		<%include file="_list.html" args="etas=dvd"/>
+	% endif
+	
+	% if len(theater) > 0:
+		<h2>Theater releases</h2>
+		<%include file="_list.html" args="etas=theater"/>
+	% endif
+</div>
+<%inherit file="/base.html" />

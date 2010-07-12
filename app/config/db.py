@@ -45,6 +45,15 @@ movieQueueTable = Table('MovieQueue', metadata,
                      Column('link', String())
             )
 
+movieEtaTable = Table('MovieETA', metadata,
+                     Column('id', Integer, primary_key = True),
+                     Column('movieId', Integer, ForeignKey('Movie.id')),
+                     Column('videoEtaId', Integer),
+                     Column('theater', Integer),
+                     Column('dvd', Integer),
+                     Column('bluray', Boolean)
+            )
+
 renameHistoryTable = Table('RenameHistory', metadata,
                      Column('id', Integer, primary_key = True),
                      Column('movieQueue', Integer, ForeignKey('MovieQueue.id')),
@@ -92,6 +101,14 @@ class MovieQueue(object):
     def __repr__(self):
         return "<moviequeue: %s active=%s complete=%s" % (self.Movie.name, self.active, self.complete)
 
+class MovieETA(object):
+    dvd = 0
+    theater = 0
+    bluray = 0
+
+    def __repr__(self):
+        return "<movieeta: %s" % self.videoEtaId
+
 class RenameHistory(object):
     def __repr__(self):
         return "<renamehistory: %s" % self.name
@@ -101,7 +118,7 @@ class QualityTemplate(object):
     name = None
     order = None
     custom = None
-    
+
     def __repr__(self):
         return self.name
 
@@ -117,9 +134,11 @@ movieMapper = mapper(Movie, movieTable, properties = {
    'queue': relation(MovieQueue, backref = 'Movie', primaryjoin =
                 and_(movieQueueTable.c.movieId == movieTable.c.id,
                 movieQueueTable.c.active == True), order_by = movieQueueTable.c.order, lazy = 'joined'),
-   'template': relation(QualityTemplate, backref = 'Movie')
+   'template': relation(QualityTemplate, backref = 'Movie'),
+   'eta': relation(MovieETA, backref = 'Movie', uselist = False)
 })
 movieQueueMapper = mapper(MovieQueue, movieQueueTable)
+movieEtaMapper = mapper(MovieETA, movieEtaTable)
 renameHistoryMapper = mapper(RenameHistory, renameHistoryTable)
 qualityMapper = mapper(QualityTemplate, qualityTemplateTable, properties = {
    'types': relation(QualityTemplateType, backref = 'QualityTemplate', order_by = qualityTemplateTypeTable.c.order, lazy = 'joined')
@@ -202,7 +221,7 @@ def migrateVersion2():
         log.info('Making Queue item for %s' % movie.name)
         queue = MovieQueue()
         queue.movieId = movie.id
-        queue.qualityType = movie.quality
+        queue.qualityType = movie.quality if movie.quality else 'dvdrip' #just for backup
         queue.order = 1
         queue.active = (movie.status != u'deleted')
         queue.completed = (movie.status != u'want')

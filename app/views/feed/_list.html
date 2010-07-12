@@ -1,0 +1,26 @@
+<% from time import gmtime, strftime %>
+<%page args="etas"/>
+<div id="movies">
+	<div class="header">
+		<span class="title">Title</span>
+		<span class="release">Theater</span>
+		<span class="release">DVD</span>
+		<span class="bluray">HD</span>
+		<span class="info">Info</span>
+	</div>
+	% for eta in etas:
+	<% movie = eta.Movie %>
+	% if movie.status == u'want' or movie.status == u'waiting':
+	<div class="item ${movie.status}" data-id="${movie.id}">
+		<span class="title">${movie.name}</span>
+		<span class="release">${strftime("%a, %B %d", gmtime(movie.eta.theater)) if movie.eta.theater > 0 else 'Unknown'}</span>
+		<span class="release">${strftime("%a, %B %d", gmtime(movie.eta.dvd)) if movie.eta.dvd > 0 else 'Unknown'}</span>
+		<span class="bluray">${'Yes' if movie.eta.bluray else 'Nope'}</span>
+		<span class="info">
+			<span class="imdb"><a href="http://www.imdb.com/title/${movie.imdb}/" target="_blank"><img src="/media/images/imdb.png" alt="IMDB" /></a></span>
+			<span class="videoeta"><a href="http://videoeta.com/movie/${movie.eta.videoEtaId}" target="_blank"><img src="/media/images/videoeta.png" alt="VideoETA" /></a></span>
+		</span>
+	</div>
+	% endif
+	% endfor
+</div>

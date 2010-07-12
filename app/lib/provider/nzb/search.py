@@ -9,9 +9,10 @@ class nzbSearcher():
 
     sources = []
 
-    def __init__(self, config):
+    def __init__(self, config, debug):
 
         self.config = config
+        self.debug = debug
 
         #config nzbs
         s = nzbs(config)
@@ -23,6 +24,8 @@ class nzbSearcher():
         log.debug('Searching for movie: %s', movie.name)
 
         qualities = Qualities()
+        
+        wait = 1 if self.debug else 5
 
         for source in self.sources:
 
@@ -31,12 +34,12 @@ class nzbSearcher():
             # find by main name
             type = queue.qualityType
             results.extend(source.find(movie, type, type))
-            time.sleep(5)
+            time.sleep(wait)
             
             # Search for alternative naming
             for alt in qualities.getAlternatives(type):
                 results.extend(source.find(movie, alt, type))
-                time.sleep(5)
+                time.sleep(wait)
 
             if results:
                 return results

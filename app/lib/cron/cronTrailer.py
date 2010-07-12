@@ -35,9 +35,10 @@ class TrailerCron(rss, cronBase):
     def run(self):
         log.info('TrailerCron thread is running.')
 
+        timeout = 0.1 if self.debug else 1
         while True and not self.abort:
             try:
-                movie = trailerQueue.get(timeout = 1)
+                movie = trailerQueue.get(timeout = timeout)
 
                 #do a search
                 self.running = True
@@ -150,9 +151,10 @@ class TrailerCron(rss, cronBase):
     def videoUrl(self, id):
         return self.watchUrl + id
 
-def startTrailerCron(config):
+def startTrailerCron(config, debug):
     cron = TrailerCron()
     cron.config = config
+    cron.debug = debug
     cron.start()
 
     return cron

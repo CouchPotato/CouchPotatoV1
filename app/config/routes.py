@@ -1,7 +1,8 @@
 from app.controllers.config import ConfigController
 from app.controllers.cron import CronController
-from app.controllers.movie import MovieController
 from app.controllers.log import LogController
+from app.controllers.movie import MovieController
+from app.controllers.feed import FeedController
 import cherrypy
 
 def setup():
@@ -25,5 +26,8 @@ def setup():
     
     mapper.connect('log', '/log/', controller = LogController())
     mapper.connect('log', '/log/:action/', controller = LogController(), action = 'index')
+    
+    mapper.connect('feed', '/feed/', controller = FeedController())
+    mapper.connect('feed', '/feed/:action/', controller = FeedController(), action = 'index')
 
     return mapper

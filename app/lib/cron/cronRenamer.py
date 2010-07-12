@@ -38,6 +38,8 @@ class RenamerCron(cronBase):
 
         if not os.path.isdir(self.conf('download')):
             log.info("Watched folder doesn't exist.")
+            
+        wait = 0.1 if self.debug else 5
 
         #time.sleep(10)
         while True and not self.abort:
@@ -48,7 +50,7 @@ class RenamerCron(cronBase):
                 self.doRename()
                 self.running = False
 
-            time.sleep(5)
+            time.sleep(wait)
 
         log.info('Renamer has shutdown.')
 
@@ -88,7 +90,7 @@ class RenamerCron(cronBase):
             else:
                 movie = self.determineMovie(files)
 
-            if movie['movie']:
+            if movie and movie.get('movie'):
                 finalDestination = self.renameFiles(files, movie['movie'], movie['queue'])
                 if str(self.config.get('Renamer', 'trailerQuality')).lower() != 'false':
                     self.trailerQueue.put({'id': movie['movie'].imdb, 'movie': movie['movie'], 'destination':finalDestination})
@@ -127,11 +129,11 @@ class RenamerCron(cronBase):
 
         # Assuming quality is the top most, as that should be the last downloaded..
         for queue in movie.queue:
-            if(queue.name):
+            if queue.name:
                 return queue
-            
+
         # If there all empty, just return the first..
-        return movie.queue.first()
+        return Db.query(MovieQueue).filter_by(movieId = movie.id).first()
 
     def renameFiles(self, files, movie, queue = None):
         '''
@@ -157,10 +159,11 @@ class RenamerCron(cronBase):
         #quality
         if not queue:
             queue = self.getQueue(movie)
-        quality = Qualities.types[queue.qualityType]['label']
 
-        if not quality:
+        if not queue:
             quality = ''
+        else:
+            quality = Qualities.types[queue.qualityType]['label']
 
         replacements = {
              'cd': '',
@@ -441,9 +444,10 @@ class RenamerCron(cronBase):
         return False
 
 
-def startRenamerCron(config, searcher):
+def startRenamerCron(config, searcher, debug):
     cron = RenamerCron()
     cron.config = config
+    cron.debug = debug
     cron.searcher = searcher
     cron.trailerQueue = searcher.get('trailerQueue')
     cron.start()

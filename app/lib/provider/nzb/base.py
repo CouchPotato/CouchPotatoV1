@@ -63,7 +63,7 @@ class nzbBase(rss):
     def correctYear(self, haystack, year):
         
         for string in haystack:
-            if str(year) in string:
+            if str(year) in string or str(int(year)+1) in string or str(int(year)-1) in string: # 1 year of is fine too
                 return True
         
         return False

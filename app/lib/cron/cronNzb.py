@@ -1,6 +1,7 @@
 from app.config.db import Movie, Session as Db
 from app.lib.cron.cronBase import cronBase
 from sqlalchemy.sql.expression import or_
+import cherrypy
 import logging
 import time
 
@@ -21,8 +22,11 @@ class NzbCron(cronBase):
 
         self.setInterval(self.config.get('Intervals', 'nzb'))
         self.forceCheck()
-        time.sleep(10)
-
+        
+        if not self.debug:
+            time.sleep(10)
+            
+        wait = 0.1 if self.debug else 1
         while True and not self.abort:
 
             #check single movie
@@ -34,12 +38,12 @@ class NzbCron(cronBase):
 
             #check all movies
             now = time.time()
-            if (self.lastChecked + self.intervalSec) < now:
+            if (self.lastChecked + self.intervalSec) < now and not self.debug:
                 self.lastChecked = now
                 self.searchNzbs()
 
             #log.info('Sleeping NzbCron for %d seconds' % 10)
-            time.sleep(1)
+            time.sleep(wait)
 
         log.info('NzbCron has shutdown.')
 
@@ -147,9 +151,10 @@ class NzbCron(cronBase):
             'string': s
         }
 
-def startNzbCron(config):
+def startNzbCron(config, debug):
     cron = NzbCron()
     cron.config = config
+    cron.debug = debug
     cron.start()
 
     return cron

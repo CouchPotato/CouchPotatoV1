@@ -64,7 +64,8 @@ class MovieController(BaseController):
         movie.status = u'want'
 
         #gogo find nzb for added movie via Cron
-        self.cron.get('nzb')._searchNzb(movie)
+        self.cron.get('nzb').forceCheck(movie)
+        self.searchers.get('etaQueue').put(movie)
 
         return redirect(url(controller = 'movie', action = 'index'))
 
@@ -176,3 +177,4 @@ class MovieController(BaseController):
 
         #gogo find nzb for added movie via Cron
         self.cron.get('nzb').forceCheck(new)
+        self.searchers.get('etaQueue').put(new)

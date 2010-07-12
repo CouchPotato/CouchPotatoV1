@@ -104,7 +104,7 @@ form {
 			display: block;
 			padding: 15px;
 		}
-			#header .navigation ul li:first-child a { padding-left: 0; }
+			#header .navigation ul li:first-child a { padding-left: 10px; }
 
 			#header .navigation ul li span {
 				display: block;
@@ -380,6 +380,30 @@ form {
 		.smallList .actions img {
 			vertical-align: middle;
 		}
+		
+#feed h2 {
+	font-size: 25px;
+	margin: 15px 0 20px 10px;
+	float: left;
+}
+
+	#feed .running {
+		float: right;
+		padding: 20px 20px 0;
+	}
+
+	#feed .title {
+		width: 440px;
+	}
+
+	#feed .release {
+		width: 160px;
+		text-align: left;
+	}
+
+	#feed .bluray {
+		width: 40px;
+	}
 
 .configPopup {
 }

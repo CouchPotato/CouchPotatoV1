@@ -1,3 +1,4 @@
+from app.lib.cron.cronETA import startEtaCron, etaQueue
 from app.lib.cron.cronNzb import startNzbCron
 from app.lib.cron.cronRenamer import startRenamerCron
 from app.lib.cron.cronTrailer import startTrailerCron, trailerQueue
@@ -33,10 +34,11 @@ class CronJobs(plugins.SimplePlugin):
     threads = {}
     searchers = {}
 
-    def __init__(self, bus, config):
+    def __init__(self, bus, config, debug):
         plugins.SimplePlugin.__init__(self, bus)
         
         self.config = config
+        self.debug = debug
 
     def start(self):
         
@@ -46,27 +48,31 @@ class CronJobs(plugins.SimplePlugin):
         self.config = config
 
         #searchers
-        nzbSearch = nzbSearcher(config);
+        nzbSearch = nzbSearcher(config, self.debug);
         movieSearch = movieSearcher(config);
         self.searchers['nzb'] = nzbSearch
         self.searchers['movie'] = movieSearch
 
         #nzb cronjob
-        nzbCronJob = startNzbCron(config)
+        nzbCronJob = startNzbCron(config, self.debug)
         nzbCronJob.provider = nzbSearch
         nzbCronJob.sabNzbd = sabNzbd(config)
         self.threads['nzb'] = nzbCronJob
         
         #trailer cron
-        trailerCronJob = startTrailerCron(config)
+        trailerCronJob = startTrailerCron(config, self.debug)
         self.threads['trailer'] = trailerCronJob
         self.searchers['trailerQueue'] = trailerQueue
         
+        etaCron = startEtaCron(self.debug)
+        self.threads['eta'] = etaCron
+        self.searchers['etaQueue'] = etaQueue
+        
         #renamer cron
-        renamerCronJob = startRenamerCron(config, self.searchers)
+        renamerCronJob = startRenamerCron(config, self.searchers, self.debug)
         self.threads['renamer'] = renamerCronJob
         
-        #log all files to logfile
+        #log all errors/tracebacks to logfile
         sys.stderr = LogFile('stderr')
 
     def stop(self):
@@ -77,25 +83,3 @@ class CronJobs(plugins.SimplePlugin):
             t.join()
     
     start.priority = 70
-
-
-##searchers
-#nzbSearch = nzbSearcher(ca);
-#movieSearch = movieSearcher(ca);
-#config['pylons.app_globals'].searcher['nzb'] = nzbSearch
-#config['pylons.app_globals'].searcher['movie'] = movieSearch
-#
-##trailer cron
-#trailerCronJob = startTrailerCron(ca)
-#config['pylons.app_globals'].cron['trailer'] = trailerCronJob
-#config['pylons.app_globals'].cron['trailerQueue'] = trailerQueue
-#
-##nzb search cron
-#nzbCronJob = startNzbCron(ca)
-#nzbCronJob.provider = nzbSearch
-#nzbCronJob.sabNzbd = sabNzbd(ca)
-#config['pylons.app_globals'].cron['nzb'] = nzbCronJob
-#
-##renamer cron
-#renamerCronJob = startRenamerCron(ca, config['pylons.app_globals'].searcher, trailerQueue)
-#config['pylons.app_globals'].cron['renamer'] = renamerCronJob
