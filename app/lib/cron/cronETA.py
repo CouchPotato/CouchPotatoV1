@@ -80,8 +80,13 @@ class etaCron(rss, cronBase):
         url = self.detailUrl + str(id)
 
         log.info('Scanning %s.', url)
-
-        data = urllib.urlopen(url).read()
+        
+        try:
+            data = urllib.urlopen(url).read()
+            pass
+        except IOError:
+            log.error('Failed to open %s.' % url)
+            return False
 
         # Search for theater release
         theaterDate = 0
