@@ -67,7 +67,7 @@ def server_start():
     # User config, use own stuff to prevent unexpected results
     cherrypy.config.update({
         'global': {
-            'server.thread_pool':           int(ca.get('global', 'server.thread_pool')),
+            'server.thread_pool':               20,
             'server.socket_port':           int(ca.get('global', 'port')),
             'server.socket_host':               ca.get('global', 'host'),
             'server.environment':               ca.get('global', 'server.environment'),

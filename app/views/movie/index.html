@@ -27,8 +27,8 @@
 			<span class="moviedb"><a href="http://www.themoviedb.org/movie/${movie.movieDb}" target="_blank"><img src="/media/images/moviedb.png" alt="TheMovieDB" /></a></span>
 		</span>
 		<span class="actions">
-			<a href="${url(controller='movie', action='delete', id=movie.id)}" title="Delete this movie"><img src="/media/images/delete.png" alt="Delete" /></a>
-			<a href="${url(controller='cron', action='forceSingle', id=movie.id)}" title="Force search"><img src="/media/images/reload.png" alt="Reload" /></a>
+			<a class="delete" href="${url(controller='movie', action='delete', id=movie.id)}" title="Delete this movie"><img src="/media/images/delete.png" alt="Delete" /></a>
+			<a class="forceCheck" href="${url(controller='cron', action='forceSingle', id=movie.id)}" title="Force search"><img src="/media/images/reload.png" alt="Reload" /></a>
 		</span>
 		<div class="queue">
 			<div class="header">
@@ -52,6 +52,8 @@
 
 	window.addEvent('domready', function(){
 		$$('#movies > .item').each(function(el){
+			
+			// Queue items
 			var queue = el.getElement('.queue')
 			
 			var a = el.getElement('.quality a')
@@ -75,6 +77,30 @@
 			})
 			el.addEvent('outerClick', function(){
 				el.removeClass('active')
+			})
+			
+			// Remove button
+			var del = el.getElement('.delete')
+			del.addEvent('click', function(e){
+				(e).stop()
+				new Request({
+					'url': del.get('href'),
+					'onSuccess': function(){
+						el.destroy()
+					}
+				}).send()
+			})
+			
+			// Force check
+			var check = el.getElement('.forceCheck')
+			check.addEvent('click', function(e){
+				(e).stop()
+				new Request({
+					'url': check.get('href'),
+					'onSuccess': function(){
+						el.highlight()
+					}
+				}).send()
 			})
 			
 		});

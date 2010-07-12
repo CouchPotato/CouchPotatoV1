@@ -34,8 +34,9 @@ class MovieController(BaseController):
 
         #set status
         movie.status = u'deleted'
+        Db.flush()
 
-        return redirect(url(controller = 'movie', action = 'index'))
+        #return redirect(url(controller = 'movie', action = 'index'))
 
 
     @cherrypy.expose
@@ -48,6 +49,7 @@ class MovieController(BaseController):
 
         #set status
         movie.status = u'downloaded'
+        Db.flush()
 
         return redirect(url(controller = 'movie', action = 'index'))
 
@@ -62,6 +64,7 @@ class MovieController(BaseController):
 
         #set status
         movie.status = u'want'
+        Db.flush()
 
         #gogo find nzb for added movie via Cron
         self.cron.get('nzb').forceCheck(movie)
@@ -141,13 +144,12 @@ class MovieController(BaseController):
             # Delete old qualities
             for x in exists.queue:
                 x.active = False
-            Db.expire(exists) #This is lame! :(
 
             new = exists
         else:
             new = Movie()
             Db.add(new)
-        
+
         # Update the stuff
         new.status = u'want'
         new.name = movie.name
@@ -160,6 +162,7 @@ class MovieController(BaseController):
             new.year = year
         else:
             new.year = movie.year
+        Db.flush()
 
         # Add qualities to the queue
         quality = Db.query(QualityTemplate).filter_by(id = quality).one()
@@ -173,7 +176,7 @@ class MovieController(BaseController):
             queue.waitFor = 0 if type.markComplete else quality.waitFor
             queue.markComplete = type.markComplete
             Db.add(queue)
-
+            Db.flush()
 
         #gogo find nzb for added movie via Cron
         self.cron.get('nzb').forceCheck(new)

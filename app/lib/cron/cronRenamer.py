@@ -248,6 +248,7 @@ class RenamerCron(cronBase):
             h.old = old
             h.new = dest
             Db.add(h)
+            Db.flush()
 
             if multiple:
                 cd += 1

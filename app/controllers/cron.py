@@ -28,5 +28,5 @@ class CronController(BaseController):
         movie = qMovie.filter_by(id = id).one()
         self.cron.get('nzb').forceCheck(movie)
 
-        return redirect(cherrypy.request.headers.get('referer'))
+        #return redirect(cherrypy.request.headers.get('referer'))
 

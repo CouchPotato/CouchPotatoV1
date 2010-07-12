@@ -50,7 +50,10 @@ class ConfigController(BaseController):
         # Do quality order
         order = data.get('Quality.order').split(',')
         for id in order:
-            Db.query(QualityTemplate).filter_by(id = int(id)).one().order = order.index(id)
+            qo = Db.query(QualityTemplate).filter_by(id = int(id)).one()
+            qo.order = order.index(id)
+            Db.flush()
+            
         data['Quality.order'] = None
             
         # Save templates

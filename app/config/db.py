@@ -1,7 +1,7 @@
 from sqlalchemy import *
 from sqlalchemy.exc import OperationalError, NoSuchTableError
 from sqlalchemy.ext.sqlsoup import SqlSoup
-from sqlalchemy.orm import mapper, create_session, relation
+from sqlalchemy.orm import mapper, relation, create_session
 import datetime
 import logging
 import os
@@ -11,7 +11,7 @@ path = '%s/data.db' % os.path.abspath(os.path.curdir)
 
 engine = create_engine('sqlite:///%s' % path)
 metadata = MetaData(engine)
-Session = create_session(bind = engine, autoflush = True)
+Session = create_session(bind = engine, expire_on_commit = True)
 
 # DB VERSION
 latestDatabaseVersion = 2
@@ -135,7 +135,7 @@ movieMapper = mapper(Movie, movieTable, properties = {
                 and_(movieQueueTable.c.movieId == movieTable.c.id,
                 movieQueueTable.c.active == True), order_by = movieQueueTable.c.order, lazy = 'joined'),
    'template': relation(QualityTemplate, backref = 'Movie'),
-   'eta': relation(MovieETA, backref = 'Movie', uselist = False)
+   'eta': relation(MovieETA, backref = 'Movie', uselist = False, lazy = 'joined')
 })
 movieQueueMapper = mapper(MovieQueue, movieQueueTable)
 movieEtaMapper = mapper(MovieETA, movieEtaTable)
@@ -227,13 +227,16 @@ def migrateVersion2():
         queue.completed = (movie.status != u'want')
         queue.markComplete = True
         Session.add(queue)
+        Session.flush()
 
         log.info('Doing some stuff to RenameHistory')
         history = Session.query(RenameHistory).filter_by(movieQueue = movie.id).first()
         if history:
             history.movieQueue = queue.id
             queue.name = os.path.basename(os.path.dirname(history.old))
+            Session.flush()
 
     Session.add(DbVersion(1)) # Add version 1 for teh nice
     Session.add(DbVersion(2))
+    Session.flush()
 

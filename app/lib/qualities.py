@@ -98,8 +98,10 @@ class Qualities:
         # remove all non used custom
         if delete['templates']:
             [Db.delete(x) for x in Db.query(QualityTemplate).filter(QualityTemplate.id.in_(delete['templates'])).all()]
+            Db.flush()
         if delete['types']:
             [Db.delete(x) for x in Db.query(QualityTemplateType).filter(QualityTemplateType.id.in_(delete['types'])).all()]
+            Db.flush()
 
 
     def getAlternatives(self, type):
@@ -120,11 +122,13 @@ class Qualities:
             newQ.waitFor = waitFor
             newQ.order = order
             Db.add(newQ)
+            Db.flush()
             exists = Db.query(QualityTemplate).filter_by(name = name).first()
         else:
             log.debug('Updating custom=%s quality: %s' % (custom, name))
             exists.label = label
             exists.waitFor = waitFor
+            Db.flush()
 
         nr = 1
         for type in types:
@@ -140,6 +144,7 @@ class Qualities:
             newT.markComplete = type['markComplete']
             nr += 1
             Db.add(newT)
+            Db.flush()
 
         return True
 

@@ -121,6 +121,7 @@ class NzbCron(cronBase):
                             movie.status = u'waiting'
 
                         queue.completed = True
+                        Db.flush()
 
                     return True
                 time.sleep(5)

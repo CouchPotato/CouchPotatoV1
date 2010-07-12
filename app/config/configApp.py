@@ -35,7 +35,6 @@ class configApp():
         '''
 
         self.addSection('global')
-        self.setDefault('global', 'server.thread_pool', 10)
         self.setDefault('global', 'server.environment', 'production')
         self.setDefault('global', 'engine.autoreload_on', 'False')
         self.setDefault('global', 'host', '0.0.0.0')

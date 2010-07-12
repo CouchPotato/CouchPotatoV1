@@ -1,4 +1,3 @@
-from app.config.db import MovieETA, Session as Db
 from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
 from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup, SoupStrainer
@@ -18,7 +17,7 @@ class etaCron(rss, cronBase):
 
     def run(self):
         log.info('MovieETA thread is running.')
-        
+
         timeout = 0.1 if self.debug else 1
         while True and not self.abort:
             try:
@@ -40,17 +39,20 @@ class etaCron(rss, cronBase):
         log.info('MovieETA thread shutting down.')
 
     def save(self, movie, result):
-
+        
+        from app.config.db import MovieETA, Session as Db
         row = Db.query(MovieETA).filter_by(movieId = movie.id).first()
         if not row:
             row = MovieETA()
             Db.add(row)
+            Db.flush()
 
         row.movieId = movie.id
         row.videoEtaId = result['id']
         row.theater = result['theater']
         row.dvd = result['dvd']
         row.bluray = result['bluray']
+        Db.flush()
 
     def search(self, movie):
 
@@ -72,7 +74,7 @@ class etaCron(rss, cronBase):
 
         if results:
             for result in results:
-                if result.get('name').lower() == movie.name.lower() and result.get('year') == int(movie.year):
+                if str(movie.year).lower() != 'none' and self.toSaveString(result.get('name')).lower() == movie.name.lower() and result.get('year') == int(movie.year):
                     log.info('MovieETA perfect match!')
                     return self.getDetails(result.get('id'))
 
@@ -80,7 +82,7 @@ class etaCron(rss, cronBase):
         url = self.detailUrl + str(id)
 
         log.info('Scanning %s.', url)
-        
+
         try:
             data = urllib.urlopen(url).read()
             pass
