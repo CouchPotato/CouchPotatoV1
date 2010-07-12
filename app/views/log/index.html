@@ -3,7 +3,7 @@
 	% for nr in range(0, 5):
 	<a href="${url(controller='log', action='index', nr=nr)}">${nr}</a>
 	% endfor
-	)</h2>
+	) <a href="${url(controller='log', action='clear')}">Clear</a></h2>
 	<pre>${log}</pre>
 </div>
 <%inherit file="/base.html" />
