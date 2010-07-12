@@ -3,7 +3,9 @@ from app.lib.cron.cronBase import cronBase
 from sqlalchemy.sql.expression import or_
 import cherrypy
 import logging
+import os
 import time
+import urllib
 
 log = logging.getLogger(__name__)
 
@@ -103,7 +105,10 @@ class NzbCron(cronBase):
                     waitFor = queue.waitFor * (60 * 60 * 24)
 
                     if queue.markComplete or (not queue.markComplete and result.date + waitFor < time.time()):
-                        success = self.sabNzbd.send(highest)
+                        if self.config.get('NZB', 'sendTo') == 'Sabnzbd':
+                            success = self.sabNzbd.send(highest)
+                        else:
+                            success = self.blackHole(highest)
                     else:
                         success = False
                         log.info('Found %s but waiting for %d hours.' % (result.name, ((result.date + waitFor) - time.time()) / (60 * 60)))
@@ -121,7 +126,25 @@ class NzbCron(cronBase):
                 time.sleep(5)
 
         return False
+    
+    def blackHole(self, nzb):
+        blackhole = self.config.get('NZB', 'blackhole')
+        if not blackhole or not os.path.isdir(blackhole):
+            log.error('No directory set for blackhole download.')
+        else:
+            fullPath = os.path.join(blackhole, nzb.name+'.nzb')
+            
+            if not os.path.isfile(fullPath):
+                log.info('Downloading NZB to %s.' % fullPath)
+                file = urllib.urlopen(nzb.url).read()
+                with open(fullPath, 'w') as f:
+                    f.write(file)
+                
+                return True
+            else:
+                log.error('File %s already exists.' % fullPath)
 
+        return False
 
     def doCheck(self, bool = True):
         self.running = bool

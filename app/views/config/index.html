@@ -1,7 +1,7 @@
 <div id="configForm">
 	<ul>
 		<li><a href="#general">General</a></li>
-		<li><a href="#sabnzbd">Sabnzbd</a></li>
+		<li><a href="#nzb">Download</a></li>
 		<li><a href="#quality">Quality</a></li>
 		<li><a href="#renaming">Renaming</a></li>
 		<li><a href="#providers">Providers</a></li>
@@ -38,42 +38,61 @@
 				<h3>Usenet</h3>
 				<div class="ctrlHolder">
 					<label for="">Retention</label>
-					<input type="text" name="NZBsorg.retention" value="${config.get('NZBsorg', 'retention')}" class="textInput xsmall"/> day(s)
+					<input type="text" name="NZB.retention" value="${config.get('NZB', 'retention')}" class="textInput xsmall"/> day(s)
 				</div>
 				<div class="ctrlHolder">
 					<label for="">Search every</label>
 					<input type="text" name="Intervals.nzb" value="${config.get('Intervals', 'nzb')}" class="textInput xsmall"/> hour(s)
 				</div>
 			</fieldset>
-			<fieldset class="sabnzbd inlineLabels">
+			<fieldset class="nzb inlineLabels">
 				<div class="ctrlHolder">
-					<label for="">Host</label>
-					<input type="text" name="Sabnzbd.host" value="${config.get('Sabnzbd', 'host')}" class="textInput large"/>
-					<p class="formHint">
-						Where does SABnzbd run? Usually <i>localhost:8080</i>
-					</p>
+					<label for="nzbSendTo">Download to</label>
+					<select name="NZB.sendTo" id="nzbSendTo" class="textInput large">
+						% for sendTo in ['Sabnzbd','Blackhole']:
+						<option value="${sendTo}"${' selected="selected"' if str(sendTo) == config.get('NZB', 'sendTo') else ''}>${sendTo}</option>
+						% endfor
+					</select>
 				</div>
-				<div class="ctrlHolder">
-					<label for="">Apikey</label>
-					<input type="text" name="Sabnzbd.apikey" value="${config.get('Sabnzbd', 'apikey')}" class="textInput large"/>
-					<p class="formHint">
-						Can be found in general config on SABnzbd
-					</p>
+				<div class="sabnzbd sendTo">
+					<div class="ctrlHolder">
+						<label for="">Host</label>
+						<input type="text" name="Sabnzbd.host" value="${config.get('Sabnzbd', 'host')}" class="textInput large"/>
+						<p class="formHint">
+							Where does SABnzbd run? Usually <i>localhost:8080</i>
+						</p>
+					</div>
+					<div class="ctrlHolder">
+						<label for="">Apikey</label>
+						<input type="text" name="Sabnzbd.apikey" value="${config.get('Sabnzbd', 'apikey')}" class="textInput large"/>
+						<p class="formHint">
+							Can be found in general config on SABnzbd
+						</p>
+					</div>
+					<div class="ctrlHolder">
+						<label for="">Username</label>
+						<input type="text" name="Sabnzbd.username" value="${config.get('Sabnzbd', 'username')}" class="textInput large"/>
+					</div>
+					<div class="ctrlHolder">
+						<label for="">Password</label>
+						<input type="password" name="Sabnzbd.password" value="${config.get('Sabnzbd', 'password')}" class="textInput large"/>
+					</div>
+					<div class="ctrlHolder">
+						<label for="">Category</label>
+						<input type="text" name="Sabnzbd.category" value="${config.get('Sabnzbd', 'category')}" class="textInput large"/>
+						<p class="formHint">
+							Category where NZBs should be put.
+						</p>
+					</div>
 				</div>
-				<div class="ctrlHolder">
-					<label for="">Username</label>
-					<input type="text" name="Sabnzbd.username" value="${config.get('Sabnzbd', 'username')}" class="textInput large"/>
-				</div>
-				<div class="ctrlHolder">
-					<label for="">Password</label>
-					<input type="password" name="Sabnzbd.password" value="${config.get('Sabnzbd', 'password')}" class="textInput large"/>
-				</div>
-				<div class="ctrlHolder">
-					<label for="">Category</label>
-					<input type="text" name="Sabnzbd.category" value="${config.get('Sabnzbd', 'category')}" class="textInput large"/>
-					<p class="formHint">
-						Category where NZBs should be put.
-					</p>
+				<div class="blackhole sendTo">
+					<div class="ctrlHolder">
+						<label for="">NZB Directory</label>
+						<input type="text" name="NZB.blackhole" value="${config.get('NZB', 'blackhole')}" class="textInput large"/>
+						<p class="formHint">
+							Folder your download program watches for new .nzb files.
+						</p>
+					</div>
 				</div>
 			</fieldset>
 			<fieldset class="renaming inlineLabels" id="renamingFieldset">
@@ -272,11 +291,8 @@
 				}]
 			})
 		})
-		
-		
-		
-		
-		// Replace Userscrip IE
+
+		// Replace Userscript IE
 		if (Browser.Engine.trident){
 			form.getElement('fieldset.userscript a').setStyle('display', 'none')
 			form.getElement('fieldset.userscript p').setStyles({'height':'300px', 'display':'block'})
@@ -288,9 +304,11 @@
 		
 		// Match label to input, cause i'm lazy
 		form.getElements('label').each(function(el, nr){
-			var id = 'formItem-'+nr
-			el.set('for', id)
-			el.getNext().set('id', id)
+			if(!el.get('for')){
+				var id = 'formItem-'+nr
+				el.set('for', id)
+				el.getNext().set('id', id)
+			}
 		});
 		
 		// Nice button, submit
@@ -325,6 +343,19 @@
 	    renamingCheckbox.addEvent('change', function(){
 	        renameEnabled()
 	    });
+		
+		// hide unused sendto
+		var sendToSelect = $('nzbSendTo')
+	    var sendTo = function(){
+			form.getElements('.sendTo').setStyle('display', 'none')
+	        if (sendToSelect.get('value') == 'Sabnzbd') 
+	            form.getElement('.sabnzbd').setStyle('display', 'block')
+	        else 
+	            form.getElement('.blackhole').setStyle('display', 'block')
+	    }
+		sendToSelect.addEvent('change', sendTo);
+		sendTo();
+		
 		
 		// Cancel button
 		form.getElements('.cancel a').addEvent('click', function(e){

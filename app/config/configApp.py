@@ -55,7 +55,11 @@ class configApp():
         self.addSection('NZBsorg')
         self.setDefault('NZBsorg', 'id', '')
         self.setDefault('NZBsorg', 'key', '')
-        self.setDefault('NZBsorg', 'retention', '')
+        
+        self.addSection('NZB')
+        self.setDefault('NZB', 'retention', 300)
+        self.setDefault('NZB', 'sendTo', 'Sabnzbd')
+        self.setDefault('NZB', 'blackhole', '')
 
         self.addSection('Sabnzbd')
         self.setDefault('Sabnzbd', 'host', 'localhost:8080')
