@@ -93,7 +93,7 @@ class theMovieDb(movieBase):
                         else:
                             log.info('Found movie, but with no date, searching IMDB.')
                             r = i.search_movie(name)
-                            if len(r) > 0 and r.get(0):
+                            if len(r) > 0:
                                 imdb = 'tt' + r[0].movieID
                                 year = r[0]['year']
 
