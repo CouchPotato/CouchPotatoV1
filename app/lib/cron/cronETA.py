@@ -29,10 +29,10 @@ class etaCron(rss, cronBase):
                 result = self.search(movie)
                 if result:
                     self.save(movie, result)
-                self.running = False
 
                 etaQueue.task_done()
                 time.sleep(timeout)
+                self.running = False
             except Queue.Empty:
                 pass
 
