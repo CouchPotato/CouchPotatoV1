@@ -77,6 +77,7 @@ class RenamerCron(cronBase):
 
             # See if imdb link is in nfo file
             nfo = files.get('nfo')
+            movie = {}
             if nfo:
                 nfoFile = open(os.path.join(nfo.get('path'), nfo.get('filename')), 'r').read()
                 imdbId = self.getImdb(nfoFile)
@@ -87,7 +88,7 @@ class RenamerCron(cronBase):
                         'queue': None
                     }
             # Try other methods
-            else:
+            if not movie:
                 movie = self.determineMovie(files)
 
             if movie and movie.get('movie'):
