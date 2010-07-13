@@ -8,6 +8,7 @@ try:
 except AttributeError:
     frozen = False
 
+# Define path based on frozen state
 if frozen:
     path_base = os.environ['_MEIPASS2']
 else:
@@ -28,6 +29,11 @@ else:
     logging.config.fileConfig(os.path.join(path_base, 'logging.conf'))
 
 log = logging.getLogger(__name__)
+
+# Create cache dir
+cachedir = os.path.join(rundir, 'cache')
+if not os.path.isdir(cachedir):
+    os.mkdir(cachedir)
 
 from app.config.db import initDb
 from optparse import OptionParser
@@ -74,8 +80,11 @@ def server_start():
             'engine.autoreload_on':            (ca.get('global', 'engine.autoreload_on') == 'True' and not options.daemonize),
             'tools.mako.collection_size':       500,
             'tools.mako.directories':           os.path.join(path_base, 'app', 'views'),
-            
+
+            'basePath':                         path_base,
+            'runPath':                          rundir,
             'debug':                            debug,
+
             # Global workers
             'config':                           ca,
             'cron':                             myCrons.threads,
@@ -97,6 +106,13 @@ def server_start():
             'tools.staticdir.on': True,
             'tools.staticdir.root': path_base,
             'tools.staticdir.dir': "media",
+            'tools.expires.on': True,
+            'tools.expires.secs': 3600 * 24 * 7
+        },
+        '/cache':{
+            'tools.staticdir.on': True,
+            'tools.staticdir.root': rundir,
+            'tools.staticdir.dir': "cache",
             'tools.expires.on': True,
             'tools.expires.secs': 3600 * 24 * 7
         }

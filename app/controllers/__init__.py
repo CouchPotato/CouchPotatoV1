@@ -1,4 +1,5 @@
 from app.lib.qualities import Qualities
+from library.minify import Minify
 import cherrypy
 import routes
 
@@ -15,12 +16,14 @@ class BaseController:
 
     globals = {
         'url': url,
-        'Qualities': Qualities()
+        'Qualities': Qualities(),
+        'Minify': Minify()
     }
 
     def __init__(self):
         self.cron = cherrypy.config.get('cron')
         self.searchers = cherrypy.config.get('searchers')
+        self.globals['debug'] = cherrypy.config.get('debug')
         
     def updateGlobals(self):
 
