@@ -35,7 +35,7 @@ To run MM you will need Python.
 
 Windows:
 
-* Download the latest Windows build "r8": [Can be found here](http://cl.ly/782767542604e9a31b21)
+* Download the latest Windows build [Can be found here](http://github.com/RuudBurger/Movie-Manager/downloads)
 * Extract it wherever you like
 * Start MovieManager.exe
 * Set your username & password in the settings if you want.
