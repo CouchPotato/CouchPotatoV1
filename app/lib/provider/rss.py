@@ -12,7 +12,7 @@ class rss:
 
     def toSearchString(self, string):
         string =  ''.join((c for c in unicodedata.normalize('NFD', unicode(string)) if unicodedata.category(c) != 'Mn'))
-        safe_chars = ascii_letters + digits + '_ -.,'
+        safe_chars = ascii_letters + digits + ' '
         r = ''.join([char if char in safe_chars else ' ' for char in string])
         return re.sub('\s+' , ' ', r)
         
