@@ -26,7 +26,7 @@ class theMovieDb(movieBase):
 
         log.info('TheMovieDB - Searching for movie: %s', q)
 
-        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.conf('key'), urllib.quote_plus(self.toSaveString(q)))
+        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.conf('key'), urllib.quote_plus(self.toSearchString(q)))
 
         log.info('Search url: %s', url)
 

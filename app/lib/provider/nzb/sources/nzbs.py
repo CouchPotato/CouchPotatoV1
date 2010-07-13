@@ -35,7 +35,7 @@ class nzbs(nzbBase):
 
         arguments = urllib.urlencode({
             'action':'search',
-            'q': self.toSaveString(movie.name + ' ' + quality),
+            'q': self.toSearchString(movie.name + ' ' + quality),
             'catid':self.getCatId(type),
             'i':self.conf('id'),
             'h':self.conf('key'),
