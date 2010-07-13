@@ -38,7 +38,7 @@ class RenamerCron(cronBase):
 
         if not os.path.isdir(self.conf('download')):
             log.info("Watched folder doesn't exist.")
-            
+
         wait = 0.1 if self.debug else 5
 
         #time.sleep(10)
@@ -102,7 +102,7 @@ class RenamerCron(cronBase):
         path = self.conf('download')
         for dir in os.listdir(path):
             fullDirPath = os.path.join(path, dir)
-            
+
             # Stop if something is unpacking
             if '_unpack' in fullDirPath.lower():
                 break
@@ -246,8 +246,8 @@ class RenamerCron(cronBase):
             h = RenameHistory()
             h.movieId = movie.id
             h.movieQueue = queue.id
-            h.old = old
-            h.new = dest
+            h.old = unicode(old.decode('utf-8'))
+            h.new = unicode(dest.decode('utf-8'))
             Db.add(h)
             Db.flush()
 
