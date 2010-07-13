@@ -125,8 +125,8 @@ form {
 		
 	#header .addNew {
 		float: right;
-		padding: 20px 0 0;
-		width: 420px;
+		margin: 15px 0 0;
+		width: 440px;
 	}
 		#header .addNew .row {
 			float: right;
@@ -145,8 +145,13 @@ form {
 			margin-top: 5px;
 		}
 		
+		#header .addNew .row .undo {
+			float: left;
+			margin: 6px 5px 0 0;
+		}
+		
 		#header .addNew .row .movieselect {
-			width: 200px;
+			width: 195px;
 		}
 		
 		#header .addNew .row .quality {

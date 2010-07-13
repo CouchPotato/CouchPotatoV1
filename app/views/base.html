@@ -27,56 +27,13 @@
 	        </ul>
 
 			<div id="addForm">
-		    	<form method="post" id="addNew" class="addNew" action="${url(controller='movie',action='search')}">
-		    		<div class="row">
-						<a href="" class="submit">Add &raquo;</a>
-					</div>
-					<div class="row">
-						<select name="quality" class="quality">
-							% for qualityItem in Qualities.all(enabled=True):
-							<option value="${qualityItem.id}"${' selected="selected"' if Qualities.default() == qualityItem.name else ''}>${qualityItem.label}</option>
-							% endfor
-						</select>
-					</div>
-					<div class="row">
-						<input type="text" name="moviename" title="Movie name" />
-					</div>
-					<input type="hidden" name="search" value="Add" />
-				</form>
+		    	<%include file="/movie/add.html" />
 			</div>
 			
 			<script type="text/javascript">
 				
 				window.addEvent('domready', function(){
-					var form = $('addNew');
-					var newMovieName = form.getElement('input[name=moviename]')
-					newMovieName.set('value','')
-					new OverText(newMovieName);
-					
-					var req = function(){
-						var s = new Spinner(form)
-							s.show();
-						new Request.HTML({
-							'url': form.get('action'),
-							'data': form,
-							'update': 'addForm',
-							'onComplete': function(){
-								s.hide()
-							}
-						}).send()
-					}
-					
-					form.addEvent('submit', function(e){
-						(e).stop();
-						req();
-					});
-					form.getElement('.submit').addEvent('click', function(e){
-						(e).stop();
-						req();
-					})
-					form.reset();
-					
-					
+
 					var showConfigPopup = function(e){
 						(e).stop()
 

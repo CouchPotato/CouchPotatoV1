@@ -72,6 +72,11 @@ class MovieController(BaseController):
 
         return redirect(url(controller = 'movie', action = 'index'))
 
+    @cherrypy.expose
+    @cherrypy.tools.mako(filename = "movie/add.html")
+    def add(self):
+        
+        return self.render({})
 
     @cherrypy.expose
     @cherrypy.tools.mako(filename = "movie/search.html")
