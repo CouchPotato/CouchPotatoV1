@@ -128,13 +128,16 @@ class RenamerCron(cronBase):
 
         log.info('Finding quality for %s.' % movie.name)
 
-        # Assuming quality is the top most, as that should be the last downloaded..
-        for queue in movie.queue:
-            if queue.name:
-                return queue
+        try:
+            # Assuming quality is the top most, as that should be the last downloaded..
+            for queue in movie.queue:
+                if queue.name:
+                    return queue
 
-        # If there all empty, just return the first..
-        return Db.query(MovieQueue).filter_by(movieId = movie.id).first()
+            # If there all empty, just return the first..
+            return Db.query(MovieQueue).filter_by(movieId = movie.id).first()
+        except TypeError:
+            return None
 
     def renameFiles(self, files, movie, queue = None):
         '''
@@ -163,8 +166,10 @@ class RenamerCron(cronBase):
 
         if not queue:
             quality = ''
+            queueId = 0
         else:
             quality = Qualities.types[queue.qualityType]['label']
+            queueId = queue.id
 
         replacements = {
              'cd': '',
@@ -245,7 +250,7 @@ class RenamerCron(cronBase):
             # Add to renaming history
             h = RenameHistory()
             h.movieId = movie.id
-            h.movieQueue = queue.id
+            h.movieQueue = queueId
             h.old = unicode(old.decode('utf-8'))
             h.new = unicode(dest.decode('utf-8'))
             Db.add(h)
@@ -255,10 +260,11 @@ class RenamerCron(cronBase):
                 cd += 1
 
         # Mark movie downloaded
-        if queue.markComplete:
-            movie.status = u'downloaded'
+        if queueId > 0:
+            if queue.markComplete:
+                movie.status = u'downloaded'
 
-        queue.completed = True
+            queue.completed = True
 
         return finalDestination
 
