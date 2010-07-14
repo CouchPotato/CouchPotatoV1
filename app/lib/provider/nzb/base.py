@@ -1,5 +1,6 @@
 
 from app.lib.provider.rss import rss
+import re
 
 class nzbBase(rss):
 
@@ -47,7 +48,7 @@ class nzbBase(rss):
             return True
         
         # if no IMDB link, at least check year
-        if self.correctYear([nzb.name], movie.year):
+        if self.correctYear([nzb.name], movie.year) and self.correctName(nzb.name, movie.name):
             return True
         
         return False
@@ -67,7 +68,20 @@ class nzbBase(rss):
                 return True
         
         return False
-
+    
+    def correctName(self, nzbName, movieName):
+        
+        nzbWords = re.split('\W+', self.toSearchString(nzbName).lower())
+        movieWords = re.split('\W+', self.toSearchString(movieName).lower())
+        
+        # Replace .,-_ with space
+        found = 0
+        for word in movieWords:
+            if word in nzbWords:
+                found += 1
+        
+        return found == len(movieWords)
+    
     def downloadLink(self, id):
         return self.downloadUrl % (id, self.getApiExt())
 
