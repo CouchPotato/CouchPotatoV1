@@ -15,7 +15,7 @@ class CronController(BaseController):
         Force the cron to start
         '''
 
-        self.cron.get('nzb').forceCheck()
+        self.cron.get('yarr').forceCheck()
 
         return redirect(cherrypy.request.headers.get('referer'))
 
@@ -26,7 +26,7 @@ class CronController(BaseController):
         '''
 
         movie = qMovie.filter_by(id = id).one()
-        self.cron.get('nzb').forceCheck(movie)
+        self.cron.get('yarr').forceCheck(movie)
 
         #return redirect(cherrypy.request.headers.get('referer'))
 

@@ -1,9 +1,9 @@
 from app.lib.cron.cronETA import startEtaCron, etaQueue
-from app.lib.cron.cronNzb import startNzbCron
+from app.lib.cron.cronYarr import startYarrCron
 from app.lib.cron.cronRenamer import startRenamerCron
 from app.lib.cron.cronTrailer import startTrailerCron, trailerQueue
 from app.lib.provider.movie.search import movieSearcher
-from app.lib.provider.nzb.search import nzbSearcher
+from app.lib.provider.yarr.search import Searcher
 from app.lib.sabNzbd import sabNzbd
 from cherrypy.process import plugins
 import cherrypy
@@ -36,42 +36,42 @@ class CronJobs(plugins.SimplePlugin):
 
     def __init__(self, bus, config, debug):
         plugins.SimplePlugin.__init__(self, bus)
-        
+
         self.config = config
         self.debug = debug
 
     def start(self):
-        
+
         config = self.config
 
         log.info("Starting Cronjobs.")
         self.config = config
 
         #searchers
-        nzbSearch = nzbSearcher(config, self.debug);
+        yarrSearch = Searcher(config, self.debug);
         movieSearch = movieSearcher(config);
-        self.searchers['nzb'] = nzbSearch
+        self.searchers['yarr'] = yarrSearch
         self.searchers['movie'] = movieSearch
 
         #nzb cronjob
-        nzbCronJob = startNzbCron(config, self.debug)
-        nzbCronJob.provider = nzbSearch
-        nzbCronJob.sabNzbd = sabNzbd(config)
-        self.threads['nzb'] = nzbCronJob
-        
+        yarrCronJob = startYarrCron(config, self.debug)
+        yarrCronJob.provider = yarrSearch
+        yarrCronJob.sabNzbd = sabNzbd(config)
+        self.threads['yarr'] = yarrCronJob
+
         #trailer cron
         trailerCronJob = startTrailerCron(config, self.debug)
         self.threads['trailer'] = trailerCronJob
         self.searchers['trailerQueue'] = trailerQueue
-        
+
         etaCron = startEtaCron(self.debug)
         self.threads['eta'] = etaCron
         self.searchers['etaQueue'] = etaQueue
-        
+
         #renamer cron
         renamerCronJob = startRenamerCron(config, self.searchers, self.debug)
         self.threads['renamer'] = renamerCronJob
-        
+
         #log all errors/tracebacks to logfile
         sys.stderr = LogFile('stderr')
 
@@ -81,5 +81,5 @@ class CronJobs(plugins.SimplePlugin):
             if t.quit:
                 t.quit()
             t.join()
-    
+
     start.priority = 70

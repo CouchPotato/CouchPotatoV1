@@ -62,7 +62,8 @@
 						
 						new Request.HTML({
 							'url': $('showConfig').get('href'),
-							'update': popup
+							'update': popup,
+							'method': 'get'
 						}).send()
 						
 					}

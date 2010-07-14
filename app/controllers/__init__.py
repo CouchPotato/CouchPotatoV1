@@ -27,9 +27,9 @@ class BaseController:
         
     def updateGlobals(self):
 
-        self.globals['lastCheck'] = self.cron.get('nzb').lastCheck()
-        self.globals['nextCheck'] = self.cron.get('nzb').nextCheck()
-        self.globals['checking'] = self.cron.get('nzb').isChecking()
+        self.globals['lastCheck'] = self.cron.get('yarr').lastCheck()
+        self.globals['nextCheck'] = self.cron.get('yarr').nextCheck()
+        self.globals['checking'] = self.cron.get('yarr').isChecking()
 
     def render(self, list):
         

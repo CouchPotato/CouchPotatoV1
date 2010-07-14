@@ -1,10 +1,11 @@
 <div id="configForm">
 	<ul>
 		<li><a href="#general">General</a></li>
-		<li><a href="#nzb">Download</a></li>
+		<li><a href="#nzb">NZBs</a></li>
+		<li><a href="#torrents">Torrents</a></li>
+		<li><a href="#providers">Providers</a></li>
 		<li><a href="#quality">Quality</a></li>
 		<li><a href="#renaming">Renaming</a></li>
-		<li><a href="#providers">Providers</a></li>
 		<li><a href="#userscript">Userscript</a></li>
 		<li><a href="#shutdown">Shutdown</a></li>
 	</ul>
@@ -42,10 +43,14 @@
 				</div>
 				<div class="ctrlHolder">
 					<label for="">Search every</label>
-					<input type="text" name="Intervals.nzb" value="${config.get('Intervals', 'nzb')}" class="textInput xsmall"/> hour(s)
+					<input type="text" name="Intervals.search" value="${config.get('Intervals', 'search')}" class="textInput xsmall"/> hour(s)
 				</div>
 			</fieldset>
-			<fieldset class="nzb inlineLabels">
+			<fieldset class="nzb inlineLabels" id="nzbsFieldset">
+				<div class="ctrlHolder checkbox">
+					<label for="">Enable</label>
+					<input type="checkbox" name="NZB.enabled" value="True" ${' checked="checked"' if config.get('NZB', 'enabled') == 'True' else ''} />
+				</div>
 				<div class="ctrlHolder">
 					<label for="nzbSendTo">Download to</label>
 					<select name="NZB.sendTo" id="nzbSendTo" class="textInput large">
@@ -95,6 +100,28 @@
 					</div>
 				</div>
 			</fieldset>
+			
+			<fieldset class="torrents inlineLabels" id="torrentsFieldset">
+				<div class="ctrlHolder checkbox">
+					<label for="">Enable</label>
+					<input type="checkbox" name="Torrents.enabled" value="True" ${' checked="checked"' if config.get('Torrents', 'enabled') == 'True' else ''} />
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Download to</label>
+					<input type="text" name="Torrents.blackhole" value="${config.get('Torrents', 'blackhole')}" class="textInput large"/>
+					<p class="formHint">
+						Your .torrent watch folder
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Wait</label>
+					<input type="text" name="Torrents.wait" value="${config.get('Torrents', 'wait')}" class="textInput xsmall"/> hour(s) for nzb
+					<p class="formHint">
+						Only if NZB download is enabled.
+					</p>
+				</div>
+			</fieldset>
+			
 			<fieldset class="renaming inlineLabels" id="renamingFieldset">
 				<div class="ctrlHolder checkbox">
 					<label for="">Enable</label>
@@ -329,20 +356,21 @@
 	    new Uniform();
 
 		// Renaming disabled stuff
-	    var renaming = $('renamingFieldset')
-	    var renamingCheckbox = renaming.getElement('[type=checkbox]')
-
-	    var renameEnabled = function(){
-	        if (renamingCheckbox.get('checked')) 
-	            renaming.getElements('div.ctrlHolder').setStyle('opacity', 1)
+	    var isEnabled = function(checkbox, fieldset){
+	        if (checkbox.get('checked')) 
+	            fieldset.getElements('div.ctrlHolder').setStyle('opacity', 1)
 	        else 
-	            renaming.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
+	            fieldset.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
 	    }
-
-	    renameEnabled()
-	    renamingCheckbox.addEvent('change', function(){
-	        renameEnabled()
-	    });
+		
+		$each(['renamingFieldset','torrentsFieldset','nzbsFieldset'],function(item){
+		    var fieldset = $(item)
+		    var checkbox = fieldset.getElement('[type=checkbox]')
+		    isEnabled(checkbox, fieldset)
+		    checkbox.addEvent('change', function(){
+		        isEnabled(checkbox, fieldset)
+		    });
+		})
 		
 		// hide unused sendto
 		var sendToSelect = $('nzbSendTo')

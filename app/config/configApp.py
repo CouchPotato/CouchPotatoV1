@@ -56,9 +56,15 @@ class configApp():
         self.setDefault('NZBsorg', 'key', '')
         
         self.addSection('NZB')
+        self.setDefault('NZB', 'enabled', True)
         self.setDefault('NZB', 'retention', 300)
         self.setDefault('NZB', 'sendTo', 'Sabnzbd')
         self.setDefault('NZB', 'blackhole', '')
+        
+        self.addSection('Torrents')
+        self.setDefault('Torrents', 'enabled', False)
+        self.setDefault('Torrents', 'wait', 24)
+        self.setDefault('Torrents', 'blackhole', '')
 
         self.addSection('Sabnzbd')
         self.setDefault('Sabnzbd', 'host', 'localhost:8080')
@@ -73,7 +79,7 @@ class configApp():
         self.addSection('IMDB')
 
         self.addSection('Intervals')
-        self.setDefault('Intervals', 'nzb', '24')
+        self.setDefault('Intervals', 'search', '24')
         self.setDefault('Intervals', 'renamer', '5')
 
         self.addSection('Quality')

@@ -42,20 +42,20 @@ class ConfigController(BaseController):
         '''
         config = cherrypy.config.get('config')
 
-        if not data.get('Renamer.enabled'):
-            data['Renamer.enabled'] = False
-        if not data.get('global.launchbrowser'):
-            data['global.launchbrowser'] = False
-            
+        # catch checkboxes
+        for bool in ['Renamer.enabled', 'global.launchbrowser', 'Torrents.enabled', 'NZB.enabled']:
+            if not data.get(bool):
+                data[bool] = False
+
         # Do quality order
         order = data.get('Quality.order').split(',')
         for id in order:
             qo = Db.query(QualityTemplate).filter_by(id = int(id)).one()
             qo.order = order.index(id)
             Db.flush()
-            
+
         data['Quality.order'] = None
-            
+
         # Save templates
         if data.get('Quality.templates'):
             templates = json.loads(data.get('Quality.templates'))
@@ -69,7 +69,7 @@ class ConfigController(BaseController):
             config.set(section, var, data[name])
 
         # Change cron interval
-        self.cron.get('nzb').setInterval(config.get('Intervals', 'nzb'))
+        self.cron.get('yarr').setInterval(config.get('Intervals', 'search'))
 
         # Writing our configuration file to 'example.cfg'
         config.save()

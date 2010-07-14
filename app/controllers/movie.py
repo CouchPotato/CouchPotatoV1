@@ -62,12 +62,15 @@ class MovieController(BaseController):
 
         movie = qMovie.filter_by(id = id).one()
 
+        for x in movie.queue:
+            x.completed = False
+
         #set status
         movie.status = u'want'
         Db.flush()
 
         #gogo find nzb for added movie via Cron
-        self.cron.get('nzb').forceCheck(movie)
+        self.cron.get('yarr').forceCheck(movie)
         self.searchers.get('etaQueue').put(movie)
 
         return redirect(url(controller = 'movie', action = 'index'))
@@ -75,7 +78,7 @@ class MovieController(BaseController):
     @cherrypy.expose
     @cherrypy.tools.mako(filename = "movie/add.html")
     def add(self):
-        
+
         return self.render({})
 
     @cherrypy.expose
@@ -184,5 +187,5 @@ class MovieController(BaseController):
             Db.flush()
 
         #gogo find nzb for added movie via Cron
-        self.cron.get('nzb').forceCheck(new)
+        self.cron.get('yarr').forceCheck(new)
         self.searchers.get('etaQueue').put(new)
