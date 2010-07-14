@@ -103,6 +103,10 @@ class RenamerCron(cronBase):
         for dir in os.listdir(path):
             fullDirPath = os.path.join(path, dir)
 
+            # remove Apple file
+            if '.DS_Store' in fullDirPath:
+                os.remove(fullDirPath)
+
             # Stop if something is unpacking
             if '_unpack' in fullDirPath.lower():
                 break
