@@ -64,7 +64,7 @@ class etaCron(rss, cronBase):
         # Do search
         log.info('Searching VideoETA for %s.' % movie.name)
         arguments = urllib.urlencode({
-            'search_query':self.toSaveString(movie.name)
+            'search_query':self.toSearchString(movie.name)
         })
         url = "%s?%s" % (self.searchUrl, arguments)
 
@@ -74,8 +74,8 @@ class etaCron(rss, cronBase):
 
         if results:
             for result in results:
-                if str(movie.year).lower() != 'none' and self.toSaveString(result.get('name')).lower() == movie.name.lower() and result.get('year') == int(movie.year):
-                    log.info('MovieETA perfect match!')
+                if str(movie.year).lower() != 'none' and self.toSearchString(result.get('name')).lower() == self.toSearchString(movie.name).lower() and result.get('year') == int(movie.year):
+                    log.debug('MovieETA perfect match!')
                     return self.getDetails(result.get('id'))
 
     def getDetails(self, id):
