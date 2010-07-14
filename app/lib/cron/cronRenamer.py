@@ -265,6 +265,7 @@ class RenamerCron(cronBase):
                 movie.status = u'downloaded'
 
             queue.completed = True
+            Db.flush()
 
         return finalDestination
 

@@ -56,9 +56,10 @@ class TrailerCron(rss, cronBase):
 
         for video in self.getVideos(movie, destination):
             key = self.findKey(video.id)
-            downloaded = self.download(movie, video.id, key, destination)
-            if downloaded:
-                break
+            if key:
+                downloaded = self.download(movie, video.id, key, destination)
+                if downloaded:
+                    break
 
     def getVideos(self, movie, destination):
         arguments = urllib.urlencode({
@@ -102,8 +103,11 @@ class TrailerCron(rss, cronBase):
     def findKey(self, videoId):
         url = self.videoUrl(videoId)
         data = urllib.urlopen(url).read()
-        m = re.search('&t=(?P<id>.*?)&', data)
-        return m.group('id')
+        try:
+            m = re.search('&t=(?P<id>.*?)&', data)
+            return m.group('id')
+        except AttributeError:
+            return None
 
     def download(self, movie, videoId, key, destination):
 
