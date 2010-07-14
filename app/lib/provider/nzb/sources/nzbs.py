@@ -39,7 +39,7 @@ class nzbs(nzbBase):
             'catid':self.getCatId(type),
             'i':self.conf('id'),
             'h':self.conf('key'),
-            'age':self.conf('retention')
+            'age': self.config.get('NZB', 'retention')
         })
         url = "%s?%s" % (self.apiUrl, arguments)
 
