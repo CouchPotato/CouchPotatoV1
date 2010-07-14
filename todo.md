@@ -2,7 +2,7 @@
 * Search for missing trailers button / and make separate from renaming
 * SABnzbd SSL option to include HTTPS
 * Edit movie info
-* Download nzb to dir (black hole)
+* Notify when newer version is available
 
 Userscript:
 
@@ -18,8 +18,6 @@ Quality:
 
 Coming Soon Page:
 
-* DVD release date & "is available in Blu-ray/720p/1080p"-status (http://videoeta.com/)
-* This weeks/month releases
 * Limit search interval for movies which have far release date
 
 Feeder:
