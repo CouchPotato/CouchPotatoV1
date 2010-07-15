@@ -50,7 +50,7 @@ class tpb(torrentBase):
         if not self.enabled():
             return results
 
-        url = self.apiUrl % (quote_plus(self.toSearchString(movie.name + ' ' + quality) + self.ignoreString.get(type)), self.getCatId(type))
+        url = self.apiUrl % (quote_plus(self.toSearchString(movie.name + ' ' + quality) + self.makeIgnoreString(type)), self.getCatId(type))
 
         log.info('Search url: %s', url)
         log.debug('Parsing TPB.org Search results.')
@@ -121,7 +121,7 @@ class tpb(torrentBase):
                     new.content = self.getInfo(new.detailUrl)
                     new.score = self.calcScore(new, movie) + self.uploader(result) + ratio
 
-                    if self.isCorrectMovie(new, movie) and (new.date + (int(self.conf('wait')) * 60 * 60) < time.time()):
+                    if seeders > 0 and self.isCorrectMovie(new, movie) and (new.date + (int(self.conf('wait')) * 60 * 60) < time.time()):
                         results.append(new)
                         log.info('Found: %s', new.name)
 
@@ -131,6 +131,10 @@ class tpb(torrentBase):
             log.info('No search results found.')
 
         return []
+    
+    def makeIgnoreString(self, type):
+        ignore = self.ignoreString.get(type)
+        return ignore if ignore else ''
 
     def uploader(self, html):
         score = 0
