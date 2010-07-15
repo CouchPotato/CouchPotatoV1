@@ -20,27 +20,28 @@ class LogController(BaseController):
         '''
 
         fileAbs = logfile
+        filename = file
         if data.get('nr') and int(data.get('nr')) > 0 and os.path.isfile(fileAbs + '.' + data.get('nr')):
             fileAbs += '.' + data.get('nr')
-            file += '.' + data.get('nr')
+            filename += '.' + data.get('nr')
 
         f = open(fileAbs, 'r')
         log = f.read()
 
-        return self.render({'file':file, 'log':self.toSafeString(log)})
+        return self.render({'file':filename, 'log':self.toSafeString(log)})
 
     def clear(self):
 
         for root, subfiles, filenames in os.walk(logdir):
             for filename in filenames:
                 file = os.path.join(root, filename)
-                
+
                 if file == logfile:
                     with open(logfile, 'w') as f:
                         f.write('')
                 else:
                     os.remove(file)
-            
+
         return redirect(url(controller = 'log', action = 'index'))
 
 
