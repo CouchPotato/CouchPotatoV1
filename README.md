@@ -30,7 +30,7 @@ If you find a bug or need a feature that you think is awesome! Let me know!
 
 ## Dependencies
 
-To run MM you will need Python.
+To run CP you will need Python.
 
 ## Installation and Setup
 
