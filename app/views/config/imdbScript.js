@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name 		MM IMDB add-on
-// @description Add IMDB movie to you Movie Manager
+// @name 		CP IMDB add-on
+// @description Add IMDB movie to your CouchPotato
 // @include		http*://*.imdb.com/title/tt*
 // @include		http*://imdb.com/title/tt*
 // ==/UserScript==
@@ -85,10 +85,10 @@ if (isMovie == true) {
 			{
 				id : 'mmPopup',
 				onclick : function() {
-					popup.innerHTML = '<strong>Movie Manager:</strong>';
+					popup.innerHTML = '<strong>CouchPotato:</strong>';
 					popup.appendChild(iFrame);
 				},
-				innerHTML : '<strong>Movie Manager:</strong><a href="#"><img src="' + img + '" />Add movie</a>'
+				innerHTML : '<strong>CouchPotato:</strong><a href="#"><img src="' + img + '" />Add movie</a>'
 			});
 
 	p.parentNode.insertBefore(popup, p);

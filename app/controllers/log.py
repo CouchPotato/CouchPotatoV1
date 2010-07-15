@@ -5,7 +5,7 @@ import logging
 import os
 
 log = logging.getLogger(__name__)
-file = 'MovieManager.log'
+file = 'CouchPotato.log'
 logdir = os.path.join(os.path.abspath(os.path.curdir), 'logs')
 logfile = os.path.join(logdir, file)
 
@@ -19,7 +19,6 @@ class LogController(BaseController):
         See latest log file
         '''
 
-        file = 'MovieManager.log'
         fileAbs = logfile
         if data.get('nr') and int(data.get('nr')) > 0 and os.path.isfile(fileAbs + '.' + data.get('nr')):
             fileAbs += '.' + data.get('nr')

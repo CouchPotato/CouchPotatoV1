@@ -1,35 +1,35 @@
 #! /bin/sh
 
 ### BEGIN INIT INFO
-# Provides:          MovieManager application instance
+# Provides:          CouchPotato application instance
 # Required-Start:    $all
 # Required-Stop:     $all
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: starts instance of MovieManager app
-# Description:       starts instance of MovieManager app using start-stop-daemon
+# Short-Description: starts instance of CouchPotato
+# Description:       starts instance of CouchPotato using start-stop-daemon
 ### END INIT INFO
 
 ############### EDIT ME ##################
 # path to app
-APP_PATH=/usr/local/sbin/moviemanager
+APP_PATH=/usr/local/sbin/couchpotato
 
 # path to python bin
 DAEMON=/usr/bin/python
 
 # startup args
-DAEMON_OPTS=" MovieManager.py -q"
+DAEMON_OPTS=" CouchPotato.py -q"
 
 # script name
-NAME=MovieManager
+NAME=couchpotato
 
 # app name
-DESC=MovieManager
+DESC=CouchPotato
 
 # user
 RUN_AS=root
 
-PID_FILE=/var/run/moviemanager.pid
+PID_FILE=/var/run/couchpotato.pid
 
 ############### END EDIT ME ##################
 
