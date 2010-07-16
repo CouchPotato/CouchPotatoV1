@@ -78,7 +78,7 @@ class nzbMatrix(nzbBase):
                     new.date = int(time.mktime(parse(date).timetuple()))
                     new.size = size
                     new.url = self.downloadLink(id)
-                    new.content = self.gettextelement(nzb, "description").decode("utf-8", "replace")
+                    new.content = self.gettextelement(nzb, "description")
                     new.score = self.calcScore(new, movie)
 
                     if new.date > time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60) and self.isCorrectMovie(new, movie):
