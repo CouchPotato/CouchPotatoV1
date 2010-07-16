@@ -59,6 +59,9 @@ class configApp():
         self.addSection('NZBsorg')
         self.setDefault('NZBsorg', 'id', '')
         self.setDefault('NZBsorg', 'key', '')
+        self.addSection('NZBMatrix')
+        self.setDefault('NZBMatrix', 'username', '')
+        self.setDefault('NZBMatrix', 'apikey', '')
         
         self.addSection('NZB')
         self.setDefault('NZB', 'enabled', True)

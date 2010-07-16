@@ -1,3 +1,4 @@
+from app.lib.provider.yarr.sources.nzbmatrix import nzbMatrix
 from app.lib.provider.yarr.sources.nzbs import nzbs
 from app.lib.provider.yarr.sources.tpb import tpb
 from app.lib.qualities import Qualities
@@ -15,10 +16,15 @@ class Searcher():
         self.config = config
         self.debug = debug
 
-        #config nzbs
+        #nzbmatrix
+        m = nzbMatrix(config)
+        self.sources.append(m)
+
+        #nzbs
         s = nzbs(config)
         self.sources.append(s)
-
+        
+        #tpb
         t = tpb(config)
         self.sources.append(t)
 

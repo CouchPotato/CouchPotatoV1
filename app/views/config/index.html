@@ -184,6 +184,24 @@
 				</div>
 			</fieldset>
 			<fieldset class="providers inlineLabels">
+				<h3>NZBMatrix.com</h3>
+				<div class="ctrlHolder">
+					<label for="">Username</label>
+					<input type="text" name="NZBMatrix.username" value="${config.get('NZBMatrix', 'username')}" class="textInput large"/>
+					<p class="formHint">
+						Can be found <a href="http://nzbmatrix.com/account.php" target="_blank">here</a>, "User Name"
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Apikey</label>
+					<input type="text" name="NZBMatrix.apikey" value="${config.get('NZBMatrix', 'apikey')}" class="textInput large"/>
+					<p class="formHint">
+						Can be found <a href="http://nzbmatrix.com/account.php" target="_blank">here</a>, "Current API Key" <br />
+						You have to be VIP to get an API Key (Hey, that rhymes!).
+					</p>
+				</div>
+			</fieldset>
+			<fieldset class="providers inlineLabels">
 				<h3>NZBs.org</h3>
 				<div class="ctrlHolder">
 					<label for="">Id</label>
