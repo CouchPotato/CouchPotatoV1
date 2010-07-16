@@ -1,6 +1,7 @@
 from app.lib.provider.yarr.base import nzbBase
-from urllib import urlencode
 from dateutil.parser import parse
+from urllib import urlencode
+from urllib2 import URLError
 import logging
 import time
 import urllib2
@@ -48,8 +49,11 @@ class nzbMatrix(nzbBase):
         url = "%s?%s" % (self.searchUrl, arguments)
 
         log.info('Searching: %s', url)
-
-        data = urllib2.urlopen(url, timeout = self.timeout)
+        
+        try:
+            data = urllib2.urlopen(url, timeout = self.timeout)
+        except URLError:
+            log.error('Failed to open %s.' % url)
 
         if data:
             try:

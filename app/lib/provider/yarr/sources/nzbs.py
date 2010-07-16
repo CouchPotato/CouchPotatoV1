@@ -49,8 +49,11 @@ class nzbs(nzbBase):
         url = "%s?%s" % (self.apiUrl, arguments)
 
         log.info('Searching: %s', url)
-
-        data = urllib2.urlopen(url, timeout = self.timeout)
+        
+        try:
+            data = urllib2.urlopen(url, timeout = self.timeout)
+        except URLError:
+            log.error('Failed to open %s.' % url)
 
         if data:
             log.debug('Parsing NZBs.org RSS.')
