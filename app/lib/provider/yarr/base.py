@@ -51,8 +51,12 @@ class nzbBase(rss):
         if self.checkIMDB([item.content], movie.imdb):
             return True
 
+        # if no IMDB link, at least check year range 1
+        if len(movie.name.split(' ')) > 2 and self.correctYear([item.name], movie.year, 1) and self.correctName(item.name, movie.name):
+            return True
+        
         # if no IMDB link, at least check year
-        if self.correctYear([item.name], movie.year) and self.correctName(item.name, movie.name):
+        if len(movie.name.split(' ')) <= 2 and self.correctYear([item.name], movie.year, 0) and self.correctName(item.name, movie.name):
             return True
 
         return False
@@ -65,10 +69,10 @@ class nzbBase(rss):
 
         return False
 
-    def correctYear(self, haystack, year):
+    def correctYear(self, haystack, year, range):
 
         for string in haystack:
-            if str(year) in string or str(int(year) + 1) in string or str(int(year) - 1) in string: # 1 year of is fine too
+            if str(year) in string or str(int(year) + range) in string or str(int(year) - range) in string: # 1 year of is fine too
                 return True
 
         return False
