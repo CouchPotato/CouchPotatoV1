@@ -26,7 +26,7 @@ class RenamerCron(cronBase):
     movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso']
     nfoExt = ['*.nfo']
     subExt = ['*.sub', '*.srt', '*.idx', '*.ssa', '*.ass']
-    saveRemove = ['*.nfo', '*.nzb', '*.par2', '*.txt', '*.idx', '*.srr']
+    #saveRemove = ['*.nfo', '*.nzb', '*.par2', '*.txt', '*.idx', '*.srr']
 
     def conf(self, option):
         return self.config.get('Renamer', option)
@@ -55,7 +55,7 @@ class RenamerCron(cronBase):
         log.info('Renamer has shutdown.')
 
     def isDisabled(self):
-        if (str(self.conf('enabled')).lower() == 'true' and os.path.isdir(self.conf('download')) and self.conf('download') and self.conf('destination') and self.conf('foldernaming') and self.conf('filenaming')):
+        if (self.conf('enabled') and os.path.isdir(self.conf('download')) and self.conf('download') and self.conf('destination') and self.conf('foldernaming') and self.conf('filenaming')):
             return False
         else:
             return True
@@ -93,40 +93,38 @@ class RenamerCron(cronBase):
 
             if movie and movie.get('movie'):
                 finalDestination = self.renameFiles(files, movie['movie'], movie['queue'])
-                if str(self.config.get('Renamer', 'trailerQuality')).lower() != 'false':
+                if self.conf('trailerQuality'):
                     self.trailerQueue.put({'id': movie['movie'].imdb, 'movie': movie['movie'], 'destination':finalDestination})
             else:
                 log.info('No Match found for: %s' % str(files['files']))
 
         # Cleanup
-        path = self.conf('download')
-        for dir in os.listdir(path):
-            fullDirPath = os.path.join(path, dir)
+        if self.conf('cleanup'):
+            path = self.conf('download')
 
-            # remove Apple file
-            if '.DS_Store' in fullDirPath:
-                os.remove(fullDirPath)
+            for root, subfiles, filenames in os.walk(path):
 
-            # Stop if something is unpacking
-            if '_unpack' in fullDirPath.lower():
-                break
+                # Stop if something is unpacking
+                if '_unpack' in root.lower():
+                    break
 
-            for root, subfiles, filenames in os.walk(fullDirPath):
+                for filename in filenames:
+                    fullFilePath = os.path.join(root, filename)
+                    fileSize = os.path.getsize(fullFilePath)
 
-                for pattern in self.saveRemove:
-                    for filename in fnmatch.filter(filenames, pattern):
+                    if fileSize < 157286400:
                         try:
-                            fullFilePath = os.path.join(root, filename)
                             os.remove(fullFilePath)
                             log.info('Removing file %s.' % fullFilePath)
                         except OSError:
                             log.error('Couldn\'t remove file' % fullFilePath)
-
-            try:
-                os.rmdir(fullDirPath)
-                log.info('Removing dir: %s in download dir.' % fullDirPath)
-            except OSError:
-                log.error('Tried to clean-up download folder, but "%s" isn\'t empty.' % os.path.dirname(fullDirPath))
+                
+                if not root in path:
+                    try:
+                        os.rmdir(root)
+                        log.info('Removing dir: %s in download dir.' % root)
+                    except OSError:
+                        log.error('Tried to clean-up download folder, but "%s" isn\'t empty.' % root)
 
     def getQueue(self, movie):
 

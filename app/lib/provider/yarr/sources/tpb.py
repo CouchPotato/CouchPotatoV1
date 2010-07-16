@@ -52,8 +52,7 @@ class tpb(torrentBase):
 
         url = self.apiUrl % (quote_plus(self.toSearchString(movie.name + ' ' + quality) + self.makeIgnoreString(type)), self.getCatId(type))
 
-        log.info('Search url: %s', url)
-        log.debug('Parsing TPB.org Search results.')
+        log.info('Searching: %s', url)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
@@ -128,7 +127,7 @@ class tpb(torrentBase):
             return results
 
         except AttributeError:
-            log.info('No search results found.')
+            log.debug('No search results found.')
 
         return []
     

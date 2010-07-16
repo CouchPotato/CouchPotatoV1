@@ -77,7 +77,7 @@ def server_start():
             'server.socket_port':           int(ca.get('global', 'port')),
             'server.socket_host':               ca.get('global', 'host'),
             'server.environment':               ca.get('global', 'server.environment'),
-            'engine.autoreload_on':            (ca.get('global', 'engine.autoreload_on') == 'True' and not options.daemonize),
+            'engine.autoreload_on':             ca.get('global', 'engine.autoreload_on') and not options.daemonize,
             'tools.mako.collection_size':       500,
             'tools.mako.directories':           os.path.join(path_base, 'app', 'views'),
 
@@ -163,7 +163,7 @@ def server_start():
     else:
 
         # Launch browser
-        if str(ca.get('global', 'launchbrowser')).lower() == 'true':
+        if ca.get('global', 'launchbrowser'):
             app.launchBrowser(ca.get('global', 'host'), ca.get('global', 'port'))
 
         cherrypy.engine.block()

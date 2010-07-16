@@ -8,6 +8,7 @@ log = logging.getLogger(__name__)
 class configApp():
 
     s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer', 'IMDB', 'Intervals']
+    bool = {'true':True, 'false':False}
 
     def __init__(self, file):
         self.file = file
@@ -27,7 +28,10 @@ class configApp():
         return self.p.set(section, option, value)
 
     def get(self, section, option):
-        return self.p.get(section, option)
+        value = self.p.get(section, option)
+        if str(value).lower() in self.bool:
+            return self.bool.get(str(value).lower())
+        return value
 
     def initConfig(self):
         '''
@@ -36,20 +40,21 @@ class configApp():
 
         self.addSection('global')
         self.setDefault('global', 'server.environment', 'production')
-        self.setDefault('global', 'engine.autoreload_on', 'False')
+        self.setDefault('global', 'engine.autoreload_on', False)
         self.setDefault('global', 'host', '0.0.0.0')
         self.setDefault('global', 'port', 5000)
         self.setDefault('global', 'username', '')
         self.setDefault('global', 'password', '')
-        self.setDefault('global', 'launchbrowser', 'True')
+        self.setDefault('global', 'launchbrowser', True)
 
         self.addSection('Renamer')
-        self.setDefault('Renamer', 'enabled', 'False')
+        self.setDefault('Renamer', 'enabled', False)
         self.setDefault('Renamer', 'download', '')
         self.setDefault('Renamer', 'destination', '')
         self.setDefault('Renamer', 'folderNaming', '<namethe> (<year>)')
         self.setDefault('Renamer', 'fileNaming', '<thename><cd>.<ext>')
-        self.setDefault('Renamer', 'trailerQuality', 'False')
+        self.setDefault('Renamer', 'trailerQuality', False)
+        self.setDefault('Renamer', 'cleanup', False)
 
         self.addSection('NZBsorg')
         self.setDefault('NZBsorg', 'id', '')

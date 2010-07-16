@@ -32,15 +32,11 @@
 				</div>
 				<div class="ctrlHolder">
 					<label for="">Launch browser</label>
-					<input type="checkbox" name="global.launchbrowser" value="True" ${' checked="checked"' if config.get('global', 'launchbrowser') == 'True' else ''} />
+					<input type="checkbox" name="global.launchbrowser" value="True" ${' checked="checked"' if config.get('global', 'launchbrowser') else ''} />
 				</div>
 			</fieldset>
 			<fieldset class="general inlineLabels">
-				<h3>Usenet</h3>
-				<div class="ctrlHolder">
-					<label for="">Retention</label>
-					<input type="text" name="NZB.retention" value="${config.get('NZB', 'retention')}" class="textInput xsmall"/> day(s)
-				</div>
+				<h3>Search</h3>
 				<div class="ctrlHolder">
 					<label for="">Search every</label>
 					<input type="text" name="Intervals.search" value="${config.get('Intervals', 'search')}" class="textInput xsmall"/> hour(s)
@@ -49,7 +45,11 @@
 			<fieldset class="nzb inlineLabels" id="nzbsFieldset">
 				<div class="ctrlHolder checkbox">
 					<label for="">Enable</label>
-					<input type="checkbox" name="NZB.enabled" value="True" ${' checked="checked"' if config.get('NZB', 'enabled') == 'True' else ''} />
+					<input type="checkbox" name="NZB.enabled" value="True" ${' checked="checked"' if config.get('NZB', 'enabled') else ''} />
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Retention</label>
+					<input type="text" name="NZB.retention" value="${config.get('NZB', 'retention')}" class="textInput xsmall"/> day(s)
 				</div>
 				<div class="ctrlHolder">
 					<label for="nzbSendTo">Download to</label>
@@ -104,7 +104,7 @@
 			<fieldset class="torrents inlineLabels" id="torrentsFieldset">
 				<div class="ctrlHolder checkbox">
 					<label for="">Enable</label>
-					<input type="checkbox" name="Torrents.enabled" value="True" ${' checked="checked"' if config.get('Torrents', 'enabled') == 'True' else ''} />
+					<input type="checkbox" name="Torrents.enabled" value="True" ${' checked="checked"' if config.get('Torrents', 'enabled') else ''} />
 				</div>
 				<div class="ctrlHolder">
 					<label for="">Download to</label>
@@ -125,7 +125,7 @@
 			<fieldset class="renaming inlineLabels" id="renamingFieldset">
 				<div class="ctrlHolder checkbox">
 					<label for="">Enable</label>
-					<input type="checkbox" name="Renamer.enabled" value="True" ${' checked="checked"' if config.get('Renamer', 'enabled') == 'True' else ''} />
+					<input type="checkbox" name="Renamer.enabled" value="True" ${' checked="checked"' if config.get('Renamer', 'enabled') else ''} />
 				</div>
 				<div class="ctrlHolder">
 					<label for="">Download folder</label>
@@ -163,10 +163,17 @@
 						<span><strong>cdNr</strong>: 1</span>
 					</p>
 				</div>
+				<div class="ctrlHolder checkbox">
+					<label for="">Cleanup</label>
+					<input type="checkbox" name="Renamer.cleanup" value="True" ${' checked="checked"' if config.get('Renamer', 'cleanup') else ''} />
+					<p class="formHint">
+						Remove leftover files and folders (under 150MB).
+					</p>
+				</div>
 				<div class="ctrlHolder">
 					<label for="">Download trailer</label>
 					<select name="Renamer.trailerQuality" class="textInput large">
-						<option value="false">None</option>
+						<option value="">None</option>
 						% for format in trailerFormats:
 						<option value="${format['key']}"${' selected="selected"' if str(format['key']) == config.get('Renamer', 'trailerQuality') else ''}>${format['quality']} ${format['format']}</option>
 						% endfor

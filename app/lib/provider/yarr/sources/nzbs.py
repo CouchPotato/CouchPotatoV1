@@ -33,7 +33,7 @@ class nzbs(nzbBase):
         return self.config.get('NZBsorg', option)
 
     def enabled(self):
-        return self.conf('id') and self.conf('key') and str(self.config.get('NZB', 'enabled')).lower() == 'true'
+        return self.config.get('NZB', 'enabled') and self.conf('id') and self.conf('key') 
 
     def find(self, movie, quality, type):
 
@@ -51,7 +51,7 @@ class nzbs(nzbBase):
         })
         url = "%s?%s" % (self.apiUrl, arguments)
 
-        log.info('Search url: %s', url)
+        log.info('Searching: %s', url)
 
         data = urllib2.urlopen(url, timeout = self.timeout)
 
