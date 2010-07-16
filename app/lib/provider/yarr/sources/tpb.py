@@ -8,7 +8,7 @@ import logging
 import os
 import re
 import time
-import urllib
+import urllib2
 
 log = logging.getLogger(__name__)
 
@@ -56,11 +56,11 @@ class tpb(torrentBase):
         log.debug('Parsing TPB.org Search results.')
 
         try:
-            data = urllib.urlopen(url).read()
+            data = urllib2.urlopen(url, timeout = self.timeout).read()
             pass
         except IOError:
             log.error('Failed to open %s.' % url)
-            return False
+            return results
         try:
             tables = SoupStrainer('table')
             html = BeautifulSoup(data, parseOnlyThese = tables)
@@ -148,11 +148,11 @@ class tpb(torrentBase):
     def getInfo(self, url):
         log.debug('Getting info: %s' % url)
         try:
-            data = urllib.urlopen(url).read()
+            data = urllib2.urlopen(url, timeout = self.timeout).read()
             pass
         except IOError:
             log.error('Failed to open %s.' % url)
-            return False
+            return ''
 
         div = SoupStrainer('div')
         html = BeautifulSoup(data, parseOnlyThese = div)

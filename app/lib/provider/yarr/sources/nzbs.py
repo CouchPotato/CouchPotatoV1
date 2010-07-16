@@ -1,7 +1,8 @@
 from app.lib.provider.yarr.base import nzbBase
+from urllib import urlencode
 import logging
 import time
-import urllib
+import urllib2
 import xml.etree.ElementTree as XMLTree
 
 log = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ class nzbs(nzbBase):
         if not self.enabled():
             return results
 
-        arguments = urllib.urlencode({
+        arguments = urlencode({
             'action':'search',
             'q': self.toSearchString(movie.name + ' ' + quality),
             'catid':self.getCatId(type),
@@ -52,7 +53,7 @@ class nzbs(nzbBase):
 
         log.info('Search url: %s', url)
 
-        data = urllib.urlopen(url)
+        data = urllib2.urlopen(url, timeout = self.timeout)
 
         if data:
             log.debug('Parsing NZBs.org RSS.')

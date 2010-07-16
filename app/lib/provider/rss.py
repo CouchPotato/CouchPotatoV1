@@ -3,6 +3,8 @@ import re
 import unicodedata
 
 class rss:
+    
+    timeout = 10
 
     def toSaveString(self, string):
         string =  ''.join((c for c in unicodedata.normalize('NFD', unicode(string)) if unicodedata.category(c) != 'Mn'))

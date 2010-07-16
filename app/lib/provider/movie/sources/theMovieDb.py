@@ -1,7 +1,8 @@
 from app.lib.provider.movie.base import movieBase
 from imdb import IMDb
+from urllib import quote_plus
 import logging
-import urllib
+import urllib2
 import xml.etree.ElementTree as XMLTree
 
 log = logging.getLogger(__name__)
@@ -26,11 +27,11 @@ class theMovieDb(movieBase):
 
         log.info('TheMovieDB - Searching for movie: %s', q)
 
-        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.conf('key'), urllib.quote_plus(self.toSearchString(q)))
+        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.conf('key'), quote_plus(self.toSearchString(q)))
 
         log.info('Search url: %s', url)
 
-        data = urllib.urlopen(url)
+        data = urllib2.urlopen(url, timeout = self.timeout)
 
         return self.parseXML(data, limit)
 
@@ -41,7 +42,7 @@ class theMovieDb(movieBase):
             return False
 
         url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.conf('key'), id)
-        data = urllib.urlopen(url)
+        data = urllib2.urlopen(url, timeout = self.timeout)
 
         results = self.parseXML(data, limit = 8)
 
@@ -54,7 +55,7 @@ class theMovieDb(movieBase):
             return False
 
         url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.imdbLookup', self.conf('key'), id)
-        data = urllib.urlopen(url)
+        data = urllib2.urlopen(url, timeout = self.timeout)
 
         results = self.parseXML(data, limit = 8)
 
