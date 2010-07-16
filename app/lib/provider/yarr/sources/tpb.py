@@ -1,9 +1,7 @@
 from app.lib.provider.yarr.base import torrentBase
-from dateutil import relativedelta
 from dateutil.parser import parse
 from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
 from urllib import quote_plus
-import datetime
 import logging
 import os
 import re
@@ -18,8 +16,6 @@ class tpb(torrentBase):
     downloadUrl = 'http://torrents.thepiratebay.org/%s/%s.torrent'
     nfoUrl = 'http://thepiratebay.org/torrent/%s'
     detailUrl = 'http://thepiratebay.org/torrent/%s'
-
-    config = None
     apiUrl = 'http://thepiratebay.org/search/%s/0/7/%d'
 
     catIds = {
@@ -157,16 +153,6 @@ class tpb(torrentBase):
         html = BeautifulSoup(data, parseOnlyThese = div)
         html = html.find('div', attrs = {'class':'nfo'})
         return str(html).decode("utf-8", "replace")
-
-    def getCatId(self, prefQuality):
-        ''' Selecting category by quality '''
-
-        for id, quality in self.catIds.iteritems():
-            for q in quality:
-                if q == prefQuality:
-                    return id
-
-        return self.catBackupId
 
     def downloadLink(self, id, name):
         return self.downloadUrl % (id, quote_plus(name))

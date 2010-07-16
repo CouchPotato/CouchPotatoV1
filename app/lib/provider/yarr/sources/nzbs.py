@@ -3,7 +3,6 @@ from urllib import urlencode
 import logging
 import time
 import urllib2
-import xml.etree.ElementTree as XMLTree
 
 log = logging.getLogger(__name__)
 
@@ -13,8 +12,6 @@ class nzbs(nzbBase):
     downloadUrl = 'http://nzbs.org/index.php?action=getnzb&nzbid=%s%s'
     nfoUrl = 'http://nzbs.org/index.php?action=view&nzbid=%s&nfo=1'
     detailUrl = 'http://nzbs.org/index.php?action=view&nzbid=%s'
-
-    config = None
     apiUrl = 'http://nzbs.org/rss.php'
 
     catIds = {
@@ -90,19 +87,6 @@ class nzbs(nzbBase):
             except SyntaxError:
                 log.error('Failed to parse XML response from NZBs.org')
                 return False
-
-    def getItems(self, data):
-        return XMLTree.parse(data).findall('channel/item')
-
-    def getCatId(self, prefQuality):
-        ''' Selecting category by quality '''
-
-        for id, quality in self.catIds.iteritems():
-            for q in quality:
-                if q == prefQuality:
-                    return id
-
-        return self.catBackupId
 
     def getApiExt(self):
         return '&i=%s&h=%s' % (self.conf('id'), self.conf('key'))
