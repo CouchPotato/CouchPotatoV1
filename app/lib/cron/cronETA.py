@@ -58,7 +58,7 @@ class etaCron(rss, cronBase):
 
         # Already found it, just update the stuff
         if movie.eta and movie.eta.videoEtaId:
-            log.info('Updating VideoETA for %s.' % movie.name)
+            log.debug('Updating VideoETA for %s.' % movie.name)
             return self.getDetails(movie.eta.videoEtaId)
 
         # Do search
@@ -68,7 +68,7 @@ class etaCron(rss, cronBase):
         })
         url = "%s?%s" % (self.searchUrl, arguments)
 
-        log.info('Search url: %s.', url)
+        log.debug('Search url: %s.', url)
 
         results = self.getItems(urllib.urlopen(url).read())
 
@@ -124,7 +124,7 @@ class etaCron(rss, cronBase):
                 'theater': theaterDate,
                 'bluray': len(bluray) > 0
             }
-            log.info('Found: %s', dates)
+            log.debug('Found: %s', dates)
             return dates
         log.info('No release info found.')
 
