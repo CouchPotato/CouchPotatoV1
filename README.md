@@ -42,7 +42,8 @@ Windows:
 * Set your username & password in the settings if you want.
 * Fill in all the config stuff
 
-OSx
+OSx:
+
 * If you're on Leopard (10.5) install Python 2.6+: [Python 2.6.5](http://www.python.org/download/releases/2.6.5/)
 * Git clone/extract CP wherever you like
 * Run "CouchPotato.app"

@@ -28,7 +28,6 @@ Feeder:
 
 Later:
 
-* Think of a better name
 * Max downloads per day
 * Create .app for OSX
 * Restart button
