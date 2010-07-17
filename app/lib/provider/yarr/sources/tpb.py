@@ -101,7 +101,6 @@ class tpb(torrentBase):
                     if len(seedleech) == 2 and seedleech[0] > 0 and seedleech[1] > 0:
                         seeders = seedleech[0]
                         leechers = seedleech[1]
-                        ratio = (leechers / seeders) * 5
 
                     # to item
                     new = self.feedItem()
@@ -115,7 +114,7 @@ class tpb(torrentBase):
                     new.url = self.downloadLink(id, name)
                     new.detailUrl = self.detailLink(id)
                     new.content = self.getInfo(new.detailUrl)
-                    new.score = self.calcScore(new, movie) + self.uploader(result) + ratio
+                    new.score = self.calcScore(new, movie) + self.uploader(result) + (seeders / 10)
 
                     if seeders > 0 and self.isCorrectMovie(new, movie, type) and (new.date + (int(self.conf('wait')) * 60 * 60) < time.time()):
                         results.append(new)
