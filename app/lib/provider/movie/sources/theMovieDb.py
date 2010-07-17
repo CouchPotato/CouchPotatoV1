@@ -1,6 +1,7 @@
 from app.lib.provider.movie.base import movieBase
 from imdb import IMDb
 from urllib import quote_plus
+from urllib2 import URLError
 import logging
 import urllib2
 import xml.etree.ElementTree as XMLTree
@@ -55,7 +56,12 @@ class theMovieDb(movieBase):
             return False
 
         url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.imdbLookup', self.conf('key'), id)
-        data = urllib2.urlopen(url, timeout = self.timeout)
+
+        try:
+            data = urllib2.urlopen(url, timeout = self.timeout)
+        except (IOError, URLError):
+            log.error('Failed to open %s.' % url)
+            return []
 
         results = self.parseXML(data, limit = 8)
 
@@ -78,7 +84,7 @@ class theMovieDb(movieBase):
                     name = self.toSaveString(self.gettextelement(movie, "name"))
                     imdb = self.gettextelement(movie, "imdb_id")
                     year = str(self.gettextelement(movie, "released"))[:4]
-                    
+
                     # 1900 is the same as None
                     if year == '1900':
                         year = 'None'

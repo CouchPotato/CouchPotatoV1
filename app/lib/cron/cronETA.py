@@ -1,11 +1,13 @@
 from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
 from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup, SoupStrainer
+from urllib2 import URLError
 import Queue
 import logging
 import re
 import time
 import urllib
+import urllib2
 
 etaQueue = Queue.Queue()
 log = logging.getLogger(__name__)
@@ -69,8 +71,15 @@ class etaCron(rss, cronBase):
         url = "%s?%s" % (self.searchUrl, arguments)
 
         log.debug('Search url: %s.', url)
+        
 
-        results = self.getItems(urllib.urlopen(url).read())
+        try:
+            data = urllib2.urlopen(url, timeout = self.timeout).read()
+        except (IOError, URLError):
+            log.error('Failed to open %s.' % url)
+            return []
+
+        results = self.getItems(data)
 
         if results:
             for result in results:
@@ -84,9 +93,8 @@ class etaCron(rss, cronBase):
         log.info('Scanning %s.', url)
 
         try:
-            data = urllib.urlopen(url).read()
-            pass
-        except IOError:
+            data = urllib2.urlopen(url, timeoute = self.timeout).read()
+        except (IOError, URLError):
             log.error('Failed to open %s.' % url)
             return False
 

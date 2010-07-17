@@ -1,5 +1,6 @@
 from app.lib.provider.yarr.base import nzbBase
 from urllib import urlencode
+from urllib2 import URLError
 import logging
 import time
 import urllib2
@@ -52,8 +53,9 @@ class nzbs(nzbBase):
         
         try:
             data = urllib2.urlopen(url, timeout = self.timeout)
-        except URLError:
+        except (IOError, URLError):
             log.error('Failed to open %s.' % url)
+            return results
 
         if data:
             log.debug('Parsing NZBs.org RSS.')

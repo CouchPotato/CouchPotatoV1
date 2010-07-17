@@ -52,10 +52,10 @@ class tpb(torrentBase):
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
-            pass
-        except IOError:
+        except (IOError, URLError):
             log.error('Failed to open %s.' % url)
             return results
+
         try:
             tables = SoupStrainer('table')
             html = BeautifulSoup(data, parseOnlyThese = tables)

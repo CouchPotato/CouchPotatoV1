@@ -52,8 +52,9 @@ class nzbMatrix(nzbBase):
         
         try:
             data = urllib2.urlopen(url, timeout = self.timeout)
-        except URLError:
+        except (IOError, URLError):
             log.error('Failed to open %s.' % url)
+            return results
 
         if data:
             try:
