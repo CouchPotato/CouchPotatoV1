@@ -93,7 +93,7 @@ class etaCron(rss, cronBase):
         log.info('Scanning %s.', url)
 
         try:
-            data = urllib2.urlopen(url, timeoute = self.timeout).read()
+            data = urllib2.urlopen(url, timeout = self.timeout).read()
         except (IOError, URLError):
             log.error('Failed to open %s.' % url)
             return False

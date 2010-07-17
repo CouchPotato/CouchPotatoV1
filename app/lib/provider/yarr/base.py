@@ -1,6 +1,8 @@
-
 from app.lib.provider.rss import rss
+from app.lib.qualities import Qualities
+import logging
 import re
+log = logging.getLogger(__name__)
 
 class nzbBase(rss):
 
@@ -17,6 +19,29 @@ class nzbBase(rss):
 
     catIds = {}
     catBackupId = ''
+
+    sizeGb = ['gb', 'gib']
+    sizeMb = ['mb', 'mib']
+    sizeKb = ['kb', 'kib']
+
+    def parseSize(self, size):
+
+        sizeRaw = size.lower()
+        size = re.sub(r'[^0-9.]', '', size).strip()
+
+        for s in self.sizeGb:
+            if s in sizeRaw:
+                return float(size) * 1024
+
+        for s in self.sizeMb:
+            if s in sizeRaw:
+                return float(size)
+
+        for s in self.sizeKb:
+            if s in sizeRaw:
+                return float(size) / 1024
+            
+        return 0
 
     def calcScore(self, nzb, movie):
         ''' Calculate the score of a NZB, used for sorting later '''
@@ -45,7 +70,13 @@ class nzbBase(rss):
 
         return score
 
-    def isCorrectMovie(self, item, movie):
+    def isCorrectMovie(self, item, movie, qualityType):
+        
+        # Check for size first
+        type = Qualities.types.get(qualityType)
+        if type['minSize'] > item.size:
+            log.debug('"%s" is to small to be %s. %sMB instead of the minimal of %sMB.' % (item.name, type['label'], item.size, type['minSize']))
+            return False
 
         # Check if nzb contains imdb link
         if self.checkIMDB([item.content], movie.imdb):
@@ -54,7 +85,7 @@ class nzbBase(rss):
         # if no IMDB link, at least check year range 1
         if len(movie.name.split(' ')) > 2 and self.correctYear([item.name], movie.year, 1) and self.correctName(item.name, movie.name):
             return True
-        
+
         # if no IMDB link, at least check year
         if len(movie.name.split(' ')) <= 2 and self.correctYear([item.name], movie.year, 0) and self.correctName(item.name, movie.name):
             return True

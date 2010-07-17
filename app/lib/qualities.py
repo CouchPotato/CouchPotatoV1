@@ -8,18 +8,18 @@ log = logging.getLogger(__name__)
 class Qualities:
 
     types = {
-        '1080p':{'key': '1080p', 'order':1, 'label': '1080P', 'alternative': []},
-        '720p':{'key': '720p', 'order':2, 'label': '720P', 'alternative': []},
-        'brrip':{'key': 'brrip', 'order':3, 'label': 'BR-Rip', 'alternative': ['bdrip']},
-        'dvdr':{'key': 'dvdr', 'order':4, 'label': 'DVD-R', 'alternative': []},
-        'dvdrip':{'key': 'dvdrip', 'order':5, 'label': 'DVD-Rip', 'alternative': []},
-        'scr':{'key': 'scr', 'order':6, 'label': 'Screener', 'alternative': ['dvdscr']},
-        'r5':{'key': 'r5', 'order':7, 'label': 'R5', 'alternative': []},
-        'tc':{'key': 'tc', 'order':8, 'label': 'TeleCine', 'alternative': ['telecine']},
-        'ts':{'key': 'ts', 'order':9, 'label': 'TeleSync', 'alternative': ['telesync']},
-        'cam':{'key': 'cam', 'order':10, 'label': 'Cam', 'alternative': []}
+        '1080p':    {'key': '1080p', 'minSize': 5000, 'order':1, 'label': '1080P', 'alternative': []},
+        '720p':     {'key': '720p', 'minSize': 3500, 'order':2, 'label': '720P', 'alternative': []},
+        'brrip':    {'key': 'brrip', 'minSize': 700, 'order':3, 'label': 'BR-Rip', 'alternative': ['bdrip']},
+        'dvdr':     {'key': 'dvdr', 'minSize': 3000, 'order':4, 'label': 'DVD-R', 'alternative': []},
+        'dvdrip':   {'key': 'dvdrip', 'minSize': 600, 'order':5, 'label': 'DVD-Rip', 'alternative': []},
+        'scr':      {'key': 'scr', 'minSize': 600, 'order':6, 'label': 'Screener', 'alternative': ['dvdscr']},
+        'r5':       {'key': 'r5', 'minSize': 600, 'order':7, 'label': 'R5', 'alternative': []},
+        'tc':       {'key': 'tc', 'minSize': 600, 'order':8, 'label': 'TeleCine', 'alternative': ['telecine']},
+        'ts':       {'key': 'ts', 'minSize': 600, 'order':9, 'label': 'TeleSync', 'alternative': ['telesync']},
+        'cam':      {'key': 'cam', 'minSize': 600, 'order':10, 'label': 'Cam', 'alternative': []}
     }
-    
+
     def default(self):
         return cherrypy.config.get('config').get('Quality', 'default')
 
@@ -82,7 +82,7 @@ class Qualities:
                 delete['templates'].remove(int(template['id']))
             except (ValueError, TypeError):
                 pass
-            
+
             if int(template['id']) == 0:
                 template['id'] = template['name']
 

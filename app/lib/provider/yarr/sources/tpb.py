@@ -2,6 +2,7 @@ from app.lib.provider.yarr.base import torrentBase
 from dateutil.parser import parse
 from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
 from urllib import quote_plus
+from urllib2 import URLError
 import logging
 import os
 import re
@@ -68,7 +69,7 @@ class tpb(torrentBase):
                     name = details.contents[0]
                     desc = result.find('font', attrs = {'class':'detDesc'}).contents[0].split(',')
                     date = ''
-                    size = ''
+                    size = 0
                     for item in desc:
                         # Weird date stuff
                         if 'uploaded' in item.lower():
@@ -108,7 +109,7 @@ class tpb(torrentBase):
                     new.type = 'torrent'
                     new.name = name
                     new.date = date
-                    new.size = size
+                    new.size = self.parseSize(size)
                     new.seeders = seeders
                     new.leechers = leechers
                     new.url = self.downloadLink(id, name)
@@ -116,7 +117,7 @@ class tpb(torrentBase):
                     new.content = self.getInfo(new.detailUrl)
                     new.score = self.calcScore(new, movie) + self.uploader(result) + ratio
 
-                    if seeders > 0 and self.isCorrectMovie(new, movie) and (new.date + (int(self.conf('wait')) * 60 * 60) < time.time()):
+                    if seeders > 0 and self.isCorrectMovie(new, movie, type) and (new.date + (int(self.conf('wait')) * 60 * 60) < time.time()):
                         results.append(new)
                         log.info('Found: %s', new.name)
 

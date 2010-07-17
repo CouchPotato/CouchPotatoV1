@@ -77,12 +77,12 @@ class nzbMatrix(nzbBase):
                     new.type = 'nzb'
                     new.name = self.gettextelement(nzb, "title")
                     new.date = int(time.mktime(parse(date).timetuple()))
-                    new.size = size
+                    new.size = self.parseSize(size)
                     new.url = self.downloadLink(id)
                     new.content = self.gettextelement(nzb, "description")
                     new.score = self.calcScore(new, movie)
 
-                    if new.date > time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60) and self.isCorrectMovie(new, movie):
+                    if new.date > time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60) and self.isCorrectMovie(new, movie, type):
                         results.append(new)
                         log.info('Found: %s', new.name)
 

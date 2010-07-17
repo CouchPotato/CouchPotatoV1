@@ -78,13 +78,13 @@ class nzbs(nzbBase):
                     new.type = 'nzb'
                     new.name = self.gettextelement(nzb, "title")
                     new.date = time.mktime(time.strptime(str(self.gettextelement(nzb, "pubDate")), '%a, %d %b %Y %H:%M:%S +0000'))
-                    new.size = size
+                    new.size = self.parseSize(size)
                     new.url = self.downloadLink(id)
                     new.detailUrl = self.detailLink(id)
                     new.content = self.gettextelement(nzb, "description")
                     new.score = self.calcScore(new, movie)
 
-                    if self.isCorrectMovie(new, movie):
+                    if self.isCorrectMovie(new, movie, type):
                         results.append(new)
                         log.info('Found: %s', new.name)
 
@@ -92,6 +92,7 @@ class nzbs(nzbBase):
             except SyntaxError:
                 log.error('Failed to parse XML response from NZBs.org')
                 return False
-
+        
+        
     def getApiExt(self):
         return '&i=%s&h=%s' % (self.conf('id'), self.conf('key'))
