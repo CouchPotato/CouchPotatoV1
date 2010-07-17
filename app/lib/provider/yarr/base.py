@@ -49,6 +49,7 @@ class nzbBase(rss):
         score = 0
         if nzb.name:
             score = self.nameScore(nzb.name, movie)
+            score += self.nameRatioScore(nzb.name, movie.name)
 
         return score
 
@@ -56,12 +57,13 @@ class nzbBase(rss):
         ''' Calculate score for words in the NZB name '''
 
         score = 0
+        name = name.lower()
 
         #give points for the cool stuff
         for value in self.nameScores:
             v = value.split(':')
             add = int(v.pop())
-            if v.pop() in name.lower():
+            if v.pop() in name:
                 score = score + add
 
         #points if the year is correct
@@ -69,6 +71,18 @@ class nzbBase(rss):
             score = score + 1
 
         return score
+    
+    def nameRatioScore(self, nzbName, movieName):
+        
+        nzbWords = re.split('\W+', self.toSearchString(nzbName).lower())
+        movieWords = re.split('\W+', self.toSearchString(movieName).lower())
+
+        # Replace .,-_ with space
+        leftOver = len(nzbWords) - len(movieWords)
+        if 2 <= leftOver <=  6:
+            return 4
+        else:
+            return 0
 
     def isCorrectMovie(self, item, movie, qualityType):
         
