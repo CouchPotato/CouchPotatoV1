@@ -12,7 +12,7 @@ if frozen:
     path_base = os.environ['_MEIPASS2']
 else:
     path_base = rundir
-sys.path.append(os.path.join(path_base, 'library'))
+sys.path.insert(0, os.path.join(path_base, 'library'))
 
 # Use debug conf if available
 import logging.config
