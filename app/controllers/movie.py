@@ -18,7 +18,7 @@ class MovieController(BaseController):
         '''
 
         movies = qMovie.order_by(Movie.name).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
-        snatched = qMovie.order_by(Movie.name).filter_by(status = u'snatched').all()
+        snatched = qMovie.order_by(desc(Movie.dateChanged), Movie.name).filter_by(status = u'snatched').all()
         downloaded = qMovie.order_by(desc(Movie.dateChanged), Movie.name).filter_by(status = u'downloaded').all()
 
         return self.render({'movies': movies, 'snatched':snatched, 'downloaded':downloaded})
