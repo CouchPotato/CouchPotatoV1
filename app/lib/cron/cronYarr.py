@@ -1,6 +1,7 @@
 from app.config.db import Movie, Session as Db
 from app.lib.cron.cronBase import cronBase
 from sqlalchemy.sql.expression import or_
+import datetime
 import logging
 import os
 import time
@@ -111,10 +112,8 @@ class YarrCron(cronBase):
 
                     # Set status
                     if success:
-                        if queue.markComplete:
-                            movie.status = u'snatched'
-                        else:
-                            movie.status = u'waiting'
+                        movie.status = u'snatched' if queue.markComplete else u'waiting'
+                        movie.dateChanged = datetime.datetime.now()
 
                         queue.completed = True
                         Db.flush()

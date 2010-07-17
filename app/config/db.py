@@ -14,7 +14,7 @@ metadata = MetaData(engine)
 Session = create_session(bind = engine, expire_on_commit = True)
 
 # DB VERSION
-latestDatabaseVersion = 2
+latestDatabaseVersion = 3
 
 dbVersionTable = Table('DbVersion', metadata,
                      Column('version', Integer, primary_key = True)
@@ -23,6 +23,7 @@ dbVersionTable = Table('DbVersion', metadata,
 movieTable = Table('Movie', metadata,
                      Column('id', Integer, primary_key = True),
                      Column('dateAdded', DateTime(), default = datetime.datetime.utcnow),
+                     Column('dateChanged', DateTime(), default = datetime.datetime.utcnow),
                      Column('name', String()),
                      Column('year', Integer),
                      Column('imdb', String()),
@@ -89,6 +90,7 @@ class DbVersion(object):
 class Movie(object):
     name = None
     status = None
+    dateChanged = None
 
     def __repr__(self):
         return "<movie: %s" % self.name
@@ -170,13 +172,29 @@ def initDb():
 def upgradeDb():
 
     currentVersion = Session.query(DbVersion).order_by(desc(DbVersion.version)).first()
-    if currentVersion and currentVersion.version == latestDatabaseVersion:
-        log.debug('Database is up to date.')
-        return
+    if currentVersion:
+        if currentVersion.version == latestDatabaseVersion:
+            log.debug('Database is up to date.')
+            return
 
-    # Version 1 -> 2
-    version2 = Session.query(DbVersion).filter_by(version = 2).first()
-    if not version2: migrateVersion2()
+        # Version 1 -> 2
+        if currentVersion.version < 2: migrateVersion2()
+        if currentVersion.version < 3: migrateVersion3()
+
+def migrateVersion3():
+    log.info('Upgrading DB to version 3.')
+
+    # for some normal executions
+    db = SqlSoup(engine)
+    
+    try:
+        db.execute('ALTER TABLE Movie ADD dateChanged TIMESTAMP')
+        log.info('Added dateChanged to Movie table')
+    except OperationalError:
+        log.debug('Column dateChanged already added')
+
+    Session.add(DbVersion(3))
+    Session.flush()
 
 def migrateVersion2():
     log.info('Upgrading DB to version 2.')
