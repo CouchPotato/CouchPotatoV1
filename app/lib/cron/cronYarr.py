@@ -88,7 +88,6 @@ class YarrCron(cronBase):
                 highestScore = 0
                 for result in results:
                     if result.score > highestScore:
-                        # Wait for download if complete = false
                         highest = result
                         highestScore = result.score
 
@@ -170,10 +169,11 @@ class YarrCron(cronBase):
             'string': s
         }
 
-def startYarrCron(config, debug):
+def startYarrCron(config, debug, provider):
     cron = YarrCron()
     cron.config = config
     cron.debug = debug
+    cron.provider = provider
     cron.start()
 
     return cron

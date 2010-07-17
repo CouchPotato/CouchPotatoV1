@@ -54,8 +54,7 @@ class CronJobs(plugins.SimplePlugin):
         self.searchers['movie'] = movieSearch
 
         #nzb cronjob
-        yarrCronJob = startYarrCron(config, self.debug)
-        yarrCronJob.provider = yarrSearch
+        yarrCronJob = startYarrCron(config, self.debug, yarrSearch)
         yarrCronJob.sabNzbd = sabNzbd(config)
         self.threads['yarr'] = yarrCronJob
 
