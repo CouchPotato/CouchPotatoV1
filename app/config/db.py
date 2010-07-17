@@ -168,6 +168,7 @@ def initDb():
     else:
         for nr in range(1, latestDatabaseVersion + 1):
             Session.add(DbVersion(nr))
+            Session.flush()
 
 def upgradeDb():
 
@@ -177,9 +178,10 @@ def upgradeDb():
             log.debug('Database is up to date.')
             return
 
-        # Version 1 -> 2
         if currentVersion.version < 2: migrateVersion2()
         if currentVersion.version < 3: migrateVersion3()
+    else: # assume version 2
+        migrateVersion3()
 
 def migrateVersion3():
     log.info('Upgrading DB to version 3.')

@@ -3,8 +3,7 @@ import os
 
 rundir = os.path.dirname(os.path.abspath(__file__))
 try:
-    if sys.frozen:
-        frozen = True
+    frozen = sys.frozen
 except AttributeError:
     frozen = False
 
@@ -42,7 +41,6 @@ from app.config.configApp import configApp
 import app.config.render
 from app.config.routes import setup as Routes
 from app.lib.cron import CronJobs
-from app.lib.qualities import Qualities
 
 import cherrypy
 from cherrypy.process import plugins

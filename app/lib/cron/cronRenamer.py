@@ -103,6 +103,7 @@ class RenamerCron(cronBase):
             path = self.conf('download')
 
             for root, subfiles, filenames in os.walk(path):
+                log.debug(subfiles)
 
                 # Stop if something is unpacking
                 if '_unpack' in root.lower():
@@ -118,7 +119,7 @@ class RenamerCron(cronBase):
                             log.info('Removing file %s.' % fullFilePath)
                         except OSError:
                             log.error('Couldn\'t remove file' % fullFilePath)
-                
+
                 if not root in path:
                     try:
                         os.rmdir(root)
@@ -276,6 +277,7 @@ class RenamerCron(cronBase):
         files = []
         oldSize = 0
         for root, subfiles, filenames in os.walk(path):
+            log.debug(subfiles)
 
             for filename in filenames:
                 ext = os.path.splitext(filename)[1].lower()[1:]

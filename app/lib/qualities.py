@@ -125,7 +125,6 @@ class Qualities:
             Db.flush()
             exists = Db.query(QualityTemplate).filter_by(name = name).first()
         else:
-            log.debug('Updating custom=%s quality: %s' % (custom, name))
             exists.label = label
             exists.waitFor = waitFor
             Db.flush()
@@ -149,7 +148,7 @@ class Qualities:
         return True
 
     def initDefaults(self):
-        log.info('Creating default quality settings, if needed')
+        log.debug('Creating default quality settings, if needed')
 
         for key, type in self.types.iteritems():
             self.create(key, type['label'], [{

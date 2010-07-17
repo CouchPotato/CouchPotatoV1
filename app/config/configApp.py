@@ -1,7 +1,5 @@
 import ConfigParser
 import logging
-import os
-import shutil
 
 log = logging.getLogger(__name__)
 

@@ -97,7 +97,6 @@ class tpb(torrentBase):
 
                     seeders = 0
                     leechers = 0
-                    ratio = 0
                     if len(seedleech) == 2 and seedleech[0] > 0 and seedleech[1] > 0:
                         seeders = seedleech[0]
                         leechers = seedleech[1]
