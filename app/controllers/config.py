@@ -77,7 +77,19 @@ class ConfigController(BaseController):
     @cherrypy.expose
     def exit(self):
 
+        cherrypy.engine.exit()
         sys.exit()
+
+    @cherrypy.expose
+    def restart(self):
+
+        cherrypy.engine.restart()
+
+    @cherrypy.expose
+    def update(self):
+
+        updater = cherrypy.config.get('updater')
+        updater.run()
 
     @cherrypy.expose
     @cherrypy.tools.mako(filename = "config/imdbScript.js")

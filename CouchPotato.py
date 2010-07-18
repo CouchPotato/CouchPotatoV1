@@ -41,12 +41,12 @@ from app.config.configApp import configApp
 import app.config.render
 from app.config.routes import setup as Routes
 from app.lib.cron import CronJobs
+from app.config.updater import Updater
 
 import cherrypy
 from cherrypy.process import plugins
 
 def server_start():
-
     p = OptionParser()
     p.add_option('-d', action = "store_true",
                  dest = 'daemonize', help = "Run the server as a daemon")
@@ -67,6 +67,10 @@ def server_start():
     # Start threads
     myCrons = CronJobs(cherrypy.engine, ca, debug)
     myCrons.subscribe()
+    
+    # Update script
+    myUpdater = Updater(cherrypy.engine)
+    myUpdater.subscribe()
 
     # User config, use own stuff to prevent unexpected results
     cherrypy.config.update({
@@ -81,10 +85,12 @@ def server_start():
 
             'basePath':                         path_base,
             'runPath':                          rundir,
+            'cachePath':                        cachedir,
             'debug':                            debug,
 
             # Global workers
             'config':                           ca,
+            'updater':                          myUpdater,
             'cron':                             myCrons.threads,
             'searchers':                        myCrons.searchers
         }
