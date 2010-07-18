@@ -9,7 +9,6 @@ logs/
 pyInstaller/
 *.exe
 setup.py
-warnMovieManager.txt
 build/
 debug.conf
 cache/
