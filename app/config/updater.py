@@ -24,6 +24,7 @@ class Updater(SimplePlugin):
         self.basePath = cherrypy.config['basePath']
         self.runPath = cherrypy.config['runPath']
         self.cachePath = cherrypy.config['cachePath']
+        self.isFrozen = cherrypy.config['frozen']
         self.updatePath = os.path.join(self.cachePath, 'updates')
 
     start.priority = 70
@@ -37,7 +38,7 @@ class Updater(SimplePlugin):
         if not os.path.isdir(self.updatePath):
             os.mkdir(self.updatePath)
 
-        if os.name == 'nt':
+        if self.isFrozen:
             self.doUpdateWindows()
         else:
             self.doUpdateUnix()

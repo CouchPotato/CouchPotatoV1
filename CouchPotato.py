@@ -87,6 +87,7 @@ def server_start():
             'runPath':                          rundir,
             'cachePath':                        cachedir,
             'debug':                            debug,
+            'frozen':                           frozen,
 
             # Global workers
             'config':                           ca,
