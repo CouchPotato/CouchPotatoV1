@@ -126,7 +126,7 @@ class TrailerCron(rss, cronBase):
                     if os.path.isfile(tempTrailerFile): os.remove(tempTrailerFile)
                     if not os.path.isfile(trailerFile):
                         log.info('Downloading trailer in %s too "%s", size: %s' % (format['quality'], destination, str(size / 1024 / 1024) + 'MB'))
-                        with open(tempTrailerFile, 'w') as f:
+                        with open(tempTrailerFile, 'wb') as f:
                             f.write(videoData.read())
 
                         #temp to real

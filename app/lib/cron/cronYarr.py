@@ -132,7 +132,7 @@ class YarrCron(cronBase):
             if not os.path.isfile(fullPath):
                 log.info('Downloading %s to %s.' % (item.type, fullPath))
                 file = urllib.urlopen(item.url).read()
-                with open(fullPath, 'w') as f:
+                with open(fullPath, 'wb') as f:
                     f.write(file)
 
                 return True
