@@ -35,9 +35,9 @@ of invocation scenarios:
 
 The Bus object in this package uses topic-based publish-subscribe
 messaging to accomplish all this. A few topic channels are built in
-('start', 'stop', 'exit', and 'graceful'). Frameworks and site containers
-are free to define their own. If a message is sent to a channel that has
-not been defined or has no listeners, there is no effect.
+('start', 'stop', 'exit', 'graceful', 'log', and 'main'). Frameworks and
+site containers are free to define their own. If a message is sent to a
+channel that has not been defined or has no listeners, there is no effect.
 
 In general, there should only ever be a single Bus object per process.
 Frameworks and site containers share a single Bus object by publishing
@@ -72,6 +72,35 @@ import time
 import traceback as _traceback
 import warnings
 
+# Here I save the value of os.getcwd(), which, if I am imported early enough,
+# will be the directory from which the startup script was run.  This is needed
+# by _do_execv(), to change back to the original directory before execv()ing a
+# new process.  This is a defense against the application having changed the
+# current working directory (which could make sys.executable "not found" if
+# sys.executable is a relative-path, and/or cause other problems).
+_startup_cwd = os.getcwd()
+
+class ChannelFailures(Exception):
+    delimiter = '\n'
+    
+    def __init__(self, *args, **kwargs):
+        # Don't use 'super' here; Exceptions are old-style in Py2.4
+        # See http://www.cherrypy.org/ticket/959
+        Exception.__init__(self, *args, **kwargs)
+        self._exceptions = list()
+    
+    def handle_exception(self):
+        self._exceptions.append(sys.exc_info())
+    
+    def get_instances(self):
+        return [instance for cls, instance, traceback in self._exceptions]
+    
+    def __str__(self):
+        exception_strings = map(repr, self.get_instances())
+        return self.delimiter.join(exception_strings)
+    
+    def __nonzero__(self):
+        return bool(self._exceptions)
 
 # Use a flag to indicate the state of the bus.
 class _StateEnum(object):
@@ -111,7 +140,7 @@ class Bus(object):
         self.state = states.STOPPED
         self.listeners = dict(
             [(channel, set()) for channel
-             in ('start', 'stop', 'exit', 'graceful', 'log')])
+             in ('start', 'stop', 'exit', 'graceful', 'log', 'main')])
         self._priorities = {}
     
     def subscribe(self, channel, callback, priority=None):
@@ -136,7 +165,7 @@ class Bus(object):
         if channel not in self.listeners:
             return []
         
-        exc = None
+        exc = ChannelFailures()
         output = []
         
         items = [(self._priorities[(channel, listener)], listener)
@@ -153,7 +182,7 @@ class Bus(object):
                     e.code = 1
                 raise
             except:
-                exc = sys.exc_info()[1]
+                exc.handle_exception()
                 if channel == 'log':
                     # Assume any further messages to 'log' will fail.
                     pass
@@ -161,7 +190,7 @@ class Bus(object):
                     self.log("Error in %r listener %r" % (channel, listener),
                              level=40, traceback=True)
         if exc:
-            raise
+            raise exc
         return output
     
     def _clean_exit(self):
@@ -199,6 +228,7 @@ class Bus(object):
     
     def exit(self):
         """Stop all services and prepare to exit the process."""
+        exitstate = self.state
         try:
             self.stop()
             
@@ -213,6 +243,13 @@ class Bus(object):
             # signal handler, console handler, or atexit handler), so we
             # can't just let exceptions propagate out unhandled.
             # Assume it's been logged and just die.
+            os._exit(70) # EX_SOFTWARE
+        
+        if exitstate == states.STARTING:
+            # exit() was called before start() finished, possibly due to
+            # Ctrl-C because a start listener got stuck. In this case,
+            # we could get stuck in a loop where Ctrl-C never exits the
+            # process, so we just call os.exit here.
             os._exit(70) # EX_SOFTWARE
     
     def restart(self):
@@ -239,7 +276,7 @@ class Bus(object):
         thread perform the actual execv call (required on some platforms).
         """
         try:
-            self.wait(states.EXITING, interval=interval)
+            self.wait(states.EXITING, interval=interval, channel='main')
         except (KeyboardInterrupt, IOError):
             # The time.sleep call might raise
             # "IOError: [Errno 4] Interrupted function call" on KBInt.
@@ -270,7 +307,7 @@ class Bus(object):
         if self.execv:
             self._do_execv()
     
-    def wait(self, state, interval=0.1):
+    def wait(self, state, interval=0.1, channel=None):
         """Wait for the given state(s)."""
         if isinstance(state, (tuple, list)):
             states = state
@@ -280,6 +317,7 @@ class Bus(object):
         def _wait():
             while self.state not in states:
                 time.sleep(interval)
+                self.publish(channel)
         
         # From http://psyco.sourceforge.net/psycoguide/bugs.html:
         # "The compiled machine code does not include the regular polling
@@ -305,7 +343,8 @@ class Bus(object):
         args.insert(0, sys.executable)
         if sys.platform == 'win32':
             args = ['"%s"' % arg for arg in args]
-        
+
+        os.chdir(_startup_cwd)
         os.execv(sys.executable, args)
     
     def stop(self):

@@ -9,7 +9,26 @@ except NameError:
 import signal as _signal
 import sys
 import time
+import thread
 import threading
+
+# _module__file__base is used by Autoreload to make
+# absolute any filenames retrieved from sys.modules which are not
+# already absolute paths.  This is to work around Python's quirk
+# of importing the startup script and using a relative filename
+# for it in sys.modules.
+#
+# Autoreload examines sys.modules afresh every time it runs. If an application
+# changes the current directory by executing os.chdir(), then the next time
+# Autoreload runs, it will not be able to find any filenames which are
+# not absolute paths, because the current directory is not the same as when the
+# module was first imported.  Autoreload will then wrongly conclude the file has
+# "changed", and initiate the shutdown/re-exec sequence.
+# See ticket #917.
+# For this workaround to have a decent probability of success, this module
+# needs to be imported as early as possible, before the app has much chance
+# to change the working directory.
+_module__file__base = os.getcwd()
 
 
 class SimplePlugin(object):
@@ -65,14 +84,14 @@ class SignalHandler(object):
         self._previous_handlers = {}
     
     def subscribe(self):
-        for sig, func in self.handlers.iteritems():
+        for sig, func in self.handlers.items():
             try:
                 self.set_handler(sig, func)
             except ValueError:
                 pass
     
     def unsubscribe(self):
-        for signum, handler in self._previous_handlers.iteritems():
+        for signum, handler in self._previous_handlers.items():
             signame = self.signals[signum]
             
             if handler is None:
@@ -318,7 +337,7 @@ class Daemonizer(SimplePlugin):
         
         si = open(self.stdin, "r")
         so = open(self.stdout, "a+")
-        se = open(self.stderr, "a+", 0)
+        se = open(self.stderr, "a+")
 
         # os.dup2(fd, fd2) will close fd2 if necessary,
         # so we don't explicitly close stdin/out/err.
@@ -368,7 +387,13 @@ class PerpetualTimer(threading._Timer):
             self.finished.wait(self.interval)
             if self.finished.isSet():
                 return
-            self.function(*self.args, **self.kwargs)
+            try:
+                self.function(*self.args, **self.kwargs)
+            except Exception, x:
+                self.bus.log("Error in perpetual timer thread function %r." %
+                             self.function, level=40, traceback=True)
+                # Quit on first error to avoid massive logs.
+                raise
 
 
 class Monitor(SimplePlugin):
@@ -381,18 +406,20 @@ class Monitor(SimplePlugin):
     
     frequency = 60
     
-    def __init__(self, bus, callback, frequency=60):
+    def __init__(self, bus, callback, frequency=60, name=None):
         SimplePlugin.__init__(self, bus)
         self.callback = callback
         self.frequency = frequency
         self.thread = None
+        self.name = name
     
     def start(self):
         """Start our callback in its own perpetual timer thread."""
         if self.frequency > 0:
-            threadname = self.__class__.__name__
+            threadname = self.name or self.__class__.__name__
             if self.thread is None:
                 self.thread = PerpetualTimer(self.frequency, self.callback)
+                self.thread.bus = self.bus
                 self.thread.setName(threadname)
                 self.thread.start()
                 self.bus.log("Started monitor thread %r." % threadname)
@@ -403,7 +430,7 @@ class Monitor(SimplePlugin):
     def stop(self):
         """Stop our callback's perpetual timer thread."""
         if self.thread is None:
-            self.bus.log("No thread running for %s." % self.__class__.__name__)
+            self.bus.log("No thread running for %s." % self.name or self.__class__.__name__)
         else:
             if self.thread is not threading.currentThread():
                 name = self.thread.getName()
@@ -437,18 +464,24 @@ class Autoreloader(Monitor):
         Monitor.start(self)
     start.priority = 70 
     
-    def run(self):
-        """Reload the process if registered files have been modified."""
-        sysfiles = set()
+    def sysfiles(self):
+        """Return a Set of filenames which the Autoreloader will monitor."""
+        files = set()
         for k, m in sys.modules.items():
             if re.match(self.match, k):
-                if hasattr(m, '__loader__'):
-                    if hasattr(m.__loader__, 'archive'):
-                        k = m.__loader__.archive
-                k = getattr(m, '__file__', None)
-                sysfiles.add(k)
-        
-        for filename in sysfiles | self.files:
+                if hasattr(m, '__loader__') and hasattr(m.__loader__, 'archive'):
+                    f = m.__loader__.archive
+                else:
+                    f = getattr(m, '__file__', None)
+                    if f is not None and not os.path.isabs(f):
+                        # ensure absolute paths so a os.chdir() in the app doesn't break me
+                        f = os.path.normpath(os.path.join(_module__file__base, f))
+                files.add(f)
+        return files
+    
+    def run(self):
+        """Reload the process if registered files have been modified."""
+        for filename in self.sysfiles() | self.files:
             if filename:
                 if filename.endswith('.pyc'):
                     filename = filename[:-1]
@@ -505,7 +538,7 @@ class ThreadManager(SimplePlugin):
         If the current thread has already been seen, any 'start_thread'
         listeners will not be run again.
         """
-        thread_ident = threading._get_ident()
+        thread_ident = thread.get_ident()
         if thread_ident not in self.threads:
             # We can't just use _get_ident as the thread ID
             # because some platforms reuse thread ID's.
@@ -522,7 +555,7 @@ class ThreadManager(SimplePlugin):
     
     def stop(self):
         """Release all threads and run all 'stop_thread' listeners."""
-        for thread_ident, i in self.threads.iteritems():
+        for thread_ident, i in self.threads.items():
             self.bus.publish('stop_thread', i)
         self.threads.clear()
     graceful = stop

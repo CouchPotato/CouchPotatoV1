@@ -56,12 +56,14 @@ Then restart apache2 and access http://127.0.0.1:8080
 """
 
 import logging
-import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 import cherrypy
 from cherrypy._cperror import format_exc, bare_error
-from cherrypy.lib import http
-
+from cherrypy.lib import httputil
 
 
 # ------------------------------ Request-handling
@@ -71,17 +73,18 @@ from cherrypy.lib import http
 def setup(req):
     from mod_python import apache
     
-    # Run any setup function defined by a "PythonOption cherrypy.setup" directive.
+    # Run any setup functions defined by a "PythonOption cherrypy.setup" directive.
     options = req.get_options()
     if 'cherrypy.setup' in options:
-        atoms = options['cherrypy.setup'].split('::', 1)
-        if len(atoms) == 1:
-            mod = __import__(atoms[0], globals(), locals())
-        else:
-            modname, fname = atoms
-            mod = __import__(modname, globals(), locals(), [fname])
-            func = getattr(mod, fname)
-            func()
+        for function in options['cherrypy.setup'].split():
+            atoms = function.split('::', 1)
+            if len(atoms) == 1:
+                mod = __import__(atoms[0], globals(), locals())
+            else:
+                modname, fname = atoms
+                mod = __import__(modname, globals(), locals(), [fname])
+                func = getattr(mod, fname)
+                func()
     
     cherrypy.config.update({'log.screen': False,
                             "tools.ignore_headers.on": True,
@@ -141,9 +144,9 @@ def handler(req):
         
         # Obtain a Request object from CherryPy
         local = req.connection.local_addr
-        local = http.Host(local[0], local[1], req.connection.local_host or "")
+        local = httputil.Host(local[0], local[1], req.connection.local_host or "")
         remote = req.connection.remote_addr
-        remote = http.Host(remote[0], remote[1], req.connection.remote_host or "")
+        remote = httputil.Host(remote[0], remote[1], req.connection.remote_host or "")
         
         scheme = req.parsed_uri[0] or 'http'
         req.get_basic_auth_pw()
@@ -220,7 +223,7 @@ def handler(req):
                         method = "GET"
                         path = ir.path
                         qs = ir.query_string
-                        rfile = StringIO.StringIO()
+                        rfile = StringIO()
                 
                 send_response(req, response.status, response.header_list,
                               response.body, response.stream)

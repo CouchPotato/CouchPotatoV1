@@ -57,9 +57,10 @@ These API's are described in the CherryPy specification:
 http://www.cherrypy.org/wiki/CherryPySpec
 """
 
-__version__ = "3.1.2"
+__version__ = "3.2.0rc1"
 
 from urlparse import urljoin as _urljoin
+from urllib import urlencode as _urlencode
 
 
 class _AttributeDocstrings(type):
@@ -126,10 +127,9 @@ class _AttributeDocstrings(type):
         
         newdoc = [cls.__doc__ or ""]
         
-        dctnames = dct.keys()
-        dctnames.sort()
-        
-        for name in dctnames:
+        dctkeys = dct.keys()
+        dctkeys.sort()
+        for name in dctkeys:
             if name.endswith("__doc"):
                 # Remove the magic doc attribute.
                 if hasattr(cls, name):
@@ -163,7 +163,7 @@ tools = _cptools.default_toolbox
 Tool = _cptools.Tool
 
 from cherrypy import _cprequest
-from cherrypy.lib import http as _http
+from cherrypy.lib import httputil as _httputil
 
 from cherrypy import _cptree
 tree = _cptree.Tree()
@@ -237,8 +237,7 @@ def quickstart(root=None, script_name="", config=None):
     if config:
         _global_conf_alias.update(config)
     
-    if root is not None:
-        tree.mount(root, script_name, config)
+    tree.mount(root, script_name, config)
     
     if hasattr(engine, "signal_handler"):
         engine.signal_handler.subscribe()
@@ -267,8 +266,8 @@ class _Serving(_local):
     
     __metaclass__ = _AttributeDocstrings
     
-    request = _cprequest.Request(_http.Host("127.0.0.1", 80),
-                                 _http.Host("127.0.0.1", 1111))
+    request = _cprequest.Request(_httputil.Host("127.0.0.1", 80),
+                                 _httputil.Host("127.0.0.1", 1111))
     request__doc = """
     The request object for the current thread. In the main thread,
     and any threads which are not receiving HTTP requests, this is None."""
@@ -378,9 +377,10 @@ from cherrypy import _cplogging
 class _GlobalLogManager(_cplogging.LogManager):
     
     def __call__(self, *args, **kwargs):
-        try:
+        # Do NOT use try/except here. See http://www.cherrypy.org/ticket/945
+        if hasattr(request, 'app') and hasattr(request.app, 'log'):
             log = request.app.log
-        except AttributeError:
+        else:
             log = self
         return log.error(*args, **kwargs)
     
@@ -472,6 +472,8 @@ def url(path="", qs="", script_name=None, base=None, relative=None):
     the string 'server', the output will instead be a URL that is
     relative to the server root; i.e., it will start with a slash.
     """
+    if isinstance(qs, (tuple, list, dict)):
+        qs = _urlencode(qs)
     if qs:
         qs = '?' + qs
     
@@ -555,6 +557,16 @@ from cherrypy import _cpconfig
 # Use _global_conf_alias so quickstart can use 'config' as an arg
 # without shadowing cherrypy.config.
 config = _global_conf_alias = _cpconfig.Config()
+config.defaults = {
+    'tools.log_tracebacks.on': True,
+    'tools.log_headers.on': True,
+    'tools.trailing_slash.on': True,
+    'tools.encode.on': True
+    }
+config.namespaces["log"] = lambda k, v: setattr(log, k, v)
+config.namespaces["checker"] = lambda k, v: setattr(checker, k, v)
+# Must reset to get our defaults applied.
+config.reset()
 
 from cherrypy import _cpchecker
 checker = _cpchecker.Checker()

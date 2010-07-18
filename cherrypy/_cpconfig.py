@@ -93,56 +93,16 @@ be any string, and the handler must be either a callable or a (Python 2.5
 style) context manager.
 """
 
-import ConfigParser
 try:
     set
 except NameError:
     from sets import Set as set
-import sys
 
 import cherrypy
+from cherrypy.lib import reprconf
 
-
-environments = {
-    "staging": {
-        'engine.autoreload_on': False,
-        'checker.on': False,
-        'tools.log_headers.on': False,
-        'request.show_tracebacks': False,
-        },
-    "production": {
-        'engine.autoreload_on': False,
-        'checker.on': False,
-        'tools.log_headers.on': False,
-        'request.show_tracebacks': False,
-        'log.screen': False,
-        },
-    "embedded": {
-        # For use with CherryPy embedded in another deployment stack.
-        'engine.autoreload_on': False,
-        'checker.on': False,
-        'tools.log_headers.on': False,
-        'request.show_tracebacks': False,
-        'log.screen': False,
-        'engine.SIGHUP': None,
-        'engine.SIGTERM': None,
-        },
-    "test_suite": {
-        'engine.autoreload_on': False,
-        'checker.on': False,
-        'tools.log_headers.on': False,
-        'request.show_tracebacks': True,
-        'log.screen': False,
-        },
-    }
-
-def as_dict(config):
-    """Return a dict from 'config' whether it is a dict, file, or filename."""
-    if isinstance(config, basestring):
-        config = _Parser().dict_from_file(config)
-    elif hasattr(config, 'read'):
-        config = _Parser().dict_from_file(config)
-    return config
+# Deprecated in  CherryPy 3.2--remove in 3.3
+NamespaceSet = reprconf.NamespaceSet
 
 def merge(base, other):
     """Merge one app config (from a dict, file, or filename) into another.
@@ -154,141 +114,115 @@ def merge(base, other):
         cherrypy.engine.autoreload.files.add(other)
     
     # Load other into base
-    for section, value_map in as_dict(other).iteritems():
+    for section, value_map in reprconf.as_dict(other).items():
+        if not isinstance(value_map, dict):
+            raise ValueError(
+                "Application config must include section headers, but the "
+                "config you tried to merge doesn't have any sections. "
+                "Wrap your config in another dict with paths as section "
+                "headers, for example: {'/': config}.")
         base.setdefault(section, {}).update(value_map)
 
 
-class NamespaceSet(dict):
-    """A dict of config namespace names and handlers.
-    
-    Each config entry should begin with a namespace name; the corresponding
-    namespace handler will be called once for each config entry in that
-    namespace, and will be passed two arguments: the config key (with the
-    namespace removed) and the config value.
-    
-    Namespace handlers may be any Python callable; they may also be
-    Python 2.5-style 'context managers', in which case their __enter__
-    method should return a callable to be used as the handler.
-    See cherrypy.tools (the Toolbox class) for an example.
-    """
-    
-    def __call__(self, config):
-        """Iterate through config and pass it to each namespace handler.
-        
-        'config' should be a flat dict, where keys use dots to separate
-        namespaces, and values are arbitrary.
-        
-        The first name in each config key is used to look up the corresponding
-        namespace handler. For example, a config entry of {'tools.gzip.on': v}
-        will call the 'tools' namespace handler with the args: ('gzip.on', v)
-        """
-        # Separate the given config into namespaces
-        ns_confs = {}
-        for k in config:
-            if "." in k:
-                ns, name = k.split(".", 1)
-                bucket = ns_confs.setdefault(ns, {})
-                bucket[name] = config[k]
-        
-        # I chose __enter__ and __exit__ so someday this could be
-        # rewritten using Python 2.5's 'with' statement:
-        # for ns, handler in self.iteritems():
-        #     with handler as callable:
-        #         for k, v in ns_confs.get(ns, {}).iteritems():
-        #             callable(k, v)
-        for ns, handler in self.iteritems():
-            exit = getattr(handler, "__exit__", None)
-            if exit:
-                callable = handler.__enter__()
-                no_exc = True
-                try:
-                    try:
-                        for k, v in ns_confs.get(ns, {}).iteritems():
-                            callable(k, v)
-                    except:
-                        # The exceptional case is handled here
-                        no_exc = False
-                        if exit is None:
-                            raise
-                        if not exit(*sys.exc_info()):
-                            raise
-                        # The exception is swallowed if exit() returns true
-                finally:
-                    # The normal and non-local-goto cases are handled here
-                    if no_exc and exit:
-                        exit(None, None, None)
-            else:
-                for k, v in ns_confs.get(ns, {}).iteritems():
-                    handler(k, v)
-    
-    def __repr__(self):
-        return "%s.%s(%s)" % (self.__module__, self.__class__.__name__,
-                              dict.__repr__(self))
-    
-    def __copy__(self):
-        newobj = self.__class__()
-        newobj.update(self)
-        return newobj
-    copy = __copy__
-
-
-class Config(dict):
+class Config(reprconf.Config):
     """The 'global' configuration data for the entire CherryPy process."""
-    
-    defaults = {
-        'tools.log_tracebacks.on': True,
-        'tools.log_headers.on': True,
-        'tools.trailing_slash.on': True,
-        }
-    
-    namespaces = NamespaceSet(
-        **{"server": lambda k, v: setattr(cherrypy.server, k, v),
-           "log": lambda k, v: setattr(cherrypy.log, k, v),
-           "checker": lambda k, v: setattr(cherrypy.checker, k, v),
-           })
-    
-    def __init__(self):
-        self.reset()
-    
-    def reset(self):
-        """Reset self to default values."""
-        self.clear()
-        dict.update(self, self.defaults)
-    
+
     def update(self, config):
         """Update self from a dict, file or filename."""
         if isinstance(config, basestring):
             # Filename
             cherrypy.engine.autoreload.files.add(config)
-            config = _Parser().dict_from_file(config)
-        elif hasattr(config, 'read'):
-            # Open file object
-            config = _Parser().dict_from_file(config)
-        else:
-            config = config.copy()
-        
+        reprconf.Config.update(self, config)
+
+    def _apply(self, config):
+        """Update self from a dict."""
         if isinstance(config.get("global", None), dict):
             if len(config) > 1:
                 cherrypy.checker.global_config_contained_paths = True
             config = config["global"]
-        
-        which_env = config.get('environment')
-        if which_env:
-            env = environments[which_env]
-            for k in env:
-                if k not in config:
-                    config[k] = env[k]
-        
         if 'tools.staticdir.dir' in config:
             config['tools.staticdir.section'] = "global"
-        
-        dict.update(self, config)
-        self.namespaces(config)
+        reprconf.Config._apply(self, config)
     
-    def __setitem__(self, k, v):
-        dict.__setitem__(self, k, v)
-        self.namespaces({k: v})
+    def __call__(self, *args, **kwargs):
+        """Decorator for page handlers to set _cp_config."""
+        if args:
+            raise TypeError(
+                "The cherrypy.config decorator does not accept positional "
+                "arguments; you must use keyword arguments.")
+        def tool_decorator(f):
+            if not hasattr(f, "_cp_config"):
+                f._cp_config = {}
+            for k, v in kwargs.items():
+                f._cp_config[k] = v
+            return f
+        return tool_decorator
 
+
+Config.environments = environments = {
+    "staging": {
+        'engine.autoreload_on': False,
+        'checker.on': False,
+        'tools.log_headers.on': False,
+        'request.show_tracebacks': False,
+        'request.show_mismatched_params': False,
+        },
+    "production": {
+        'engine.autoreload_on': False,
+        'checker.on': False,
+        'tools.log_headers.on': False,
+        'request.show_tracebacks': False,
+        'request.show_mismatched_params': False,
+        'log.screen': False,
+        },
+    "embedded": {
+        # For use with CherryPy embedded in another deployment stack.
+        'engine.autoreload_on': False,
+        'checker.on': False,
+        'tools.log_headers.on': False,
+        'request.show_tracebacks': False,
+        'request.show_mismatched_params': False,
+        'log.screen': False,
+        'engine.SIGHUP': None,
+        'engine.SIGTERM': None,
+        },
+    "test_suite": {
+        'engine.autoreload_on': False,
+        'checker.on': False,
+        'tools.log_headers.on': False,
+        'request.show_tracebacks': True,
+        'request.show_mismatched_params': True,
+        'log.screen': False,
+        },
+    }
+
+
+def _server_namespace_handler(k, v):
+    """Config handler for the "server" namespace."""
+    atoms = k.split(".", 1)
+    if len(atoms) > 1:
+        # Special-case config keys of the form 'server.servername.socket_port'
+        # to configure additional HTTP servers.
+        if not hasattr(cherrypy, "servers"):
+            cherrypy.servers = {}
+        
+        servername, k = atoms
+        if servername not in cherrypy.servers:
+            from cherrypy import _cpserver
+            cherrypy.servers[servername] = _cpserver.Server()
+            # On by default, but 'on = False' can unsubscribe it (see below).
+            cherrypy.servers[servername].subscribe()
+        
+        if k == 'on':
+            if v:
+                cherrypy.servers[servername].subscribe()
+            else:
+                cherrypy.servers[servername].unsubscribe()
+        else:
+            setattr(cherrypy.servers[servername], k, v)
+    else:
+        setattr(cherrypy.server, k, v)
+Config.namespaces["server"] = _server_namespace_handler
 
 def _engine_namespace_handler(k, v):
     """Backward compatibility handler for the "engine" namespace."""
@@ -314,10 +248,10 @@ def _engine_namespace_handler(k, v):
         plugin, attrname = k.split(".", 1)
         plugin = getattr(engine, plugin)
         if attrname == 'on':
-            if v and callable(getattr(plugin, 'subscribe', None)):
+            if v and hasattr(getattr(plugin, 'subscribe', None), '__call__'):
                 plugin.subscribe()
                 return
-            elif (not v) and callable(getattr(plugin, 'unsubscribe', None)):
+            elif (not v) and hasattr(getattr(plugin, 'unsubscribe', None), '__call__'):
                 plugin.unsubscribe()
                 return
         setattr(plugin, attrname, v)
@@ -333,53 +267,3 @@ def _tree_namespace_handler(k, v):
 Config.namespaces["tree"] = _tree_namespace_handler
 
 
-class _Parser(ConfigParser.ConfigParser):
-    """Sub-class of ConfigParser that keeps the case of options and that raises
-    an exception if the file cannot be read.
-    """
-    
-    def optionxform(self, optionstr):
-        return optionstr
-    
-    def read(self, filenames):
-        if isinstance(filenames, basestring):
-            filenames = [filenames]
-        for filename in filenames:
-            # try:
-            #     fp = open(filename)
-            # except IOError:
-            #     continue
-            fp = open(filename)
-            try:
-                self._read(fp, filename)
-            finally:
-                fp.close()
-    
-    def as_dict(self, raw=False, vars=None):
-        """Convert an INI file to a dictionary"""
-        # Load INI file into a dict
-        from cherrypy.lib import unrepr
-        result = {}
-        for section in self.sections():
-            if section not in result:
-                result[section] = {}
-            for option in self.options(section):
-                value = self.get(section, option, raw, vars)
-                try:
-                    value = unrepr(value)
-                except Exception, x:
-                    msg = ("Config error in section: %r, option: %r, "
-                           "value: %r. Config values must be valid Python." %
-                           (section, option, value))
-                    raise ValueError(msg, x.__class__.__name__, x.args)
-                result[section][option] = value
-        return result
-    
-    def dict_from_file(self, file):
-        if hasattr(file, 'read'):
-            self.readfp(file)
-        else:
-            self.read(file)
-        return self.as_dict()
-
-del ConfigParser

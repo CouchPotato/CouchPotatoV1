@@ -24,8 +24,14 @@ class PageHandler(object):
         try:
             return self.callable(*self.args, **self.kwargs)
         except TypeError, x:
-            test_callable_spec(self.callable, self.args, self.kwargs)
+            try:
+                test_callable_spec(self.callable, self.args, self.kwargs)
+            except cherrypy.HTTPError, error:
+                raise error
+            except:
+                raise x
             raise
+
 
 def test_callable_spec(callable, callable_args, callable_kwargs):
     """
@@ -46,7 +52,17 @@ def test_callable_spec(callable, callable_args, callable_kwargs):
     incorrect, then a 404 Not Found should be raised. Conversely the body
     parameters are part of the request; if they are invalid a 400 Bad Request.
     """
-    (args, varargs, varkw, defaults) = inspect.getargspec(callable)
+    show_mismatched_params = getattr(
+        cherrypy.serving.request, 'show_mismatched_params', False)
+    try:
+        (args, varargs, varkw, defaults) = inspect.getargspec(callable)
+    except TypeError:
+        if isinstance(callable, object) and hasattr(callable, '__call__'):
+            (args, varargs, varkw, defaults) = inspect.getargspec(callable.__call__)
+        else:
+            # If it wasn't one of our own types, re-raise 
+            # the original error
+            raise
 
     if args and args[0] == 'self':
         args = args[1:]
@@ -69,14 +85,16 @@ def test_callable_spec(callable, callable_args, callable_kwargs):
             varkw_usage += 1
             extra_kwargs.add(key)
 
+    # figure out which args have defaults.
+    args_with_defaults = args[-len(defaults or []):]
     for i, val in enumerate(defaults or []):
         # Defaults take effect only when the arg hasn't been used yet.
-        if arg_usage[args[i]] == 0:
-            arg_usage[args[i]] += 1
+        if arg_usage[args_with_defaults[i]] == 0:
+            arg_usage[args_with_defaults[i]] += 1
 
     missing_args = []
     multiple_args = []
-    for key, usage in arg_usage.iteritems():
+    for key, usage in arg_usage.items():
         if usage == 0:
             missing_args.append(key)
         elif usage > 1:
@@ -95,19 +113,20 @@ def test_callable_spec(callable, callable_args, callable_kwargs):
         # 
         # In the case where the method does not allow body
         # arguments it's definitely a 404.
-        raise cherrypy.HTTPError(404,
-                message="Missing parameters: %s" % ",".join(missing_args))
+        message = None
+        if show_mismatched_params:
+            message="Missing parameters: %s" % ",".join(missing_args)
+        raise cherrypy.HTTPError(404, message=message)
 
     # the extra positional arguments come from the path - 404 Not Found
     if not varargs and vararg_usage > 0:
         raise cherrypy.HTTPError(404)
 
-    body_params = cherrypy.request.body_params or {}
+    body_params = cherrypy.serving.request.body.params or {}
     body_params = set(body_params.keys())
     qs_params = set(callable_kwargs.keys()) - body_params
 
     if multiple_args:
-
         if qs_params.intersection(set(multiple_args)):
             # If any of the multiple parameters came from the query string then
             # it's a 404 Not Found
@@ -116,25 +135,31 @@ def test_callable_spec(callable, callable_args, callable_kwargs):
             # Otherwise it's a 400 Bad Request
             error = 400
 
-        raise cherrypy.HTTPError(error,
-                message="Multiple values for parameters: "\
-                        "%s" % ",".join(multiple_args))
+        message = None
+        if show_mismatched_params:
+            message="Multiple values for parameters: "\
+                    "%s" % ",".join(multiple_args)
+        raise cherrypy.HTTPError(error, message=message)
 
     if not varkw and varkw_usage > 0:
 
         # If there were extra query string parameters, it's a 404 Not Found
         extra_qs_params = set(qs_params).intersection(extra_kwargs)
         if extra_qs_params:
-            raise cherrypy.HTTPError(404,
+            message = None
+            if show_mismatched_params:
                 message="Unexpected query string "\
-                        "parameters: %s" % ", ".join(extra_qs_params))
+                        "parameters: %s" % ", ".join(extra_qs_params)
+            raise cherrypy.HTTPError(404, message=message)
 
         # If there were any extra body parameters, it's a 400 Not Found
         extra_body_params = set(body_params).intersection(extra_kwargs)
         if extra_body_params:
-            raise cherrypy.HTTPError(400,
+            message = None
+            if show_mismatched_params:
                 message="Unexpected body parameters: "\
-                        "%s" % ", ".join(extra_body_params))
+                        "%s" % ", ".join(extra_body_params)
+            raise cherrypy.HTTPError(400, message=message)
 
 
 try:
@@ -154,7 +179,7 @@ class LateParamPageHandler(PageHandler):
     """
     
     def _get_kwargs(self):
-        kwargs = cherrypy.request.params.copy()
+        kwargs = cherrypy.serving.request.params.copy()
         if self._kwargs:
             kwargs.update(self._kwargs)
         return kwargs
@@ -180,10 +205,21 @@ class Dispatcher(object):
     
     This is the default, built-in dispatcher for CherryPy.
     """
+    __metaclass__ = cherrypy._AttributeDocstrings
+
+    dispatch_method_name = '_cp_dispatch'
+    dispatch_method_name__doc = """
+    The name of the dispatch method that nodes may optionally implement
+    to provide their own dynamic dispatch algorithm.
+    """
     
+    def __init__(self, dispatch_method_name = None):
+        if dispatch_method_name:
+            self.dispatch_method_name = dispatch_method_name
+
     def __call__(self, path_info):
         """Set handler and config for the current request."""
-        request = cherrypy.request
+        request = cherrypy.serving.request
         func, vpath = self.find_handler(path_info)
         
         if func:
@@ -212,9 +248,10 @@ class Dispatcher(object):
         These virtual path components are passed to the handler as
         positional arguments.
         """
-        request = cherrypy.request
+        request = cherrypy.serving.request
         app = request.app
         root = app.root
+        dispatch_name = self.dispatch_method_name
         
         # Get config for the root object/path.
         curpath = ""
@@ -227,12 +264,22 @@ class Dispatcher(object):
         
         node = root
         names = [x for x in path.strip('/').split('/') if x] + ['index']
-        for name in names:
+        iternames = names[:]
+        while iternames:
+            name = iternames[0]
             # map to legal Python identifiers (replace '.' with '_')
             objname = name.replace('.', '_')
             
             nodeconf = {}
-            node = getattr(node, objname, None)
+            subnode = getattr(node, objname, None)
+            if subnode is None:
+                dispatch = getattr(node, dispatch_name, None)
+                if dispatch and callable(dispatch) and not \
+                        getattr(dispatch, 'exposed', False):
+                    subnode = dispatch(vpath=iternames)
+            name = iternames.pop(0)
+            node = subnode
+
             if node is not None:
                 # Get _cp_config attached to this node.
                 if hasattr(node, "_cp_config"):
@@ -258,7 +305,7 @@ class Dispatcher(object):
         
         # Try successive objects (reverse order)
         num_candidates = len(object_trail) - 1
-        for i in xrange(num_candidates, -1, -1):
+        for i in range(num_candidates, -1, -1):
             
             name, candidate, nodeconf, curpath = object_trail[i]
             if candidate is None:
@@ -312,7 +359,7 @@ class MethodDispatcher(Dispatcher):
     
     def __call__(self, path_info):
         """Set handler and config for the current request."""
-        request = cherrypy.request
+        request = cherrypy.serving.request
         resource, vpath = self.find_handler(path_info)
         
         if resource:
@@ -321,7 +368,7 @@ class MethodDispatcher(Dispatcher):
             if "GET" in avail and "HEAD" not in avail:
                 avail.append("HEAD")
             avail.sort()
-            cherrypy.response.headers['Allow'] = ", ".join(avail)
+            cherrypy.serving.response.headers['Allow'] = ", ".join(avail)
             
             # Find the subhandler
             meth = request.method.upper()
@@ -329,6 +376,10 @@ class MethodDispatcher(Dispatcher):
             if func is None and meth == "HEAD":
                 func = getattr(resource, "GET", None)
             if func:
+                # Grab any _cp_config on the subhandler.
+                if hasattr(func, "_cp_config"):
+                    request.config.update(func._cp_config)
+                
                 # Decode any leftover %2F in the virtual_path atoms.
                 vpath = [x.replace("%2F", "/") for x in vpath]
                 request.handler = LateParamPageHandler(func, *vpath)
@@ -366,20 +417,20 @@ class RoutesDispatcher(object):
         """Set handler and config for the current request."""
         func = self.find_handler(path_info)
         if func:
-            cherrypy.request.handler = LateParamPageHandler(func)
+            cherrypy.serving.request.handler = LateParamPageHandler(func)
         else:
-            cherrypy.request.handler = cherrypy.NotFound()
+            cherrypy.serving.request.handler = cherrypy.NotFound()
     
     def find_handler(self, path_info):
         """Find the right page handler, and set request.config."""
         import routes
         
-        request = cherrypy.request
+        request = cherrypy.serving.request
         
         config = routes.request_config()
         config.mapper = self.mapper
-        if hasattr(cherrypy.request, 'wsgi_environ'):
-            config.environ = cherrypy.request.wsgi_environ
+        if hasattr(request, 'wsgi_environ'):
+            config.environ = request.wsgi_environ
         config.host = request.headers.get('Host', None)
         config.protocol = request.scheme
         config.redirect = self.redirect
@@ -491,9 +542,10 @@ def VirtualHost(next_dispatcher=Dispatcher(), use_x_forwarded_host=True, **domai
         for "example.com" and "www.example.com". In addition, "Host"
         headers may contain the port number.
     """
-    from cherrypy.lib import http
+    from cherrypy.lib import httputil
     def vhost_dispatch(path_info):
-        header = cherrypy.request.headers.get
+        request = cherrypy.serving.request
+        header = request.headers.get
         
         domain = header('Host', '')
         if use_x_forwarded_host:
@@ -501,15 +553,15 @@ def VirtualHost(next_dispatcher=Dispatcher(), use_x_forwarded_host=True, **domai
         
         prefix = domains.get(domain, "")
         if prefix:
-            path_info = http.urljoin(prefix, path_info)
+            path_info = httputil.urljoin(prefix, path_info)
         
         result = next_dispatcher(path_info)
         
         # Touch up staticdir config. See http://www.cherrypy.org/ticket/614.
-        section = cherrypy.request.config.get('tools.staticdir.section')
+        section = request.config.get('tools.staticdir.section')
         if section:
             section = section[len(prefix):]
-            cherrypy.request.config['tools.staticdir.section'] = section
+            request.config['tools.staticdir.section'] = section
         
         return result
     return vhost_dispatch

@@ -3,7 +3,7 @@
 import os
 import cherrypy
 from cherrypy import _cpconfig, _cplogging, _cprequest, _cpwsgi, tools
-from cherrypy.lib import http as _http
+from cherrypy.lib import httputil
 
 
 class Application(object):
@@ -82,7 +82,7 @@ class Application(object):
     def _get_script_name(self):
         if self._script_name is None:
             # None signals that the script name should be pulled from WSGI environ.
-            return cherrypy.request.wsgi_environ['SCRIPT_NAME'].rstrip("/")
+            return cherrypy.serving.request.wsgi_environ['SCRIPT_NAME'].rstrip("/")
         return self._script_name
     def _set_script_name(self, value):
         if value:
@@ -98,12 +98,31 @@ class Application(object):
         # Handle namespaces specified in config.
         self.namespaces(self.config.get("/", {}))
     
+    def find_config(self, path, key, default=None):
+        """Return the most-specific value for key along path, or default."""
+        trail = path or "/"
+        while trail:
+            nodeconf = self.config.get(trail, {})
+            
+            if key in nodeconf:
+                return nodeconf[key]
+            
+            lastslash = trail.rfind("/")
+            if lastslash == -1:
+                break
+            elif lastslash == 0 and trail != "/":
+                trail = "/"
+            else:
+                trail = trail[:lastslash]
+        
+        return default
+    
     def get_serving(self, local, remote, scheme, sproto):
         """Create and return a Request and Response object."""
         req = self.request_class(local, remote, scheme, sproto)
         req.app = self
         
-        for name, toolbox in self.toolboxes.iteritems():
+        for name, toolbox in self.toolboxes.items():
             req.namespaces[name] = toolbox
         
         resp = self.response_class()
@@ -165,13 +184,22 @@ class Tree(object):
             root of the URI, it MUST be an empty string (not "/").
         config: a file or dict containing application config.
         """
+        if script_name is None:
+            raise TypeError(
+                "The 'script_name' argument may not be None. Application "
+                "objects may, however, possess a script_name of None (in "
+                "order to inpect the WSGI environ for SCRIPT_NAME upon each "
+                "request). You cannot mount such Applications on this Tree; "
+                "you must pass them to a WSGI server interface directly.")
+        
         # Next line both 1) strips trailing slash and 2) maps "/" -> "".
         script_name = script_name.rstrip("/")
         
         if isinstance(root, Application):
             app = root
             if script_name != "" and script_name != app.script_name:
-                raise ValueError, "Cannot specify a different script name and pass an Application instance to cherrypy.mount"
+                raise ValueError("Cannot specify a different script name and "
+                                 "pass an Application instance to cherrypy.mount")
             script_name = app.script_name
         else:
             app = Application(root, script_name)
@@ -201,11 +229,11 @@ class Tree(object):
         
         If path is None, cherrypy.request is used.
         """
-        
         if path is None:
             try:
-                path = _http.urljoin(cherrypy.request.script_name,
-                                     cherrypy.request.path_info)
+                request = cherrypy.serving.request
+                path = httputil.urljoin(request.script_name,
+                                        request.path_info)
             except AttributeError:
                 return None
         
@@ -223,8 +251,11 @@ class Tree(object):
         # If you're calling this, then you're probably setting SCRIPT_NAME
         # to '' (some WSGI servers always set SCRIPT_NAME to '').
         # Try to look up the app using the full path.
-        path = _http.urljoin(environ.get('SCRIPT_NAME', ''),
-                             environ.get('PATH_INFO', ''))
+        env1x = environ
+        if environ.get(u'wsgi.version') == (u'u', 0):
+            env1x = _cpwsgi.downgrade_wsgi_ux_to_1x(environ)
+        path = httputil.urljoin(env1x.get('SCRIPT_NAME', ''),
+                                env1x.get('PATH_INFO', ''))
         sn = self.script_name(path or "/")
         if sn is None:
             start_response('404 Not Found', [])
@@ -234,7 +265,14 @@ class Tree(object):
         
         # Correct the SCRIPT_NAME and PATH_INFO environ entries.
         environ = environ.copy()
-        environ['SCRIPT_NAME'] = sn
-        environ['PATH_INFO'] = path[len(sn.rstrip("/")):]
+        if environ.get(u'wsgi.version') == (u'u', 0):
+            # Python 2/WSGI u.0: all strings MUST be of type unicode
+            enc = environ[u'wsgi.url_encoding']
+            environ[u'SCRIPT_NAME'] = sn.decode(enc)
+            environ[u'PATH_INFO'] = path[len(sn.rstrip("/")):].decode(enc)
+        else:
+            # Python 2/WSGI 1.x: all strings MUST be of type str
+            environ['SCRIPT_NAME'] = sn
+            environ['PATH_INFO'] = path[len(sn.rstrip("/")):]
         return app(environ, start_response)
 

@@ -4,7 +4,7 @@ from cgi import escape as _escape
 from sys import exc_info as _exc_info
 from traceback import format_exception as _format_exception
 from urlparse import urljoin as _urljoin
-from cherrypy.lib import http as _http
+from cherrypy.lib import httputil as _httputil
 
 
 class CherryPyException(Exception):
@@ -22,11 +22,11 @@ class InternalRedirect(CherryPyException):
     Any request.params must be supplied in a query string.
     """
     
-    def __init__(self, path):
+    def __init__(self, path, query_string=""):
         import cherrypy
-        request = cherrypy.request
+        self.request = cherrypy.serving.request
         
-        self.query_string = ""
+        self.query_string = query_string
         if "?" in path:
             # Separate any params included in the path
             path, self.query_string = path.split("?", 1)
@@ -35,7 +35,7 @@ class InternalRedirect(CherryPyException):
         #  1. a URL relative to root (e.g. "/dummy")
         #  2. a URL relative to the current path
         # Note that any query string will be discarded.
-        path = _urljoin(request.path_info, path)
+        path = _urljoin(self.request.path_info, path)
         
         # Set a 'path' member attribute so that code which traps this
         # error can have access to it.
@@ -55,7 +55,7 @@ class HTTPRedirect(CherryPyException):
     
     def __init__(self, urls, status=None):
         import cherrypy
-        request = cherrypy.request
+        request = cherrypy.serving.request
         
         if isinstance(urls, basestring):
             urls = [urls]
@@ -73,7 +73,7 @@ class HTTPRedirect(CherryPyException):
         
         # RFC 2616 indicates a 301 response code fits our goal; however,
         # browser support for 301 is quite messy. Do 302/303 instead. See
-        # http://ppewww.ph.gla.ac.uk/~flavell/www/post-redirect.html
+        # http://www.alanflavell.org.uk/www/post-redirect.html
         if status is None:
             if request.protocol >= (1, 1):
                 status = 303
@@ -94,11 +94,11 @@ class HTTPRedirect(CherryPyException):
         HTTPRedirect object and set its output without *raising* the exception.
         """
         import cherrypy
-        response = cherrypy.response
+        response = cherrypy.serving.response
         response.status = status = self.status
         
         if status in (300, 301, 302, 303, 307):
-            response.headers['Content-Type'] = "text/html"
+            response.headers['Content-Type'] = "text/html;charset=utf-8"
             # "The ... URI SHOULD be given by the Location field
             # in the response."
             response.headers['Location'] = self.urls[0]
@@ -112,7 +112,8 @@ class HTTPRedirect(CherryPyException):
                    303: "This resource can be found at <a href='%s'>%s</a>.",
                    307: "This resource has moved temporarily to <a href='%s'>%s</a>.",
                    }[status]
-            response.body = "<br />\n".join([msg % (u, u) for u in self.urls])
+            msgs = [msg % (u, u) for u in self.urls]
+            response.body = "<br />\n".join(msgs)
             # Previous code may have set C-L, so we have to reset it
             # (allow finalize to set it).
             response.headers.pop('Content-Length', None)
@@ -153,7 +154,7 @@ def clean_headers(status):
     """Remove any headers which should not apply to an error response."""
     import cherrypy
     
-    response = cherrypy.response
+    response = cherrypy.serving.response
     
     # Remove headers which applied to the original content,
     # but do not apply to the error page.
@@ -161,7 +162,7 @@ def clean_headers(status):
     for key in ["Accept-Ranges", "Age", "ETag", "Location", "Retry-After",
                 "Vary", "Content-Encoding", "Content-Length", "Expires",
                 "Content-Location", "Content-MD5", "Last-Modified"]:
-        if respheaders.has_key(key):
+        if key in respheaders:
             del respheaders[key]
     
     if status != 416:
@@ -171,7 +172,7 @@ def clean_headers(status):
         # specifies the current length of the selected resource.
         # A response with status code 206 (Partial Content) MUST NOT
         # include a Content-Range field with a byte-range- resp-spec of "*".
-        if respheaders.has_key("Content-Range"):
+        if "Content-Range" in respheaders:
             del respheaders["Content-Range"]
 
 
@@ -184,12 +185,18 @@ class HTTPError(CherryPyException):
     """
     
     def __init__(self, status=500, message=None):
-        self.status = status = int(status)
-        if status < 400 or status > 599:
+        self.status = status
+        try:
+            self.code, self.reason, defaultmsg = _httputil.valid_status(status)
+        except ValueError, x:
+            raise self.__class__(500, x.args[0])
+        
+        if self.code < 400 or self.code > 599:
             raise ValueError("status must be between 400 and 599.")
+        
         # See http://www.python.org/dev/peps/pep-0352/
         # self.message = message
-        self._message = message
+        self._message = message or defaultmsg
         CherryPyException.__init__(self, status, message)
     
     def set_response(self):
@@ -200,24 +207,24 @@ class HTTPError(CherryPyException):
         """
         import cherrypy
         
-        response = cherrypy.response
+        response = cherrypy.serving.response
         
-        clean_headers(self.status)
+        clean_headers(self.code)
         
         # In all cases, finalize will be called after this method,
         # so don't bother cleaning up response values here.
         response.status = self.status
         tb = None
-        if cherrypy.request.show_tracebacks:
+        if cherrypy.serving.request.show_tracebacks:
             tb = format_exc()
-        response.headers['Content-Type'] = "text/html"
+        response.headers['Content-Type'] = "text/html;charset=utf-8"
+        response.headers.pop('Content-Length', None)
         
         content = self.get_error_page(self.status, traceback=tb,
                                       message=self._message)
         response.body = content
-        response.headers['Content-Length'] = len(content)
         
-        _be_ie_unfriendly(self.status)
+        _be_ie_unfriendly(self.code)
     
     def get_error_page(self, *args, **kwargs):
         return get_error_page(*args, **kwargs)
@@ -233,9 +240,10 @@ class NotFound(HTTPError):
     def __init__(self, path=None):
         if path is None:
             import cherrypy
-            path = cherrypy.request.script_name + cherrypy.request.path_info
+            request = cherrypy.serving.request
+            path = request.script_name + request.path_info
         self.args = (path,)
-        HTTPError.__init__(self, 404, "The path %r was not found." % path)
+        HTTPError.__init__(self, 404, "The path '%s' was not found." % path)
 
 
 _HTTPErrorTemplate = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -276,7 +284,7 @@ def get_error_page(status, **kwargs):
     import cherrypy
     
     try:
-        code, reason, message = _http.valid_status(status)
+        code, reason, message = _httputil.valid_status(status)
     except ValueError, x:
         raise cherrypy.HTTPError(500, x.args[0])
     
@@ -298,14 +306,14 @@ def get_error_page(status, **kwargs):
             kwargs[k] = _escape(kwargs[k])
     
     # Use a custom template or callable for the error page?
-    pages = cherrypy.request.error_page
+    pages = cherrypy.serving.request.error_page
     error_page = pages.get(code) or pages.get('default')
     if error_page:
         try:
             if callable(error_page):
                 return error_page(**kwargs)
             else:
-                return file(error_page, 'rb').read() % kwargs
+                return open(error_page, 'rb').read() % kwargs
         except:
             e = _format_exception(*_exc_info())[-1]
             m = kwargs['message']
@@ -326,7 +334,7 @@ _ie_friendly_error_sizes = {
 
 def _be_ie_unfriendly(status):
     import cherrypy
-    response = cherrypy.response
+    response = cherrypy.serving.response
     
     # For some statuses, Internet Explorer 5+ shows "friendly error
     # messages" instead of our response.body if the body is smaller
@@ -345,7 +353,7 @@ def _be_ie_unfriendly(status):
             # in one chunk or it will still get replaced! Bah.
             content = content + (" " * (s - l))
         response.body = content
-        response.headers['Content-Length'] = len(content)
+        response.headers[u'Content-Length'] = str(len(content))
 
 
 def format_exc(exc=None):
@@ -376,6 +384,8 @@ def bare_error(extrabody=None):
     
     body = "Unrecoverable error in the server."
     if extrabody is not None:
+        if not isinstance(extrabody, str): 
+            extrabody = extrabody.encode('utf-8')
         body += "\n" + extrabody
     
     return ("500 Internal Server Error",

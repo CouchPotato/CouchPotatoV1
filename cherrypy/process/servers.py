@@ -34,7 +34,9 @@ class ServerAdapter(object):
     
     def start(self):
         """Start the HTTP server."""
-        if isinstance(self.bind_addr, tuple):
+        if self.bind_addr is None:
+            on_what = "unknown interface (dynamic?)"
+        elif isinstance(self.bind_addr, tuple):
             host, port = self.bind_addr
             on_what = "%s:%s" % (host, port)
         else:
@@ -124,6 +126,13 @@ class FlupFCGIServer(object):
     """Adapter for a flup.server.fcgi.WSGIServer."""
     
     def __init__(self, *args, **kwargs):
+        if kwargs.get('bindAddress', None) is None:
+            import socket
+            if not hasattr(socket.socket, 'fromfd'):
+                raise ValueError(
+                    'Dynamic FCGI server not available on this platform. '
+                    'You must use a static or external one by providing a '
+                    'legal bindAddress.')
         self.args = args
         self.kwargs = kwargs
         self.ready = False
@@ -215,8 +224,16 @@ def check_port(host, port, timeout=1.0):
     
     # AF_INET or AF_INET6 socket
     # Get the correct address family for our host (allows IPv6 addresses)
-    for res in socket.getaddrinfo(host, port, socket.AF_UNSPEC,
-                                  socket.SOCK_STREAM):
+    try:
+        info = socket.getaddrinfo(host, port, socket.AF_UNSPEC,
+                                  socket.SOCK_STREAM)
+    except socket.gaierror:
+        if ':' in host:
+            info = [(socket.AF_INET6, socket.SOCK_STREAM, 0, "", (host, port, 0, 0))]
+        else:
+            info = [(socket.AF_INET, socket.SOCK_STREAM, 0, "", (host, port))]
+    
+    for res in info:
         af, socktype, proto, canonname, sa = res
         s = None
         try:
@@ -238,7 +255,7 @@ def wait_for_free_port(host, port):
     if not host:
         raise ValueError("Host values of '' or None are not allowed.")
     
-    for trial in xrange(50):
+    for trial in range(50):
         try:
             # we are expecting a free port, so reduce the timeout
             check_port(host, port, timeout=0.1)
@@ -255,7 +272,7 @@ def wait_for_occupied_port(host, port):
     if not host:
         raise ValueError("Host values of '' or None are not allowed.")
     
-    for trial in xrange(50):
+    for trial in range(50):
         try:
             check_port(host, port)
         except IOError:

@@ -59,16 +59,14 @@ __all__ = ("digestAuth", "basicAuth", "doAuth", "checkResponse",
            "calculateNonce", "SUPPORTED_QOP")
 
 ################################################################################
-
 try:
     # Python 2.5+
     from hashlib import md5
 except ImportError:
     from md5 import new as md5
-
 import time
 import base64
-import urllib2
+from urllib2 import parse_http_list, parse_keqv_list
 
 MD5 = "MD5"
 MD5_SESS = "MD5-sess"
@@ -84,7 +82,7 @@ SUPPORTED_QOP = (AUTH, AUTH_INT)
 DIGEST_AUTH_ENCODERS = {
     MD5: lambda val: md5(val).hexdigest(),
     MD5_SESS: lambda val: md5(val).hexdigest(),
-#    SHA: lambda val: sha(val).hexdigest(),
+#    SHA: lambda val: sha.new (val).hexdigest (),
 }
 
 def calculateNonce (realm, algorithm = MD5):
@@ -136,25 +134,25 @@ def doAuth (realm):
 #
 def _parseDigestAuthorization (auth_params):
     # Convert the auth params to a dict
-    items = urllib2.parse_http_list (auth_params)
-    params = urllib2.parse_keqv_list (items)
+    items = parse_http_list(auth_params)
+    params = parse_keqv_list(items)
 
     # Now validate the params
 
     # Check for required parameters
     required = ["username", "realm", "nonce", "uri", "response"]
     for k in required:
-        if not params.has_key(k):
+        if k not in params:
             return None
 
     # If qop is sent then cnonce and nc MUST be present
-    if params.has_key("qop") and not (params.has_key("cnonce") \
-                                      and params.has_key("nc")):
+    if "qop" in params and not ("cnonce" in params \
+                                      and "nc" in params):
         return None
 
     # If qop is not sent, neither cnonce nor nc can be present
-    if (params.has_key("cnonce") or params.has_key("nc")) and \
-       not params.has_key("qop"):
+    if ("cnonce" in params or "nc" in params) and \
+       "qop" not in params:
         return None
 
     return params

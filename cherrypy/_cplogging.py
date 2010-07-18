@@ -6,7 +6,6 @@ import logging
 logging.Logger.manager.emittedNoHandlerWarning = 1
 logfmt = logging.Formatter("%(message)s")
 import os
-import rfc822
 import sys
 
 import cherrypy
@@ -30,7 +29,7 @@ class LogManager(object):
         else:
             self.error_log = logging.getLogger("%s.error.%s" % (logger_root, appid))
             self.access_log = logging.getLogger("%s.access.%s" % (logger_root, appid))
-        self.error_log.setLevel(logging.DEBUG)
+        self.error_log.setLevel(logging.INFO)
         self.access_log.setLevel(logging.INFO)
         cherrypy.engine.subscribe('graceful', self.reopen_files)
     
@@ -72,21 +71,25 @@ class LogManager(object):
         escaped by prepending a backslash, and all whitespace characters,
         which are written in their C-style notation (\\n, \\t, etc).
         """
-        request = cherrypy.request
+        request = cherrypy.serving.request
         remote = request.remote
-        response = cherrypy.response
+        response = cherrypy.serving.response
         outheaders = response.headers
         inheaders = request.headers
+        if response.output_status is None:
+            status = "-"
+        else:
+            status = response.output_status.split(" ", 1)[0]
         
         atoms = {'h': remote.name or remote.ip,
                  'l': '-',
                  'u': getattr(request, "login", None) or "-",
                  't': self.time(),
                  'r': request.request_line,
-                 's': response.status.split(" ", 1)[0],
-                 'b': outheaders.get('Content-Length', '') or "-",
-                 'f': inheaders.get('Referer', ''),
-                 'a': inheaders.get('User-Agent', ''),
+                 's': status,
+                 'b': dict.get(outheaders, 'Content-Length', '') or "-",
+                 'f': dict.get(inheaders, 'Referer', ''),
+                 'a': dict.get(inheaders, 'User-Agent', ''),
                  }
         for k, v in atoms.items():
             if isinstance(v, unicode):
@@ -107,7 +110,9 @@ class LogManager(object):
     def time(self):
         """Return now() in Apache Common Log Format (no timezone)."""
         now = datetime.datetime.now()
-        month = rfc822._monthnames[now.month - 1].capitalize()
+        monthnames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun',
+                      'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+        month = monthnames[now.month - 1].capitalize()
         return ('[%02d/%s/%04d:%02d:%02d:%02d]' %
                 (now.day, month, now.year, now.hour, now.minute, now.second))
     
@@ -139,7 +144,7 @@ class LogManager(object):
     
     def _set_screen(self, newvalue):
         self._set_screen_handler(self.error_log, newvalue, stream=sys.stderr)
-        self._set_screen_handler(self.access_log, newvalue)
+        self._set_screen_handler(self.access_log, newvalue, stream=sys.stdout)
     screen = property(_get_screen, _set_screen,
                       doc="If True, error and access will print to stderr.")
     
@@ -216,7 +221,7 @@ class WSGIErrorHandler(logging.Handler):
     def flush(self):
         """Flushes the stream."""
         try:
-            stream = cherrypy.request.wsgi_environ.get('wsgi.errors')
+            stream = cherrypy.serving.request.wsgi_environ.get('wsgi.errors')
         except (AttributeError, KeyError):
             pass
         else:
@@ -225,7 +230,7 @@ class WSGIErrorHandler(logging.Handler):
     def emit(self, record):
         """Emit a record."""
         try:
-            stream = cherrypy.request.wsgi_environ.get('wsgi.errors')
+            stream = cherrypy.serving.request.wsgi_environ.get('wsgi.errors')
         except (AttributeError, KeyError):
             pass
         else:
