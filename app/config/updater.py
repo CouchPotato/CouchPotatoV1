@@ -81,7 +81,6 @@ class Updater(SimplePlugin):
         except AttributeError:
             log.debug('Nothing found.')
 
-
     def doUpdateUnix(self):
         try:
             data = urllib2.urlopen(self.url, timeout = self.timeout)
@@ -93,12 +92,21 @@ class Updater(SimplePlugin):
         destination = os.path.join(self.updatePath, name)
 
         if not os.path.isfile(destination):
+            # Remove older tarballs
+            log.info('Removing old updates.')
+            for file in os.listdir(self.updatePath):
+                if os.path.isfile(file):
+                    os.remove(file);
+            
+            log.info('Downloading %s.' % name)
             with open(destination, 'w') as f:
                 f.write(data.read())
 
+        log.info('Extracting.')
         tar = tarfile.open(destination)
         tar.extractall(path = self.updatePath)
 
+        log.info('Moving updated files to CouchPotato root.')
         extractedPath = os.path.join(self.updatePath, name.replace('.tar.gz', ''))
         for root, subfiles, filenames in os.walk(extractedPath):
             for filename in filenames:
@@ -109,3 +117,5 @@ class Updater(SimplePlugin):
                 except:
                     pass
                 os.renames(fromfile, tofile)
+
+        log.info('Update to %s successful.' % name)
