@@ -420,9 +420,9 @@
 				'url': e.target.get('href'),
 				'onComplete': function(){
 					if (e.target.get('text') == 'Restart')
-						e.target.getParent().set('text', 'Movie Manager will restart in a few seconds.')
+						e.target.getParent().set('text', 'CouchPotato will restart in a few seconds.')
 					else
-						e.target.getParent().set('text', 'Movie Manager has shutdown.')
+						e.target.getParent().set('text', 'CouchPotato has shutdown.')
 	        		new Spinner(e.target).hide();
 				}
 			}).send()
