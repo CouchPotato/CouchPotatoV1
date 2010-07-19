@@ -55,11 +55,10 @@ class Updater(SimplePlugin):
         else:
             log.info("Updating")
             self.running = True
-            self.bus.stop()
 
             result = self.doUpdateUnix()
-
-            self.bus.start()
+            self.bus.restart()
+            
             self.running = False
             return result
 
@@ -88,7 +87,7 @@ class Updater(SimplePlugin):
             history = open(self.historyFile, 'r').read()
             self.updateAvailable = update.get('name').replace('.tar.gz', '') not in history
 
-        self.availableString = 'Update available' if self.updateAvailable else 'Not available'
+        self.availableString = 'Update available' if self.updateAvailable else 'No update available'
         self.lastCheck = time.time()
         log.info(self.availableString)
 
@@ -175,8 +174,6 @@ class Updater(SimplePlugin):
 
         self.history(name)
         log.info('Update to %s successful.' % name)
-        self.getVersion(force = True)
-        self.updateAvailable = False
         return True
 
     def history(self, version):
