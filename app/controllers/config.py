@@ -94,14 +94,6 @@ class ConfigController(BaseController):
         return 'Update successful, restarting...' if result else 'Update failed.'
 
     @cherrypy.expose
-    def updateCheck(self):
-
-        updater = cherrypy.config.get('updater')
-        updater.checkForUpdate()
-        
-        return redirect(cherrypy.request.headers.get('referer'))
-
-    @cherrypy.expose
     @cherrypy.tools.mako(filename = "config/imdbScript.js")
     def imdbScript(self):
         '''
