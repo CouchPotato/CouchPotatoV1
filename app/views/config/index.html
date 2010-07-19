@@ -412,6 +412,12 @@
 		sendToSelect.addEvent('change', sendTo);
 		sendTo();
 		
+		 // Cancel button
+		form.getElements('.cancel a').addEvent('click', function(e){
+			(e).stop()
+			$(document.body).get('mask').destroy();
+		});
+		
 		// Shutdown button
 		form.getElements('.about a.submit').addEvent('click', function(e){
 			(e).stop()
