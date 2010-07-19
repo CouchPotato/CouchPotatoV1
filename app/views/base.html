@@ -41,8 +41,9 @@
 
 	        <ul>
 	            <li><a href="${url(controller='movie', action='index')}">Movies</a></li>
-	            <li><a href="${url(controller='feed', action='index')}">Coming Soon</a></li>
+	            <li><a href="${url(controller='feed', action='index')}">Soon</a></li>
 	            <li><a href="${url(controller='config', action='index')}" id="showConfig">Settings</a></li>
+	            <li><a href="${url(controller='log', action='index')}" class="logLink">Logs</a></li>
 	        </ul>
 
 			<div id="addForm">
@@ -69,10 +70,39 @@
 					}
 					$('showConfig').addEvent('click', showConfigPopup);
 					
-				});
+					var hasUpdate = $(document.body).getElement('.updateAvailable');
+					var updateNow = function(updateThis){
+						var us = new Spinner(updateThis).show()
+						new Request.HTML({
+							'url': hasUpdate.getElement('a').get('href'),
+							'update': updateThis,
+							'onComplete': function(){
+								us.hide();
+								(function(){ window.location.reload() }).delay(5000)
+							}
+						}).send()
+					}
+					
+					if(hasUpdate){
+						var clone = hasUpdate.clone()
+							.addClass('noticeMe')
+							.inject($(document.body).getElement('.page'), 'top')
+							
+						if (clone.hasClass('git')){
+							clone.getElement('a').addEvent('click', function(e){
+								(e).stop()
+								updateNow(clone)
+							})
+							hasUpdate.getElement('a').addEvent('click', function(e){
+								(e).stop()
+								updateNow(hasUpdate)
+							})
+						}
+					}
+					
+				})
 				
 			</script>
-
 	    </div>
 	</div>
 	<div class="page">
@@ -84,10 +114,20 @@
 			% if checking:
 				Now checking.			
 			% else:
-				Next check in ${nextCheck.get('string')} (<a href="${url(controller='cron', action='force')}">Force check</a>)
+				Next check in ${nextCheck.get('string')} ( <a href="${url(controller='cron', action='force')}">Force check</a> )
 			% endif
 			</div>
-			<div class="version">This is version: <em>very early release</em> (<a href="${url(controller='log', action='index')}">see logs</a>), newest version available <a href="http://github.com/RuudBurger/CouchPotato">on github.</a></div>
+			<div id="version">
+				<% import time %>
+				Version: <em>${updater.getVersion()}</em>
+				% if updater.updateAvailable and updater.isFrozen:
+					, <span class="updateAvailable windows">Update available: <a href="${updater.updateAvailable}">download update</a></span>
+				% elif updater.updateAvailable:
+					, <span class="updateAvailable git">Update available: <a href="/config/update/">update now</a></span>
+				% elif updater.lastCheck < time.time()-7200:
+					<% updater.checkForUpdate() %>
+				% endif
+			</div>
 		</div>
 	</div>
 </body>

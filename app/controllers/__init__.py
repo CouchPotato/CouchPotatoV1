@@ -24,6 +24,7 @@ class BaseController:
         self.cron = cherrypy.config.get('cron')
         self.searchers = cherrypy.config.get('searchers')
         self.globals['debug'] = cherrypy.config.get('debug')
+        self.globals['updater'] = cherrypy.config.get('updater')
         
     def updateGlobals(self):
 

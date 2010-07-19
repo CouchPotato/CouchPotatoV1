@@ -7,7 +7,7 @@
 		<li><a href="#quality">Quality</a></li>
 		<li><a href="#renaming">Renaming</a></li>
 		<li><a href="#userscript">Userscript</a></li>
-		<li><a href="#shutdown">Shutdown</a></li>
+		<li><a href="#about">About</a></li>
 	</ul>
 		
 	<form class="uniForm" action="${url(controller="config", action="save")}" method="post">
@@ -234,10 +234,13 @@
 					Need a recent version of <a href="http://www.google.com/chrome/" target="_blank">Chrome</a> or when using Firefox, the <a href="https://addons.mozilla.org/en-US/firefox/addon/748/" target="_blank">Greasemonkey addon</a>.
 				</p>
 			</fieldset>
-			<fieldset class="shutdown inlineLabels">
+			<fieldset class="about inlineLabels">
 				<div>
-					<span class="cancel"><a href="#cancel">Cancel</a> or</span>
-					<a href="/config/exit/" class="submit">Shutdown</a>
+					<a href="/config/exit/" class="submit">Shutdown</a><span class="or">or</span>
+					<a href="/config/restart/" class="submit restart">Restart</a>
+				</div>
+				<div id="versionInfo">
+					<h3>Version ${updater.getVersion()}</h3>
 				</div>
 			</fieldset>
 			
@@ -409,21 +412,17 @@
 		sendToSelect.addEvent('change', sendTo);
 		sendTo();
 		
-		
-		// Cancel button
-		form.getElements('.cancel a').addEvent('click', function(e){
-			(e).stop()
-			$(document.body).get('mask').destroy();
-		});
-		
 		// Shutdown button
-		form.getElements('.shutdown a.submit').addEvent('click', function(e){
+		form.getElements('.about a.submit').addEvent('click', function(e){
 			(e).stop()
 	        new Spinner(e.target).show();
 			new Request({
 				'url': e.target.get('href'),
 				'onComplete': function(){
-					e.target.getParent().set('text', 'Movie Manager has shutdown.')
+					if (e.target.get('text') == 'Restart')
+						e.target.getParent().set('text', 'Movie Manager will restart in a few seconds.')
+					else
+						e.target.getParent().set('text', 'Movie Manager has shutdown.')
 	        		new Spinner(e.target).hide();
 				}
 			}).send()

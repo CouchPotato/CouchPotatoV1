@@ -12,12 +12,12 @@ def basicAuth(realm, users, encrypt = None):
         return
     else:
         return
-    
+
 def launchBrowser(host, port):
-    
+
     if host == '0.0.0.0':
         host = 'localhost'
-    
+
     url = 'http://%s:%d' % (host, int(port))
     try:
         webbrowser.open(url, 2, 1)

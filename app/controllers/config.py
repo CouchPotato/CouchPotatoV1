@@ -1,5 +1,5 @@
 from app.config.db import QualityTemplate, Session as Db
-from app.controllers import BaseController
+from app.controllers import BaseController, redirect
 from app.lib.qualities import Qualities
 import cherrypy
 import json
@@ -89,7 +89,17 @@ class ConfigController(BaseController):
     def update(self):
 
         updater = cherrypy.config.get('updater')
-        updater.run()
+        result = updater.run()
+        
+        return 'Update successful, restarting...' if result else 'Update failed.'
+
+    @cherrypy.expose
+    def updateCheck(self):
+
+        updater = cherrypy.config.get('updater')
+        updater.checkForUpdate()
+        
+        return redirect(cherrypy.request.headers.get('referer'))
 
     @cherrypy.expose
     @cherrypy.tools.mako(filename = "config/imdbScript.js")

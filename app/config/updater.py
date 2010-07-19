@@ -1,3 +1,4 @@
+from app import version
 from cherrypy.process.plugins import SimplePlugin
 from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
 from urllib2 import URLError
@@ -6,6 +7,7 @@ import cherrypy
 import logging
 import os
 import tarfile
+import time
 import urllib2
 
 log = logging.getLogger(__name__)
@@ -16,6 +18,10 @@ class Updater(SimplePlugin):
     downloads = 'http://github.com/RuudBurger/CouchPotato/downloads'
     timeout = 10
     running = False
+    version = None
+    updateAvailable = False
+    availableString = None
+    lastCheck = 0
 
     def __init__(self, bus):
         SimplePlugin.__init__(self, bus)
@@ -25,7 +31,18 @@ class Updater(SimplePlugin):
         self.runPath = cherrypy.config['runPath']
         self.cachePath = cherrypy.config['cachePath']
         self.isFrozen = cherrypy.config['frozen']
+        self.debug = cherrypy.config['debug']
         self.updatePath = os.path.join(self.cachePath, 'updates')
+        self.historyFile = os.path.join(self.updatePath, 'history.txt')
+
+        if not os.path.isdir(self.updatePath):
+            os.mkdir(self.updatePath)
+
+        if not os.path.isfile(self.historyFile):
+            self.history('UNKNOWN Build.')
+
+        self.checkForUpdate()
+        self.getVersion()
 
     start.priority = 70
 
@@ -33,20 +50,61 @@ class Updater(SimplePlugin):
         return self.running
 
     def run(self):
-        log.info("Updating")
-        self.running = True
-        if not os.path.isdir(self.updatePath):
-            os.mkdir(self.updatePath)
 
         if self.isFrozen:
-            self.doUpdateWindows()
+            return self.checkForUpdateWindows()
         else:
-            self.doUpdateUnix()
+            log.info("Updating")
+            self.running = True
+            self.bus.stop()
 
-        self.bus.restart()
-        self.running = False
+            result = self.doUpdateUnix()
 
-    def doUpdateWindows(self):
+            self.bus.start()
+            self.running = False
+            return result
+
+    def getVersion(self):
+
+        if not self.version:
+            if self.isFrozen:
+                self.version = 'Windows build r%d' % version.windows
+            else:
+                handle = open(self.historyFile, "r")
+                lineList = handle.readlines()
+                handle.close()
+                self.version = version.version + ' - ' + lineList[-1].replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
+
+        return self.version
+
+    def checkForUpdate(self):
+
+        if self.debug:
+            return
+
+        if self.isFrozen:
+            self.updateAvailable = self.checkForUpdateWindows()
+        else:
+            update = self.checkForUpdateUnix()
+            history = open(self.historyFile, 'r').read()
+            self.updateAvailable = update.get('name').replace('.tar.gz', '') not in history
+
+        self.availableString = 'Update available' if self.updateAvailable else 'Not available'
+        self.lastCheck = time.time()
+        log.info(self.availableString)
+
+    def checkForUpdateUnix(self):
+        try:
+            data = urllib2.urlopen(self.url, timeout = self.timeout)
+        except (IOError, URLError):
+            log.error('Failed to open %s.' % self.url)
+            return False
+
+        name = data.geturl().split('/')[-1]
+        return {'name':name, 'data':data}
+
+
+    def checkForUpdateWindows(self):
         try:
             data = urllib2.urlopen(self.downloads, timeout = self.timeout).read()
         except (IOError, URLError):
@@ -65,40 +123,34 @@ class Updater(SimplePlugin):
                 log.error('Failed to open %s.' % latestUrl)
                 return False
 
-            name = latest.geturl().split('/')[-1].replace('%20', ' ')
-            destination = os.path.join(self.updatePath, name)
+            downloadUrl = latest.geturl()
 
-            if not os.path.isfile(destination):
-                with open(destination, 'wb') as f:
-                    f.write(latest.read())
+            if 'r' + str(version.windows) in downloadUrl:
+                return False
 
-            zip = ZipFile(destination)
-            zip.extractall(path = self.updatePath)
-
-            fromfile = os.path.join(self.updatePath, 'CouchPotato.exe')
-            tofile = os.path.join(self.runPath, name.replace('.zip', '.exe'))
-            os.rename(fromfile, tofile)
+            return downloadUrl
 
         except AttributeError:
             log.debug('Nothing found.')
 
+        return False
+
     def doUpdateUnix(self):
-        try:
-            data = urllib2.urlopen(self.url, timeout = self.timeout)
-        except (IOError, URLError):
-            log.error('Failed to open %s.' % self.url)
+        update = self.checkForUpdateUnix()
+        if not update:
             return False
 
-        name = data.geturl().split('/')[-1]
-        destination = os.path.join(self.updatePath, name)
+        name = update.get('name')
+        data = update.get('data')
+        destination = os.path.join(self.updatePath, update.get('name'))
 
         if not os.path.isfile(destination):
             # Remove older tarballs
             log.info('Removing old updates.')
             for file in os.listdir(self.updatePath):
-                if os.path.isfile(file):
+                if os.path.isfile(file) and not '.txt' in file:
                     os.remove(file);
-            
+
             log.info('Downloading %s.' % name)
             with open(destination, 'w') as f:
                 f.write(data.read())
@@ -108,15 +160,25 @@ class Updater(SimplePlugin):
         tar.extractall(path = self.updatePath)
 
         log.info('Moving updated files to CouchPotato root.')
-        extractedPath = os.path.join(self.updatePath, name.replace('.tar.gz', ''))
+        name = name.replace('.tar.gz', '')
+        extractedPath = os.path.join(self.updatePath, name)
         for root, subfiles, filenames in os.walk(extractedPath):
             for filename in filenames:
                 fromfile = os.path.join(root, filename)
                 tofile = os.path.join(self.runPath, fromfile.replace(extractedPath + os.path.sep, ''))
-                try:
-                    os.remove(tofile)
-                except:
-                    pass
-                os.renames(fromfile, tofile)
 
+                if not self.debug:
+                    try:
+                        os.remove(tofile)
+                    except:
+                        pass
+                    os.renames(fromfile, tofile)
+
+        self.history(name)
         log.info('Update to %s successful.' % name)
+        return True
+
+    def history(self, version):
+        handle = open(self.historyFile, "a")
+        handle.write(version + "\n")
+        handle.close()
