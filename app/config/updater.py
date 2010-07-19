@@ -146,8 +146,9 @@ class Updater(SimplePlugin):
             # Remove older tarballs
             log.info('Removing old updates.')
             for file in os.listdir(self.updatePath):
-                if os.path.isfile(file) and not '.txt' in file:
-                    os.remove(file);
+                filename = os.path.join(self.updatePath, file)
+                if os.path.isfile(filename) and not '.txt' in filename:
+                    os.remove(filename);
 
             log.info('Downloading %s.' % name)
             with open(destination, 'w') as f:
