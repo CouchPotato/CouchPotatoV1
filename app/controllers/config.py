@@ -1,5 +1,5 @@
 from app.config.db import QualityTemplate, Session as Db
-from app.controllers import BaseController, redirect
+from app.controllers import BaseController
 from app.lib.qualities import Qualities
 import cherrypy
 import json
@@ -71,7 +71,6 @@ class ConfigController(BaseController):
         # Change cron interval
         self.cron.get('yarr').setInterval(config.get('Intervals', 'search'))
 
-        # Writing our configuration file to 'example.cfg'
         config.save()
 
     @cherrypy.expose
@@ -100,6 +99,5 @@ class ConfigController(BaseController):
         imdb UserScript, for easy movie adding
         '''
         host = cherrypy.request.headers.get('host')
-        #response.headers['content-type'] = 'text/javascript; charset=utf-8'
         return self.render({'host':host})
 
