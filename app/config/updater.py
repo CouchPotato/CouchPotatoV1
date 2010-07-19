@@ -2,7 +2,6 @@ from app import version
 from cherrypy.process.plugins import SimplePlugin
 from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
 from urllib2 import URLError
-from zipfile import ZipFile
 import cherrypy
 import logging
 import os
@@ -64,9 +63,9 @@ class Updater(SimplePlugin):
             self.running = False
             return result
 
-    def getVersion(self):
+    def getVersion(self, force = False):
 
-        if not self.version:
+        if not self.version or force:
             if self.isFrozen:
                 self.version = 'Windows build r%d' % version.windows
             else:
@@ -176,6 +175,8 @@ class Updater(SimplePlugin):
 
         self.history(name)
         log.info('Update to %s successful.' % name)
+        self.getVersion(force = True)
+        self.updateAvailable = False
         return True
 
     def history(self, version):
