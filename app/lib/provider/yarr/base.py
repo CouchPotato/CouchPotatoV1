@@ -15,7 +15,7 @@ class nzbBase(rss):
         'x264:1',
         '720p:2', '1080p:2', 'bluray:2', 'dvd:1', 'dvdrip:1', 'brrip:1', 'bdrip:1',
         'metis:1', 'diamond:1', 'wiki:1', 'CBGB:1',
-        'german:-10'
+        'german:-10', 'french:-10', 'spanish:-10','swesub:-20'
     ]
 
     catIds = {}
