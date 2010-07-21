@@ -1,5 +1,6 @@
 from app.config.db import Movie, Session as Db
 from app.lib.cron.cronBase import cronBase
+from app.lib.provider.rss import rss
 from sqlalchemy.sql.expression import or_
 import datetime
 import logging
@@ -9,7 +10,7 @@ import urllib
 
 log = logging.getLogger(__name__)
 
-class YarrCron(cronBase):
+class YarrCron(cronBase, rss):
 
     ''' Cronjob for searching for nzb/torrents '''
 
@@ -127,7 +128,7 @@ class YarrCron(cronBase):
         if not blackhole or not os.path.isdir(blackhole):
             log.error('No directory set for blackhole %s download.' % item.type)
         else:
-            fullPath = os.path.join(blackhole, item.name + '.' + item.type)
+            fullPath = os.path.join(blackhole, self.toSaveString(item.name) + '.' + item.type)
 
             if not os.path.isfile(fullPath):
                 log.info('Downloading %s to %s.' % (item.type, fullPath))
