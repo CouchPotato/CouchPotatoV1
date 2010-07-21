@@ -63,7 +63,7 @@ class nzbMatrix(nzbBase):
                 except:
                     log.error('No valid xml, to many requests? Try again in 15sec.')
                     time.sleep(15)
-                    return self.find(movie)
+                    return self.find(movie, quality, type)
 
                 results = []
                 for nzb in xml:
