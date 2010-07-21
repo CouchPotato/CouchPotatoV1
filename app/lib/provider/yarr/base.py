@@ -14,7 +14,8 @@ class nzbBase(rss):
         'unrated:1',
         'x264:1',
         '720p:2', '1080p:2', 'bluray:2', 'dvd:1', 'dvdrip:1', 'brrip:1', 'bdrip:1',
-        'metis:1', 'diamond:1', 'wiki:1', 'CBGB:1'
+        'metis:1', 'diamond:1', 'wiki:1', 'CBGB:1',
+        'german:-10'
     ]
 
     catIds = {}
@@ -40,7 +41,7 @@ class nzbBase(rss):
         for s in self.sizeKb:
             if s in sizeRaw:
                 return float(size) / 1024
-            
+
         return 0
 
     def calcScore(self, nzb, movie):
@@ -71,21 +72,21 @@ class nzbBase(rss):
             score = score + 1
 
         return score
-    
+
     def nameRatioScore(self, nzbName, movieName):
-        
+
         nzbWords = re.split('\W+', self.toSearchString(nzbName).lower())
         movieWords = re.split('\W+', self.toSearchString(movieName).lower())
 
         # Replace .,-_ with space
         leftOver = len(nzbWords) - len(movieWords)
-        if 2 <= leftOver <=  6:
+        if 2 <= leftOver <= 6:
             return 4
         else:
             return 0
 
     def isCorrectMovie(self, item, movie, qualityType):
-        
+
         # Check for size first
         type = Qualities.types.get(qualityType)
         if type['minSize'] > item.size:
