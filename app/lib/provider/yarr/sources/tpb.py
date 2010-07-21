@@ -1,4 +1,5 @@
 from app.lib.provider.yarr.base import torrentBase
+from app.lib.qualities import Qualities
 from dateutil.parser import parse
 from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
 from urllib import quote_plus
@@ -111,13 +112,14 @@ class tpb(torrentBase):
                     new.seeders = seeders
                     new.leechers = leechers
                     new.url = self.downloadLink(id, name)
-                    new.detailUrl = self.detailLink(id)
-                    new.content = self.getInfo(new.detailUrl)
                     new.score = self.calcScore(new, movie) + self.uploader(result) + (seeders / 10)
 
-                    if seeders > 0 and self.isCorrectMovie(new, movie, type) and (new.date + (int(self.conf('wait')) * 60 * 60) < time.time()):
-                        results.append(new)
-                        log.info('Found: %s', new.name)
+                    if seeders > 0 and (new.date + (int(self.conf('wait')) * 60 * 60) < time.time()) and Qualities.types.get(type).get('minSize') <= new.size:
+                        new.detailUrl = self.detailLink(id)
+                        new.content = self.getInfo(new.detailUrl)
+                        if self.isCorrectMovie(new, movie, type):
+                            results.append(new)
+                            log.info('Found: %s', new.name)
 
             return results
 
@@ -125,7 +127,7 @@ class tpb(torrentBase):
             log.debug('No search results found.')
 
         return []
-    
+
     def makeIgnoreString(self, type):
         ignore = self.ignoreString.get(type)
         return ignore if ignore else ''
