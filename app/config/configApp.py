@@ -51,8 +51,11 @@ class configApp():
         self.setDefault('Renamer', 'destination', '')
         self.setDefault('Renamer', 'folderNaming', '<namethe> (<year>)')
         self.setDefault('Renamer', 'fileNaming', '<thename><cd>.<ext>')
-        self.setDefault('Renamer', 'trailerQuality', False)
         self.setDefault('Renamer', 'cleanup', False)
+        
+        self.addSection('Trailer')
+        self.setDefault('Trailer', 'quality', False)
+        self.setDefault('Trailer', 'name', 'movie-trailer')
 
         self.addSection('NZBsorg')
         self.setDefault('NZBsorg', 'id', '')

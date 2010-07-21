@@ -6,6 +6,7 @@
 		<li><a href="#providers">Providers</a></li>
 		<li><a href="#quality">Quality</a></li>
 		<li><a href="#renaming">Renaming</a></li>
+		<li><a href="#trailers">Trailers</a></li>
 		<li><a href="#userscript">Userscript</a></li>
 		<li><a href="#about">About</a></li>
 	</ul>
@@ -170,17 +171,26 @@
 						Remove leftover files and folders (under 150MB).
 					</p>
 				</div>
+			</fieldset>
+			<fieldset class="trailers inlineLabels">
 				<div class="ctrlHolder">
 					<label for="">Download trailer</label>
-					<select name="Renamer.trailerQuality" class="textInput large">
+					<select name="Trailer.quality" class="textInput large">
 						<option value="">None</option>
 						% for format in trailerFormats:
-						<option value="${format['key']}"${' selected="selected"' if str(format['key']) == config.get('Renamer', 'trailerQuality') else ''}>${format['quality']} ${format['format']}</option>
+						<option value="${format}"${' selected="selected"' if format == config.get('Trailer', 'quality') else ''}>${format}</option>
 						% endfor
 					</select>
 					<p class="formHint">
-						Minimal quality, if None, no trailer will be downloaded.
+						If None, no trailer will be downloaded.
 					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Naming</label>
+					<select name="Trailer.name" class="textInput large">
+						<option value="movie-trailer"${' selected="selected"' if 'movie-trailer' == config.get('Trailer', 'name') else ''}>movie-trailer.ext</option>
+						<option value="movie-trailer"${' selected="selected"' if 'moviename-trailer' == config.get('Trailer', 'name') else ''}>&lt;filename&gt;-trailer.ext</option>
+					</select>
 				</div>
 			</fieldset>
 			<fieldset class="providers inlineLabels">

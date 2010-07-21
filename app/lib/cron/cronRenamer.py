@@ -93,7 +93,7 @@ class RenamerCron(cronBase):
 
             if movie and movie.get('movie'):
                 finalDestination = self.renameFiles(files, movie['movie'], movie['queue'])
-                if self.conf('trailerQuality'):
+                if self.config.get('Trailer', 'quality'):
                     self.trailerQueue.put({'id': movie['movie'].imdb, 'movie': movie['movie'], 'destination':finalDestination})
             else:
                 log.info('No Match found for: %s' % str(files['files']))
@@ -201,6 +201,7 @@ class RenamerCron(cronBase):
         log.info('Total size of new files is %s.' % int(totalSize / 1024 / 1024))
 
         finalDestination = None
+        finalFilename = self.doReplace(fileNaming, replacements)
         for file in files['files']:
             log.info('Trying to find a home for: %s' % file['filename'])
 
@@ -270,7 +271,10 @@ class RenamerCron(cronBase):
             queue.completed = True
             Db.flush()
 
-        return finalDestination
+        return {
+            'directory': finalDestination,
+            'filename': finalFilename
+        }
 
     def removeOld(self, path, dontDelete = [], newSize = 0):
 

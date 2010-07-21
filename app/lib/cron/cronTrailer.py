@@ -1,39 +1,33 @@
 from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
+from app.lib.provider.trailers.hdtrailers import HdTrailers
+from app.lib.provider.trailers.youtube import Youtube
+from urllib2 import URLError
 import Queue
+import cherrypy
+import hashlib
 import logging
 import os
-import re
 import shutil
-import urllib
-import xml.etree.ElementTree as XMLTree
+import urllib2
 
 trailerQueue = Queue.Queue()
 log = logging.getLogger(__name__)
 
 class TrailerCron(rss, cronBase):
 
-    apiUrl = 'http://gdata.youtube.com/feeds/api/videos'
-    watchUrl = 'http://www.youtube.com/watch?v='
-    getVideoUrl = 'http://www.youtube.com/get_video?video_id=%s&t=%s&fmt=%d'
-
-    formats = [
-        {'format': 'mp4', 'quality': 'High Quality (1080p)', 'key': 37},
-        {'format': 'mp4', 'quality': 'High Quality (720p)', 'key': 22},
-        {'format': 'mp4', 'quality': 'High Quality (480p)', 'key': 18},
-        {'format': 'flv', 'quality': 'High Quality (480p)', 'key': 35},
-        {'format': 'flv', 'quality': 'High Quality (320p)', 'key': 34},
-        {'format': '3gp', 'quality': 'High Quality', 'key': 36},
-        {'format': '3gp', 'quality': 'Medium Quality', 'key': 17},
-        {'format': '3gp', 'quality': 'Low Quality', 'key': 13},
-        {'format': 'flv', 'quality': 'Low Quality', 'key': 6},
-        {'format': 'flv', 'quality': 'Low Quality', 'key': 5},
-    ]
-
+    formats = ['1080p', '720p', '480p']
+    sources = []
     config = None
 
     def run(self):
         log.info('TrailerCron thread is running.')
+
+        self.tempdir = cherrypy.config.get('cachePath')
+
+        # Sources
+        self.sources.append(HdTrailers(self.config))
+        self.sources.append(Youtube(self.config))
 
         timeout = 0.1 if self.debug else 1
         while True and not self.abort:
@@ -54,106 +48,56 @@ class TrailerCron(rss, cronBase):
 
     def search(self, movie, destination):
 
-        for video in self.getVideos(movie, destination):
-            key = self.findKey(video.id)
-            if key:
-                downloaded = self.download(movie, video.id, key, destination)
-                if downloaded:
-                    break
+        if self.config.get('Trailer', 'name') != 'movie-trailer':
+            trailerFinal = 'movie-trailer'
+        else:
+            trailerFinal = os.path.splitext(destination.get('filename'))[0]
+            trailerFinal = trailerFinal[:len(trailerFinal) - 1] + '-trailer'
 
-    def getVideos(self, movie, destination):
-        arguments = urllib.urlencode({
-            'category':'trailer',
-            'orderby':'relevance',
-            'alt':'rss',
-            'q': self.toSaveString(movie.name + ' ' + str(movie.year)),
-            'max-results': 5
-        })
-        url = "%s?%s" % (self.apiUrl, arguments)
+        trailerFinal = os.path.join(destination.get('directory'), trailerFinal)
 
-        log.info('Search url: %s', url)
+        for source in self.sources:
+            results = source.find(movie)
+            for quality, items in results.iteritems():
+                if quality == self.config.get('Trailer', 'quality'):
+                    items.reverse()
+                    for result in items:
+                        trailer = self.download(result)
+                        if trailer:
+                            log.info('Trailer found for %s.' % movie.name)
+                            shutil.move(trailer, trailerFinal + os.path.splitext(trailer)[1])
+                            return True
 
-        data = urllib.urlopen(url)
+        log.info('No trailer found for %s.' % movie.name)
 
-        if data:
-            log.info('Parsing YouTube RSS.')
-            try:
-
-                try:
-                    xml = self.getItems(data)
-                except:
-                    log.error('No valid xml, to many requests? Try again in 15sec.')
-                    return
-
-                results = []
-                for video in xml:
-
-                    id = self.gettextelement(video, "guid").split('/').pop()
-
-                    new = self.feedItem()
-                    new.id = id
-
-                    results.append(new)
-
-                return results
-            except SyntaxError:
-                log.error('Failed to parse XML response from NZBs.org')
-                return False
-
-    def findKey(self, videoId):
-        url = self.videoUrl(videoId)
-        data = urllib.urlopen(url).read()
+    def download(self, url):
         try:
-            m = re.search('&t=(?P<id>.*?)&', data)
-            return m.group('id')
-        except AttributeError:
-            return None
+            req = urllib2.Request(url)
+            req.add_header('User-Agent', 'Quicktime') # Love you apple!
+            data = urllib2.urlopen(req, timeout = self.timeout)
+        except (IOError, URLError):
+            log.error('Failed to open %s.' % url)
+            return False
 
-    def download(self, movie, videoId, key, destination):
+        ext = self.extention(data.geturl())
+        hash = hashlib.md5(url).hexdigest()
 
-        for format in self.formats:
-            log.debug('Format %d >= %d' % (format['key'], int(self.config.get('Renamer', 'trailerQuality'))))
-            videoUrl = self.getVideoUrl % (videoId, key, int(format['key']))
-            videoData = urllib.urlopen(videoUrl)
-            if videoData:
-                meta = videoData.info()
-                size = int(meta.getheaders("Content-Length")[0])
-                if size > 0:
+        tempTrailerFile = os.path.join(self.tempdir, hash + ext)
 
-                    #trails destination
-                    trailerFile = os.path.join(destination, 'movie-trailer' + '.' + format['format'])
-                    tempTrailerFile = os.path.join(destination, '_DOWNLOADING-trailer' + '.' + format['format'])
-                    if os.path.isfile(tempTrailerFile): os.remove(tempTrailerFile)
-                    if not os.path.isfile(trailerFile):
-                        log.info('Downloading trailer in %s too "%s", size: %s' % (format['quality'], destination, str(size / 1024 / 1024) + 'MB'))
-                        with open(tempTrailerFile, 'wb') as f:
-                            f.write(videoData.read())
+        # Remove the old
+        if os.path.isfile(tempTrailerFile):
+            os.remove(tempTrailerFile)
 
-                        #temp to real
-                        log.info('Download finished, renaming trailer temp-download to final.')
-                        os.rename(tempTrailerFile, trailerFile)
+        log.info('Downloading trailer "%s", %d MB' % (url, int(data.info().getheaders("Content-Length")[0]) / 1024 / 1024))
+        with open(tempTrailerFile, 'wb') as f:
+            f.write(data.read())
 
-                        # Use same permissions as parent dir
-                        try:
-                            #mode = os.stat(destination)
-                            #os.chmod(trailerFile, mode[ST_MODE] & 07777)
-                            shutil.copymode(destination, trailerFile)
-                        except OSError:
-                            log.error('Failed setting permissions for %s' % trailerFile)
+        log.info('Download of %s finished.' % url)
 
-                        return True
+        return tempTrailerFile
 
-            if format['key'] == int(self.config.get('Renamer', 'trailerQuality')):
-                log.debug('Minumum trailer quality exceeded.')
-                return False
-
-        return False
-
-    def getItems(self, data):
-        return XMLTree.parse(data).findall('channel/item')
-
-    def videoUrl(self, id):
-        return self.watchUrl + id
+    def extention(self, url):
+        return '.mov' if '.mov' in url else '.mp4'
 
 def startTrailerCron(config, debug):
     cron = TrailerCron()
