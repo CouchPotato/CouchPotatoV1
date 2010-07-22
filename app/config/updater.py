@@ -71,7 +71,7 @@ class Updater(SimplePlugin):
                 handle = open(self.historyFile, "r")
                 lineList = handle.readlines()
                 handle.close()
-                self.version = version.version + ' - ' + lineList[-1].replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
+                self.version = lineList[-1].replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
 
         return self.version
 
