@@ -105,10 +105,12 @@ class theMovieDb(movieBase):
                                 year = r[0]['year']
 
                     results.append(self.fillFeedItem(id, name, imdb, year))
-
-                    alternativeName = self.toSaveString(self.gettextelement(movie, "alternative_name"))
-                    if alternativeName.lower() != name.lower() and alternativeName.lower() != 'none' and alternativeName != None:
-                        results.append(self.fillFeedItem(id, alternativeName, imdb, year))
+                    
+                    alternativeName = self.gettextelement(movie, "alternative_name")
+                    if alternativeName:
+                        alternativeName = self.toSaveString(alternativeName)
+                        if alternativeName.lower() != name.lower() and alternativeName.lower() != 'none' and alternativeName != None:
+                            results.append(self.fillFeedItem(id, alternativeName, imdb, year))
 
                     nr += 1
                     if nr == limit:
