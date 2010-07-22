@@ -669,7 +669,7 @@ form {
 			
 	
 		#configForm fieldset.about {
-			padding: 145px 20px;
+			padding: 65px 20px 0;
 			text-align:center;
 		}
 
@@ -683,5 +683,20 @@ form {
 		
 		#configForm #versionInfo {
 			margin-top: 30px;
+		}
+		
+		#configForm #donate {
+			padding: 50px 30px 10px;
+			font-style: italic;
+			font-size: 15px;
+			color: #999;
+		}
+		
+			#configForm #donate div {
+				padding: 20px 0;
+			}
+		#configForm .site {
+			font-size: 16px;
+			margin-top: 50px;
 		}
 

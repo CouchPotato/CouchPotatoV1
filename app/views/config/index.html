@@ -252,6 +252,15 @@
 				<div id="versionInfo">
 					<h3>Version ${updater.getVersion()}</h3>
 				</div>
+				<div id="donate">
+					<div>I'm building CouchPotato in my spare time, so if you want to buy me a coke while I'm coding, that would be awesome!</div>
+					<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=GFWSRM6L43T2S&lc=NL&item_name=A%20more%20awesome%20CouchPotato&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted" target="_blank">
+						<img src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+					</a>
+				</div>
+				<div class="site">
+					<a href="http://couchpotatoapp.com" target="_blank">CouchPotatoApp.com</a>
+				</div>
 			</fieldset>
 			
 			<fieldset class="quality inlineLabels qualityTemplates">
@@ -460,7 +469,7 @@
 			
 			$(document.body).get('mask').position()
 		}
-		var firstItem = $('configForm').getElement('ul a');
+		var firstItem = $('configForm').getElement('ul li:last-child a');
 		showForm(firstItem, firstItem.get('href').substr(1));
 					
 		$(document.body).mask({
