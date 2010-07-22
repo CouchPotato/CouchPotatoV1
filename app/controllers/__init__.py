@@ -29,7 +29,7 @@ class BaseController:
         
         base = cherrypy.config.get('config').get('global', 'urlbase')
         host = cherrypy.config.get('config').get('global', 'host')
-        port = cherrypy.config.get('config').get('global', 'port')
+        port = str(cherrypy.config.get('config').get('global', 'port'))
         if base:
             self.globals['baseUrl'] = 'http://'+('localhost' if host == '0.0.0.0' else host) + ':' + port + '/' + base + '/'
         else:
