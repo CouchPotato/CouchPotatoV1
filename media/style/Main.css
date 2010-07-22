@@ -72,7 +72,7 @@ form {
 }
 
 .spinner{
-	background: #f7f7f7 url('/media/images/spinner.gif') no-repeat center;
+	background: #f7f7f7 url('../../media/images/spinner.gif') no-repeat center;
 }
 
 /*** Navigation ***/
@@ -180,7 +180,7 @@ form {
 		}
 		
 		form a.submit {
-			background: #222 url(/media/images/button.png) repeat-x; 
+			background: #222 url(../../media/images/button.png) repeat-x; 
 			display: inline-block; 
 			padding: 4px 10px 4px; 
 			color: #fff; 
@@ -272,7 +272,7 @@ form {
 			float: left;
 			padding: 0 3px 0 0;
 			color: #333;
-			background: url('/media/images/qualities.png') no-repeat;
+			background: url('../../media/images/qualities.png') no-repeat;
 		}
 			/** ACTIVE **/
 			#movies .item .quality .q1080P.active { background-position: -85px -63px; }
@@ -422,7 +422,7 @@ form {
 .configPopup {
 }
 .mask {
-	background: url('/media/images/mask.png');
+	background: url('../../media/images/mask.png');
 }
 
 	.configPopup ul {
@@ -573,7 +573,7 @@ form {
 				}
 				
 				#configForm .handle {
-					background: #fff url('/media/images/handle.png') center no-repeat;
+					background: #fff url('../../media/images/handle.png') center no-repeat;
 					display: block;
 					width: 24px;
 					height: 24px;

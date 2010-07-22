@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>CouchPotato</title>
+	<base href="${baseUrl}">
 	<% miniCss = Minify.css([
 			'Base.css',
 			'Main.css',
@@ -9,10 +10,10 @@
 			'UniformGeneric.css'
 		]) %>
 	% if debug:
-	<link href="/media/style/Base.css" media="screen" rel="stylesheet" type="text/css" />
-	<link href="/media/style/Main.css" media="screen" rel="stylesheet" type="text/css" />
-	<link href="/media/style/Uniform.css" media="screen" rel="stylesheet" type="text/css" />
-	<link href="/media/style/UniformGeneric.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="media/style/Base.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="media/style/Main.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="media/style/Uniform.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="media/style/UniformGeneric.css" media="screen" rel="stylesheet" type="text/css" />
 	% else:
 	<link href="${miniCss}" media="screen" rel="stylesheet" type="text/css" />
 	% endif
@@ -26,11 +27,11 @@
 			'Quality.js'
 		]) %>
 	% if debug:
-	<script src="/media/script/Mootools.js" type="text/javascript"></script>
-	<script src="/media/script/MootoolsMore.js" type="text/javascript"></script>
-	<script src="/media/script/Uniform.js" type="text/javascript"></script>
-	<script src="/media/script/Quality.js" type="text/javascript"></script>
-	<script src="/media/script/Global.js" type="text/javascript"></script>
+	<script src="media/script/Mootools.js" type="text/javascript"></script>
+	<script src="media/script/MootoolsMore.js" type="text/javascript"></script>
+	<script src="media/script/Uniform.js" type="text/javascript"></script>
+	<script src="media/script/Quality.js" type="text/javascript"></script>
+	<script src="media/script/Global.js" type="text/javascript"></script>
 	% else:
 	<script src="${miniJs}" type="text/javascript"></script>
 	% endif
@@ -123,7 +124,7 @@
 				% if updater.updateAvailable and updater.isFrozen:
 					, <span class="updateAvailable windows">Update available: <a href="${updater.updateAvailable}">download update</a></span>
 				% elif updater.updateAvailable:
-					, <span class="updateAvailable git">Update available: <a href="/config/update/">update now</a></span>
+					, <span class="updateAvailable git">Update available: <a href="${url(controller='config', action='update')}">update now</a></span>
 				% elif updater.lastCheck < time.time()-7200:
 					<% updater.checkForUpdate() %>
 				% endif

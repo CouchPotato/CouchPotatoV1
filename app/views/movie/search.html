@@ -25,7 +25,7 @@ yearError
 	</div>
 	
 	<div class="row">
-		<a href="${url(controller='movie',action='index')}" class="undo" title="No good, undo!"><img src="/media/images/undoBW.png" alt="Start over" /></a>
+		<a href="${url(controller='movie',action='index')}" class="undo" title="No good, undo!"><img src="media/images/undoBW.png" alt="Start over" /></a>
 		<select name="movienr" class="movieselect">
 			% for movie in results:
 			<option value="${results.index(movie)}">${movie.name} (${movie.year})</option>

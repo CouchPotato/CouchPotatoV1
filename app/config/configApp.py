@@ -44,6 +44,7 @@ class configApp():
         self.setDefault('global', 'username', '')
         self.setDefault('global', 'password', '')
         self.setDefault('global', 'launchbrowser', True)
+        self.setDefault('global', 'urlBase', '')
 
         self.addSection('Renamer')
         self.setDefault('Renamer', 'enabled', False)

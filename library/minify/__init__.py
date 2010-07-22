@@ -21,7 +21,7 @@ class Minify():
     
     def minify(self, type, files, out):
         base = os.path.join(cherrypy.config.get('basePath'), 'media', type)
-        url = '/cache/minify/' + out
+        url = 'cache/minify/' + out
         cache = os.path.join(cherrypy.config.get('runPath'), 'cache', 'minify')
         out = os.path.join(cache, out)
         
