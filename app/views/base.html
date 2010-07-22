@@ -112,8 +112,8 @@
 	    </div>
 		<div class="footer">
 			<div class="check">
-			% if checking:
-				Now checking.			
+			% if checking and not stopped:
+				Now checking. ( <a href="${url(controller='cron', action='stop')}">Stop</a> )
 			% else:
 				Next check in ${nextCheck.get('string')} ( <a href="${url(controller='cron', action='force')}">Force check</a> )
 			% endif

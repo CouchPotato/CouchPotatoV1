@@ -39,6 +39,7 @@ class BaseController:
         self.globals['lastCheck'] = self.cron.get('yarr').lastCheck()
         self.globals['nextCheck'] = self.cron.get('yarr').nextCheck()
         self.globals['checking'] = self.cron.get('yarr').isChecking()
+        self.globals['stopped'] = self.cron.get('yarr').stop
 
     def render(self, list):
 

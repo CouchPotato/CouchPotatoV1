@@ -18,6 +18,12 @@ class CronController(BaseController):
         self.cron.get('yarr').forceCheck()
 
         return redirect(cherrypy.request.headers.get('referer'))
+    @cherrypy.expose
+    def stop(self):
+
+        self.cron.get('yarr').stopCheck()
+
+        return redirect(cherrypy.request.headers.get('referer'))
 
     @cherrypy.expose
     def forceSingle(self, id):

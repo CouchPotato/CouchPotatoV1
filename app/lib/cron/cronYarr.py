@@ -19,6 +19,7 @@ class YarrCron(cronBase, rss):
     sabNzbd = None
     intervalSec = 10
     checkTheseMovies = []
+    stop = False
 
     def run(self):
         log.info('YarrCron thread is running.')
@@ -55,6 +56,10 @@ class YarrCron(cronBase, rss):
             self.lastChecked = time.time() - self.intervalSec # + 10
         else:
             self.checkTheseMovies.append(movie)
+            
+    def stopCheck(self):
+        log.info('Forcing search to stop.')
+        self.stop = True
 
     def searchAll(self):
         log.info('Searching for new download for all movies.')
@@ -63,7 +68,7 @@ class YarrCron(cronBase, rss):
         #get all wanted movies
         movies = Db.query(Movie).filter(or_(Movie.status == 'want', Movie.status == 'waiting')).all()
         for movie in movies:
-            if not self.abort:
+            if not self.abort and not self.stop:
                 self._search(movie)
 
         self.doCheck(False)
@@ -80,7 +85,7 @@ class YarrCron(cronBase, rss):
                 return True
 
             # only search for active and not completed
-            if queue.active and not queue.completed and not self.abort:
+            if queue.active and not queue.completed and not self.abort and not self.stop:
 
                 results = self.provider.find(movie, queue)
 
@@ -145,6 +150,7 @@ class YarrCron(cronBase, rss):
     def doCheck(self, bool = True):
         self.running = bool
         self.lastChecked = time.time()
+        self.stop = False
 
     def isChecking(self):
         return self.running
