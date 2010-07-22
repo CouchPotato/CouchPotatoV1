@@ -13,6 +13,10 @@ body {
 	background: #fff;
 }
 
+	#clean {
+		background: transparent !important;
+	}
+
 pre {
 	white-space: pre-wrap;
 	white-space: -moz-pre-wrap;
