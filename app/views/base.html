@@ -127,6 +127,8 @@
 					, <span class="updateAvailable git">Update available: <a href="${url(controller='config', action='update')}">update now</a></span>
 				% elif updater.lastCheck < time.time()-7200:
 					<% updater.checkForUpdate() %>
+				% elif updater.lastCheck < time.time()-60:
+					, <a href="${url(controller='config', action='checkForUpdate')}">Check for new version</a>
 				% endif
 			</div>
 		</div>
