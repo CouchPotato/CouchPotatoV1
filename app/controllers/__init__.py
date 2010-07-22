@@ -5,7 +5,7 @@ import routes
 
 def url(*args, **kwargs):
     base = cherrypy.config.get('config').get('global', 'urlbase')
-    base = '/'+base if base else ''
+    base = '/' + base if base else cherrypy.request.base
     if len(args) == 1 and len(kwargs) == 0 and type(args[0]) in (str, unicode):
         return cherrypy.url(args[0], base = base)
     else:
@@ -26,25 +26,22 @@ class BaseController:
         self.cron = cherrypy.config.get('cron')
         self.searchers = cherrypy.config.get('searchers')
         self.globals['debug'] = cherrypy.config.get('debug')
-        
-        base = cherrypy.config.get('config').get('global', 'urlbase')
-        host = cherrypy.config.get('config').get('global', 'host')
-        port = str(cherrypy.config.get('config').get('global', 'port'))
-        if base:
-            self.globals['baseUrl'] = 'http://'+('localhost' if host == '0.0.0.0' else host) + ':' + port + '/' + base + '/'
-        else:
-            self.globals['baseUrl'] = 'http://'+('localhost' if host == '0.0.0.0' else host) + ':' + port + '/'
-        
         self.globals['updater'] = cherrypy.config.get('updater')
-        
+
     def updateGlobals(self):
+        base = cherrypy.config.get('config').get('global', 'urlbase')
+
+        if base:
+            self.globals['baseUrl'] = cherrypy.request.base + '/' + base + '/'
+        else:
+            self.globals['baseUrl'] = cherrypy.request.base + '/'
 
         self.globals['lastCheck'] = self.cron.get('yarr').lastCheck()
         self.globals['nextCheck'] = self.cron.get('yarr').nextCheck()
         self.globals['checking'] = self.cron.get('yarr').isChecking()
 
     def render(self, list):
-        
+
         self.updateGlobals()
 
         list.update(self.globals)
