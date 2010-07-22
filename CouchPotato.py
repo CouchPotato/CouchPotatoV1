@@ -10,8 +10,12 @@ except AttributeError:
 # Define path based on frozen state
 if frozen:
     path_base = os.environ['_MEIPASS2']
+    #path_base = os.path.dirname(sys.executable)
 else:
     path_base = rundir
+
+# Include paths
+sys.path.insert(0, path_base)
 sys.path.insert(0, os.path.join(path_base, 'library'))
 
 # Use debug conf if available
