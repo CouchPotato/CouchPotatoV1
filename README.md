@@ -20,7 +20,7 @@ Features:
 
 UserScript:
 
-![imdb](http://github.com/RuudBurger/CouchPotato/raw/master/media/images/usercriptPreview.png)
+![imdb](http://github.com/RuudBurger/CouchPotato/raw/master/media/images/userscriptPreview.png)
 
 If you find a bug or need a feature that you think is awesome! Let me know!
 
