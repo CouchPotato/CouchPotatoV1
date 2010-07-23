@@ -85,11 +85,11 @@
 			var queue = el.getElement('.queue')
 			
 			var a = el.getElement('.quality a')
-			a.set('html', ' \
+			a.set('html', '
 				% for x, type in Qualities.getTypes():
-				<span class="q${type['label']}"></span> \
+				<span class="q${type['label']}"></span>
 				% if x == 'scr':
-				<span class="qR5 qTeleCine qTeleSync qCam"></span> \
+				<span class="qR5 qTeleCine qTeleSync qCam"></span>
 				<% break %>
 				% endif
 				% endfor

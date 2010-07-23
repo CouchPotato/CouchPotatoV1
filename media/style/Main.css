@@ -276,7 +276,8 @@ form {
 			#movies .title .extra {
 				float: left;
 				width: 430px;
-				line-height: 20px !important;
+				line-height: 17px !important;
+				overflow: hidden;
 			}
 
 				#movies .title h2 {
@@ -288,8 +289,14 @@ form {
 				}
 	
 				#movies .title .overview {
-					font-size: 13px;
+					font-size: 12px;
+					display: block;
+					color: #777;
 				}
+	
+					#movies .item:hover .overview {
+						color: #333;
+					}
 	
 				#movies .title .rating {
 					display: block;
