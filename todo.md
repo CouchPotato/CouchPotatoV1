@@ -2,7 +2,6 @@
 * Search for missing trailers button / and make separate from renaming
 * SABnzbd SSL option to include HTTPS
 * Edit movie info
-* Notify when newer version is available
 
 Userscript:
 
@@ -30,4 +29,3 @@ Later:
 
 * Max downloads per day
 * Create .app for OSX
-* Restart button
