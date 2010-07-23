@@ -18,9 +18,9 @@ Features:
 
 ![preview thumb](http://github.com/RuudBurger/CouchPotato/raw/master/media/images/screenshot.png)
 
-IMDB UserScript:
+UserScript:
 
-![imdb](http://github.com/RuudBurger/CouchPotato/raw/master/media/images/imdbScriptPreview.png)
+![imdb](http://github.com/RuudBurger/CouchPotato/raw/master/media/images/usercriptPreview.png)
 
 If you find a bug or need a feature that you think is awesome! Let me know!
 
