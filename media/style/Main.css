@@ -277,7 +277,6 @@ form {
 				float: left;
 				width: 430px;
 				line-height: 17px !important;
-				overflow: hidden;
 			}
 
 				#movies .title h2 {
@@ -285,7 +284,7 @@ form {
 					font-size: 20px;
 					margin: 0;
 					font-weight: normal;
-					padding: 11px 0 6px;
+					padding: 13px 0 6px !important;
 				}
 	
 				#movies .title .overview {
@@ -307,7 +306,7 @@ form {
 
 			#movies.list .title .extra * { display: none; }
 			#movies.list .title .thumbnail { display: none; }
-			#movies.list .title .extra h2 { display: block; padding: 13px 0 0; }
+			#movies.list .title .extra h2 { display: block; padding: 13px 0 6px; }
 		
 		
 		#movies .year {
