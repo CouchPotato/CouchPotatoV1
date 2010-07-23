@@ -1,6 +1,6 @@
 % if len(movies) > 0:
 <div id="toggleDetails">
-	<a href="#">Show</a> details.
+	<a href="#">Show</a> details. (<a href="${url(controller='movie', action='updateInfo')}">Update details</a>)
 </div>
 <div id="movies" class="list">
 	<script type="text/javascript">
@@ -18,8 +18,7 @@
 			toggleThem()
 	</script>
 	<div class="header">
-		<span class="title">
-		</span>
+		<span class="title"></span>
 		<span class="year">Year</span>
 		<span class="quality">Quality</span>
 		<span class="info">Info</span>
@@ -27,13 +26,15 @@
 	</div>
 	% for movie in movies:
 	<%
-		extra = searchers.get('movie').getExtraInfo(movie.movieDb)
+		extra = {}
+		for e in movie.extra:
+			extra[e.name] = e.value
 	%>
 	<div class="item ${movie.status}" data-id="${movie.id}">
 		<span class="title">
 			<span class="thumbnail">
-				% if extra.get('poster'):
-				<img src="${extra.get('poster')}" alt="thumbnail" />
+				% if extra.get('poster_thumb'):
+				<img src="${extra.get('poster_thumb')}" alt="thumbnail" />
 				% endif
 			</span>
 			<span class="extra">
@@ -48,15 +49,7 @@
 		</span>
 		<span class="year">${movie.year}</span>
 		<span class="quality">
-			<a href="#">
-				% for x, type in Qualities.getTypes():
-				<span class="q${type['label']}"></span>
-				% if x == 'scr':
-				<span class="qR5 qTeleCine qTeleSync qCam"></span>
-				<% break %>
-				% endif
-				% endfor
-			</a>
+			<a href="#"></a>
 		</span>
 		<span class="info">
 			<span class="imdb"><a href="http://www.imdb.com/title/${movie.imdb}/" target="_blank"><img src="media/images/imdb.png" alt="IMDB" /></a></span>
@@ -64,7 +57,7 @@
 		</span>
 		<span class="actions">
 			<a class="delete" href="${url(controller='movie', action='delete', id=movie.id)}" title="Delete this movie"><img src="media/images/delete.png" alt="Delete" /></a>
-			<a class="forceCheck" href="${url(controller='cron', action='forceSingle', id=movie.id)}" title="Force search"><img src="media/images/reload.png" alt="Reload" /></a>
+			<a class="forceCheck" href="${url(controller='cron', action='forceSingle', id=movie.id)}" title="Force search/refresh info"><img src="media/images/reload.png" alt="Reload" /></a>
 		</span>
 		<div class="queue">
 			<div class="header">
@@ -85,7 +78,6 @@
 </div>
 
 <script type="text/javascript">
-
 	window.addEvent('domready', function(){
 		$$('#movies > .item').each(function(el){
 			
@@ -93,6 +85,15 @@
 			var queue = el.getElement('.queue')
 			
 			var a = el.getElement('.quality a')
+			a.set('html', ' \
+				% for x, type in Qualities.getTypes():
+				<span class="q${type['label']}"></span> \
+				% if x == 'scr':
+				<span class="qR5 qTeleCine qTeleSync qCam"></span> \
+				<% break %>
+				% endif
+				% endfor
+			')
 			queue.getElements('.item').reverse().each(function(qitem){
 				var qualitySpan = a.getElement('.q'+qitem.getElement('.qualityType').get('text'))
 				qualitySpan.inject(a, 'top')

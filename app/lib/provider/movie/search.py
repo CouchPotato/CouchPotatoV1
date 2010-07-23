@@ -1,9 +1,9 @@
+from app.config.db import Session as Db, MovieExtra, Movie
 from app.lib.provider.movie.sources.imdbWrapper import imdbWrapper
 from app.lib.provider.movie.sources.theMovieDb import theMovieDb
-from urllib2 import URLError
+from sqlalchemy.sql.expression import and_
 import cherrypy
 import os
-import urllib2
 
 class movieSearcher():
 
@@ -98,38 +98,51 @@ class movieSearcher():
             with open(xmlFile, 'wb') as f:
                 f.write(xml.read())
 
-    def getExtraInfo(self, theMovieDbId):
-        info = {}
+    def getExtraInfo(self, movie, overwrite = False):
 
-        if not theMovieDbId:
-            return info
+        movieId = movie.id
+        theMovieDbId = movie.movieDb
 
-        forThis = cherrypy.session.get(theMovieDbId)
-        if forThis:
-            return forThis
-
-        self.cacheExtra(theMovieDbId)
+        self.cacheExtra(theMovieDbId, overwrite)
         xmlFile = os.path.join(cherrypy.config.get('cachePath'), 'xml', str(theMovieDbId) + '.xml')
         if os.path.isfile(xmlFile):
 
             handle = open(xmlFile, 'r')
-            movie = self.theMovieDb.getItems(handle, 'movies/movie')[0]
+            movie = self.theMovieDb.getItems(handle, 'movies/movie')
+            if not movie:
+                return
+            movie = movie[0]
 
             # rating
-            info['rating'] = self.theMovieDb.gettextelement(movie, 'rating')
+            rating = self.theMovieDb.gettextelement(movie, 'rating')
+            self.saveExtra(movieId, 'rating', rating)
+
             overview = self.theMovieDb.gettextelement(movie, 'overview')
             if overview:
-                info['overview'] = self.theMovieDb.toSaveString(overview)
+                overview = self.theMovieDb.toSaveString(overview)
+                self.saveExtra(movieId, 'overview', overview)
 
             images = movie.findall('images/image')
-            info['poster'] = ''
             for image in images:
                 if image.get('type') == 'poster' and image.get('size') == 'thumb':
                     imageFile = str(theMovieDbId) + '-' + image.get('type') + '-' + image.get('size') + '.jpg'
-                    info['poster'] = self.theMovieDb.saveImage(image.get('url'), imageFile)
+                    poster = self.theMovieDb.saveImage(image.get('url'), imageFile)
+                    self.saveExtra(movieId, 'poster_thumb', poster)
                     break
 
             handle.close()
-        cherrypy.session[theMovieDbId] = info
-        return info
+
+    def saveExtra(self, id, name, value):
+
+        exists = Db.query(MovieExtra).filter(and_(MovieExtra.movieId == id, MovieExtra.name == name)).first()
+        if exists:
+            new = exists
+        else:
+            new = MovieExtra()
+            Db.add(new)
+
+        new.movieId = id
+        new.name = name
+        new.value = value
+        Db.flush()
 

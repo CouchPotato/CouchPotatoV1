@@ -33,6 +33,7 @@ class CronController(BaseController):
 
         movie = qMovie.filter_by(id = id).one()
         self.cron.get('yarr').forceCheck(movie)
+        self.searchers.get('movie').getExtraInfo(movie, overwrite = True)
 
         #return redirect(cherrypy.request.headers.get('referer'))
 

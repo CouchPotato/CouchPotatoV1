@@ -137,6 +137,14 @@ class MovieController(BaseController):
 
         return self.render({'id':id, 'result':result, 'success':success, 'year':data.get('year')})
 
+    @cherrypy.expose
+    def updateInfo(self):
+
+        movies = qMovie.order_by(Movie.name).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
+        for movie in movies:
+            self.searchers.get('movie').getExtraInfo(movie)
+
+        return redirect(cherrypy.request.headers.get('referer'))
 
     def _addMovie(self, movie, quality, year = None):
         log.info('Adding movie to database: %s', movie.name)
@@ -185,10 +193,9 @@ class MovieController(BaseController):
             queue.markComplete = type.markComplete
             Db.add(queue)
             Db.flush()
-            
+
         #Get xml from themoviedb and save to cache
-        if movie.id:
-            self.searchers.get('movie').cacheExtra(movie.id)
+        self.searchers.get('movie').getExtraInfo(new, overwrite = True)
 
         #gogo find nzb for added movie via Cron
         self.cron.get('yarr').forceCheck(new)

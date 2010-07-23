@@ -55,6 +55,13 @@ movieEtaTable = Table('MovieETA', metadata,
                      Column('bluray', Boolean)
             )
 
+movieExtraTable = Table('MovieExtra', metadata,
+                     Column('id', Integer, primary_key = True),
+                     Column('movieId', Integer, ForeignKey('Movie.id')),
+                     Column('name', String()),
+                     Column('value', Text())
+            )
+
 renameHistoryTable = Table('RenameHistory', metadata,
                      Column('id', Integer, primary_key = True),
                      Column('movieQueue', Integer, ForeignKey('MovieQueue.id')),
@@ -111,6 +118,12 @@ class MovieETA(object):
     def __repr__(self):
         return "<movieeta: %s" % self.videoEtaId
 
+class MovieExtra(object):
+    movieId = None
+    name = None
+    def __repr__(self):
+        return "<movieextra: %s" % self.name
+
 class RenameHistory(object):
     def __repr__(self):
         return "<renamehistory: %s" % self.name
@@ -137,10 +150,12 @@ movieMapper = mapper(Movie, movieTable, properties = {
                 and_(movieQueueTable.c.movieId == movieTable.c.id,
                 movieQueueTable.c.active == True), order_by = movieQueueTable.c.order, lazy = 'joined'),
    'template': relation(QualityTemplate, backref = 'Movie'),
-   'eta': relation(MovieETA, backref = 'Movie', uselist = False, lazy = 'joined')
+   'eta': relation(MovieETA, backref = 'Movie', uselist = False, lazy = 'joined'),
+   'extra': relation(MovieExtra, backref = 'Movie', viewonly = True)
 })
 movieQueueMapper = mapper(MovieQueue, movieQueueTable)
 movieEtaMapper = mapper(MovieETA, movieEtaTable)
+movieExtraMapper = mapper(MovieExtra, movieExtraTable)
 renameHistoryMapper = mapper(RenameHistory, renameHistoryTable)
 qualityMapper = mapper(QualityTemplate, qualityTemplateTable, properties = {
    'types': relation(QualityTemplateType, backref = 'QualityTemplate', order_by = qualityTemplateTypeTable.c.order, lazy = 'joined')
@@ -188,7 +203,7 @@ def migrateVersion3():
 
     # for some normal executions
     db = SqlSoup(engine)
-    
+
     try:
         db.execute('ALTER TABLE Movie ADD dateChanged TIMESTAMP')
         log.info('Added dateChanged to Movie table')

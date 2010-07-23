@@ -324,6 +324,7 @@ form {
 		
 		#movies .item .quality {
 			padding: 5px 9px;
+			height: 45px;
 		}
 		#movies .item .quality span {
 			font-size: 10px;
