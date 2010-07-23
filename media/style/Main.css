@@ -311,13 +311,14 @@ form {
 		
 		#movies .year {
 			width: 70px;
-			padding-top: 22px !important;
 		}
+			#movies .item .year { padding-top: 22px !important; }
+
 		#movies .quality {
 			width: 92px;
 			border: 2px solid transparent;
 			border-bottom: none;
-				border-top: none;
+			border-top: none;
 		}
 			#movies .active .quality {
 				background: #fff;
