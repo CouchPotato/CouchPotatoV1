@@ -12,7 +12,7 @@
 	<% movie = eta.Movie %>
 	% if movie.status == u'want' or movie.status == u'waiting':
 	<div class="item ${movie.status}" data-id="${movie.id}">
-		<span class="title">${movie.name}</span>
+		<span class="title"><h2>${movie.name}</h2></span>
 		<span class="release">${strftime("%a, %B %d", gmtime(eta.theater)) if eta.theater > 0 else 'Unknown'}</span>
 		<span class="release">${strftime("%a, %B %d", gmtime(eta.dvd)) if eta.dvd > 0 else 'Unknown'}</span>
 		<span class="bluray">${'Yes' if eta.bluray else 'Nope'}</span>

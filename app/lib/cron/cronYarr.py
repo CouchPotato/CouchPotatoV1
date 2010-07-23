@@ -40,7 +40,7 @@ class YarrCron(cronBase, rss):
 
             #check all movies
             now = time.time()
-            if (self.lastChecked + self.intervalSec) < now: # and not self.debug:
+            if (self.lastChecked + self.intervalSec) < now and not self.debug:
                 self.lastChecked = now
                 self.searchAll()
 

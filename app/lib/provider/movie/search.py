@@ -1,5 +1,9 @@
-from app.lib.provider.movie.sources.theMovieDb import theMovieDb
 from app.lib.provider.movie.sources.imdbWrapper import imdbWrapper
+from app.lib.provider.movie.sources.theMovieDb import theMovieDb
+from urllib2 import URLError
+import cherrypy
+import os
+import urllib2
 
 class movieSearcher():
 
@@ -20,7 +24,7 @@ class movieSearcher():
 
     def find(self, q):
         ''' Find movie by name '''
-        
+
         q = unicode(q).lower()
 
         for source in self.sources:
@@ -73,4 +77,59 @@ class movieSearcher():
                 result.id = r.id
 
         return result
+
+    def cacheExtra(self, theMovieDbId, overwrite = False):
+        xmlCache = os.path.join(cherrypy.config.get('cachePath'), 'xml')
+        xmlFile = os.path.join(xmlCache, str(theMovieDbId) + '.xml')
+        exists = os.path.isfile(xmlFile)
+
+        if overwrite or not exists:
+            xml = self.theMovieDb.getXML(theMovieDbId)
+
+            # Make dir
+            if not os.path.isdir(xmlCache):
+                os.mkdir(xmlCache)
+
+            # Remove old
+            if exists:
+                os.remove(xmlFile)
+
+            # Write file
+            with open(xmlFile, 'wb') as f:
+                f.write(xml.read())
+
+    def getExtraInfo(self, theMovieDbId):
+        info = {}
+
+        if not theMovieDbId:
+            return info
+
+        forThis = cherrypy.session.get(theMovieDbId)
+        if forThis:
+            return forThis
+
+        self.cacheExtra(theMovieDbId)
+        xmlFile = os.path.join(cherrypy.config.get('cachePath'), 'xml', str(theMovieDbId) + '.xml')
+        if os.path.isfile(xmlFile):
+
+            handle = open(xmlFile, 'r')
+            movie = self.theMovieDb.getItems(handle, 'movies/movie')[0]
+
+            # rating
+            info['rating'] = self.theMovieDb.gettextelement(movie, 'rating')
+            overview = self.theMovieDb.gettextelement(movie, 'overview')
+            if overview:
+                info['overview'] = self.theMovieDb.toSaveString(overview)
+
+            images = movie.findall('images/image')
+            info['poster'] = ''
+            for image in images:
+                if image.get('type') == 'poster' and image.get('size') == 'thumb':
+                    imageFile = str(theMovieDbId) + '-' + image.get('type') + '-' + image.get('size') + '.jpg'
+                    info['poster'] = self.theMovieDb.saveImage(image.get('url'), imageFile)
+                    break
+
+            handle.close()
+        cherrypy.session[theMovieDbId] = info
+        return info
 

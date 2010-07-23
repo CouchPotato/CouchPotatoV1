@@ -1,15 +1,51 @@
 % if len(movies) > 0:
-<div id="movies">
+<div id="toggleDetails">
+	<a href="#">Show</a> details.
+</div>
+<div id="movies" class="list">
+	<script type="text/javascript">
+		var toggleDetails = $('toggleDetails').getElement('a')
+		var toggleThem = function(){
+			$('movies').toggleClass('list')
+			toggleDetails.set('text', toggleDetails.get('text') == 'Show' ? 'Hide' : 'Show')
+			Cookie.write('showDetails', !$('movies').hasClass('list'), {duration: 365});
+		}
+		toggleDetails.addEvent('click', function(e){
+			(e).stop()
+			toggleThem()
+		})
+		if(Cookie.read('showDetails') == 'true')
+			toggleThem()
+	</script>
 	<div class="header">
-		<span class="title">Title</span>
+		<span class="title">
+		</span>
 		<span class="year">Year</span>
 		<span class="quality">Quality</span>
 		<span class="info">Info</span>
 		<span class="actions">Actions</span>
 	</div>
 	% for movie in movies:
+	<%
+		extra = searchers.get('movie').getExtraInfo(movie.movieDb)
+	%>
 	<div class="item ${movie.status}" data-id="${movie.id}">
-		<span class="title">${movie.name}</span>
+		<span class="title">
+			<span class="thumbnail">
+				% if extra.get('poster'):
+				<img src="${extra.get('poster')}" alt="thumbnail" />
+				% endif
+			</span>
+			<span class="extra">
+				<h2>${movie.name}</h2>
+				% if extra.get('overview'):
+				<span class="overview">${extra.get('overview')}</span>
+				% endif
+				% if extra.get('rating') and extra.get('rating') != '0.0':
+				<span class="rating">Rating: ${extra.get('rating')}</span>
+				% endif
+			</span>
+		</span>
 		<span class="year">${movie.year}</span>
 		<span class="quality">
 			<a href="#">

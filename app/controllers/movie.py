@@ -185,6 +185,10 @@ class MovieController(BaseController):
             queue.markComplete = type.markComplete
             Db.add(queue)
             Db.flush()
+            
+        #Get xml from themoviedb and save to cache
+        if movie.id:
+            self.searchers.get('movie').cacheExtra(movie.id)
 
         #gogo find nzb for added movie via Cron
         self.cron.get('yarr').forceCheck(new)

@@ -2,9 +2,10 @@ from app.lib.provider.movie.base import movieBase
 from imdb import IMDb
 from urllib import quote_plus
 from urllib2 import URLError
+import cherrypy
 import logging
+import os
 import urllib2
-import xml.etree.ElementTree as XMLTree
 
 log = logging.getLogger(__name__)
 
@@ -42,10 +43,7 @@ class theMovieDb(movieBase):
         if self.isDisabled():
             return False
 
-        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.conf('key'), id)
-        data = urllib2.urlopen(url, timeout = self.timeout)
-
-        results = self.parseXML(data, limit = 8)
+        results = self.parseXML(self.getXML(id), limit = 8)
 
         return results.pop(0)
 
@@ -74,7 +72,7 @@ class theMovieDb(movieBase):
         if data:
             log.info('TheMovieDB - Parsing RSS')
             try:
-                xml = XMLTree.parse(data).find("movies")
+                xml = self.getItems(data, 'movies/movie')
 
                 results = []
                 nr = 0
@@ -121,6 +119,40 @@ class theMovieDb(movieBase):
             except SyntaxError:
                 log.error('TheMovieDB - Failed to parse XML response from TheMovieDb')
                 return False
+            
+    def getXML(self, id):
+
+        if self.isDisabled():
+            return False
+
+        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.conf('key'), id)
+        data = urllib2.urlopen(url, timeout = self.timeout)
+        
+        return data
+
+    def saveImage(self, url, destination):
+
+        # Make dir
+        imageCache = os.path.join(cherrypy.config.get('cachePath'), 'images')
+        if not os.path.isdir(imageCache):
+            os.mkdir(imageCache)
+
+        # Return old
+        imageFile = os.path.join(imageCache, destination)
+        if not os.path.isfile(imageFile):
+        
+            try:
+                data = urllib2.urlopen(url, timeout = 10)
+                
+                # Write file
+                with open(imageFile, 'wb') as f:
+                    f.write(data.read())
+    
+            except (IOError, URLError):
+                log.error('Failed get thumb %s.' % url)
+                return []
+        
+        return 'cache/images/'+destination
 
     def fillFeedItem(self, id, name, imdb, year):
 

@@ -27,6 +27,8 @@ class BaseController:
         self.searchers = cherrypy.config.get('searchers')
         self.globals['debug'] = cherrypy.config.get('debug')
         self.globals['updater'] = cherrypy.config.get('updater')
+        self.globals['searchers'] = self.searchers
+        self.globals['cherrypy'] = cherrypy
 
     def updateGlobals(self):
         base = cherrypy.config.get('config').get('global', 'urlbase')
