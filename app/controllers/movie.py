@@ -137,15 +137,6 @@ class MovieController(BaseController):
 
         return self.render({'id':id, 'result':result, 'success':success, 'year':data.get('year')})
 
-    @cherrypy.expose
-    def updateInfo(self):
-
-        movies = qMovie.order_by(Movie.name).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
-        for movie in movies:
-            self.searchers.get('movie').getExtraInfo(movie)
-
-        return redirect(cherrypy.request.headers.get('referer'))
-
     def _addMovie(self, movie, quality, year = None):
         log.info('Adding movie to database: %s', movie.name)
 

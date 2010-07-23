@@ -1,9 +1,12 @@
 from app.config.db import Session as Db, MovieExtra, Movie
 from app.lib.provider.movie.sources.imdbWrapper import imdbWrapper
 from app.lib.provider.movie.sources.theMovieDb import theMovieDb
-from sqlalchemy.sql.expression import and_
+from sqlalchemy.sql.expression import and_, or_
 import cherrypy
+import logging
 import os
+
+log = logging.getLogger(__name__)
 
 class movieSearcher():
 
@@ -21,6 +24,12 @@ class movieSearcher():
         #config imdb
         self.imdb = imdbWrapper(config)
         self.sources.append(self.imdb)
+
+        # Update the cache
+        movies = Db.query(Movie).order_by(Movie.name).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
+        for movie in movies:
+            if not movie.extra:
+                self.getExtraInfo(movie)
 
     def find(self, q):
         ''' Find movie by name '''
@@ -99,30 +108,30 @@ class movieSearcher():
                 f.write(xml.read())
 
     def getExtraInfo(self, movie, overwrite = False):
-
         movieId = movie.id
         theMovieDbId = movie.movieDb
 
         self.cacheExtra(theMovieDbId, overwrite)
         xmlFile = os.path.join(cherrypy.config.get('cachePath'), 'xml', str(theMovieDbId) + '.xml')
         if os.path.isfile(xmlFile):
+            log.debug('Getting extra movie info for %s.' % movie.name)
 
             handle = open(xmlFile, 'r')
-            movie = self.theMovieDb.getItems(handle, 'movies/movie')
-            if not movie:
+            movieInfo = self.theMovieDb.getItems(handle, 'movies/movie')
+            if not movieInfo:
                 return
-            movie = movie[0]
+            movieInfo = movieInfo[0]
 
             # rating
-            rating = self.theMovieDb.gettextelement(movie, 'rating')
+            rating = self.theMovieDb.gettextelement(movieInfo, 'rating')
             self.saveExtra(movieId, 'rating', rating)
 
-            overview = self.theMovieDb.gettextelement(movie, 'overview')
+            overview = self.theMovieDb.gettextelement(movieInfo, 'overview')
             if overview:
                 overview = self.theMovieDb.toSaveString(overview)
                 self.saveExtra(movieId, 'overview', overview)
 
-            images = movie.findall('images/image')
+            images = movieInfo.findall('images/image')
             for image in images:
                 if image.get('type') == 'poster' and image.get('size') == 'thumb':
                     imageFile = str(theMovieDbId) + '-' + image.get('type') + '-' + image.get('size') + '.jpg'
