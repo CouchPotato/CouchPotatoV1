@@ -5,7 +5,7 @@ import routes
 
 def url(*args, **kwargs):
     base = cherrypy.config.get('config').get('global', 'urlbase')
-    base = '/' + base if base else cherrypy.request.base
+    base = '/' + base if base else 'http://'+cherrypy.request.headers.get('host')
     if len(args) == 1 and len(kwargs) == 0 and type(args[0]) in (str, unicode):
         return cherrypy.url(args[0], base = base)
     else:
@@ -34,9 +34,9 @@ class BaseController:
         base = cherrypy.config.get('config').get('global', 'urlbase')
 
         if base:
-            self.globals['baseUrl'] = cherrypy.request.base + '/' + base + '/'
+            self.globals['baseUrl'] = 'http://'+cherrypy.request.headers.get('host') + '/' + base + '/'
         else:
-            self.globals['baseUrl'] = cherrypy.request.base + '/'
+            self.globals['baseUrl'] = 'http://'+cherrypy.request.headers.get('host') + '/'
 
         self.globals['lastCheck'] = self.cron.get('yarr').lastCheck()
         self.globals['nextCheck'] = self.cron.get('yarr').nextCheck()
