@@ -194,6 +194,15 @@
 				</div>
 			</fieldset>
 			<fieldset class="providers inlineLabels">
+				<div class="ctrlHolder">
+					<label for="">TheMovieDB Api-Key</label>
+					<input type="text" name="TheMovieDB.key" value="${config.get('TheMovieDB', 'key')}" class="textInput large"/>
+					<p class="formHint">
+						Only change if you want to use your own key.
+					</p>
+				</div>
+			</fieldset>
+			<fieldset class="providers inlineLabels">
 				<h3>NZBMatrix.com</h3>
 				<div class="ctrlHolder">
 					<label for="">Username</label>
@@ -225,16 +234,6 @@
 					<input type="text" name="NZBsorg.key" value="${config.get('NZBsorg', 'key')}" class="textInput large"/>
 					<p class="formHint">
 						Can be found <a href="http://nzbs.org/index.php?action=rss" target="_blank">here</a>, string after "&amp;h="
-					</p>
-				</div>
-			</fieldset>
-			<fieldset class="providers inlineLabels">
-				<h3>TheMovieDB</h3>
-				<div class="ctrlHolder">
-					<label for="">Apikey</label>
-					<input type="text" name="TheMovieDB.key" value="${config.get('TheMovieDB', 'key')}" class="textInput large"/>
-					<p class="formHint">
-						Only change if you want to use your own key.
 					</p>
 				</div>
 			</fieldset>

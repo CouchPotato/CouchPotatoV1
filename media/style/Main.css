@@ -561,7 +561,7 @@ form {
 	
 		#configForm fieldset {
 			width: 460px;
-			padding: 20px 0 20px 20px;
+			padding: 20px 0 0 20px;
 		}
 			
 		#configForm .buttonHolder {
@@ -574,6 +574,7 @@ form {
 		
 		#configForm .ctrlHolder:last-child {
 			border: none;
+			padding-bottom: 10px;
 		}
 		
 			#configForm .ctrlHolder label {
@@ -586,7 +587,7 @@ form {
 			}
 			
 			input.xsmall {
-				width: 5% !important;
+				width: 6% !important;
 				text-align: center !important;
 				margin-right: 4px !important;
 			}
@@ -610,6 +611,8 @@ form {
 			
 			#configForm .formHint {
 				text-align: left;
+				padding-top: 0;
+				line-height: 20px;
 			}
 			
 			#configForm span.or {
