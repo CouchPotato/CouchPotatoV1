@@ -22,7 +22,7 @@ def setup():
     mapper.connect('config', '/config/', controller = ConfigController())
     mapper.connect('config', '/config/:action/', controller = ConfigController(), action = 'index')
     
-    mapper.connect('userscript', '/mmImdbAdd.user.js', controller = ConfigController(), action = 'imdbScript')
+    mapper.connect('userscript', '/CouchPotato.user.js', controller = ConfigController(), action = 'userscript')
     
     mapper.connect('log', '/log/', controller = LogController())
     mapper.connect('log', '/log/:action/', controller = LogController(), action = 'index')

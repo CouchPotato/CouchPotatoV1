@@ -101,8 +101,8 @@ class ConfigController(BaseController):
         return redirect(cherrypy.request.headers.get('referer'))
 
     @cherrypy.expose
-    @cherrypy.tools.mako(filename = "config/imdbScript.js")
-    def imdbScript(self):
+    @cherrypy.tools.mako(filename = "config/userscript.js")
+    def userscript(self):
         '''
         imdb UserScript, for easy movie adding
         '''
