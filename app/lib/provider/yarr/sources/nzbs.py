@@ -31,7 +31,7 @@ class nzbs(nzbBase):
         return self.config.get('NZBsorg', option)
 
     def enabled(self):
-        return self.config.get('NZB', 'enabled') and self.conf('id') and self.conf('key') 
+        return self.config.get('NZB', 'enabled') and self.conf('id') and self.conf('key')
 
     def find(self, movie, quality, type):
 
@@ -50,7 +50,7 @@ class nzbs(nzbBase):
         url = "%s?%s" % (self.apiUrl, arguments)
 
         log.info('Searching: %s', url)
-        
+
         try:
             data = urllib2.urlopen(url, timeout = self.timeout)
         except (IOError, URLError):
@@ -92,7 +92,7 @@ class nzbs(nzbBase):
             except SyntaxError:
                 log.error('Failed to parse XML response from NZBs.org')
                 return False
-        
-        
+
+
     def getApiExt(self):
         return '&i=%s&h=%s' % (self.conf('id'), self.conf('key'))

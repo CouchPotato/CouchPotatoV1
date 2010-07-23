@@ -23,7 +23,7 @@ class Searcher():
         #nzbs
         s = nzbs(config)
         self.sources.append(s)
-        
+
         #tpb
         t = tpb(config)
         self.sources.append(t)

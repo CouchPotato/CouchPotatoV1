@@ -24,13 +24,13 @@ class LogController(BaseController):
         if data.get('nr') and int(data.get('nr')) > 0 and os.path.isfile(fileAbs + '.' + data.get('nr')):
             fileAbs += '.' + data.get('nr')
             filename += '.' + data.get('nr')
-        
+
         # Reverse
         f = open(fileAbs, 'r')
         lines = []
         for line in f.readlines():
             lines.insert(0, line)
-        
+
         log = ''
         for line in lines:
             log += line
@@ -40,6 +40,7 @@ class LogController(BaseController):
     def clear(self):
 
         for root, subfiles, filenames in os.walk(logdir):
+            log.debug(subfiles)
             for filename in filenames:
                 file = os.path.join(root, filename)
 

@@ -1,5 +1,5 @@
-import cherrypy
 from mako.lookup import TemplateLookup
+import cherrypy
 
 class MakoHandler(cherrypy.dispatch.LateParamPageHandler):
     """Callable which sets response.body."""
@@ -21,7 +21,7 @@ class MakoLoader(object):
 
     def __call__(self, filename, directories, module_directory = None,
                  collection_size = -1):
-        
+
         # Find the appropriate template lookup.
         key = (tuple(directories), module_directory)
         try:

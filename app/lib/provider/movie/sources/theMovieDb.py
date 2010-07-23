@@ -103,7 +103,7 @@ class theMovieDb(movieBase):
                                 year = r[0]['year']
 
                     results.append(self.fillFeedItem(id, name, imdb, year))
-                    
+
                     alternativeName = self.gettextelement(movie, "alternative_name")
                     if alternativeName:
                         alternativeName = self.toSaveString(alternativeName)
@@ -119,7 +119,7 @@ class theMovieDb(movieBase):
             except SyntaxError:
                 log.error('TheMovieDB - Failed to parse XML response from TheMovieDb')
                 return False
-            
+
     def getXML(self, id):
 
         if self.isDisabled():
@@ -127,7 +127,7 @@ class theMovieDb(movieBase):
 
         url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.conf('key'), id)
         data = urllib2.urlopen(url, timeout = self.timeout)
-        
+
         return data
 
     def saveImage(self, url, destination):
@@ -140,19 +140,19 @@ class theMovieDb(movieBase):
         # Return old
         imageFile = os.path.join(imageCache, destination)
         if not os.path.isfile(imageFile):
-        
+
             try:
                 data = urllib2.urlopen(url, timeout = 10)
-                
+
                 # Write file
                 with open(imageFile, 'wb') as f:
                     f.write(data.read())
-    
+
             except (IOError, URLError):
                 log.error('Failed get thumb %s.' % url)
                 return []
-        
-        return 'cache/images/'+destination
+
+        return 'cache/images/' + destination
 
     def fillFeedItem(self, id, name, imdb, year):
 

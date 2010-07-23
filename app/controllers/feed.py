@@ -30,14 +30,11 @@ class FeedController(BaseController):
         return self.render({'dvd': dvd, 'theater':theater, 'running': self.cron.get('eta').isRunning()})
 
     def renewEta(self, **data):
-        
+
         all = data.get('all')
-        
+
         for movie in Db.query(Movie).all():
             if not movie.eta or all:
                 self.searchers.get('etaQueue').put(movie)
-                
+
         return redirect(url(controller = 'feed', action = 'index'))
-                
-                
-        

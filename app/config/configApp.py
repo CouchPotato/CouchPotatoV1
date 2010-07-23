@@ -53,7 +53,7 @@ class configApp():
         self.setDefault('Renamer', 'folderNaming', '<namethe> (<year>)')
         self.setDefault('Renamer', 'fileNaming', '<thename><cd>.<ext>')
         self.setDefault('Renamer', 'cleanup', False)
-        
+
         self.addSection('Trailer')
         self.setDefault('Trailer', 'quality', False)
         self.setDefault('Trailer', 'name', 'movie-trailer')
@@ -64,13 +64,13 @@ class configApp():
         self.addSection('NZBMatrix')
         self.setDefault('NZBMatrix', 'username', '')
         self.setDefault('NZBMatrix', 'apikey', '')
-        
+
         self.addSection('NZB')
         self.setDefault('NZB', 'enabled', True)
         self.setDefault('NZB', 'retention', 300)
         self.setDefault('NZB', 'sendTo', 'Sabnzbd')
         self.setDefault('NZB', 'blackhole', '')
-        
+
         self.addSection('Torrents')
         self.setDefault('Torrents', 'enabled', False)
         self.setDefault('Torrents', 'wait', 24)

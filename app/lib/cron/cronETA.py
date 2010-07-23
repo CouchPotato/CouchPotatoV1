@@ -41,7 +41,7 @@ class etaCron(rss, cronBase):
         log.info('MovieETA thread shutting down.')
 
     def save(self, movie, result):
-        
+
         from app.config.db import MovieETA, Session as Db
         row = Db.query(MovieETA).filter_by(movieId = movie.id).first()
         if not row:
@@ -71,7 +71,7 @@ class etaCron(rss, cronBase):
         url = "%s?%s" % (self.searchUrl, arguments)
 
         log.debug('Search url: %s.', url)
-        
+
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()

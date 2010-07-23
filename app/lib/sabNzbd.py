@@ -9,7 +9,7 @@ class sabNzbd():
 
     def __init__(self, config):
         self.config = config
-        
+
     def conf(self, option):
         return self.config.get('Sabnzbd', option)
 

@@ -49,7 +49,7 @@ class nzbMatrix(nzbBase):
         url = "%s?%s" % (self.searchUrl, arguments)
 
         log.info('Searching: %s', url)
-        
+
         try:
             data = urllib2.urlopen(url, timeout = self.timeout)
         except (IOError, URLError):

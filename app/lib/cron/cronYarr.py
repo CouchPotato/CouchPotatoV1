@@ -56,7 +56,7 @@ class YarrCron(cronBase, rss):
             self.lastChecked = time.time() - self.intervalSec # + 10
         else:
             self.checkTheseMovies.append(movie)
-            
+
     def stopCheck(self):
         log.info('Forcing search to stop.')
         self.stop = True

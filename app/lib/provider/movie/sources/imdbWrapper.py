@@ -28,7 +28,7 @@ class imdbWrapper(movieBase):
 
     def toResults(self, r, limit = 8, one = False):
         results = []
-        
+
         if one:
             new = self.feedItem()
             new.imdb = 'tt' + r.movieID
@@ -43,7 +43,7 @@ class imdbWrapper(movieBase):
                 new.imdb = 'tt' + movie.movieID
                 new.name = movie['title']
                 new.year = movie['year']
-    
+
                 results.append(new)
                 nr += 1
                 if nr == limit:

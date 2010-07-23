@@ -58,7 +58,7 @@ class Updater(SimplePlugin):
 
             result = self.doUpdateUnix()
             self.bus.restart()
-            
+
             self.running = False
             return result
 
@@ -162,6 +162,7 @@ class Updater(SimplePlugin):
         name = name.replace('.tar.gz', '')
         extractedPath = os.path.join(self.updatePath, name)
         for root, subfiles, filenames in os.walk(extractedPath):
+            log.debug(subfiles)
             for filename in filenames:
                 fromfile = os.path.join(root, filename)
                 tofile = os.path.join(self.runPath, fromfile.replace(extractedPath + os.path.sep, ''))

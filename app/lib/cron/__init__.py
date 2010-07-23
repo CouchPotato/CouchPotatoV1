@@ -1,7 +1,7 @@
 from app.lib.cron.cronETA import startEtaCron, etaQueue
-from app.lib.cron.cronYarr import startYarrCron
 from app.lib.cron.cronRenamer import startRenamerCron
 from app.lib.cron.cronTrailer import startTrailerCron, trailerQueue
+from app.lib.cron.cronYarr import startYarrCron
 from app.lib.provider.movie.search import movieSearcher
 from app.lib.provider.yarr.search import Searcher
 from app.lib.sabNzbd import sabNzbd
