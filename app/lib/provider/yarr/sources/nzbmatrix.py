@@ -41,7 +41,7 @@ class nzbMatrix(nzbBase):
             return results
 
         arguments = urlencode({
-            'term': self.toSaveString(movie.name + ' ' + quality),
+            'term': self.toSearchString(movie.name + ' ' + quality),
             'subcat':self.getCatId(type),
             'username':self.conf('username'),
             'apikey':self.conf('apikey')
