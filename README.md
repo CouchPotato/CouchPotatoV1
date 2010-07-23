@@ -62,6 +62,7 @@ Ubuntu (init.d script):
 
 * Copy "initd" to /etc/init.d/couchpotato - > "sudo cp initd /etc/init.d/couchpotato"
 * If you want, change "RUN_AS=root" to another user.
+* If your CP installation isn't in "/usr/local/sbin/couchpotato/", make sure to change the path in the initd script.
 * Make executable "sudo chmod a+x /etc/init.d/couchpotato"
 * Start "sudo /etc/init.d/couchpotato start"
 
