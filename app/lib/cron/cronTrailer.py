@@ -5,7 +5,6 @@ from app.lib.provider.trailers.youtube import Youtube
 from urllib2 import URLError
 import Queue
 import cherrypy
-import fnmatch
 import hashlib
 import logging
 import os

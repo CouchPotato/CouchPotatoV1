@@ -108,13 +108,26 @@ class movieSearcher():
                 f.write(xml.read())
 
     def getExtraInfo(self, movie, overwrite = False):
+
+        # Try and update if no tmdbId
+        if not movie.movieDb:
+            result = self.theMovieDb.findByImdbId(movie.imdb)
+            if result:
+                movie.movieDb = result.id
+                Db.flush()
+
+        if not movie.movieDb:
+            log.error('Search failed for "%s", no TheMovieDB id.' % movie.name)
+            return
+
         movieId = movie.id
         theMovieDbId = movie.movieDb
 
         self.cacheExtra(theMovieDbId, overwrite)
         xmlFile = os.path.join(cherrypy.config.get('cachePath'), 'xml', str(theMovieDbId) + '.xml')
         if os.path.isfile(xmlFile):
-            log.debug('Getting extra movie info for %s.' % movie.name)
+            if overwrite:
+                log.info('Getting extra movie info for %s.' % movie.name)
 
             handle = open(xmlFile, 'r')
             movieInfo = self.theMovieDb.getItems(handle, 'movies/movie')
