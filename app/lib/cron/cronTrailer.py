@@ -89,9 +89,6 @@ class TrailerCron(rss, cronBase):
             nfo = None
             year = None
 
-            if self.abort:
-                break
-
             if movieFiles.get('nfo'):
                 nfoFile = os.path.join(movieFiles.get('directory'), movieFiles.get('nfo'))
                 handle = open(nfoFile, 'r')
@@ -119,7 +116,8 @@ class TrailerCron(rss, cronBase):
             else:
                 log.info('No match found for: %s' % movieFiles.get('filename'))
 
-            time.sleep(1)
+            if not self.debug:
+                time.sleep(1)
 
     def findYear(self, text):
         matches = re.search('(?P<year>[0-9]{4})', text)

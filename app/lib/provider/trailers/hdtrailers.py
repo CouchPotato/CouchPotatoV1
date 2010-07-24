@@ -45,13 +45,13 @@ class HdTrailers(rss):
 
     def findByProvider(self, data, provider):
 
+        results = {'480p':[], '720p':[], '1080p':[]}
         try:
             tables = SoupStrainer('table')
             html = BeautifulSoup(data, parseOnlyThese = tables)
             resultTable = html.find('table', attrs = {'class':'bottomTable'})
 
 
-            results = {'480p':[], '720p':[], '1080p':[]}
             for tr in resultTable.findAll('tr'):
                 trtext = str(tr).lower()
                 if 'clips' in trtext:
@@ -70,9 +70,15 @@ class HdTrailers(rss):
         except AttributeError:
             log.debug('No trailers found in provider %s.' % provider)
 
-        return []
+        return results
 
     def movieUrlName(self, string):
-        safe_chars = letters + digits + ' .'
+        safe_chars = letters + digits + ' '
         r = ''.join([char if char in safe_chars else ' ' for char in string])
-        return re.sub('\s+' , '-', r).replace('.', '-').replace('--', '-').lower()
+        name = re.sub('\s+' , '-', r).lower()
+        
+        try:
+            int(name)
+            return '-'+name
+        except:
+            return name
