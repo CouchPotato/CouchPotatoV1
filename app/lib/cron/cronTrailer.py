@@ -130,11 +130,12 @@ class TrailerCron(rss, cronBase):
 
     def search(self, movie, destination):
 
-        if self.config.get('Trailer', 'name') != 'movie-trailer':
+        if self.config.get('Trailer', 'name') == 'movie-trailer':
             trailerFinal = 'movie-trailer'
         else:
             trailerFinal = os.path.splitext(destination.get('filename'))[0]
-            trailerFinal = trailerFinal[:len(trailerFinal) - 1] + '-trailer'
+            trailerFinal = trailerFinal[:len(trailerFinal) - 1] if trailerFinal[-1] == '.' else trailerFinal
+            trailerFinal += '-trailer'
 
         trailerFinal = os.path.join(destination.get('directory'), trailerFinal)
 

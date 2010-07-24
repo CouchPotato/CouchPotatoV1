@@ -201,11 +201,9 @@
 							searchForTrailers.addEvent('click', function(e){
 								(e).stop()
 								new Request({
-									'url': searchForTrailers.get('href'),
-									'onComplete': function(){
-										searchForTrailers.set('text', 'Search started. Check log for updates.')
-									}
+									'url': searchForTrailers.get('href')
 								}).send()
+								searchForTrailers.set('text', 'Search started. Check log for updates.')
 							})
 						})
 					</script>
