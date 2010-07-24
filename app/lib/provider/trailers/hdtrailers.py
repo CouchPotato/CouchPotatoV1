@@ -67,6 +67,6 @@ class HdTrailers(rss):
         return []
 
     def movieUrlName(self, string):
-        safe_chars = letters + digits + ' '
+        safe_chars = letters + digits + ' .'
         r = ''.join([char if char in safe_chars else ' ' for char in string])
-        return re.sub('\s+' , '-', r).lower()
+        return re.sub('\s+' , '-', r).replace('.', '-').replace('--', '-').lower()

@@ -74,7 +74,7 @@ class TrailerCron(rss, cronBase):
                     for checkfile in filenames:
                         if '-trailer' in checkfile.lower():
                             hasTrailer = True
-                        if '.nfo' in checkfile.lower():
+                        if '.nfo' in checkfile.lower() and checkfile[:2] != '._':
                             nfo = checkfile
 
                     if not hasTrailer:
@@ -129,6 +129,9 @@ class TrailerCron(rss, cronBase):
         return None
 
     def search(self, movie, destination):
+        
+        if self.abort:
+            return
 
         if self.config.get('Trailer', 'name') == 'movie-trailer':
             trailerFinal = 'movie-trailer'
@@ -153,7 +156,6 @@ class TrailerCron(rss, cronBase):
                                 return True
 
         log.info('No trailer found for %s.' % movie.name)
-        time.sleep(2)
 
     def download(self, url):
         try:
