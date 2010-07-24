@@ -44,9 +44,6 @@ class CronJobs(plugins.SimplePlugin):
 
         config = self.config
 
-        #log all errors/tracebacks to logfile
-        sys.stderr = LogFile('stderr')
-
         log.info("Starting Cronjobs.")
         self.config = config
 
@@ -73,6 +70,9 @@ class CronJobs(plugins.SimplePlugin):
         #renamer cron
         renamerCronJob = startRenamerCron(config, self.searchers, self.debug)
         self.threads['renamer'] = renamerCronJob
+
+        #log all errors/tracebacks to logfile
+        sys.stderr = LogFile('stderr')
 
     def stop(self):
         log.info("Stopping Cronjobs.")
