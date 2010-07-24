@@ -1,19 +1,22 @@
 <div id="feed">
 	<div class="running">
 	% if not running:
-		<a href="${url(controller='feed', action='renewEta')}">Search for release dates.</a>
+		<a href="${url(controller='feed', action='renewEta')}"><img src="media/images/reload.png" alt="refresh" />Update release dates.</a>
 	% else:
-		<span>Searching for new release dates.</span>
+		<span><img src="media/images/spinner.gif" alt="refresh" style="width:12px" /> Searching for new release dates.</span>
 	% endif
 	</div>
 	% if len(dvd) > 0:
-		<h2>Dvd releases</h2>
-		<%include file="_list.html" args="etas=dvd"/>
+		<h1>Dvd releases</h1>
+		<%include file="_list.html" args="etas=dvd,type='dvd'"/>
 	% endif
-	
 	% if len(theater) > 0:
-		<h2>Theater releases</h2>
-		<%include file="_list.html" args="etas=theater"/>
+		<h1>Theater releases</h1>
+		<%include file="_list.html" args="etas=theater,type='theater'"/>
+	% endif
+	% if len(dvdNow) > 0:
+		<h1>Released</h1>
+		<%include file="_list.html" args="etas=dvdNow,type='dvd'"/>
 	% endif
 </div>
 <%inherit file="/base.html" />

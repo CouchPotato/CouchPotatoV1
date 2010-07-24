@@ -34,3 +34,75 @@
 	};
 
 })();
+
+var ScrollSpy = new Class( {
+	Implements : [ Options, Events ],
+	options : {
+		min : 0,
+		mode : "vertical",
+		max : 0,
+		container : window,
+		onEnter : $empty,
+		onLeave : $empty,
+		onTick : $empty
+	},
+	initialize : function(b) {
+		this.setOptions(b);
+		this.container = $(this.options.container);
+		this.enters = this.leaves = 0;
+		this.max = this.options.max;
+		if (this.max == 0) {
+			var c = this.container.getScrollSize();
+			this.max = this.options.mode == "vertical" ? c.y : c.x;
+		}
+		this.addListener();
+	},
+	addListener : function() {
+		this.inside = false;
+		this.container.addEvent("scroll", function() {
+			var b = this.container.getScroll();
+			var c = this.options.mode == "vertical" ? b.y : b.x;
+			if (c >= this.options.min && c <= this.max) {
+				if (!this.inside) {
+					this.inside = true;
+					this.enters++;
+					this.fireEvent("enter", [ b, this.enters ]);
+				}
+				this.fireEvent("tick", [ b, this.inside, this.enters,
+						this.leaves ]);
+			} else {
+				if (this.inside) {
+					this.inside = false;
+					this.leaves++;
+					this.fireEvent("leave", [ b, this.leaves ]);
+				}
+			}
+		}.bind(this));
+	}
+});
+
+window.addEvent('domready', function() {
+	$$('.disabled').setStyle('opacity', 0.1)
+
+//	var topbar = $('header').set('tween', {
+//		duration : 200
+//	});
+//	var topbarME = function() {
+//		topbar.tween('opacity', 1);
+//	}, topbarML = function() {
+//		topbar.tween('opacity', 0.5);
+//	}, ws = window.getScrollSize().y;
+//	var ss = new ScrollSpy( {
+//		min : 30,
+//		max : ws - 30,
+//		onLeave : function(pos) {
+//			topbar.tween('opacity', 1).removeEvents('mouseenter', topbarME)
+//				.removeEvents('mouseleave', topbarML);
+//		},
+//		onEnter : function() {
+//			topbar.tween('opacity', 0.5).addEvent('mouseenter', topbarME)
+//				.addEvent('mouseleave', topbarML);
+//		}
+//	});
+
+})

@@ -143,14 +143,27 @@ class movieSearcher():
             if overview:
                 overview = self.theMovieDb.toSaveString(overview)
                 self.saveExtra(movieId, 'overview', overview)
-
+            
+            hasPosterThumb = False
+            
             images = movieInfo.findall('images/image')
+            hasPosterCover = False
+            hasPosterMid = False
+            hasPosterThumb = False
             for image in images:
-                if image.get('type') == 'poster' and image.get('size') == 'thumb':
-                    imageFile = str(theMovieDbId) + '-' + image.get('type') + '-' + image.get('size') + '.jpg'
+                imageFile = str(theMovieDbId) + '-' + image.get('type') + '-' + image.get('size') + '.jpg'
+                if image.get('type') == 'poster' and image.get('size') == 'cover' and not hasPosterCover:
+                    poster = self.theMovieDb.saveImage(image.get('url'), imageFile)
+                    self.saveExtra(movieId, 'poster_cover', poster)
+                    hasPosterCover = True
+                if image.get('type') == 'poster' and image.get('size') == 'mid' and not hasPosterMid:
+                    poster = self.theMovieDb.saveImage(image.get('url'), imageFile)
+                    self.saveExtra(movieId, 'poster_mid', poster)
+                    hasPosterMid = True
+                if image.get('type') == 'poster' and image.get('size') == 'thumb' and not hasPosterThumb:
                     poster = self.theMovieDb.saveImage(image.get('url'), imageFile)
                     self.saveExtra(movieId, 'poster_thumb', poster)
-                    break
+                    hasPosterThumb = True
 
             handle.close()
 

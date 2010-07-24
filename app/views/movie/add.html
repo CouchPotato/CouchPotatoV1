@@ -25,8 +25,7 @@
 		new OverText(newMovieName);
 		
 		var req = function(){
-			var s = new Spinner(form)
-				s.show();
+			var s = new Spinner(form).show();
 			new Request.HTML({
 				'url': form.get('action'),
 				'data': form,

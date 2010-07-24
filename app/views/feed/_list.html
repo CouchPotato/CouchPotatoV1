@@ -1,24 +1,49 @@
 <% from time import gmtime, strftime %>
-<%page args="etas"/>
-<div id="movies">
-	<div class="header">
-		<span class="title">Title</span>
-		<span class="release">Theater</span>
-		<span class="release">DVD</span>
-		<span class="bluray">HD</span>
-		<span class="info">Info</span>
-	</div>
+<%page args="etas, type"/>
+
+<div id="${type}Eta" class="eta">
+	<% now = gmtime() %>
 	% for eta in etas:
 	<% movie = eta.Movie %>
 	% if movie.status == u'want' or movie.status == u'waiting':
+	<% 
+		release = eta.theater if type == 'theater' else eta.dvd
+		gmRelease = gmtime(release)
+		
+		if gmRelease.tm_year < now.tm_year:
+			releaseString = "%Y, %d %B"
+		else:
+			releaseString = "%a, %d %B"
+			
+			
+		extra = {}
+		for e in movie.extra:
+			extra[e.name] = e.value
+		
+		if not extra.get('poster_cover'):
+			searchers.get('movie').getExtraInfo(movie)
+	%>
 	<div class="item ${movie.status}" data-id="${movie.id}">
-		<span class="title"><h2>${movie.name}</h2></span>
-		<span class="release">${strftime("%a, %B %d", gmtime(eta.theater)) if eta.theater > 0 else 'Unknown'}</span>
-		<span class="release">${strftime("%a, %B %d", gmtime(eta.dvd)) if eta.dvd > 0 else 'Unknown'}</span>
-		<span class="bluray">${'Yes' if eta.bluray else 'Nope'}</span>
-		<span class="info">
-			<span class="imdb"><a href="http://www.imdb.com/title/${movie.imdb}/" target="_blank"><img src="media/images/imdb.png" alt="IMDB" /></a></span>
-			<span class="videoeta"><a href="http://videoeta.com/movie/${eta.videoEtaId}" target="_blank"><img src="media/images/videoeta.png" alt="VideoETA" /></a></span>
+		<span class="thumbnail">
+			% if extra.get('poster_thumb'):
+			<span class="img"><img src="${extra.get('poster_cover')}" alt="thumbnail" /></span>
+			% endif
+			<span class="info">
+				<span class="bluray ${'disabled' if not eta.bluray else ''}"><img src="media/images/hd.png" /></span>
+				<span class="imdb"><a href="http://www.imdb.com/title/${movie.imdb}/" target="_blank"><img src="media/images/imdb.png" alt="IMDB" /></a></span>
+				<span class="moviedb ${'disabled' if not movie.movieDb else ''}"><a href="http://www.themoviedb.org/movie/${movie.movieDb}" target="_blank"><img src="media/images/moviedb.png" alt="TheMovieDB" /></a></span>
+				<span class="videoeta"><a href="http://videoeta.com/movie/${eta.videoEtaId}" target="_blank"><img src="media/images/videoeta.png" alt="VideoETA" /></a></span>
+			</span>
+		</span>
+		<span class="extra">
+			<h2>${movie.name}</h2>
+			<span class="release">${strftime(releaseString, gmRelease) if release > 0 else 'Unknown'}</span>
+			% if extra.get('overview'):
+			<span class="overview">${extra.get('overview')}</span>
+			% endif
+			% if extra.get('rating') and extra.get('rating') != '0.0':
+			<span class="rating">Rating: ${extra.get('rating')}</span>
+			% endif
 		</span>
 	</div>
 	% endif
