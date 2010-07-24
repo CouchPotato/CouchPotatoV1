@@ -50,11 +50,11 @@ class TrailerCron(rss, cronBase):
         log.info('TrailerCron shutting down.')
 
     def searchExisting(self):
-        
-        if not self.searchingExisting < time.time()-300:
+
+        if not self.searchingExisting < time.time() - 300:
             log.info('Just searched for trailers. Can do a search every 5 minutes.')
             return
-        
+
         if not self.config.get('Trailer', 'quality') or not self.config.get('Renamer', 'destination'):
             log.info('No trailer quality set or no movie folder found.')
             return
@@ -88,7 +88,7 @@ class TrailerCron(rss, cronBase):
             movie = None
             nfo = None
             year = None
-            
+
             if self.abort:
                 break
 
@@ -119,7 +119,7 @@ class TrailerCron(rss, cronBase):
             else:
                 log.info('No match found for: %s' % movieFiles.get('filename'))
 
-            time.sleep(2)
+            time.sleep(1)
 
     def findYear(self, text):
         matches = re.search('(?P<year>[0-9]{4})', text)
@@ -129,7 +129,7 @@ class TrailerCron(rss, cronBase):
         return None
 
     def search(self, movie, destination):
-        
+
         if self.abort:
             return
 
@@ -151,7 +151,6 @@ class TrailerCron(rss, cronBase):
                         for result in items:
                             trailer = self.download(result)
                             if trailer:
-                                log.info('Trailer found for %s.' % movie.name)
                                 shutil.move(trailer, trailerFinal + os.path.splitext(trailer)[1])
                                 return True
 
