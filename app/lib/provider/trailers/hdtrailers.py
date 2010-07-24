@@ -12,7 +12,7 @@ class HdTrailers(rss):
 
     apiUrl = 'http://www.hd-trailers.net/movie/%s/'
     backupUrl = 'http://www.hd-trailers.net/AllTrailers/'
-    providers = ['apple', 'yahoo', 'moviefone']
+    providers = ['apple.ico', 'yahoo.ico', 'moviefone.ico', 'myspace.ico', 'favicon.ico']
 
     def __init__(self, config):
         self.config = config
@@ -31,12 +31,17 @@ class HdTrailers(rss):
             log.error('Failed to open %s.' % url)
             return []
 
+        p480 = []
+        p720 = []
+        p1080 = []
         for provider in self.providers:
             results = self.findByProvider(data, provider)
-            if results:
-                return results
 
-        return results
+            p480.extend(results.get('480p'))
+            p720.extend(results.get('720p'))
+            p1080.extend(results.get('1080p'))
+
+        return {'480p':p480, '720p':p720, '1080p':p1080}
 
     def findByProvider(self, data, provider):
 
@@ -44,6 +49,7 @@ class HdTrailers(rss):
             tables = SoupStrainer('table')
             html = BeautifulSoup(data, parseOnlyThese = tables)
             resultTable = html.find('table', attrs = {'class':'bottomTable'})
+
 
             results = {'480p':[], '720p':[], '1080p':[]}
             for tr in resultTable.findAll('tr'):
@@ -55,7 +61,7 @@ class HdTrailers(rss):
                     resolutions = tr.findAll('td', attrs = {'class':'bottomTableResolution'})
                     #sizes = tr.findNext('tr').findAll('td', attrs = {'class':'bottomTableFileSize'})
                     for res in resolutions:
-                        results[str(res.a.contents[0])].append(res.a['href'])
+                        results[str(res.a.contents[0])].insert(0, res.a['href'])
                         #int(sizes[nr].contents[0].replace('MB', ''))
                         nr += 1
 

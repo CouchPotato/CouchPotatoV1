@@ -147,7 +147,6 @@ class TrailerCron(rss, cronBase):
             if results:
                 for quality, items in results.iteritems():
                     if quality == self.config.get('Trailer', 'quality'):
-                        items.reverse()
                         for result in items:
                             trailer = self.download(result)
                             if trailer:
