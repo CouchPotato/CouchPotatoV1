@@ -17,7 +17,7 @@ class imdbWrapper(movieBase):
     def conf(self, option):
         return self.config.get('IMDB', option)
 
-    def find(self, q, limit = 8):
+    def find(self, q, limit = 8, alternative = True):
         ''' Find movie by name '''
 
         log.info('IMDB - Searching for movie: %s', q)

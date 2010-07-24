@@ -192,6 +192,27 @@
 						<option value="moviename-trailer"${' selected="selected"' if 'moviename-trailer' == config.get('Trailer', 'name') else ''}>&lt;filename&gt;-trailer.ext</option>
 					</select>
 				</div>
+				<div class="ctrlHolder">
+					<label for=""> </label>
+					<a id="searchForTrailers" href="${url(controller='cron', action='searchForTrailers')}">Search for trailers for existing movies.</a>
+					<script type="text/javascript">
+						window.addEvent('domready', function(){
+							var searchForTrailers = $('searchForTrailers')
+							searchForTrailers.addEvent('click', function(e){
+								(e).stop()
+								new Request({
+									'url': searchForTrailers.get('href'),
+									'onComplete': function(){
+										searchForTrailers.set('text', 'Search started. Check log for updates.')
+									}
+								}).send()
+							})
+						})
+					</script>
+					<p class="formHint">
+						Searches the destination directory filled in on the "Renaming" tab. You don't have to have renaming enabled for this.
+					</p>
+				</div>
 			</fieldset>
 			<fieldset class="providers inlineLabels">
 				<div class="ctrlHolder">

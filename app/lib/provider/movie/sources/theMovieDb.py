@@ -21,21 +21,21 @@ class theMovieDb(movieBase):
     def conf(self, option):
         return self.config.get('TheMovieDB', option)
 
-    def find(self, q, limit = 8):
+    def find(self, q, limit = 8, alternative = True):
         ''' Find movie by name '''
 
         if self.isDisabled():
             return False
 
-        log.info('TheMovieDB - Searching for movie: %s', q)
+        log.debug('TheMovieDB - Searching for movie: %s', q)
 
         url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.conf('key'), quote_plus(self.toSearchString(q)))
 
-        log.info('Search url: %s', url)
+        log.info('Searching: %s', url)
 
         data = urllib2.urlopen(url, timeout = self.timeout)
 
-        return self.parseXML(data, limit)
+        return self.parseXML(data, limit, alternative = alternative)
 
     def findById(self, id):
         ''' Find movie by TheMovieDB ID '''
@@ -61,16 +61,16 @@ class theMovieDb(movieBase):
             log.error('Failed to open %s.' % url)
             return []
 
-        results = self.parseXML(data, limit = 8)
+        results = self.parseXML(data, limit = 8, alternative = False)
 
         if results:
             return results.pop(0)
         else:
             return []
 
-    def parseXML(self, data, limit):
+    def parseXML(self, data, limit, alternative = True):
         if data:
-            log.info('TheMovieDB - Parsing RSS')
+            log.debug('TheMovieDB - Parsing RSS')
             try:
                 xml = self.getItems(data, 'movies/movie')
 
@@ -105,7 +105,7 @@ class theMovieDb(movieBase):
                     results.append(self.fillFeedItem(id, name, imdb, year))
 
                     alternativeName = self.gettextelement(movie, "alternative_name")
-                    if alternativeName:
+                    if alternativeName and alternative:
                         alternativeName = self.toSaveString(alternativeName)
                         if alternativeName.lower() != name.lower() and alternativeName.lower() != 'none' and alternativeName != None:
                             results.append(self.fillFeedItem(id, alternativeName, imdb, year))

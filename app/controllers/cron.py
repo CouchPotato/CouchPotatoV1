@@ -36,4 +36,9 @@ class CronController(BaseController):
         self.searchers.get('movie').getExtraInfo(movie, overwrite = True)
 
         #return redirect(cherrypy.request.headers.get('referer'))
+        
+    @cherrypy.expose
+    def searchForTrailers(self):
+        
+        self.cron.get('trailer').searchExisting()
 

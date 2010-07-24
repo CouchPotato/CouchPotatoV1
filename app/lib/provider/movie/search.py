@@ -31,13 +31,13 @@ class movieSearcher():
             if not movie.extra:
                 self.getExtraInfo(movie)
 
-    def find(self, q):
+    def find(self, q, limit = 8, alternative = True):
         ''' Find movie by name '''
 
         q = unicode(q).lower()
 
         for source in self.sources:
-            result = source.find(q, limit = 8)
+            result = source.find(q, limit = limit, alternative = alternative)
             if result:
                 results = []
                 for r in result:
