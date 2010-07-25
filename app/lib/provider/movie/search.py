@@ -143,9 +143,9 @@ class movieSearcher():
             if overview:
                 overview = self.theMovieDb.toSaveString(overview)
                 self.saveExtra(movieId, 'overview', overview)
-            
+
             hasPosterThumb = False
-            
+
             images = movieInfo.findall('images/image')
             hasPosterCover = False
             hasPosterMid = False
@@ -170,14 +170,11 @@ class movieSearcher():
     def saveExtra(self, id, name, value):
 
         exists = Db.query(MovieExtra).filter(and_(MovieExtra.movieId == id, MovieExtra.name == name)).first()
-        if exists:
-            new = exists
-        else:
-            new = MovieExtra()
-            Db.add(new)
+        if not exists:
+            exists = MovieExtra()
+            Db.add(exists)
 
-        new.movieId = id
-        new.name = name
-        new.value = value
+        exists.movieId = id
+        exists.name = name
+        exists.value = value
         Db.flush()
-

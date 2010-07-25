@@ -128,7 +128,7 @@ class MovieExtra(object):
     movieId = None
     name = None
     def __repr__(self):
-        return "<movieextra: %s" % self.name
+        return "<movieextra: %s, %s" % (self.name, self.value)
 
 class RenameHistory(object):
     def __repr__(self):
@@ -157,7 +157,7 @@ movieMapper = mapper(Movie, movieTable, properties = {
                 movieQueueTable.c.active == True), order_by = movieQueueTable.c.order, lazy = 'joined'),
    'template': relation(QualityTemplate, backref = 'Movie'),
    'eta': relation(MovieETA, backref = 'Movie', uselist = False, lazy = 'joined', viewonly = True),
-   'extra': relation(MovieExtra, backref = 'Movie', viewonly = True)
+   'extra': relation(MovieExtra, backref = 'Movie', lazy = 'joined', viewonly = True)
 })
 movieQueueMapper = mapper(MovieQueue, movieQueueTable)
 movieEtaMapper = mapper(MovieETA, movieEtaTable)

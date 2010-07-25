@@ -6,8 +6,6 @@ import logging
 
 log = logging.getLogger(__name__)
 
-qMovie = Db.query(Movie)
-
 class MovieController(BaseController):
 
     @cherrypy.expose
@@ -17,6 +15,7 @@ class MovieController(BaseController):
         Show all wanted, snatched, downloaded movies
         '''
 
+        qMovie = Db.query(Movie)
         movies = qMovie.order_by(Movie.name).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
         snatched = qMovie.order_by(desc(Movie.dateChanged), Movie.name).filter_by(status = u'snatched').all()
         downloaded = qMovie.order_by(desc(Movie.dateChanged), Movie.name).filter_by(status = u'downloaded').all()
@@ -30,7 +29,7 @@ class MovieController(BaseController):
         Mark movie as deleted
         '''
 
-        movie = qMovie.filter_by(id = id).one()
+        movie = Db.query(Movie).filter_by(id = id).one()
 
         #set status
         movie.status = u'deleted'
@@ -45,7 +44,7 @@ class MovieController(BaseController):
         Mark movie as downloaded
         '''
 
-        movie = qMovie.filter_by(id = id).one()
+        movie = Db.query(Movie).filter_by(id = id).one()
 
         #set status
         movie.status = u'downloaded'
@@ -60,7 +59,7 @@ class MovieController(BaseController):
         Re-add movie and force search
         '''
 
-        movie = qMovie.filter_by(id = id).one()
+        movie = Db.query(Movie).filter_by(id = id).one()
 
         for x in movie.queue:
             x.completed = False
@@ -124,7 +123,7 @@ class MovieController(BaseController):
         id = data.get('id')
         success = False
 
-        result = qMovie.filter_by(imdb = id, status = u'want').first()
+        result = Db.query(Movie).filter_by(imdb = id, status = u'want').first()
         if result:
             success = True
 
@@ -141,9 +140,9 @@ class MovieController(BaseController):
         log.info('Adding movie to database: %s', movie.name)
 
         if movie.id:
-            exists = qMovie.filter_by(movieDb = movie.id).first()
+            exists = Db.query(Movie).filter_by(movieDb = movie.id).first()
         else:
-            exists = qMovie.filter_by(imdb = movie.imdb).first()
+            exists = Db.query(Movie).filter_by(imdb = movie.imdb).first()
 
         if exists:
             log.info('Movie already exists, do update.')

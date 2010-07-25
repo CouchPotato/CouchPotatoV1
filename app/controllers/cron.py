@@ -4,7 +4,6 @@ import cherrypy
 import logging
 
 log = logging.getLogger(__name__)
-qMovie = Db.query(Movie)
 
 class CronController(BaseController):
     """ Do stuff to the cron. (sounds kinky!) """
@@ -31,14 +30,12 @@ class CronController(BaseController):
         Force the cron for single movie
         '''
 
-        movie = qMovie.filter_by(id = id).one()
+        movie = Db.query(Movie).filter_by(id = id).one()
         self.cron.get('yarr').forceCheck(movie)
         self.searchers.get('movie').getExtraInfo(movie, overwrite = True)
 
-        #return redirect(cherrypy.request.headers.get('referer'))
-        
     @cherrypy.expose
     def searchForTrailers(self):
-        
+
         self.cron.get('trailer').searchExisting()
 
