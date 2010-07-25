@@ -1,5 +1,5 @@
 from app.controllers import BaseController, url, redirect
-from string import ascii_letters, digits
+from markupsafe import escape
 import cherrypy
 import logging
 import os
@@ -35,7 +35,7 @@ class LogController(BaseController):
         for line in lines:
             log += line
 
-        return self.render({'file':filename, 'log':self.toSafeString(log)})
+        return self.render({'file':filename, 'log':escape(log)})
 
     def clear(self):
 
@@ -51,8 +51,3 @@ class LogController(BaseController):
                     os.remove(file)
 
         return redirect(url(controller = 'log', action = 'index'))
-
-
-    def toSafeString(self, string):
-        safe_chars = ascii_letters + digits + '_ </\>[]-&?=.,;:+!@#$%^&*()\'"{}\n\t'
-        return ''.join([char if char in safe_chars else '' for char in string])
