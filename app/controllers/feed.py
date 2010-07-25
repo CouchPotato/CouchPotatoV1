@@ -16,19 +16,26 @@ class FeedController(BaseController):
 
         # Releases
         theater = Db.query(MovieETA) \
+            .join(MovieETA.Movie)  \
             .filter(MovieETA.theater <= time.time() + 1814400) \
             .filter(MovieETA.theater >= time.time()) \
+            .filter(or_(Movie.status == 'want', Movie.status == 'waiting')) \
             .order_by(MovieETA.theater) \
             .all()
+
         dvd = Db.query(MovieETA) \
+            .join(MovieETA.Movie)  \
             .filter(MovieETA.dvd <= time.time() + 3628800) \
             .filter(MovieETA.dvd >= time.time()) \
+            .filter(or_(Movie.status == 'want', Movie.status == 'waiting')) \
             .order_by(MovieETA.dvd) \
             .all()
 
         dvdNow = Db.query(MovieETA) \
+            .join(MovieETA.Movie)  \
             .filter(MovieETA.dvd <= time.time()) \
             .filter(MovieETA.dvd > 0) \
+            .filter(or_(Movie.status == 'want', Movie.status == 'waiting')) \
             .order_by(MovieETA.dvd) \
             .all()
 
