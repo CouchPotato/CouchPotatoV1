@@ -53,11 +53,6 @@ class CronJobs(plugins.SimplePlugin):
         self.searchers['yarr'] = yarrSearch
         self.searchers['movie'] = movieSearch
 
-        #nzb cronjob
-        yarrCronJob = startYarrCron(config, self.debug, yarrSearch)
-        yarrCronJob.sabNzbd = sabNzbd(config)
-        self.threads['yarr'] = yarrCronJob
-
         #trailer cron
         trailerCronJob = startTrailerCron(config, self.debug)
         self.threads['trailer'] = trailerCronJob
@@ -70,6 +65,11 @@ class CronJobs(plugins.SimplePlugin):
         #renamer cron
         renamerCronJob = startRenamerCron(config, self.searchers, self.debug)
         self.threads['renamer'] = renamerCronJob
+
+        #nzb cronjob
+        yarrCronJob = startYarrCron(config, self.debug, yarrSearch)
+        yarrCronJob.sabNzbd = sabNzbd(config)
+        self.threads['yarr'] = yarrCronJob
 
         #log all errors/tracebacks to logfile
         sys.stderr = LogFile('stderr')

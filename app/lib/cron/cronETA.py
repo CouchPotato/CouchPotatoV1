@@ -37,7 +37,6 @@ class etaCron(rss, cronBase):
             except Queue.Empty:
                 pass
 
-
         log.info('MovieETA thread shutting down.')
 
     def save(self, movie, result):
@@ -47,19 +46,19 @@ class etaCron(rss, cronBase):
         if not row:
             row = MovieETA()
             Db.add(row)
-            Db.flush()
 
         row.movieId = movie.id
-        row.videoEtaId = result['id']
-        row.theater = result['theater']
-        row.dvd = result['dvd']
-        row.bluray = result['bluray']
+        row.videoEtaId = result.get('id')
+        row.theater = result.get('theater')
+        row.dvd = result.get('dvd')
+        row.bluray = result.get('bluray')
+        row.lastCheck = int(time.time())
         Db.flush()
 
     def search(self, movie):
 
         # Already found it, just update the stuff
-        if movie.eta and movie.eta.videoEtaId:
+        if movie.eta and movie.eta.videoEtaId > 0:
             log.debug('Updating VideoETA for %s.' % movie.name)
             return self.getDetails(movie.eta.videoEtaId)
 
@@ -77,7 +76,7 @@ class etaCron(rss, cronBase):
             data = urllib2.urlopen(url, timeout = self.timeout).read()
         except (IOError, URLError):
             log.error('Failed to open %s.' % url)
-            return []
+            return False
 
         results = self.getItems(data)
 
@@ -124,17 +123,15 @@ class etaCron(rss, cronBase):
             bluray = soup.findAll('b', text = re.compile('Blu-ray'))
         except AttributeError:
             log.info('No Bluray release info found.')
-
-        if dvdDate or theaterDate or bluray:
-            dates = {
-                'id': id,
-                'dvd': dvdDate,
-                'theater': theaterDate,
-                'bluray': len(bluray) > 0
-            }
-            log.debug('Found: %s', dates)
-            return dates
-        log.info('No release info found.')
+        
+        dates = {
+            'id': id,
+            'dvd': dvdDate,
+            'theater': theaterDate,
+            'bluray': len(bluray) > 0
+        }
+        log.debug('Found: %s', dates)
+        return dates
 
     def parseDate(self, text, format = "%B %d, %Y"):
 

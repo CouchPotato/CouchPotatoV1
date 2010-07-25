@@ -1,8 +1,6 @@
 CouchPotato
 =====
 
-*This is my first Python app, so it WILL contain lots of bugs and crappy code.*
-
 CouchPotato (CP) is an automatic NZB and torrent downloader. You can keep a "movies I want"-list and it will search for NZBs/torrents of these movies every X hours.
 Once a movie is found, it will send it to SABnzbd or download the torrent to a specified directory.
 
@@ -14,6 +12,7 @@ Features:
 * Movie sorting & renaming
 * Trailer downloading
 * Quality options to download best available. Overwrite if better is found.
+* A "Coming Soon" page with soon to be released DVD and Theater info.
 
 
 ![preview thumb](http://github.com/RuudBurger/CouchPotato/raw/master/media/images/screenshot.png)
@@ -23,6 +22,13 @@ UserScript:
 ![imdb](http://github.com/RuudBurger/CouchPotato/raw/master/media/images/userscriptPreview.png)
 
 If you find a bug or need a feature that you think is awesome! Let me know!
+
+## Donate
+
+[![PayPal - Donate](https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=GFWSRM6L43T2S&lc=NL&item_name=A%20more%20awesome%20CouchPotato&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
+
+I'm building CouchPotato in my spare time, so if you want to buy me a coke while I'm coding, that would be awesome!
+
 
 ## Todo
 
@@ -72,4 +78,7 @@ Other:
 
 ## Update
 
-To update just overwrite all the files with the new ones. Config.ini and data.db should be untouched.
+Github users can build the inbuild update feature.
+
+If you're running the Windows Binary Build, you have to shutdown CP and overwrite the .exe with the newer function.
+Make sure your config.ini and data.db are untouched.

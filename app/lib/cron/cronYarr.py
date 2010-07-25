@@ -1,7 +1,9 @@
 from app.config.db import Movie, Session as Db
 from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
+from app.lib.qualities import Qualities
 from sqlalchemy.sql.expression import or_
+import cherrypy
 import datetime
 import logging
 import os
@@ -40,7 +42,7 @@ class YarrCron(cronBase, rss):
 
             #check all movies
             now = time.time()
-            if (self.lastChecked + self.intervalSec) < now and not self.debug:
+            if (self.lastChecked + self.intervalSec) < now:# and not self.debug:
                 self.lastChecked = now
                 self.searchAll()
 
@@ -77,17 +79,60 @@ class YarrCron(cronBase, rss):
 
     def _search(self, movie):
 
+        # Check release date and search for appropriate qualities
+        preReleaseSearch = False
+        dvdReleaseSearch = False
+        now = int(time.time())
+
+        # Search all if ETA is unknow, but try update ETA for next time.
+        checkETA = False
+        if not movie.eta:
+            checkETA = True
+            preReleaseSearch = True
+            dvdReleaseSearch = True
+        else:
+            # Prerelease 1 week before theaters
+            if movie.eta.theater <= now + 604800:
+                preReleaseSearch = True
+
+            # dvdRelease 2 weeks before dvd release
+            if movie.eta.dvd <= now + 1209600:
+                preReleaseSearch = True
+                dvdReleaseSearch = True
+
+            # Dvd date is unknown but movie is in theater already
+            if movie.eta.dvd == 0 and movie.eta.theater > now:
+                checkETA = True
+                dvdReleaseSearch = False
+
+            # Force ETA check once a week
+            if movie.eta.dvd == 0 or movie.eta.theater == 0:
+                checkETA = True
+
+            # Minimal week interval for ETA check
+            if checkETA and movie.eta.lastCheck < now - 604800:
+                cherrypy.config.get('searchers').get('etaQueue').put(movie)
+
         for queue in movie.queue:
 
             # Movie already found, don't search further 
             if queue.completed:
-                log.debug('%s already completed. Not searching for any qualities below.' % queue.qualityType)
+                log.debug('%s already completed for "%s". Not searching for any qualities below.' % (queue.qualityType, movie.name))
                 return True
 
-            # only search for active and not completed
-            if queue.active and not queue.completed and not self.abort and not self.stop:
+            # only search for active and not completed, minimal 5 min since last search
+            if queue.active and queue.lastCheck < (now - 300) and not queue.completed and not self.abort and not self.stop:
 
-                results = self.provider.find(movie, queue)
+                #skip if no search is set
+                if not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases)):
+                    continue
+
+                if self.debug:
+                    log.debug(queue)
+                    results = []
+                else:
+                    results = self.provider.find(movie, queue)
+                    time.sleep(5)
 
                 #search for highest score
                 highest = None
@@ -119,12 +164,15 @@ class YarrCron(cronBase, rss):
                     if success:
                         movie.status = u'snatched' if queue.markComplete else u'waiting'
                         movie.dateChanged = datetime.datetime.now()
+                        queue.lastCheck = now
 
                         queue.completed = True
                         Db.flush()
 
                     return True
-                time.sleep(5)
+
+                queue.lastCheck = now
+                Db.flush()
 
         return False
 

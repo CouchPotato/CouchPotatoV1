@@ -1,7 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError, NoSuchTableError
 from sqlalchemy.ext.sqlsoup import SqlSoup
-from sqlalchemy.orm import mapper, relation, create_session
+from sqlalchemy.orm import mapper, relation, scoped_session
+from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.schema import MetaData, Table, Column, ForeignKey
 from sqlalchemy.sql.expression import and_, desc
 from sqlalchemy.types import Integer, DateTime, String, Boolean, Text
@@ -14,10 +15,10 @@ path = '%s/data.db' % os.path.abspath(os.path.curdir)
 
 engine = create_engine('sqlite:///%s' % path)
 metadata = MetaData(engine)
-Session = create_session(bind = engine, expire_on_commit = True)
+Session = scoped_session(sessionmaker(bind = engine, autocommit = True))
 
 # DB VERSION
-latestDatabaseVersion = 3
+latestDatabaseVersion = 4
 
 dbVersionTable = Table('DbVersion', metadata,
                      Column('version', Integer, primary_key = True)
@@ -46,7 +47,8 @@ movieQueueTable = Table('MovieQueue', metadata,
                      Column('waitFor', Integer, default = 0),
                      Column('markComplete', Boolean),
                      Column('name', String()),
-                     Column('link', String())
+                     Column('link', String()),
+                     Column('lastCheck', Integer)
             )
 
 movieEtaTable = Table('MovieETA', metadata,
@@ -55,7 +57,8 @@ movieEtaTable = Table('MovieETA', metadata,
                      Column('videoEtaId', Integer),
                      Column('theater', Integer),
                      Column('dvd', Integer),
-                     Column('bluray', Boolean)
+                     Column('bluray', Boolean),
+                     Column('lastCheck', Integer)
             )
 
 movieExtraTable = Table('MovieExtra', metadata,
@@ -111,7 +114,7 @@ class MovieQueue(object):
     order = None
 
     def __repr__(self):
-        return "<moviequeue: %s active=%s complete=%s" % (self.Movie.name, self.active, self.complete)
+        return "<moviequeue: %s active=%s complete=%s quality=%s" % (self.Movie.name, self.active, self.complete, self.qualityType)
 
 class MovieETA(object):
     dvd = 0
@@ -153,7 +156,7 @@ movieMapper = mapper(Movie, movieTable, properties = {
                 and_(movieQueueTable.c.movieId == movieTable.c.id,
                 movieQueueTable.c.active == True), order_by = movieQueueTable.c.order, lazy = 'joined'),
    'template': relation(QualityTemplate, backref = 'Movie'),
-   'eta': relation(MovieETA, backref = 'Movie', uselist = False, lazy = 'joined'),
+   'eta': relation(MovieETA, backref = 'Movie', uselist = False, lazy = 'joined', viewonly = True),
    'extra': relation(MovieExtra, backref = 'Movie', viewonly = True)
 })
 movieQueueMapper = mapper(MovieQueue, movieQueueTable)
@@ -198,8 +201,30 @@ def upgradeDb():
 
         if currentVersion.version < 2: migrateVersion2()
         if currentVersion.version < 3: migrateVersion3()
+        if currentVersion.version < 4: migrateVersion4()
     else: # assume version 2
         migrateVersion3()
+
+def migrateVersion4():
+    log.info('Upgrading DB to version 4.')
+
+    # for some normal executions
+    db = SqlSoup(engine)
+
+    try:
+        db.execute('ALTER TABLE MovieETA ADD lastCheck INTEGER')
+        log.info('Added lastCheck to MovieETA table')
+    except OperationalError:
+        log.debug('Column lastCheck already added.')
+
+    try:
+        db.execute('ALTER TABLE MovieQueue ADD lastCheck INTEGER')
+        log.info('Added lastCheck to MovieQueue table')
+    except OperationalError:
+        log.debug('Column lastCheck already added.')
+
+    Session.add(DbVersion(4))
+    Session.flush()
 
 def migrateVersion3():
     log.info('Upgrading DB to version 3.')

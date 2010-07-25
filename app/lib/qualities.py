@@ -19,6 +19,7 @@ class Qualities:
         'ts':       {'key': 'ts', 'minSize': 600, 'order':9, 'label': 'TeleSync', 'alternative': ['telesync']},
         'cam':      {'key': 'cam', 'minSize': 600, 'order':10, 'label': 'Cam', 'alternative': []}
     }
+    preReleases = ['cam', 'ts', 'tc', 'r5', 'scr', 'dvdr', 'dvdrip']
 
     def default(self):
         return cherrypy.config.get('config').get('Quality', 'default')
