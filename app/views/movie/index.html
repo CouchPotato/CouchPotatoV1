@@ -1,16 +1,28 @@
-% if len(movies) > 0:
-<div id="toggleDetails">
-	<a href="#">Show</a> details.
+<%
+	totalMovies = len(movies)
+	totalSnatched = len(snatched)
+	totalDownloaded = len(downloaded)
+%>
+% if totalMovies > 0:
+<div id="filterDetails">
+	<span class="counter"><strong>${totalMovies}</strong> wanted</span>
+	% if totalSnatched > 0:
+	<span class="counter"><strong>${totalSnatched}</strong> snatched</span>
+	% endif
+	% if totalDownloaded > 0:
+	<span class="counter"><strong>${totalDownloaded}</strong> downloaded</span>
+	% endif
+	<a href="#">Show details</a>
 </div>
 <div id="movies" class="list">
 	<script type="text/javascript">
-		var toggleDetails = $('toggleDetails').getElement('a')
+		var filterDetails = $('filterDetails').getElement('a')
 		var toggleThem = function(){
 			$('movies').toggleClass('list')
-			toggleDetails.set('text', toggleDetails.get('text') == 'Show' ? 'Hide' : 'Show')
+			filterDetails.set('text', !$('movies').hasClass('list') ? 'Hide details' : 'Show details')
 			Cookie.write('showDetails', !$('movies').hasClass('list'), {duration: 365});
 		}
-		toggleDetails.addEvent('click', function(e){
+		filterDetails.addEvent('click', function(e){
 			(e).stop()
 			toggleThem()
 		})
@@ -164,7 +176,7 @@
 </div>
 % endif
 
-% if len(snatched) > 0:
+% if totalSnatched > 0:
 <div id="snatched" class="smallList">
 	<h1>Snatched:</h1>
 	% for movie in snatched:
@@ -179,7 +191,7 @@
 </div>
 % endif
 
-% if len(downloaded) > 0:
+% if totalDownloaded > 0:
 <div id="downloaded" class="smallList">
 	<h1>Downloaded:</h1>
 	% for movie in downloaded:
