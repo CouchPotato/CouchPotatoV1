@@ -84,25 +84,25 @@ var ScrollSpy = new Class( {
 window.addEvent('domready', function() {
 	$$('.disabled').setStyle('opacity', 0.1)
 
-//	var topbar = $('header').set('tween', {
-//		duration : 200
-//	});
-//	var topbarME = function() {
-//		topbar.tween('opacity', 1);
-//	}, topbarML = function() {
-//		topbar.tween('opacity', 0.5);
-//	}, ws = window.getScrollSize().y;
-//	var ss = new ScrollSpy( {
-//		min : 30,
-//		max : ws - 30,
-//		onLeave : function(pos) {
-//			topbar.tween('opacity', 1).removeEvents('mouseenter', topbarME)
-//				.removeEvents('mouseleave', topbarML);
-//		},
-//		onEnter : function() {
-//			topbar.tween('opacity', 0.5).addEvent('mouseenter', topbarME)
-//				.addEvent('mouseleave', topbarML);
-//		}
-//	});
+	var topbar = $('header').set('tween', {
+		duration : 200
+	});
+	var topbarME = function() {
+		topbar.tween('opacity', 1);
+	}, topbarML = function() {
+		topbar.tween('opacity', 0.5);
+	}, ws = window.getScrollSize().y;
+	var ss = new ScrollSpy( {
+		min : 30,
+		max : ws - 30,
+		onLeave : function(pos) {
+			topbar.tween('opacity', 1).removeEvents('mouseenter', topbarME)
+					.removeEvents('mouseleave', topbarML);
+		},
+		onEnter : function() {
+			topbar.tween('opacity', 0.5).addEvent('mouseenter', topbarME)
+					.addEvent('mouseleave', topbarML);
+		}
+	});
 
 })

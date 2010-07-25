@@ -57,7 +57,7 @@ a {
 
 .content {
 	clear:both;
-	padding: 10px;
+	padding: 110px 10px 10px;
 }
 
 .footer {
@@ -90,6 +90,8 @@ form {
 	height: 60px;
 	-moz-box-shadow:  0 0 30px rgba(0,0,0,0.1);
 	-webkit-box-shadow:  0 0 30px rgba(0,0,0,0.1);
+	position: fixed;
+	width: 99%;
 }
 
 #header .navigation {
@@ -187,6 +189,11 @@ form {
 			padding: 2px 3px;
 			font-size: 15px;
 			color: #999;
+			top: 33px !important;
+		}
+		
+		#header #addForm .spinner {
+			top: 25px !important;
 		}
 		
 		form a.submit {
@@ -207,9 +214,21 @@ form {
 		}
 		
 /*** Movie list ***/
-#toggleDetails {
-	float: right;
+#filterDetails {
+	text-align: right;
+	margin: 10px -10px;
+	font-size: 15px;
 }
+	#filterDetails span {
+		margin: 0 10px;
+		color: #999;
+	}
+		#filterDetails strong {
+			color:  #666;
+		}
+	#filterDetails a {
+		margin-left: 10px;
+	}
 
 #movies {
 	clear: both;
