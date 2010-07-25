@@ -1,2 +1,2 @@
-version = '0.2.0'
-windows = 16
+version = '0.3.0'
+windows = 17
