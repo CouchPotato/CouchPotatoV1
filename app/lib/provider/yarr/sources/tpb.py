@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 class tpb(torrentBase):
     """Api for the Pirate Bay"""
 
+    name = 'The Pirate Bay'
     downloadUrl = 'http://torrents.thepiratebay.org/%s/%s.torrent'
     nfoUrl = 'http://thepiratebay.org/torrent/%s'
     detailUrl = 'http://thepiratebay.org/torrent/%s'
@@ -45,7 +46,7 @@ class tpb(torrentBase):
     def find(self, movie, quality, type):
 
         results = []
-        if not self.enabled():
+        if not self.enabled() or not self.isAvailable(self.apiUrl):
             return results
 
         url = self.apiUrl % (quote_plus(self.toSearchString(movie.name + ' ' + quality) + self.makeIgnoreString(type)), self.getCatId(type))

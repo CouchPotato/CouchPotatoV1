@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 class nzbMatrix(nzbBase):
     """Api for NZBMatrix"""
 
+    name = 'NZBMatrix'
     downloadUrl = 'http://nzbmatrix.com/api-nzb-download.php?id=%s%s'
     detailUrl = 'http://nzbmatrix.com/api-nzb-details.php?id=%s%s'
     searchUrl = 'http://services.nzbmatrix.com/rss.php'
@@ -37,7 +38,7 @@ class nzbMatrix(nzbBase):
     def find(self, movie, quality, type):
 
         results = []
-        if not self.enabled():
+        if not self.enabled() or not self.isAvailable(self.searchUrl):
             return results
 
         arguments = urlencode({

@@ -1,13 +1,17 @@
 from app.lib.provider.rss import rss
 from app.lib.qualities import Qualities
+from urllib2 import URLError
 import logging
 import re
+import time
+import urllib2
 log = logging.getLogger(__name__)
 
 class nzbBase(rss):
 
     config = None
     type = 'nzb'
+    name = ''
 
     nameScores = [
         'proper:2', 'repack:2',
@@ -20,6 +24,9 @@ class nzbBase(rss):
 
     catIds = {}
     catBackupId = ''
+
+    available = True
+    availableCheck = 0
 
     sizeGb = ['gb', 'gib']
     sizeMb = ['mb', 'mib']
@@ -157,6 +164,19 @@ class nzbBase(rss):
 
     def getApiExt(self):
         return ''
+
+    def isAvailable(self, testUrl):
+
+        if self.availableCheck < time.time() - 900:
+            self.availableCheck = time.time()
+            try:
+                urllib2.urlopen(testUrl, timeout = 30)
+                self.available = True
+            except (IOError, URLError):
+                log.error('%s unavailable, trying again in an 15 minutes.' % self.name)
+                self.available = False
+
+        return self.available
 
 
 class torrentBase(nzbBase):

@@ -10,6 +10,7 @@ log = logging.getLogger(__name__)
 class nzbs(nzbBase):
     """Api for nzbs"""
 
+    name = 'NZBs.org'
     downloadUrl = 'http://nzbs.org/index.php?action=getnzb&nzbid=%s%s'
     nfoUrl = 'http://nzbs.org/index.php?action=view&nzbid=%s&nfo=1'
     detailUrl = 'http://nzbs.org/index.php?action=view&nzbid=%s'
@@ -36,7 +37,7 @@ class nzbs(nzbBase):
     def find(self, movie, quality, type):
 
         results = []
-        if not self.enabled():
+        if not self.enabled() or not self.isAvailable(self.apiUrl):
             return results
 
         arguments = urlencode({
