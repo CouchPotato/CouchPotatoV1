@@ -90,69 +90,63 @@
 </div>
 
 <script type="text/javascript">
-	window.addEvent('domready', function(){
-		$$('#movies > .item').each(function(el){
-			
-			// Queue items
-			var queue = el.getElement('.queue')
-			
-			var a = el.getElement('.quality a')
-			a.set('html', ' \
-				% for x, type in Qualities.getTypes():
-				<span class="q${type['label']}"></span> \
-				% if x == 'scr':
-				<span class="qR5 qTeleCine qTeleSync qCam"></span> \
-				<% break %>
-				% endif
-				% endfor
-			')
-			queue.getElements('.item').reverse().each(function(qitem){
-				var qualitySpan = a.getElement('.q'+qitem.getElement('.qualityType').get('text'))
-				qualitySpan.inject(a, 'top')
-				qualitySpan.addClass('active')
-				if(qitem.hasClass('completed'))
-					qualitySpan.addClass('completed')
-			})
-			
-			a.addEvent('click', function(e){
-				(e).stop();
-				if (el.hasClass('active')){
-					$$('#movies > .item').removeClass('active');
-				}
-				else {
-					$$('#movies > .item').removeClass('active');
-					el.addClass('active')
-				}
-			})
-			el.addEvent('outerClick', function(){
-				el.removeClass('active')
-			})
-			
-			// Remove button
-			var del = el.getElement('.delete')
-			del.addEvent('click', function(e){
-				(e).stop()
-				new Request({
-					'url': del.get('href'),
-					'onSuccess': function(){
-						el.destroy()
-					}
-				}).send()
-			})
-			
-			// Force check
-			var check = el.getElement('.forceCheck')
-			check.addEvent('click', function(e){
-				(e).stop()
-				new Request({
-					'url': check.get('href'),
-					'onSuccess': function(){
-						el.highlight()
-					}
-				}).send()
-			})
-			
-		});
+	$$('#movies > .item').each(function(el){
+		
+		// Queue items
+		var queue = el.getElement('.queue')
+		
+		var a = el.getElement('.quality a')
+		a.set('html', ' \
+			% for x, type in Qualities.getTypes():
+			<span class="q${type['label']}"></span> \
+			% if x == 'scr':
+			<span class="qR5 qTeleCine qTeleSync qCam"></span> \
+			<% break %>
+			% endif
+			% endfor
+		')
+		queue.getElements('.item').reverse().each(function(qitem){
+			var qualitySpan = a.getElement('.q'+qitem.getElement('.qualityType').get('text'))
+			qualitySpan.inject(a, 'top')
+			qualitySpan.addClass('active')
+			if(qitem.hasClass('completed'))
+				qualitySpan.addClass('completed')
+		})
+		el.addEvent('outerClick', function(){
+			el.removeClass('active')
+		})
+	});
+	
+	$('movies').addEvent('click:relay(.quality a)', function(e, clicked){
+		(e).stop();
+		var el = clicked.getParent('.item')
+		if (el.hasClass('active')){
+			el.removeClass('active');
+		}
+		else {
+			$$('#movies > .active').removeClass('active');
+			el.addClass('active')
+		}
+	});
+	
+	$('movies').addEvent('click:relay(a.delete)', function(e, clicked){
+		(e).stop();
+		new Request({
+			'url': clicked.get('href'),
+			'onSuccess': function(){
+				clicked.getParent('.item').destroy()
+			}
+		}).send()
+	});
+	
+	$('movies').addEvent('click:relay(a.forceCheck)', function(e, clicked){
+		(e).stop();
+		new Request({
+			'url': clicked.get('href'),
+			'onSuccess': function(){
+				clicked.getParent('.item').highlight()
+			}
+		}).send()
 	});
 </script>
 	
