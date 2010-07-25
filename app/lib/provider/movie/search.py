@@ -154,15 +154,15 @@ class movieSearcher():
                 imageFile = str(theMovieDbId) + '-' + image.get('type') + '-' + image.get('size') + '.jpg'
                 if image.get('type') == 'poster' and image.get('size') == 'cover' and not hasPosterCover:
                     poster = self.theMovieDb.saveImage(image.get('url'), imageFile)
-                    self.saveExtra(movieId, 'poster_cover', poster)
+                    if poster: self.saveExtra(movieId, 'poster_cover', poster)
                     hasPosterCover = True
                 if image.get('type') == 'poster' and image.get('size') == 'mid' and not hasPosterMid:
                     poster = self.theMovieDb.saveImage(image.get('url'), imageFile)
-                    self.saveExtra(movieId, 'poster_mid', poster)
+                    if poster: self.saveExtra(movieId, 'poster_mid', poster)
                     hasPosterMid = True
                 if image.get('type') == 'poster' and image.get('size') == 'thumb' and not hasPosterThumb:
                     poster = self.theMovieDb.saveImage(image.get('url'), imageFile)
-                    self.saveExtra(movieId, 'poster_thumb', poster)
+                    if poster: self.saveExtra(movieId, 'poster_thumb', poster)
                     hasPosterThumb = True
 
             handle.close()

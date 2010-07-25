@@ -150,7 +150,7 @@ class theMovieDb(movieBase):
 
             except (IOError, URLError):
                 log.error('Failed get thumb %s.' % url)
-                return []
+                return False
 
         return 'cache/images/' + destination
 
