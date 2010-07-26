@@ -35,7 +35,7 @@ class nzbMatrix(nzbBase):
     def enabled(self):
         return self.config.get('NZB', 'enabled') and self.conf('username') and self.conf('apikey')
 
-    def find(self, movie, quality, type):
+    def find(self, movie, quality, type, retry = False):
 
         results = []
         if not self.enabled() or not self.isAvailable(self.searchUrl):
@@ -62,9 +62,13 @@ class nzbMatrix(nzbBase):
                 try:
                     xml = self.getItems(data)
                 except:
-                    log.error('No valid xml, to many requests? Try again in 15sec.')
-                    time.sleep(15)
-                    return self.find(movie, quality, type)
+                    if retry == False:
+                        log.error('No valid xml, to many requests? Try again in 15sec.')
+                        time.sleep(15)
+                        return self.find(movie, quality, type, retry = True)
+                    else:
+                        self.available = False
+                        return results
 
                 results = []
                 for nzb in xml:

@@ -34,7 +34,7 @@ class nzbs(nzbBase):
     def enabled(self):
         return self.config.get('NZB', 'enabled') and self.conf('id') and self.conf('key')
 
-    def find(self, movie, quality, type):
+    def find(self, movie, quality, type, retry = False):
 
         results = []
         if not self.enabled() or not self.isAvailable(self.apiUrl):
@@ -64,9 +64,13 @@ class nzbs(nzbBase):
                 try:
                     xml = self.getItems(data)
                 except:
-                    log.error('No valid xml, to many requests? Try again in 15sec.')
-                    time.sleep(15)
-                    return self.find(movie, quality, type)
+                    if retry == False:
+                        log.error('No valid xml, to many requests? Try again in 15sec.')
+                        time.sleep(15)
+                        return self.find(movie, quality, type, retry = True)
+                    else:
+                        self.available = False
+                        return results
 
                 for nzb in xml:
 
