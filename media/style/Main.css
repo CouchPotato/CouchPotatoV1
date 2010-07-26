@@ -58,7 +58,7 @@ a {
 
 .content {
 	clear:both;
-	padding: 110px 10px 10px;
+	padding: 130px 10px 10px;
 }
 
 .footer {
@@ -104,7 +104,7 @@ form {
 	#header .navigation ul {
 		float: left;
 		padding: 0;
-		margin: 0;
+		margin: 0 0 0 6px;
 		width: 400px;
 	}
 
@@ -144,6 +144,7 @@ form {
 		
 	#header #addForm {
 		overflow: hidden;
+		margin-right: 15px;
 	}
 	#header .addNew {
 		float: right;
@@ -217,11 +218,14 @@ form {
 /*** Movie list ***/
 #filterDetails {
 	text-align: right;
-	margin: 10px -10px;
+	margin: 5px 10px 10px;
 	font-size: 15px;
+	line-height: 16px;
+	float: right;
+	width: 550px;
 }
 	#filterDetails span {
-		margin: 0 10px;
+		margin: 0 0 0 20px;
 		color: #999;
 	}
 		#filterDetails strong {
@@ -230,13 +234,18 @@ form {
 	#filterDetails a {
 		margin-left: 10px;
 	}
+	
+	#filterDetails a img {
+		margin-right: 5px;
+		vertical-align: bottom;
+	}
 
 #movies {
 	clear: both;
 	padding: 0 0 20px;
 	font-size: 20px;
 	overflow:hidden;
-	margin: 0 -10px;
+	margin: 40px -10px 30px;
 }
 
 	#movies #firstAdd {
@@ -271,7 +280,7 @@ form {
 	}
 
 	#movies > .item:nth-child(even) {
-		background: #f7f7f7;
+		background: #fafafa;
 	}
 	
 	#movies > .item.waiting {
@@ -283,7 +292,7 @@ form {
 	}
 
 		#movies .title {
-			width: 560px;
+			width: 615px;
 			text-align: left;
 		}
 			#movies .item .title { padding-top: 10px !important; }
@@ -303,7 +312,7 @@ form {
 
 			#movies .title .extra {
 				float: left;
-				width: 435px;
+				width: 490px;
 				line-height: 17px !important;
 			}
 
@@ -312,7 +321,7 @@ form {
 					font-size: 20px;
 					margin: 0;
 					font-weight: normal;
-					padding: 13px 0 6px !important;
+					padding: 13px 0 6px;
 				}
 	
 				#movies .title .overview {
@@ -335,7 +344,7 @@ form {
 
 			#movies.list .title .extra * { display: none; }
 			#movies.list .title .thumbnail { display: none; }
-			#movies.list .title .extra h2 { display: block; padding: 13px 0 6px; }
+			#movies.list .title .extra h2 { display: block; padding: 13px 0 6px 10px; }
 		
 		
 		#movies .year {
@@ -400,15 +409,14 @@ form {
 			#movies .item .quality .qR5.completed , #movies .item .quality .qTeleCine.completed , #movies .item .quality .qTeleSync.completed , #movies .item .quality .qCam.completed { background-position: -3px -13px; }
 		
 		#movies .info {
-			width: 70px;
+			width: 97px;
+			text-align: right;
 		}
-		#movies .actions {
-			width: 70px;
-		}
-		
-	#movies img {
-		vertical-align: middle;
-	}
+
+			#movies .info img {
+				vertical-align: middle;
+				margin-left: 3px;
+			}
 	
 	#movies > .item .queue { display: none; }
 	#movies > .item.active .queue { display: block; }
@@ -477,11 +485,13 @@ form {
 .smallList {
 	clear: both;
 	overflow: hidden;
+	margin-bottom: 40px;
 }
+.smallList:last-child { margin-bottom: 0;  }
 
 	.smallList > span {
 		background: #f7f7f7;
-		padding: 10px;
+		padding: 10px 10px;
 		margin: 0 5px 5px 0;
 		display: block;
 		float: left;
@@ -494,21 +504,17 @@ form {
 		.smallList .actions img {
 			vertical-align: middle;
 		}
+
+/*** Logs ***/
+#logs {
+	padding: 10px;
+}
 	
 /*** Feed ***/
-#feed .running {
-	float: right;
-}
-#feed .running img {
-	vertical-align: middle;
-	margin-right: 5px;
-}
-
-#feed h1 {
-	clear: both;
+h1 {
 	font-size: 30px;
 	float: left;
-	margin: 0 0 20px;
+	margin: 0 0 20px 8px;
 }
 
 #feed .eta {
@@ -595,6 +601,7 @@ form {
 }
 .mask {
 	background: url('../../media/images/mask.png');
+	width: 100% !important;
 }
 
 	.configPopup ul {

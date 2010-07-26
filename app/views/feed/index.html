@@ -16,13 +16,11 @@
 		% if dvdNows > 0:
 		<span class="counter"><strong>${dvdNows}</strong> released</span>
 		% endif
-		<div class="running">
 		% if not running:
-			<a href="${url(controller='feed', action='renewEta')}"><img src="media/images/reload.png" alt="refresh" />Update release dates.</a>
+		<span><a href="${url(controller='feed', action='renewEta')}"><img src="media/images/reload.png" alt="refresh" />Update release dates</a></span>
 		% else:
-			<span><img src="media/images/spinner.gif" alt="refresh" style="width:12px" /> Searching for new release dates.</span>
+		<span><img src="media/images/spinner.gif" alt="refresh" style="width:12px" /> Searching for new release dates</span>
 		% endif
-		</div>
 	</div>
 	% if len(dvd) > 0:
 		<h1>Dvd releases</h1>

@@ -14,6 +14,7 @@
 	% endif
 	<a href="#">Show details</a>
 </div>
+<h1>Wanted</h1>
 <div id="movies" class="list">
 	<script type="text/javascript">
 		var filterDetails = $('filterDetails').getElement('a')
@@ -29,13 +30,6 @@
 		if(Cookie.read('showDetails') == 'true')
 			toggleThem()
 	</script>
-	<div class="header">
-		<span class="title"></span>
-		<span class="year">Year</span>
-		<span class="quality">Quality</span>
-		<span class="info">Info</span>
-		<span class="actions">Actions</span>
-	</div>
 	% for movie in movies:
 	<%
 		extra = {}
@@ -66,10 +60,8 @@
 		<span class="info">
 			<span class="imdb"><a href="http://www.imdb.com/title/${movie.imdb}/" target="_blank"><img src="media/images/imdb.png" alt="IMDB" /></a></span>
 			<span class="moviedb ${'disabled' if not movie.movieDb else ''}"><a href="http://www.themoviedb.org/movie/${movie.movieDb}" target="_blank"><img src="media/images/moviedb.png" alt="TheMovieDB" /></a></span>
-		</span>
-		<span class="actions">
-			<a class="delete" href="${url(controller='movie', action='delete', id=movie.id)}" title="Delete this movie"><img src="media/images/delete.png" alt="Delete" /></a>
 			<a class="forceCheck" href="${url(controller='cron', action='forceSingle', id=movie.id)}" title="Force search/refresh info"><img src="media/images/reload.png" alt="Reload" /></a>
+			<a class="delete" href="${url(controller='movie', action='delete', id=movie.id)}" title="Delete this movie"><img src="media/images/delete.png" alt="Delete" /></a>
 		</span>
 		<div class="queue">
 			<div class="header">
@@ -104,7 +96,7 @@
 			<% break %>
 			% endif
 			% endfor
-		')
+		');
 		queue.getElements('.item').reverse().each(function(qitem){
 			var qualitySpan = a.getElement('.q'+qitem.getElement('.qualityType').get('text'))
 			qualitySpan.inject(a, 'top')
@@ -171,8 +163,8 @@
 % endif
 
 % if totalSnatched > 0:
+<h1>Snatched</h1>
 <div id="snatched" class="smallList">
-	<h1>Snatched:</h1>
 	% for movie in snatched:
 	<span>
 		${movie.name}
@@ -186,8 +178,8 @@
 % endif
 
 % if totalDownloaded > 0:
+<h1>Downloaded</h1>
 <div id="downloaded" class="smallList">
-	<h1>Downloaded:</h1>
 	% for movie in downloaded:
 	<span>
 		${movie.name}
