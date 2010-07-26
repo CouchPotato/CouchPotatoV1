@@ -88,7 +88,7 @@
 					if(hasUpdate){
 						var clone = hasUpdate.clone()
 							.addClass('noticeMe')
-							.inject($(document.body).getElement('.page'), 'top')
+							.inject($(document.body).getElement('.page .content'), 'top')
 							
 						if (clone.hasClass('git')){
 							clone.getElement('a').addEvent('click', function(e){
