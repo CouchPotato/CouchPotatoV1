@@ -67,6 +67,7 @@ class nzbMatrix(nzbBase):
                         time.sleep(15)
                         return self.find(movie, quality, type, retry = True)
                     else:
+                        log.error('Failed again.. disable %s for 15min.' % self.name)
                         self.available = False
                         return results
 
