@@ -51,6 +51,7 @@ a {
 		background-color: lightgoldenrodyellow;
 		display: block;
 		padding: 20px 10px;
+		margin: 0 -10px;
 		font-size: 19px;
 		text-align: center;
 	}
@@ -235,7 +236,7 @@ form {
 	padding: 0 0 20px;
 	font-size: 20px;
 	overflow:hidden;
-	margin: 0 -20px;
+	margin: 0 -10px;
 }
 
 	#movies #firstAdd {
@@ -266,7 +267,7 @@ form {
 	#movies > .item {
 		overflow:hidden;
 		background: #fff;
-		padding: 0 0 8px ;
+		padding: 0 0 8px;
 	}
 
 	#movies > .item:nth-child(even) {
@@ -282,7 +283,7 @@ form {
 	}
 
 		#movies .title {
-			width: 580px;
+			width: 560px;
 			text-align: left;
 		}
 			#movies .item .title { padding-top: 10px !important; }
@@ -302,7 +303,7 @@ form {
 
 			#movies .title .extra {
 				float: left;
-				width: 455px;
+				width: 435px;
 				line-height: 17px !important;
 			}
 
@@ -515,7 +516,7 @@ form {
 	background: #fcfcfc;
 	overflow: hidden;
 	padding: 0 20px;
-	margin: 0 -20px 50px;
+	margin: 0 -10px 50px;
 }
 	#feed .eta:last-child { margin-bottom: 0; }
 
