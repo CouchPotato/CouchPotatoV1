@@ -35,6 +35,9 @@ class nzbMatrix(nzbBase):
     def enabled(self):
         return self.config.get('NZB', 'enabled') and self.conf('username') and self.conf('apikey')
 
+    def addWildcards(self, q):
+        return '+"%s"*' % q
+
     def find(self, movie, quality, type, retry = False):
 
         results = []
@@ -42,7 +45,7 @@ class nzbMatrix(nzbBase):
             return results
 
         arguments = urlencode({
-            'term': self.toSearchString(movie.name + ' ' + quality),
+            'term': self.addWildcards(self.toSearchString(movie.name)) + ' ' + self.addWildcards(quality),
             'subcat':self.getCatId(type),
             'username':self.conf('username'),
             'apikey':self.conf('apikey')
@@ -62,14 +65,8 @@ class nzbMatrix(nzbBase):
                 try:
                     xml = self.getItems(data)
                 except:
-                    if retry == False:
-                        log.error('No valid xml, to many requests? Try again in 15sec.')
-                        time.sleep(15)
-                        return self.find(movie, quality, type, retry = True)
-                    else:
-                        log.error('Failed again.. disable %s for 15min.' % self.name)
-                        self.available = False
-                        return results
+                    log.debug('No valid xml or to many requests.. You never know with %s.' % self.name)
+                    return results
 
                 results = []
                 for nzb in xml:
