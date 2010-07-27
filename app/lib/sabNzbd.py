@@ -1,5 +1,6 @@
 import logging
-import urllib
+from urllib import urlencode
+import urllib2
 
 log = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ class sabNzbd():
             log.error("Config properties are not filled in correctly.")
             return False
 
-        url = 'http://' + self.conf('host') + "/sabnzbd/api?" + urllib.urlencode({
+        url = 'http://' + self.conf('host') + "/sabnzbd/api?" + urlencode({
             'ma_username': self.conf('username'),
             'ma_password': self.conf('password'),
             'apikey': self.conf('apikey'),
@@ -32,32 +33,30 @@ class sabNzbd():
         log.info("URL: " + url)
 
         try:
-            r = urllib.urlopen(url)
+            r = urllib2.urlopen(url, timeout = 10)
         except:
-            log.error("Unable to connect to SAB.")
-            return False
+            try:
+                # try https
+                url = url.replace('http:', 'https:')
+                r = urllib2.urlopen(url, timeout = 10)
+            except:
+                log.error("Unable to connect to SAB.")
+                return False
 
-        if r == None:
+        result = r.read().strip()
+        if not result:
             log.error("SABnzbd didn't return anything.")
             return False
 
-        result = r.readlines()
-        if len(result) == 0:
-            log.error("SABnzbd didn't return anything.")
-            return False
-
-        sabText = result[0].strip()
-
-        log.info("Result text from SAB: " + sabText)
-
-        if sabText == "ok":
+        log.debug("Result text from SAB: " + result)
+        if result == "ok":
             log.info("NZB sent to SAB successfully.")
             return True
-        elif sabText == "Missing authentication":
+        elif result == "Missing authentication":
             log.error("Incorrect username/password.")
             return False
         else:
-            log.error("Unknown error: " + sabText)
+            log.error("Unknown error: " + result)
             return False
 
     def isDisabled(self):

@@ -1,5 +1,4 @@
 * Find providers that don't need login/registration
-* SABnzbd SSL option to include HTTPS
 * Edit movie info
 
 Userscript:
