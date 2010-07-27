@@ -94,7 +94,7 @@ class RenamerCron(cronBase):
             if movie and movie.get('movie'):
                 finalDestination = self.renameFiles(files, movie['movie'], movie['queue'])
                 if self.config.get('Trailer', 'quality'):
-                    self.trailerQueue.put({'id': movie['movie'].imdb, 'movieId': movie['movie'].id, 'destination':finalDestination})
+                    self.trailerQueue.put({'id': movie['movie'].imdb, 'movie': movie['movie'], 'destination':finalDestination})
             else:
                 log.info('No Match found for: %s' % str(files['files']))
 

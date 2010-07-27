@@ -36,8 +36,7 @@ class YarrCron(cronBase, rss):
         while True and not self.abort:
 
             #check single movie
-            for movieId in self.checkTheseMovies:
-                movie = Db.query(Movie).filter_by(id = movieId).one()
+            for movie in self.checkTheseMovies:
                 self._search(movie)
                 self.checkTheseMovies.pop(0)
 
@@ -79,10 +78,7 @@ class YarrCron(cronBase, rss):
 
 
     def _search(self, movie):
-        
-        # Stop caching ffs!
-        Db.expire_all()
-        
+
         # Check release date and search for appropriate qualities
         preReleaseSearch = False
         dvdReleaseSearch = False
@@ -125,7 +121,7 @@ class YarrCron(cronBase, rss):
                 return True
 
             # only search for active and not completed, minimal 5 min since last search
-            if queue.active and (queue.lastCheck < (now - 300) or self.debug) and not queue.completed and not self.abort and not self.stop:
+            if queue.active and queue.lastCheck < (now - 300) and not queue.completed and not self.abort and not self.stop:
 
                 #skip if no search is set
                 if not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases)):
@@ -168,6 +164,7 @@ class YarrCron(cronBase, rss):
                         movie.status = u'snatched' if queue.markComplete else u'waiting'
                         movie.dateChanged = datetime.datetime.now()
                         queue.lastCheck = now
+
                         queue.completed = True
                         Db.flush()
 

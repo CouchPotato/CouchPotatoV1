@@ -1,3 +1,4 @@
+from app.config.db import Session as Db, Movie
 from app.controllers import BaseController, redirect
 import cherrypy
 import logging
@@ -29,9 +30,9 @@ class CronController(BaseController):
         Force the cron for single movie
         '''
 
-        #movie = Db.query(Movie).filter_by(id = id).one()
-        self.cron.get('yarr').forceCheck(id)
-        self.searchers.get('movie').getExtraInfo(id, overwrite = True)
+        movie = Db.query(Movie).filter_by(id = id).one()
+        self.cron.get('yarr').forceCheck(movie)
+        self.searchers.get('movie').getExtraInfo(movie, overwrite = True)
 
     @cherrypy.expose
     def searchForTrailers(self):

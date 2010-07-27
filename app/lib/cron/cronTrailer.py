@@ -1,4 +1,3 @@
-from app.config.db import Session as Db, Movie
 from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
 from app.lib.provider.trailers.hdtrailers import HdTrailers
@@ -37,10 +36,6 @@ class TrailerCron(rss, cronBase):
         while True and not self.abort:
             try:
                 movie = trailerQueue.get(timeout = timeout)
-                
-                # Thread fix
-                if movie.get('movieId'):
-                    movie['movie'] = Db.query(Movie).filter_by(id = movie.get('movieId')).one()
 
                 #do a search
                 self.running = True
