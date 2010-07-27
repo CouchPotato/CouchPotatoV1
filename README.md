@@ -38,6 +38,25 @@ I'm building CouchPotato in my spare time, so if you want to buy me a coke while
 
 To run CP you will need Python.
 
+## CouchPotato is build using
+
+[CherryPy](http://www.cherrypy.org/),
+[SQLAlchemy](http://www.sqlalchemy.org/),
+[Mako](http://www.makotemplates.org/),
+[Routes](http://routes.groovie.org/),
+[IMDbPy](http://imdbpy.sourceforge.net/),
+[DateUtil](http://labix.org/python-dateutil),
+[MarkupSafe](http://pypi.python.org/pypi/MarkupSafe),
+[TheMovieDB](http://www.themoviedb.org/),
+[NZBMatrix](http://nzbmatrix.com/),
+[NZBs.org](http://www.nzbs.org/),
+[HD-Trailers](http://www.hd-trailers.net/),
+[The Pirate Bay](http://thepiratebay.org/),
+[PyInstaller](http://www.pyinstaller.org/)
+
+
+
+
 ## Installation and Setup
 
 Windows:
@@ -78,7 +97,7 @@ Other:
 
 ## Update
 
-Github users can build the inbuild update feature.
+Github users can use the build-in update feature (under Settings, or in the CP footer)
 
 If you're running the Windows Binary Build, you have to shutdown CP and overwrite the .exe with the newer function.
 Make sure your config.ini and data.db are untouched.
