@@ -11,7 +11,11 @@ import logging
 import os
 
 log = logging.getLogger(__name__)
-path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'data.db')
+if os.name == 'nt':
+    path = os.path.join(os.path.abspath(os.path.curdir), 'data.db')
+else:
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'data.db')
+
 engine = create_engine('sqlite:///%s' % path)
 metadata = MetaData(engine)
 Session = scoped_session(sessionmaker(bind = engine, autocommit = True))
