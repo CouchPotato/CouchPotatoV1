@@ -55,7 +55,7 @@ class etaCron(rss, cronBase):
         row.lastCheck = int(time.time())
         Db.flush()
 
-    def search(self, movie):
+    def search(self, movie, page = 1):
 
         # Already found it, just update the stuff
         if movie.eta and movie.eta.videoEtaId > 0:
@@ -63,14 +63,14 @@ class etaCron(rss, cronBase):
             return self.getDetails(movie.eta.videoEtaId)
 
         # Do search
-        log.info('Searching VideoETA for %s.' % movie.name)
+        log.info('Searching page:%d VideoETA for %s.' % (page, movie.name))
         arguments = urllib.urlencode({
-            'search_query':self.toSearchString(movie.name)
+            'search_query':self.toSearchString(movie.name),
+            'page': page
         })
         url = "%s?%s" % (self.searchUrl, arguments)
 
         log.debug('Search url: %s.', url)
-
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
@@ -85,6 +85,9 @@ class etaCron(rss, cronBase):
                 if str(movie.year).lower() != 'none' and self.toSearchString(result.get('name')).lower() == self.toSearchString(movie.name).lower() and result.get('year') == int(movie.year):
                     log.debug('MovieETA perfect match!')
                     return self.getDetails(result.get('id'))
+
+        if page == 1 and len(results) > 29:
+            return self.search(movie, page = 2)
 
     def getDetails(self, id):
         url = self.detailUrl + str(id)
@@ -123,7 +126,7 @@ class etaCron(rss, cronBase):
             bluray = soup.findAll('b', text = re.compile('Blu-ray'))
         except AttributeError:
             log.info('No Bluray release info found.')
-        
+
         dates = {
             'id': id,
             'dvd': dvdDate,
