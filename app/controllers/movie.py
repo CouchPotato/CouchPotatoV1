@@ -37,7 +37,6 @@ class MovieController(BaseController):
 
         #return redirect(url(controller = 'movie', action = 'index'))
 
-
     @cherrypy.expose
     def downloaded(self, id):
         '''
@@ -63,14 +62,15 @@ class MovieController(BaseController):
 
         for x in movie.queue:
             x.completed = False
+            Db.flush()
 
         #set status
         movie.status = u'want'
         Db.flush()
 
         #gogo find nzb for added movie via Cron
-        self.cron.get('yarr').forceCheck(movie)
-        self.searchers.get('etaQueue').put(movie)
+        self.cron.get('yarr').forceCheck(id)
+        self.searchers.get('etaQueue').put(id)
 
         return redirect(url(controller = 'movie', action = 'index'))
 
@@ -150,6 +150,7 @@ class MovieController(BaseController):
             # Delete old qualities
             for x in exists.queue:
                 x.active = False
+                Db.flush()
 
             new = exists
         else:
@@ -162,12 +163,7 @@ class MovieController(BaseController):
         new.imdb = movie.imdb
         new.movieDb = movie.id
         new.quality = quality
-
-        # Year from custom input
-        if year and movie.year == 'None':
-            new.year = year
-        else:
-            new.year = movie.year
+        new.year = year if year and movie.year == 'None' else movie.year
         Db.flush()
 
         # Add qualities to the queue
@@ -185,8 +181,8 @@ class MovieController(BaseController):
             Db.flush()
 
         #Get xml from themoviedb and save to cache
-        self.searchers.get('movie').getExtraInfo(new, overwrite = True)
+        self.searchers.get('movie').getExtraInfo(new.id, overwrite = True)
 
         #gogo find nzb for added movie via Cron
-        self.cron.get('yarr').forceCheck(new)
-        self.searchers.get('etaQueue').put(new)
+        self.cron.get('yarr').forceCheck(new.id)
+        self.searchers.get('etaQueue').put(new.id)

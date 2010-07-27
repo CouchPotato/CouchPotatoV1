@@ -107,7 +107,9 @@ class movieSearcher():
             with open(xmlFile, 'wb') as f:
                 f.write(xml.read())
 
-    def getExtraInfo(self, movie, overwrite = False):
+    def getExtraInfo(self, movieId, overwrite = False):
+        
+        movie = Db.query(Movie).filter_by(id = movieId).one()
 
         # Try and update if no tmdbId
         if not movie.movieDb:

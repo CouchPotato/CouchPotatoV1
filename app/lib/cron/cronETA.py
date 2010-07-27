@@ -1,3 +1,4 @@
+from app.config.db import Movie, MovieETA, Session as Db
 from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
 from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup, SoupStrainer
@@ -23,7 +24,8 @@ class etaCron(rss, cronBase):
         timeout = 0.1 if self.debug else 1
         while True and not self.abort:
             try:
-                movie = etaQueue.get(timeout = timeout)
+                movieId = etaQueue.get(timeout = timeout)
+                movie = Db.query(Movie).filter_by(id = movieId).first()
 
                 #do a search
                 self.running = True
@@ -41,7 +43,6 @@ class etaCron(rss, cronBase):
 
     def save(self, movie, result):
 
-        from app.config.db import MovieETA, Session as Db
         row = Db.query(MovieETA).filter_by(movieId = movie.id).first()
         if not row:
             row = MovieETA()

@@ -25,8 +25,6 @@ class LogFile(object):
 
     def flush(self):
         pass
-        #for handler in self.logger.handlers:
-        #    handler.flush()
 
 class CronJobs(plugins.SimplePlugin):
 
