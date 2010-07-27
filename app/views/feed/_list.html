@@ -21,7 +21,7 @@
 			extra[e.name] = e.value
 		
 		if not extra.get('poster_cover'):
-			searchers.get('movie').getExtraInfo(movie)
+			searchers.get('movie').getExtraInfo(movie.id)
 		
 		# Check if only HD is queued and no HD seems to be available
 		hdQueue = False
