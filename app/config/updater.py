@@ -151,7 +151,7 @@ class Updater(SimplePlugin):
                     os.remove(filename);
 
             log.info('Downloading %s.' % name)
-            with open(destination, 'w') as f:
+            with open(destination, 'wb') as f:
                 f.write(data.read())
 
         log.info('Extracting.')
