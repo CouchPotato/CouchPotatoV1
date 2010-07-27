@@ -29,7 +29,7 @@ class movieSearcher():
         movies = Db.query(Movie).order_by(Movie.name).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
         for movie in movies:
             if not movie.extra:
-                self.getExtraInfo(movie)
+                self.getExtraInfo(movie.id)
 
     def find(self, q, limit = 8, alternative = True):
         ''' Find movie by name '''
