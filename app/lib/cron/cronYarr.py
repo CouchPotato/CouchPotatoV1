@@ -132,7 +132,6 @@ class YarrCron(cronBase, rss):
                     results = []
                 else:
                     results = self.provider.find(movie, queue)
-                    time.sleep(5)
 
                 #search for highest score
                 highest = None
@@ -170,6 +169,9 @@ class YarrCron(cronBase, rss):
                         Db.flush()
 
                     return True
+
+                if not self.debug:
+                    time.sleep(5)
 
                 queue.lastCheck = now
                 Db.flush()
