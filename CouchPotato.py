@@ -19,17 +19,18 @@ sys.path.insert(0, path_base)
 sys.path.insert(0, os.path.join(path_base, 'library'))
 
 # Use debug conf if available
-import logging.config
+import logging
+import app
 logdir = os.path.join(rundir, 'logs')
 if not os.path.isdir(logdir):
     os.mkdir(logdir)
 debugconfig = os.path.join(path_base, 'debug.conf')
 if os.path.isfile(debugconfig):
-    logging.config.fileConfig(debugconfig)
+    app.configLogging(debugconfig, path_base)
     debug = True
 else:
     debug = False
-    logging.config.fileConfig(os.path.join(path_base, 'logging.conf'))
+    app.configLogging(os.path.join(path_base, 'logging.conf'), path_base)
 
 log = logging.getLogger(__name__)
 
@@ -40,7 +41,6 @@ if not os.path.isdir(cachedir):
 
 from app.config.db import initDb
 from optparse import OptionParser
-import app
 from app.config.configApp import configApp
 import app.config.render
 from app.config.routes import setup as Routes
@@ -71,7 +71,7 @@ def server_start():
     # Start threads
     myCrons = CronJobs(cherrypy.engine, ca, debug)
     myCrons.subscribe()
-    
+
     # Update script
     myUpdater = Updater(cherrypy.engine)
     myUpdater.subscribe()
