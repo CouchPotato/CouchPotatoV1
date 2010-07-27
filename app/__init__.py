@@ -1,7 +1,9 @@
 from cherrypy.lib.auth import check_auth
-from logging.config import _create_formatters, _install_handlers, _install_loggers
+from logging.config import _create_formatters, _install_handlers, \
+    _install_loggers
 import ConfigParser
 import logging
+import os.path
 import webbrowser
 
 log = logging.getLogger(__name__)
@@ -29,7 +31,7 @@ def launchBrowser(host, port):
         except:
             log.error('Could not launch a browser.')
 
-def configLogging(fname, basePath):
+def configLogging(fname, logPath):
 
     cp = ConfigParser.ConfigParser()
     if hasattr(cp, 'readfp') and hasattr(fname, 'readline'):
@@ -37,7 +39,7 @@ def configLogging(fname, basePath):
     else:
         cp.read(fname)
 
-    cp.set('handler_accesslog', 'args', cp.get('handler_accesslog', 'args').replace('{basePath}', basePath))
+    cp.set('handler_accesslog', 'args', cp.get('handler_accesslog', 'args').replace('{logPath}', os.path.join(logPath, 'CouchPotato.log')))
 
     formatters = _create_formatters(cp)
 

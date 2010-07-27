@@ -26,11 +26,11 @@ if not os.path.isdir(logdir):
     os.mkdir(logdir)
 debugconfig = os.path.join(path_base, 'debug.conf')
 if os.path.isfile(debugconfig):
-    app.configLogging(debugconfig, path_base)
+    app.configLogging(debugconfig, logdir)
     debug = True
 else:
     debug = False
-    app.configLogging(os.path.join(path_base, 'logging.conf'), path_base)
+    app.configLogging(os.path.join(path_base, 'logging.conf'), logdir)
 
 log = logging.getLogger(__name__)
 
