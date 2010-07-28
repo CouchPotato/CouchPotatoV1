@@ -111,6 +111,7 @@ class MovieController(BaseController):
                 return self.render({'error': 'year'})
             else:
                 self._addMovie(result, quality)
+                return redirect(cherrypy.request.headers.get('referer'))
         else:
             results = self.searchers.get('movie').find(moviename)
             cherrypy.session['searchresults'] = results
