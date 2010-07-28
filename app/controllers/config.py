@@ -53,14 +53,13 @@ class ConfigController(BaseController):
             qo = Db.query(QualityTemplate).filter_by(id = int(id)).one()
             qo.order = order.index(id)
             Db.flush()
-
-        data['Quality.order'] = None
+        del data['Quality.order']
 
         # Save templates
         if data.get('Quality.templates'):
             templates = json.loads(data.get('Quality.templates'))
             Qualities().saveTemplates(templates)
-        data['Quality.templates'] = None
+        del data['Quality.templates']
 
         # Save post data
         for name in data:
