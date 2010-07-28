@@ -175,6 +175,7 @@ class nzbBase(rss):
             except (IOError, URLError):
                 log.error('%s unavailable, trying again in an 15 minutes.' % self.name)
                 self.available = False
+            time.sleep(5)
 
         return self.available
 
