@@ -2,6 +2,7 @@ from app.config.db import Movie, MovieETA, Session as Db
 from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
 from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup, SoupStrainer
+from sqlalchemy.sql.expression import or_
 from urllib2 import URLError
 import Queue
 import logging
@@ -40,6 +41,12 @@ class etaCron(rss, cronBase):
                 pass
 
         log.info('MovieETA thread shutting down.')
+        
+    def all(self):
+        self.running = True
+        activeMovies = Db.query(Movie).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
+        for movie in activeMovies:
+            etaQueue.put(movie.id)
 
     def save(self, movie, result):
 

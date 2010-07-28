@@ -43,9 +43,6 @@ class FeedController(BaseController):
 
     def renewEta(self, **data):
 
-        self.cron.get('eta').running = True
-        activeMovies = Db.query(Movie).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
-        for movie in activeMovies:
-            self.searchers.get('etaQueue').put(movie)
+        self.cron.get('eta').all()
 
         return redirect(url(controller = 'feed', action = 'index'))
