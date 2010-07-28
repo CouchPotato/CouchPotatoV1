@@ -116,7 +116,7 @@ class TrailerCron(rss, cronBase):
                         movie = guess.pop()
 
             if movie:
-                trailerQueue.put({'id': movie.imdb, 'movie': movie, 'destination':movieFiles})
+                trailerQueue.put({'movie': movie, 'destination':movieFiles})
             else:
                 log.info('No match found for: %s' % movieFiles.get('filename'))
 
