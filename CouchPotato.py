@@ -9,8 +9,8 @@ except AttributeError:
 
 # Define path based on frozen state
 if frozen:
-    path_base = os.environ['_MEIPASS2']
-    #path_base = os.path.dirname(sys.executable)
+    #path_base = os.environ['_MEIPASS2']
+    path_base = os.path.dirname(sys.executable)
 else:
     path_base = rundir
 
@@ -97,7 +97,8 @@ def server_start():
             'config':                           ca,
             'updater':                          myUpdater,
             'cron':                             myCrons.threads,
-            'searchers':                        myCrons.searchers
+            'searchers':                        myCrons.searchers,
+            'flash':                            app.flash()
         }
     })
 

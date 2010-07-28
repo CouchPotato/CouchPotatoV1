@@ -30,12 +30,15 @@ class MovieController(BaseController):
         '''
 
         movie = Db.query(Movie).filter_by(id = id).one()
+        previousStatus = movie.status
 
         #set status
         movie.status = u'deleted'
         Db.flush()
 
-        #return redirect(url(controller = 'movie', action = 'index'))
+        if previousStatus == 'downloaded':
+            self.flash.add('movie-' + str(movie.id), '"%s" deleted.' % (movie.name))
+            return redirect(url(controller = 'movie', action = 'index'))
 
     @cherrypy.expose
     def downloaded(self, id):
@@ -49,6 +52,7 @@ class MovieController(BaseController):
         movie.status = u'downloaded'
         Db.flush()
 
+        self.flash.add('movie-' + str(movie.id), '"%s" marked as downloaded.' % (movie.name))
         return redirect(url(controller = 'movie', action = 'index'))
 
 
@@ -70,8 +74,9 @@ class MovieController(BaseController):
 
         #gogo find nzb for added movie via Cron
         self.cron.get('yarr').forceCheck(id)
-        self.searchers.get('etaQueue').put(id)
+        self.searchers.get('etaQueue').put({'id':id})
 
+        self.flash.add('movie-' + str(movie.id), '"%s" re-added.' % (movie.name))
         return redirect(url(controller = 'movie', action = 'index'))
 
     @cherrypy.expose
@@ -106,7 +111,6 @@ class MovieController(BaseController):
                 return self.render({'error': 'year'})
             else:
                 self._addMovie(result, quality)
-                return redirect(url(controller = 'movie', action = 'index'))
         else:
             results = self.searchers.get('movie').find(moviename)
             cherrypy.session['searchresults'] = results
@@ -185,4 +189,6 @@ class MovieController(BaseController):
 
         #gogo find nzb for added movie via Cron
         self.cron.get('yarr').forceCheck(new.id)
-        self.searchers.get('etaQueue').put(new.id)
+        self.searchers.get('etaQueue').put({'id':new.id})
+
+        self.flash.add('movie-' + str(new.id), '"%s" (%s) added.' % (new.name, new.year))

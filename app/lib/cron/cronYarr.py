@@ -115,7 +115,7 @@ class YarrCron(cronBase, rss):
 
             # Minimal week interval for ETA check
             if checkETA and movie.eta.lastCheck < now - 604800:
-                cherrypy.config.get('searchers').get('etaQueue').put(movie)
+                cherrypy.config.get('searchers').get('etaQueue').put({'id':movie.id})
 
         for queue in movie.queue:
 

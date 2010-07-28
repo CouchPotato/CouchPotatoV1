@@ -52,3 +52,25 @@ def configLogging(fname, logPath):
         _install_loggers(cp, handlers, 1)
     finally:
         logging._releaseLock()
+
+class flash():
+
+    messages = {}
+
+    def add(self, key, message):
+        self.messages[key] = message
+
+    def all(self):
+        out = []
+        for key in self.messages.keys():
+            out.append(self.get(key))
+        return out
+
+    def get(self, key):
+        message = self.messages.get(key)
+        if message:
+            self.remove(key)
+            return message
+
+    def remove(self, key):
+        del self.messages[key]

@@ -115,6 +115,14 @@
 	</div>
 	<div class="page">
 	    <div class="content">
+			<% messages = flash.all() %>
+			% if messages:
+			<div class="messages">
+				% for message in messages:
+				<div class="item noticeMe">${message}</div>
+				% endfor
+			</div>
+			% endif
 	        ${next.body()}
 	    </div>
 		<div class="footer">

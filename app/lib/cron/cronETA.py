@@ -25,8 +25,11 @@ class etaCron(rss, cronBase):
         timeout = 0.1 if self.debug else 1
         while True and not self.abort:
             try:
-                movieId = etaQueue.get(timeout = timeout)
-                movie = Db.query(Movie).filter_by(id = movieId).first()
+                queue = etaQueue.get(timeout = timeout)
+                if queue.get('id'):
+                    movie = Db.query(Movie).filter_by(id = queue.get('id')).first()
+                else:
+                    movie = queue.get('movie')
 
                 #do a search
                 self.running = True
@@ -41,12 +44,12 @@ class etaCron(rss, cronBase):
                 pass
 
         log.info('MovieETA thread shutting down.')
-        
+
     def all(self):
         self.running = True
         activeMovies = Db.query(Movie).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
         for movie in activeMovies:
-            etaQueue.put(movie.id)
+            etaQueue.put({'movie':movie})
 
     def save(self, movie, result):
 
