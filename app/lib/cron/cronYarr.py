@@ -3,12 +3,14 @@ from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
 from app.lib.qualities import Qualities
 from sqlalchemy.sql.expression import or_
+from urllib2 import URLError
 import cherrypy
 import datetime
 import logging
 import os
 import time
 import urllib
+import urllib2
 
 log = logging.getLogger(__name__)
 
@@ -79,10 +81,10 @@ class YarrCron(cronBase, rss):
 
 
     def _search(self, movie):
-        
+
         # Stop caching ffs!
         Db.expire_all()
-        
+
         # Check release date and search for appropriate qualities
         preReleaseSearch = False
         dvdReleaseSearch = False
@@ -141,9 +143,10 @@ class YarrCron(cronBase, rss):
                 highest = None
                 highestScore = 0
                 for result in results:
-                    if result.score > highestScore:
-                        highest = result
-                        highestScore = result.score
+                    if result.score > highestScore and not self.abort and not self.stop:
+                        if not result.checkNZB or self.validNZB(result.url):
+                            highest = result
+                            highestScore = result.score
 
                 #send highest to SABnzbd & mark as snatched
                 if highest:
@@ -199,6 +202,18 @@ class YarrCron(cronBase, rss):
                 log.error('File %s already exists.' % fullPath)
 
         return False
+
+    def validNZB(self, url):
+        try:
+            time.sleep(10)
+            data = urllib2.urlopen(url, timeout = self.timeout).info()
+            for check in ['nzb', 'download', 'torrent']:
+                if check in data.get('Content-Type'):
+                    return True
+
+            return False
+        except (IOError, URLError):
+            return False
 
     def doCheck(self, bool = True):
         self.running = bool
