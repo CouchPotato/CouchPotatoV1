@@ -8,23 +8,23 @@ class rss:
     timeout = 10
 
     def toSaveString(self, string):
-        string = self.latin1_to_ascii(string)
+        string = self.latinToAscii(string)
         string = ''.join((c for c in unicodedata.normalize('NFD', unicode(string)) if unicodedata.category(c) != 'Mn'))
         safe_chars = ascii_letters + digits + '_ -.,\':!?'
         r = ''.join([char if char in safe_chars else ' ' for char in string])
         return re.sub('\s+' , ' ', r)
 
     def toSearchString(self, string):
-        string = self.latin1_to_ascii(string)
+        string = self.latinToAscii(string)
         string = ''.join((c for c in unicodedata.normalize('NFD', unicode(string)) if unicodedata.category(c) != 'Mn'))
         safe_chars = ascii_letters + digits + ' \''
         r = ''.join([char if char in safe_chars else ' ' for char in string])
         return re.sub('\s+' , ' ', r).replace('\'s', 's').replace('\'', ' ')
 
-    def latin1_to_ascii(self, unicrap):
+    def latinToAscii(self, unicrap):
         xlate = {0xc0:'A', 0xc1:'A', 0xc2:'A', 0xc3:'A', 0xc4:'A', 0xc5:'A',
             0xc6:'Ae', 0xc7:'C',
-            0xc8:'E', 0xc9:'E', 0xca:'E', 0xcb:'E',
+            0xc8:'E', 0xc9:'E', 0xca:'E', 0xcb:'E', 0x86:'e',
             0xcc:'I', 0xcd:'I', 0xce:'I', 0xcf:'I',
             0xd0:'Th', 0xd1:'N',
             0xd2:'O', 0xd3:'O', 0xd4:'O', 0xd5:'O', 0xd6:'O', 0xd8:'O',

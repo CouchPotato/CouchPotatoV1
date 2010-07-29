@@ -1,5 +1,6 @@
 from app.config.db import Movie, RenameHistory, Session as Db, MovieQueue
 from app.lib.cron.cronBase import cronBase
+from app.lib.provider.rss import rss
 from app.lib.qualities import Qualities
 import fnmatch
 import logging
@@ -10,7 +11,7 @@ import time
 
 log = logging.getLogger(__name__)
 
-class RenamerCron(cronBase):
+class RenamerCron(cronBase, rss):
 
     ''' Cronjob for renaming movies '''
 
@@ -203,7 +204,7 @@ class RenamerCron(cronBase):
         finalDestination = None
         finalFilename = self.doReplace(fileNaming, replacements)
         for file in files['files']:
-            log.info('Trying to find a home for: %s' % file['filename'])
+            log.info('Trying to find a home for: %s' % self.latinToAscii(file['filename']))
 
             replacements['ext'] = file['ext']
 
@@ -236,11 +237,11 @@ class RenamerCron(cronBase):
             removed = self.removeOld(os.path.join(destination, folder), justAdded, totalSize)
 
             if not os.path.isfile(dest) and removed:
-                log.info('Moving file "%s" to %s.' % (old, dest))
+                log.info('Moving file "%s" to %s.' % (self.latinToAscii(old), dest))
                 shutil.move(old, dest)
                 justAdded.append(dest)
             else:
-                log.error('File %s already exists or not better.' % filename)
+                log.error('File %s already exists or not better.' % self.latinToAscii(filename))
                 break
 
             #get subtitle if any & move
@@ -349,6 +350,8 @@ class RenamerCron(cronBase):
             dirnames.reverse()
 
             for dir in dirnames:
+                dir = self.latinToAscii(dir)
+
                 # check and see if name is in queue
                 queue = Db.query(MovieQueue).filter_by(name = dir).first()
                 if queue:
@@ -418,7 +421,6 @@ class RenamerCron(cronBase):
 
                 for pattern in patterns:
                     for filename in fnmatch.filter(filenames, pattern):
-
                         new = {
                            'path': root,
                            'filename': filename,
