@@ -58,7 +58,7 @@ class YarrCron(cronBase, rss):
 
     def forceCheck(self, movie = None):
         if movie == None:
-            self.lastChecked = time.time() - self.intervalSec # + 10
+            self.lastChecked = time.time() - self.intervalSec + 10
         else:
             self.checkTheseMovies.append(movie)
 
@@ -229,6 +229,8 @@ class YarrCron(cronBase, rss):
     def nextCheck(self):
 
         t = (self.lastChecked + self.intervalSec) - time.time()
+        try: int(t)
+        except: t = 10
 
         s = ''
         tm = time.gmtime(t)
