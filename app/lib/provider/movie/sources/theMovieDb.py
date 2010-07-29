@@ -79,7 +79,7 @@ class theMovieDb(movieBase):
                 for movie in xml:
                     id = int(self.gettextelement(movie, "id"))
 
-                    name = self.toSaveString(self.gettextelement(movie, "name"))
+                    name = self.gettextelement(movie, "name")
                     imdb = self.gettextelement(movie, "imdb_id")
                     year = str(self.gettextelement(movie, "released"))[:4]
 
@@ -106,7 +106,6 @@ class theMovieDb(movieBase):
 
                     alternativeName = self.gettextelement(movie, "alternative_name")
                     if alternativeName and alternative:
-                        alternativeName = self.toSaveString(alternativeName)
                         if alternativeName.lower() != name.lower() and alternativeName.lower() != 'none' and alternativeName != None:
                             results.append(self.fillFeedItem(id, alternativeName, imdb, year))
 
@@ -158,7 +157,7 @@ class theMovieDb(movieBase):
 
         item = self.feedItem()
         item.id = id
-        item.name = name
+        item.name = self.toSaveString(name)
         item.imdb = imdb
         item.year = year
 

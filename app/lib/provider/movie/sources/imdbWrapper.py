@@ -32,7 +32,7 @@ class imdbWrapper(movieBase):
         if one:
             new = self.feedItem()
             new.imdb = 'tt' + r.movieID
-            new.name = r['title']
+            new.name = self.toSaveString(r['title'])
             new.year = r['year']
 
             return new
@@ -41,7 +41,7 @@ class imdbWrapper(movieBase):
             for movie in r:
                 new = self.feedItem()
                 new.imdb = 'tt' + movie.movieID
-                new.name = movie['title']
+                new.name = self.toSaveString(movie['title'])
                 new.year = movie['year']
 
                 results.append(new)
