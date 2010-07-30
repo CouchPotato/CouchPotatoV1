@@ -2,22 +2,23 @@ from app.config.db import QualityTemplate, QualityTemplateType, Session as Db
 from sqlalchemy.sql.expression import or_
 import cherrypy
 import logging
+import os
 
 log = logging.getLogger(__name__)
 
 class Qualities:
 
     types = {
-        '1080p':    {'key': '1080p', 'minSize': 5000, 'order':1, 'label': '1080P', 'alternative': []},
-        '720p':     {'key': '720p', 'minSize': 3500, 'order':2, 'label': '720P', 'alternative': []},
-        'brrip':    {'key': 'brrip', 'minSize': 700, 'order':3, 'label': 'BR-Rip', 'alternative': ['bdrip']},
-        'dvdr':     {'key': 'dvdr', 'minSize': 3000, 'order':4, 'label': 'DVD-R', 'alternative': []},
-        'dvdrip':   {'key': 'dvdrip', 'minSize': 600, 'order':5, 'label': 'DVD-Rip', 'alternative': []},
-        'scr':      {'key': 'scr', 'minSize': 600, 'order':6, 'label': 'Screener', 'alternative': ['dvdscr']},
-        'r5':       {'key': 'r5', 'minSize': 600, 'order':7, 'label': 'R5', 'alternative': []},
-        'tc':       {'key': 'tc', 'minSize': 600, 'order':8, 'label': 'TeleCine', 'alternative': ['telecine']},
-        'ts':       {'key': 'ts', 'minSize': 600, 'order':9, 'label': 'TeleSync', 'alternative': ['telesync']},
-        'cam':      {'key': 'cam', 'minSize': 600, 'order':10, 'label': 'Cam', 'alternative': []}
+        '1080p':    {'key': '1080p', 'minSize': 5000, 'order':1, 'label': '1080P', 'alternative': [], 'ext':['mkv', 'm2ts']},
+        '720p':     {'key': '720p', 'minSize': 3500, 'order':2, 'label': '720P', 'alternative': [], 'ext':['mkv', 'm2ts']},
+        'brrip':    {'key': 'brrip', 'minSize': 700, 'order':3, 'label': 'BR-Rip', 'alternative': ['bdrip'], 'ext':['mkv', 'avi']},
+        'dvdr':     {'key': 'dvdr', 'minSize': 3000, 'order':4, 'label': 'DVD-R', 'alternative': [], 'ext':['iso']},
+        'dvdrip':   {'key': 'dvdrip', 'minSize': 600, 'order':5, 'label': 'DVD-Rip', 'alternative': [], 'ext':['avi', 'mpg', 'mpeg']},
+        'scr':      {'key': 'scr', 'minSize': 600, 'order':6, 'label': 'Screener', 'alternative': ['dvdscr'], 'ext':['avi', 'mpg', 'mpeg']},
+        'r5':       {'key': 'r5', 'minSize': 600, 'order':7, 'label': 'R5', 'alternative': [], 'ext':['avi', 'mpg', 'mpeg']},
+        'tc':       {'key': 'tc', 'minSize': 600, 'order':8, 'label': 'TeleCine', 'alternative': ['telecine'], 'ext':['avi', 'mpg', 'mpeg']},
+        'ts':       {'key': 'ts', 'minSize': 600, 'order':9, 'label': 'TeleSync', 'alternative': ['telesync'], 'ext':['avi', 'mpg', 'mpeg']},
+        'cam':      {'key': 'cam', 'minSize': 600, 'order':10, 'label': 'Cam', 'alternative': [], 'ext':['avi', 'mpg', 'mpeg']}
     }
     preReleases = ['cam', 'ts', 'tc', 'r5', 'scr', 'dvdr', 'dvdrip']
 
@@ -156,3 +157,27 @@ class Qualities:
                 'type': key,
                 'markComplete': True
             }], waitFor = 0, custom = False, order = type['order'])
+
+    def guess(self, files):
+        found = False
+
+        for file in files:
+            checkThis = os.path.join(file.get('path'), file.get('filename'))
+
+            for type, quality in self.getTypes():
+                print type
+                # Check tags
+                if type in checkThis: found = True
+                for alt in quality.get('alternative'):
+                    if alt in checkThis:
+                        found = True
+
+                # Check extension + filesize
+                for ext in quality.get('ext'):
+                    if ext in checkThis and (os.path.getsize(checkThis) / 1024 / 1024) >= quality.get('minSize'):
+                        found = True
+
+                if found:
+                    return quality.get('label')
+
+        return ''

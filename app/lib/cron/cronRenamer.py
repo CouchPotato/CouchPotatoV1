@@ -27,7 +27,6 @@ class RenamerCron(cronBase):
     movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso']
     nfoExt = ['*.nfo']
     subExt = ['*.sub', '*.srt', '*.idx', '*.ssa', '*.ass']
-    #saveRemove = ['*.nfo', '*.nzb', '*.par2', '*.txt', '*.idx', '*.srr']
 
     def conf(self, option):
         return self.config.get('Renamer', option)
@@ -138,8 +137,6 @@ class RenamerCron(cronBase):
                 if queue.name:
                     return queue
 
-            # If there all empty, just return the first..
-            return Db.query(MovieQueue).filter_by(movieId = movie.id).first()
         except TypeError:
             return None
 
@@ -169,7 +166,7 @@ class RenamerCron(cronBase):
             queue = self.getQueue(movie)
 
         if not queue:
-            quality = ''
+            quality = Qualities().guess(files['files'])
             queueId = 0
         else:
             quality = Qualities.types[queue.qualityType]['label']
