@@ -35,10 +35,7 @@ class BaseController:
         host = 'http://' + cherrypy.request.headers.get('host') + '/'
 
         self.globals['baseUrl'] = host + base + '/' if base else host
-        self.globals['lastCheck'] = self.cron.get('yarr').lastCheck()
-        self.globals['nextCheck'] = self.cron.get('yarr').nextCheck()
-        self.globals['checking'] = self.cron.get('yarr').isChecking()
-        self.globals['stopped'] = self.cron.get('yarr').stop
+        self.globals['yarr'] = self.cron.get('yarr')
 
     def render(self, list):
 

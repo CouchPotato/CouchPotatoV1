@@ -127,10 +127,10 @@
 	    </div>
 		<div class="footer">
 			<div class="check">
-			% if checking and not stopped:
+			% if yarr.isChecking() and not yarr.stop:
 				<img src="media/images/spinner.gif" alt="refresh" style="width:10px" /> Now checking. ( <a href="${url(controller='cron', action='stop')}">Stop</a> )
 			% else:
-				Next check in ${nextCheck.get('string')} ( <a href="${url(controller='cron', action='force')}">Force check</a> )
+				Next check in ${yarr.nextCheck().get('string')} ( <a href="${url(controller='cron', action='force')}">Force check</a> )
 			% endif
 			</div>
 			<div id="version">

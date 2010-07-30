@@ -228,22 +228,27 @@ class YarrCron(cronBase, rss):
 
     def nextCheck(self):
 
-        t = (self.lastChecked + self.intervalSec) - time.time()
-        try: int(t)
-        except: t = 10
+        seconds = int((self.lastChecked + self.intervalSec) - time.time())
+        m, s = divmod(seconds, 60)
+        h, m = divmod(m, 60)
+        d, h = divmod(h, 24)
+        w, d = divmod(d, 7)
 
-        s = ''
-        tm = time.gmtime(t)
-        if tm.tm_hour > 0:
-            s += '%d hours' % tm.tm_hour
-        if tm.tm_min > 0:
-            s += ' %d minutes' % tm.tm_min
-        if tm.tm_sec > 0 and not tm.tm_hour > 0 and not tm.tm_min > 15:
-            s += ' %d seconds' % tm.tm_sec
+        ds = ''
+        if w > 0:
+            ds += '%d week%s' % (w, 's' if w != 1 else '')
+        if d > 0:
+            ds += '%d day%s' % (d, 's' if d != 1 else '')
+        if h > 0:
+            ds += '%d hour%s' % (h, 's' if h != 1 else '')
+        if m > 0:
+            ds += ' %d minute%s' % (m, 's' if m != 1 else '')
+        if s > 0 and not h > 0 and not m > 15:
+            ds += ' %d second%s' % (s, 's' if s != 1 else '')
 
         return {
-            'timestamp': t,
-            'string': s
+            'seconds': seconds,
+            'string': ds
         }
 
 def startYarrCron(config, debug, provider):
