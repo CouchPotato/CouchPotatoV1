@@ -157,7 +157,8 @@
 						<span><strong>thename</strong>: The Movie</span>
 						<span><strong>ext</strong>: ext</span>
 						<span><strong>year</strong>: 2010</span>
-						<span><strong>namethe</strong>: Movie, The</span>
+            <span><strong>quality</strong>: 1080P</span>
+						<span><strong>namethe</strong>: Movie, The</span><br />
 						<span><strong>first</strong>: First character of movie (without "The")</span><br />
 						Only with multiple files:
 						<span><strong>cd</strong>: cd1</span>
@@ -168,7 +169,7 @@
 					<label for="">Cleanup</label>
 					<input type="checkbox" name="Renamer.cleanup" value="True" ${' checked="checked"' if config.get('Renamer', 'cleanup') else ''} />
 					<p class="formHint">
-						Remove leftover files and folders (under 150MB).
+						Remove leftover files/folders in the Download folder.
 					</p>
 				</div>
 			</fieldset>

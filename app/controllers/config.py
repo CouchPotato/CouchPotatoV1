@@ -26,7 +26,8 @@ class ConfigController(BaseController):
              'namethe': 'Big Lebowski, The',
              'thename': 'The Big Lebowski',
              'year': 1998,
-             'first': 'B'
+             'first': 'B',
+             'quality': '1080P'
         }
 
         trailerFormats = self.cron.get('trailer').formats
