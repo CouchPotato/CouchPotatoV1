@@ -6,7 +6,6 @@ Created on 31.07.2010
 import logging
 import os
 
-
 class Environment:
     _debugStatus = True;
     log = None
@@ -25,11 +24,14 @@ class Environment:
         if not os.path.isdir(base_path):
             os.mkdir(base_path)
         Environment._basePath = base_path
-        
+
     @staticmethod
     def getBasePath():
         return Environment._basePath
-    
+
     @staticmethod
     def isQuiet():
         return Environment._quiet
+options = _env.options
+    args = cp_.args
+    ca = cp_.cfg

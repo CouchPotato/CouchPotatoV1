@@ -1,9 +1,7 @@
 '''
-Created on 31.07.2010
-
-@author: Christian
+This class initializes the cherrypy subsystem.
 '''
-
+import cherrypy
 
 cherrypy.config.update({
     'global': {
@@ -27,7 +25,7 @@ cherrypy.config.update({
         'searchers':                        myCrons.searchers,
         'flash':                            app.flash()
     }
-})  
+})
 
 # Static config
 conf = {
@@ -54,3 +52,20 @@ conf = {
         'tools.expires.secs': 3600 * 24 * 7
     }
 }
+
+# Don't use auth when password is empty
+if ca.get('global', 'password') != '':
+    conf['/'].update({
+        'tools.basic_auth.on': True,
+        'tools.basic_auth.realm': 'Awesomeness',
+        'tools.basic_auth.users': {ca.get('global', 'username'):ca.get('global', 'password')},
+        'tools.basic_auth.encrypt': app.clearAuthText
+    })
+    cherrypy.tools.mybasic_auth = cherrypy.Tool('on_start_resource', app.basicAuth)
+
+# I'll do my own logging, thanks!
+cherrypy.log.error_log.propagate = False
+cherrypy.log.access_log.propagate = False
+
+#No Root controller as we provided all our own.
+cherrypy.tree.mount(root = None, config = conf)

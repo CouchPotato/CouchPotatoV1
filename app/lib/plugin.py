@@ -4,7 +4,7 @@ Created on 31.07.2010
 @author: Christian
 '''
 from app.config.configWrapper import ConfigWrapper
-from app.CouchPotato import Environment as cp_
+from app.CouchPotato import Environment as _env
 import os
 
 class Plugin(object):
@@ -28,7 +28,7 @@ class Plugin(object):
         try:
             cf[name] = ConfigWrapper(filename)
         except:
-            cp_.log.info('Failed to load config: ' + str(filename))
+            _env.log.info('Failed to load config: ' + str(filename))
             pass
         
     def loadConfigSet(self, nameSet):

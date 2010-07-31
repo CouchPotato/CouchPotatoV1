@@ -4,7 +4,7 @@ Created on 31.07.2010
 @author: Christian
 '''
 import ConfigParser
-from app.CouchPotato import Environment as cp_
+from app.CouchPotato import Environment as _env
 import os
 
 class ConfigWrapper(object):
@@ -19,7 +19,7 @@ class ConfigWrapper(object):
         The parameter onLoad is used to run the method against
         the newly created config self.
         '''
-        file = os.path.join(cp_.getBasePath(), file)
+        file = os.path.join(_env.getBasePath(), file)
         try:
             self.file = file
             self.p = ConfigParser.RawConfigParser()
@@ -28,7 +28,7 @@ class ConfigWrapper(object):
             if hasattr(onLoad, '__call__'):
                 onLoad(self)
         except Exception as e:
-            cp_.log.info('Error while loading configuration.')
+            _env.log.info('Error while loading configuration.')
             raise
         
     def save(self):

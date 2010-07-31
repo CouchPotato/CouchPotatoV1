@@ -8,7 +8,7 @@ import sys
 import os
 import logging
 import app
-from app.CouchPotato import Environment as cp_
+from app.CouchPotato import Environment as _env
 from app.config.configApp import appConfig
 
 def create_dir(dir):
@@ -39,12 +39,12 @@ elif args.__len__() > 1:
     print ('Invalid argument cound: [config path]')
     sys.exit(1)
 
-cp_.setBasePath(os.path.dirname(config))
+_env.setBasePath(os.path.dirname(config))
 config_name = os.path.basename(config)
 #Load Configuration
 try:
     ca = appConfig(config_name)
-    cp_.cfg = ca;
+    _env.cfg = ca;
 
 except Exception as e:
     print 'Could not initialize config. Check the path' + str(e)
@@ -53,6 +53,6 @@ except Exception as e:
 #create directories
 create_dir(ca.get('paths', 'cache'))
 
-cp_.log = log = init_logging(ca.get('paths', 'logs'), options.debug)
-cp_.options = options
-cp_.args = args
+_env.log = log = init_logging(ca.get('paths', 'logs'), options.debug)
+_env.options = options
+_env.args = args

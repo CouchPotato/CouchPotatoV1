@@ -27,7 +27,7 @@ from cherrypy.process import plugins
 
 import app
 import app.config.render
-from app.CouchPotato import Environment as cp_
+from app.environment import Environment as _env
 from app.config.db import initDb
 from app.config.configApp import appConfig
 from app.config.routes import setup as Routes
@@ -38,9 +38,7 @@ log = logging.getLogger(__name__)
 
 # Use debug conf if available
 def server_start():
-    options = cp_.options
-    args = cp_.args
-    ca = cp_.cfg
+
     initDb()
 
     # Start threads
@@ -51,23 +49,6 @@ def server_start():
     myUpdater = Updater(cherrypy.engine)
     myUpdater.subscribe()
 
-
-    # Don't use auth when password is empty
-    if ca.get('global', 'password') != '':
-        conf['/'].update({
-            'tools.basic_auth.on': True,
-            'tools.basic_auth.realm': 'Awesomeness',
-            'tools.basic_auth.users': {ca.get('global', 'username'):ca.get('global', 'password')},
-            'tools.basic_auth.encrypt': app.clearAuthText
-        })
-        cherrypy.tools.mybasic_auth = cherrypy.Tool('on_start_resource', app.basicAuth)
-
-    # I'll do my own logging, thanks!
-    cherrypy.log.error_log.propagate = False
-    cherrypy.log.access_log.propagate = False
-
-    #No Root controller as we provided all our own.
-    cherrypy.tree.mount(root = None, config = conf)
 
     # Stop logging
     if options.quiet:
@@ -103,6 +84,7 @@ def server_start():
             app.launchBrowser(ca.get('global', 'host'), ca.get('global', 'port'))
 
         cherrypy.engine.block()
+
 
 if __name__ == '__main__':
     server_start()
