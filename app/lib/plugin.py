@@ -3,7 +3,7 @@ Created on 31.07.2010
 
 @author: Christian
 '''
-from app.config.configWrapper import ConfigWrapper
+from app.config.configWrapper import Wrapper
 from app.CouchPotato import Environment as _env
 import os
 
@@ -26,7 +26,7 @@ class Plugin(object):
         
         filename = os.path.join(self.configPath, name)
         try:
-            cf[name] = ConfigWrapper(filename)
+            cf[name] = Wrapper(filename)
         except:
             _env.log.info('Failed to load config: ' + str(filename))
             pass

@@ -1,6 +1,6 @@
 from app.lib.provider.rss import rss
 from app.lib.providers.providerInfo import ProviderInfo
-from app.config.configSection import ConfigSection
+from app.config.configSection import Section
 
 class MovieBase(rss):
     providerInfo = ProviderInfo()
@@ -8,7 +8,7 @@ class MovieBase(rss):
     
     def __init__(self, config):
         self._className = self.__class__.__name__
-        self.config = ConfigSection(self._className, config)
+        self.config = Section(self._className, config)
         self.initConfigSettings()
         self.initProviderInfo()
         pass

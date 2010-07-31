@@ -4,9 +4,9 @@ Created on 31.07.2010
 @author: Christian
 '''
 
-from app.config.configWrapper import ConfigWrapper
+from app.config.configWrapper import Wrapper
 
-class ConfigSection(object):
+class Section(object):
     '''
     This wrapper provides easy access to a section in the configuration.
     '''
@@ -15,7 +15,7 @@ class ConfigSection(object):
         '''
         Will create the section if it does not yet exist.
         '''
-        assert issubclass(aConfigWrapper.__class__, ConfigWrapper) or isinstance(aConfigWrapper, ConfigWrapper)
+        assert issubclass(aConfigWrapper.__class__, Wrapper) or isinstance(aConfigWrapper, Wrapper)
         self.configWrapper = aConfigWrapper
         self.sectionName = sectionName;
         self.configWrapper.addSection(self.sectionName)

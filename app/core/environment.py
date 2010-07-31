@@ -32,6 +32,3 @@ class Environment:
     @staticmethod
     def isQuiet():
         return Environment._quiet
-options = _env.options
-    args = cp_.args
-    ca = cp_.cfg

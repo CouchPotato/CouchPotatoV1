@@ -1,7 +1,7 @@
 '''
 This class initializes the cherrypy subsystem.
 '''
-import cherrypy
+
 
 cherrypy.config.update({
     'global': {
@@ -12,18 +12,6 @@ cherrypy.config.update({
         'engine.autoreload_on':             ca.get('global', 'engine.autoreload_on') and not options.daemonize,
         'tools.mako.collection_size':       500,
         'tools.mako.directories':           os.path.join(path_base, 'app', 'views'),
-
-        'basePath':                         path_base,
-        'runPath':                          rundir,
-        'cachePath':                        ca.get('paths', 'cache'),
-        'frozen':                           frozen,
-
-        # Global workers
-        'config':                           ca,
-        'updater':                          myUpdater,
-        'cron':                             myCrons.threads,
-        'searchers':                        myCrons.searchers,
-        'flash':                            app.flash()
     }
 })
 
@@ -69,3 +57,4 @@ cherrypy.log.access_log.propagate = False
 
 #No Root controller as we provided all our own.
 cherrypy.tree.mount(root = None, config = conf)
+

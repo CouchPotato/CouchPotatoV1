@@ -4,10 +4,10 @@ Created on 31.07.2010
 @author: Christian
 '''
 import ConfigParser
-from app.CouchPotato import Environment as _env
+from app.core.environment import Environment as _env
 import os
 
-class ConfigWrapper(object):
+class Wrapper(object):
     '''
     This class wraps a configuration file
     '''
@@ -30,7 +30,7 @@ class ConfigWrapper(object):
         except Exception as e:
             _env.log.info('Error while loading configuration.')
             raise
-        
+
     def save(self):
         with open(self.file, 'wb') as configfile:
             self.p.write(configfile)

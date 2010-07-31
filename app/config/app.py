@@ -1,16 +1,16 @@
 import ConfigParser
 import logging
-from app.config.configWrapper import ConfigWrapper
+from app.config.wrapper import Wrapper
 
 log = logging.getLogger(__name__)
 
-class appConfig(ConfigWrapper):
+class App(Wrapper):
 
     s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer', 'IMDB', 'Intervals']
     bool = {'true':True, 'false':False}
 
     def __init__(self, path):
-        ConfigWrapper.__init__(self, path)
+        Wrapper.__init__(self, path)
 
     def parser(self):
         return self.p
@@ -87,7 +87,7 @@ class appConfig(ConfigWrapper):
         self.addSection('Quality')
         self.setDefault('Quality', 'hide', 'cam')
         self.setDefault('Quality', 'default', '720p')
-        
+
         self.addSection('paths')
         self.setDefault('paths', 'cache', 'cache')
         self.setDefault('paths', 'database', 'data.db')
