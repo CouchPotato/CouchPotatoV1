@@ -1,5 +1,21 @@
 import sys
 import os
+import traceback
+import logging
+
+import bootstrapper
+
+import cherrypy
+from cherrypy.process import plugins
+
+import app
+import app.config.render
+from app.CouchPotato import CouchPotato as cp_
+from app.config.db import initDb
+from app.config.configApp import configApp
+from app.config.routes import setup as Routes
+from app.config.updater import Updater
+from app.lib.cron import CronJobs
 
 rundir = os.path.dirname(os.path.abspath(__file__))
 try:
@@ -18,58 +34,17 @@ else:
 sys.path.insert(0, path_base)
 sys.path.insert(0, os.path.join(path_base, 'library'))
 
-# Use debug conf if available
-import logging
-import app
-logdir = os.path.join(rundir, 'logs')
-if not os.path.isdir(logdir):
-    os.mkdir(logdir)
-debugconfig = os.path.join(path_base, 'debug.conf')
-if os.path.isfile(debugconfig):
-    app.configLogging(debugconfig, logdir)
-    debug = True
-else:
-    debug = False
-    app.configLogging(os.path.join(path_base, 'logging.conf'), logdir)
-
 log = logging.getLogger(__name__)
 
-# Create cache dir
-cachedir = os.path.join(rundir, 'cache')
-if not os.path.isdir(cachedir):
-    os.mkdir(cachedir)
-
-from app.config.db import initDb
-from optparse import OptionParser
-from app.config.configApp import configApp
-import app.config.render
-from app.config.routes import setup as Routes
-from app.lib.cron import CronJobs
-from app.config.updater import Updater
-
-import cherrypy
-from cherrypy.process import plugins
-
+# Use debug conf if available
 def server_start():
-    p = OptionParser()
-    p.add_option('-d', action = "store_true",
-                 dest = 'daemonize', help = "Run the server as a daemon")
-    p.add_option('-q', '--quiet', action = "store_true",
-                 dest = 'quiet', help = "Don't log to console")
-    p.add_option('-p', '--pidfile',
-                 dest = 'pidfile', default = None,
-                 help = "Store the process id in the given file")
-
-    options, args = p.parse_args()
-
-    config = os.path.join(rundir, 'config.ini')
-
-    # Config app
-    ca = configApp(config)
+    options = cp_.options
+    args = cp_.args
+    ca = cp_.cfg
     initDb()
 
     # Start threads
-    myCrons = CronJobs(cherrypy.engine, ca, debug)
+    myCrons = CronJobs(cherrypy.engine, ca)
     myCrons.subscribe()
 
     # Update script
@@ -89,8 +64,7 @@ def server_start():
 
             'basePath':                         path_base,
             'runPath':                          rundir,
-            'cachePath':                        cachedir,
-            'debug':                            debug,
+            'cachePath':                        ca.get('paths', 'cache'),
             'frozen':                           frozen,
 
             # Global workers
@@ -148,6 +122,7 @@ def server_start():
     # Stop logging
     if options.quiet:
         cherrypy.config.update({'log.screen': False})
+        pass
 
     # Deamonize
     if options.daemonize:
@@ -163,12 +138,13 @@ def server_start():
         cherrypy.engine.signal_handler.subscribe()
     if hasattr(cherrypy.engine, "console_control_handler"):
         cherrypy.engine.console_control_handler.subscribe()
-
-
     ## start the app
     try:
+        log.info('Spawning server...')
         cherrypy.engine.start()
+        log.info('Server running')
     except:
+        log.info(traceback.format_exc())
         sys.exit(1)
     else:
 
@@ -177,7 +153,6 @@ def server_start():
             app.launchBrowser(ca.get('global', 'host'), ca.get('global', 'port'))
 
         cherrypy.engine.block()
-
 
 if __name__ == '__main__':
     server_start()

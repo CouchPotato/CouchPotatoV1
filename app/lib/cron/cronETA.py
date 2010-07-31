@@ -10,6 +10,7 @@ import re
 import time
 import urllib
 import urllib2
+from app.CouchPotato import CouchPotato
 
 etaQueue = Queue.Queue()
 log = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ class etaCron(rss, cronBase):
     def run(self):
         log.info('MovieETA thread is running.')
 
-        timeout = 0.1 if self.debug else 1
+        timeout = 0.1 if CouchPotato.doDebug() else 1
         while True and not self.abort:
             try:
                 queue = etaQueue.get(timeout = timeout)
@@ -190,9 +191,8 @@ class etaCron(rss, cronBase):
         return results
 
 
-def startEtaCron(debug):
+def startEtaCron():
     c = etaCron()
-    c.debug = debug
     c.start()
 
     return c

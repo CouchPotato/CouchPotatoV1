@@ -1,4 +1,4 @@
-from app.lib.provider.movie.base import movieBase
+from app.lib.provider.movie.base import MovieBase
 from imdb import IMDb
 from urllib import quote_plus
 from urllib2 import URLError
@@ -6,20 +6,17 @@ import cherrypy
 import logging
 import os
 import urllib2
+from app.lib import util
 
 log = logging.getLogger(__name__)
 
-class theMovieDb(movieBase):
+class theMovieDb(MovieBase):
     """Api for theMovieDb"""
 
     apiUrl = 'http://api.themoviedb.org/2.1'
 
     def __init__(self, config):
-        log.info('Using TheMovieDb provider.')
-        self.config = config
-
-    def conf(self, option):
-        return self.config.get('TheMovieDB', option)
+        MovieBase.__init__(self, config)
 
     def find(self, q, limit = 8, alternative = True):
         ''' Find movie by name '''
@@ -28,8 +25,7 @@ class theMovieDb(movieBase):
             return False
 
         log.debug('TheMovieDB - Searching for movie: %s', q)
-
-        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.conf('key'), quote_plus(self.toSearchString(q)))
+        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.config.get('key'), quote_plus(util.sanitize_search_string(q)))
 
         log.info('Searching: %s', url)
 
@@ -53,7 +49,7 @@ class theMovieDb(movieBase):
         if self.isDisabled():
             return False
 
-        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.imdbLookup', self.conf('key'), id)
+        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.imdbLookup', self.config.get('key'), id)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout)
@@ -124,7 +120,7 @@ class theMovieDb(movieBase):
         if self.isDisabled():
             return False
 
-        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.conf('key'), id)
+        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.config.get('key'), id)
         data = urllib2.urlopen(url, timeout = self.timeout)
 
         return data
@@ -164,8 +160,17 @@ class theMovieDb(movieBase):
         return item
 
     def isDisabled(self):
-        if self.conf('key') == '':
+        if self.config.get('key') == '':
             log.error('TheMovieDB - No API key provided for TheMovieDB')
             True
         else:
             False
+
+    def initConfigSettings(self):
+        c = self.config
+        c.setDefault('name', 'theMovieDb')
+        c.setDefault('author', 'Rudden')
+        c.setDefault('version', '0.1')
+        c.setDefault('support', None)
+        c.setDefault('url', None)
+        c.setDefault('key', '9b939aee0aaafc12a65bf448e4af9543')

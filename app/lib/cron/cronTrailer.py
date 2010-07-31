@@ -13,6 +13,7 @@ import re
 import shutil
 import time
 import urllib2
+from app.CouchPotato import CouchPotato
 
 trailerQueue = Queue.Queue()
 log = logging.getLogger(__name__)
@@ -33,7 +34,7 @@ class TrailerCron(rss, cronBase):
         self.sources.append(HdTrailers(self.config))
         self.sources.append(Youtube(self.config))
 
-        timeout = 0.1 if self.debug else 1
+        timeout = 0.1 if CouchPotato.doDebug() else 1
         while True and not self.abort:
             try:
                 movie = trailerQueue.get(timeout = timeout)
@@ -120,7 +121,7 @@ class TrailerCron(rss, cronBase):
             else:
                 log.info('No match found for: %s' % movieFiles.get('filename'))
 
-            if not self.debug:
+            if not CouchPotato.doDebug():
                 time.sleep(1)
 
     def findYear(self, text):
@@ -177,7 +178,7 @@ class TrailerCron(rss, cronBase):
 
         log.info('Downloading trailer "%s", %d MB' % (url, int(data.info().getheaders("Content-Length")[0]) / 1024 / 1024))
 
-        if self.debug:
+        if CouchPotato.doDebug():
             return
 
         with open(tempTrailerFile, 'wb') as f:
@@ -190,10 +191,9 @@ class TrailerCron(rss, cronBase):
     def extention(self, url):
         return '.mov' if '.mov' in url else '.mp4'
 
-def startTrailerCron(config, debug):
+def startTrailerCron(config):
     cron = TrailerCron()
     cron.config = config
-    cron.debug = debug
     cron.start()
 
     return cron

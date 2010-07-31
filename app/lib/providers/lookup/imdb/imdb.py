@@ -1,14 +1,14 @@
-from app.lib.provider.movie.base import MovieBase
+from app.lib.providers.basicProvider import BasicProvider
 from imdb import IMDb
 import logging
 
 log = logging.getLogger(__name__)
 
-class imdbWrapper(MovieBase):
+class imdb(BasicProvider):
     """Api for IMDB"""
 
     def __init__(self, config):
-        MovieBase.__init__(self, config)
+        BasicProvider.__init__(self, config)
         self.config = config
 
         self.p = IMDb('mobile')

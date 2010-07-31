@@ -11,6 +11,7 @@ import os
 import time
 import urllib
 import urllib2
+from app.CouchPotato import CouchPotato
 
 log = logging.getLogger(__name__)
 
@@ -31,10 +32,10 @@ class YarrCron(cronBase, rss):
         self.setInterval(self.config.get('Intervals', 'search'))
         self.forceCheck()
 
-        if not self.debug:
+        if not CouchPotato.doDebug():
             time.sleep(10)
 
-        wait = 0.1 if self.debug else 1
+        wait = 0.1 if CouchPotato.doDebug() else 1
         while True and not self.abort:
 
             #check single movie
@@ -45,7 +46,7 @@ class YarrCron(cronBase, rss):
 
             #check all movies
             now = time.time()
-            if (self.lastChecked + self.intervalSec) < now:# and not self.debug:
+            if (self.lastChecked + self.intervalSec) < now:# and not CouchPotato.doDebug():
                 self.lastChecked = now
                 self.searchAll()
 
@@ -127,13 +128,13 @@ class YarrCron(cronBase, rss):
                 return True
 
             # only search for active and not completed, minimal 5 min since last search
-            if queue.active and (queue.lastCheck < (now - 300) or self.debug or force) and not queue.completed and not self.abort and not self.stop:
+            if queue.active and (queue.lastCheck < (now - 300) or CouchPotato.doDebug() or force) and not queue.completed and not self.abort and not self.stop:
 
                 #skip if no search is set
                 if not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases)):
                     continue
 
-                if self.debug:
+                if CouchPotato.doDebug:
                     log.debug(queue)
                     results = []
                 else:
@@ -176,7 +177,7 @@ class YarrCron(cronBase, rss):
 
                     return True
 
-                if not self.debug:
+                if not CouchPotato.doDebug():
                     time.sleep(5)
 
                 queue.lastCheck = now
@@ -251,10 +252,9 @@ class YarrCron(cronBase, rss):
             'string': ds
         }
 
-def startYarrCron(config, debug, provider):
+def startYarrCron(config, provider):
     cron = YarrCron()
     cron.config = config
-    cron.debug = debug
     cron.provider = provider
     cron.start()
 

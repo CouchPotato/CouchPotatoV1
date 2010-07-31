@@ -8,6 +8,7 @@ import os
 import re
 import shutil
 import time
+from app.CouchPotato import CouchPotato
 
 log = logging.getLogger(__name__)
 
@@ -27,6 +28,8 @@ class RenamerCron(cronBase):
     movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso']
     nfoExt = ['*.nfo']
     subExt = ['*.sub', '*.srt', '*.idx', '*.ssa', '*.ass']
+    vCodecs = ['xvid', 'x264', 'divx', 'wmv', 'avc', 'avc1']
+    aCodecs = ['mp3', 'dts', 'ac3', 'ac3d']
 
     def conf(self, option):
         return self.config.get('Renamer', option)
@@ -39,7 +42,7 @@ class RenamerCron(cronBase):
         if not os.path.isdir(self.conf('download')):
             log.info("Watched folder doesn't exist.")
 
-        wait = 0.1 if self.debug else 5
+        wait = 0.1 if CouchPotato.doDebug() else 5
 
         #time.sleep(10)
         while True and not self.abort:
@@ -176,6 +179,7 @@ class RenamerCron(cronBase):
              'cd': '',
              'cdNr': '',
              'ext': '.mkv',
+             'original'   : '',
              'namethe': namethe.strip(),
              'thename': moviename.strip(),
              'year': movie.year,
@@ -204,6 +208,7 @@ class RenamerCron(cronBase):
             log.info('Trying to find a home for: %s' % latinToAscii(file['filename']))
 
             replacements['ext'] = file['ext']
+            replacements['original'] = file['filename']
 
             if multiple:
                 replacements['cd'] = ' cd' + str(cd)
@@ -460,10 +465,9 @@ class RenamerCron(cronBase):
         return False
 
 
-def startRenamerCron(config, searcher, debug):
+def startRenamerCron(config, searcher):
     cron = RenamerCron()
     cron.config = config
-    cron.debug = debug
     cron.searcher = searcher
     cron.trailerQueue = searcher.get('trailerQueue')
     cron.start()

@@ -31,15 +31,14 @@ def launchBrowser(host, port):
         except:
             log.error('Could not launch a browser.')
 
-def configLogging(fname, logPath):
-
+def configLogging(fname, target):
     cp = ConfigParser.ConfigParser()
     if hasattr(cp, 'readfp') and hasattr(fname, 'readline'):
         cp.readfp(fname)
     else:
         cp.read(fname)
 
-    cp.set('handler_accesslog', 'args', cp.get('handler_accesslog', 'args').replace('{logPath}', os.path.join(logPath, 'CouchPotato.log')))
+    cp.set('handler_accesslog', 'args', cp.get('handler_accesslog', 'args').replace('{logPath}', target))
 
     formatters = _create_formatters(cp)
 

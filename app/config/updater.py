@@ -8,6 +8,7 @@ import os
 import tarfile
 import time
 import urllib2
+from app.CouchPotato import CouchPotato
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +31,6 @@ class Updater(SimplePlugin):
         self.runPath = cherrypy.config['runPath']
         self.cachePath = cherrypy.config['cachePath']
         self.isFrozen = cherrypy.config['frozen']
-        self.debug = cherrypy.config['debug']
         self.updatePath = os.path.join(self.cachePath, 'updates')
         self.historyFile = os.path.join(self.updatePath, 'history.txt')
 
@@ -77,7 +77,7 @@ class Updater(SimplePlugin):
 
     def checkForUpdate(self):
 
-        if self.debug:
+        if CouchPotato.doDebug():
             return
 
         if self.isFrozen:
@@ -167,7 +167,7 @@ class Updater(SimplePlugin):
                 fromfile = os.path.join(root, filename)
                 tofile = os.path.join(self.runPath, fromfile.replace(extractedPath + os.path.sep, ''))
 
-                if not self.debug:
+                if not CouchPotato.doDebug():
                     try:
                         os.remove(tofile)
                     except:

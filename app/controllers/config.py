@@ -25,6 +25,7 @@ class ConfigController(BaseController):
              'ext': 'mkv',
              'namethe': 'Big Lebowski, The',
              'thename': 'The Big Lebowski',
+             'original': 'The.Big.Lebowski.1999.1080p.x264.BluRay.DTS.x264-group',
              'year': 1998,
              'first': 'B',
              'quality': '1080P'

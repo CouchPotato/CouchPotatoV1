@@ -1,14 +1,19 @@
-from app.lib.provider.rss import rss
+'''
+Created on 31.07.2010
+
+@author: Christian
+'''
+
 from app.lib.providers.providerInfo import ProviderInfo
 from app.config.configSection import ConfigSection
 
-class MovieBase(rss):
+class BasicProvider():
     providerInfo = ProviderInfo()
     type = 'movie'
     
-    def __init__(self, config):
+    def __init__(self):
         self._className = self.__class__.__name__
-        self.config = ConfigSection(self._className, config)
+        self.config = ConfigSection(self._className)
         self.initConfigSettings()
         self.initProviderInfo()
         pass

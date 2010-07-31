@@ -1,4 +1,4 @@
-from app.lib.provider.movie.base import movieBase
+from app.lib.provider.movie.base import MovieBase
 import logging
 import sha
 import urllib
@@ -6,10 +6,12 @@ import xml.etree.ElementTree as XMLTree
 
 log = logging.getLogger(__name__)
 
-class sceneReleases(movieBase):
+class sceneReleases(MovieBase):
 
     feedUrl = 'http://scenereleases.info/category/movies/feed'
 
+    def __init__:
+        
     def checkForNew(self):
         ''' Find movie by name '''
 

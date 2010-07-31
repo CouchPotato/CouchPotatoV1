@@ -1,20 +1,16 @@
 import ConfigParser
 import logging
+from app.config.configWrapper import ConfigWrapper
 
 log = logging.getLogger(__name__)
 
-class configApp():
+class configApp(ConfigWrapper):
 
     s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer', 'IMDB', 'Intervals']
     bool = {'true':True, 'false':False}
 
-    def __init__(self, file):
-        self.file = file
-
-        self.p = ConfigParser.RawConfigParser()
-        self.p.read(file)
-
-        self.initConfig()
+    def __init__(self, path):
+        ConfigWrapper.__init__(self, path)
 
     def parser(self):
         return self.p
@@ -45,6 +41,7 @@ class configApp():
         self.setDefault('global', 'password', '')
         self.setDefault('global', 'launchbrowser', True)
         self.setDefault('global', 'urlBase', '')
+        self.setDefault('global', 'feelingLucky', False) #choose release automatically?
 
         self.addSection('Renamer')
         self.setDefault('Renamer', 'enabled', False)
@@ -83,11 +80,6 @@ class configApp():
         self.setDefault('Sabnzbd', 'password', '')
         self.setDefault('Sabnzbd', 'category', '')
 
-        self.addSection('TheMovieDB')
-        self.setDefault('TheMovieDB', 'key', '9b939aee0aaafc12a65bf448e4af9543')
-
-        self.addSection('IMDB')
-
         self.addSection('Intervals')
         self.setDefault('Intervals', 'search', '24')
         self.setDefault('Intervals', 'renamer', '5')
@@ -95,20 +87,13 @@ class configApp():
         self.addSection('Quality')
         self.setDefault('Quality', 'hide', 'cam')
         self.setDefault('Quality', 'default', '720p')
+        
+        self.addSection('paths')
+        self.setDefault('paths', 'cache', 'cache')
+        self.setDefault('paths', 'database', 'data.db')
+        self.setDefault('paths', 'logs', 'logs')
 
         self.save()
-
-    def save(self):
-        with open(self.file, 'wb') as configfile:
-            self.p.write(configfile)
-
-    def addSection(self, section):
-        if not self.p.has_section(section):
-            self.p.add_section(section)
-
-    def setDefault(self, section, option, value):
-        if not self.p.has_option(section, option):
-            self.p.set(section, option, value)
 
 class Auth():
 

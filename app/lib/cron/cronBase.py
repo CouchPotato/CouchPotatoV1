@@ -4,7 +4,6 @@ class cronBase(threading.Thread):
 
     abort = False
     running = False
-    debug = False
 
     def isRunning(self):
         return self.running

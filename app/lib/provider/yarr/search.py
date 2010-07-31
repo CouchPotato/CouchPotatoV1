@@ -4,6 +4,7 @@ from app.lib.provider.yarr.sources.tpb import tpb
 from app.lib.qualities import Qualities
 import logging
 import time
+from app.CouchPotato import CouchPotato
 
 log = logging.getLogger(__name__)
 
@@ -11,10 +12,9 @@ class Searcher():
 
     sources = []
 
-    def __init__(self, config, debug):
+    def __init__(self, config):
 
         self.config = config
-        self.debug = debug
 
         #nzbmatrix
         m = nzbMatrix(config)
@@ -35,7 +35,7 @@ class Searcher():
 
         qualities = Qualities()
 
-        wait = 1 if self.debug else 5
+        wait = 1 if CouchPotato.doDebug() else 5
 
         for source in self.sources:
 

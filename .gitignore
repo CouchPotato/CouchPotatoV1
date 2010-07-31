@@ -16,3 +16,5 @@ warnCouchPotato.txt
 warnWindowsUpdater.txt
 WindowsStart.py
 WindowsUpdater.py
+config/
+*.bak

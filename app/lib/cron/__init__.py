@@ -9,6 +9,7 @@ from cherrypy.process import plugins
 import cherrypy
 import logging
 import sys
+import traceback
 
 log = logging.getLogger(__name__)
 
@@ -32,11 +33,10 @@ class CronJobs(plugins.SimplePlugin):
     threads = {}
     searchers = {}
 
-    def __init__(self, bus, config, debug):
+    def __init__(self, bus, config):
         plugins.SimplePlugin.__init__(self, bus)
 
         self.config = config
-        self.debug = debug
 
     def start(self):
 
@@ -46,26 +46,30 @@ class CronJobs(plugins.SimplePlugin):
         self.config = config
 
         #searchers
-        yarrSearch = Searcher(config, self.debug);
-        movieSearch = movieSearcher(config);
-        self.searchers['yarr'] = yarrSearch
-        self.searchers['movie'] = movieSearch
+        try:
+            yarrSearch = Searcher(config);
+            movieSearch = movieSearcher(config);
+            self.searchers['yarr'] = yarrSearch
+            self.searchers['movie'] = movieSearch
+        except Exception as e:
+            log.info('Could not initialize searchers: ' + str(e) + ''+traceback.format_exc())
+            raise RuntimeError('Failed to initialize searchers.')
 
         #trailer cron
-        trailerCronJob = startTrailerCron(config, self.debug)
+        trailerCronJob = startTrailerCron(config)
         self.threads['trailer'] = trailerCronJob
         self.searchers['trailerQueue'] = trailerQueue
 
-        etaCron = startEtaCron(self.debug)
+        etaCron = startEtaCron()
         self.threads['eta'] = etaCron
         self.searchers['etaQueue'] = etaQueue
 
         #renamer cron
-        renamerCronJob = startRenamerCron(config, self.searchers, self.debug)
+        renamerCronJob = startRenamerCron(config, self.searchers)
         self.threads['renamer'] = renamerCronJob
 
         #nzb cronjob
-        yarrCronJob = startYarrCron(config, self.debug, yarrSearch)
+        yarrCronJob = startYarrCron(config, yarrSearch)
         yarrCronJob.sabNzbd = sabNzbd(config)
         self.threads['yarr'] = yarrCronJob
 

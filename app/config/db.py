@@ -21,7 +21,7 @@ metadata = MetaData(engine)
 Session = scoped_session(sessionmaker(bind = engine, autocommit = True))
 
 # DB VERSION
-latestDatabaseVersion = 4
+latestDatabaseVersion = 5
 
 dbVersionTable = Table('DbVersion', metadata,
                      Column('version', Integer, primary_key = True)
@@ -52,6 +52,7 @@ movieQueueTable = Table('MovieQueue', metadata,
                      Column('name', String()),
                      Column('link', String()),
                      Column('lastCheck', Integer)
+                     #Column('feelingLucky', Boolean)
             )
 
 movieEtaTable = Table('MovieETA', metadata,
@@ -99,7 +100,7 @@ qualityTemplateTypeTable = Table('QualityTemplateType', metadata,
 class DbVersion(object):
     def __init__(self, version):
         self.version = version
-
+    
     def __repr__(self):
         return "<dbversion: %s" % self.version
 
@@ -107,7 +108,7 @@ class Movie(object):
     name = None
     status = None
     dateChanged = None
-
+    
     def __repr__(self):
         return "<movie: %s" % self.name
 
@@ -115,7 +116,7 @@ class MovieQueue(object):
     active = None
     complete = None
     order = None
-
+    
     def __repr__(self):
         return "<moviequeue: %s active=%s complete=%s quality=%s" % (self.Movie.name, self.active, self.complete, self.qualityType)
 
@@ -123,7 +124,7 @@ class MovieETA(object):
     dvd = 0
     theater = 0
     bluray = 0
-
+    
     def __repr__(self):
         return "<movieeta: %s" % self.videoEtaId
 
@@ -142,13 +143,13 @@ class QualityTemplate(object):
     name = None
     order = None
     custom = None
-
+    
     def __repr__(self):
         return self.name
 
 class QualityTemplateType(object):
     order = None
-
+    
     def __repr__(self):
         return "<qualitytempatetypes: %s" % self.type
 
@@ -173,97 +174,121 @@ qualityCustomMapper = mapper(QualityTemplateType, qualityTemplateTypeTable)
 
 def initDb():
     log.info('Initializing Database.')
-
+    
     # DB exists, do upgrade
     if os.path.isfile(path):
         doUpgrade = True;
     else:
         doUpgrade = False
-
+        
     metadata.create_all()
-
+    
     # set default qualities
     from app.lib.qualities import Qualities
     qu = Qualities()
     qu.initDefaults()
-
+    
     if doUpgrade:
         upgradeDb()
     else:
         for nr in range(1, latestDatabaseVersion + 1):
             Session.add(DbVersion(nr))
             Session.flush()
+    log.info('Database loaded')
 
 def upgradeDb():
-
     currentVersion = Session.query(DbVersion).order_by(desc(DbVersion.version)).first()
     if currentVersion:
         if currentVersion.version == latestDatabaseVersion:
             log.debug('Database is up to date.')
             return
-
-        if currentVersion.version < 2: migrateVersion2()
-        if currentVersion.version < 3: migrateVersion3()
-        if currentVersion.version < 4: migrateVersion4()
+        #do a dynamic function lookup, convention over configuration
+        db = SqlSoup(engine)
+        functions = globals()
+        for tempVersion in range(currentVersion.version + 1, latestDatabaseVersion + 1):
+            method = functions.get('migrateVersion'+str(tempVersion))
+            if(hasattr(method, '__call__')):
+                migrationPrepare(tempVersion)
+                method(db)
+                migrationComplete(tempVersion)
+                
+        #if currentVersion.version < 2: migrateVersion2()
+        #if currentVersion.version < 3: migrateVersion3()
+        #if currentVersion.version < 4: migrateVersion4()
+        #if currentVersion.version < 5: migrateVersion5()
     else: # assume version 2
         migrateVersion3()
 
-def migrateVersion4():
+def migrationPrepare(version):
+    log.info('Upgrading DB to version ' + str(version))
+
+def migrationComplete(version):
+    Session.add(DbVersion(version))
+    Session.flush()
+    
+def migrationHelperAddColumn(db, table, column, type):
+    try:
+        db.execute('ALTER TABLE ' \
+                    + table \
+                    + ' ADD ' + column\
+                    + ' ' + type)
+        log.info('Added column ' \
+                 + column + 'to table ' \
+                 + table)
+    except:
+        log.info('Error while adding column ' + column)
+    
+def migrateVersion5(db):
+    addC = migrationHelperAddColumn
+    addC(db, 'MovieQueue', 'feelingLucky', 'BOOLEAN')
+
+def migrateVersion4(db):
     log.info('Upgrading DB to version 4.')
-
-    # for some normal executions
-    db = SqlSoup(engine)
-
+    
     try:
         db.execute('ALTER TABLE MovieETA ADD lastCheck INTEGER')
         log.info('Added lastCheck to MovieETA table')
     except OperationalError:
         log.debug('Column lastCheck already added.')
-
+    
     try:
         db.execute('ALTER TABLE MovieQueue ADD lastCheck INTEGER')
         log.info('Added lastCheck to MovieQueue table')
     except OperationalError:
         log.debug('Column lastCheck already added.')
-
+    
     Session.add(DbVersion(4))
     Session.flush()
 
-def migrateVersion3():
+def migrateVersion3(db):
     log.info('Upgrading DB to version 3.')
-
-    # for some normal executions
-    db = SqlSoup(engine)
-
+    
     try:
         db.execute('ALTER TABLE Movie ADD dateChanged TIMESTAMP')
         log.info('Added dateChanged to Movie table')
     except OperationalError:
         log.debug('Column dateChanged already added')
-
+        
     Session.add(DbVersion(3))
     Session.flush()
 
-def migrateVersion2():
+def migrateVersion2(db):
     log.info('Upgrading DB to version 2.')
-
-    # for some normal executions
-    db = SqlSoup(engine)
-
+    
     # Remove not used table
     try:
         db.execute('DROP TABLE Feed')
         log.info('Removed old Feed table.')
     except (OperationalError, NoSuchTableError):
         log.debug('No Feed table found.')
-
+        
     # History add column
     try:
         db.execute('DROP TABLE History')
         log.info('Removed History table.')
     except (OperationalError, NoSuchTableError):
         log.debug('No History table found.')
-
+        
     # RenameHistory add column
     try:
         Session.query(RenameHistory).filter_by(movieQueue = '').all()
@@ -276,13 +301,13 @@ def migrateVersion2():
         db.execute("INSERT INTO RenameHistory SELECT id, movieId, old, new FROM RenameHistoryBackup;")
         db.execute("DROP TABLE RenameHistoryBackup;")
         log.info('Added "movieQueue" column to existing RenameHistory Table.')
-
+    
     # Mark all history
-
+    
     # Quality from string to int
     movies = Session.query(Movie).all()
     for movie in movies:
-
+    
         # Add moviequeues
         log.info('Making Queue item for %s' % movie.name)
         queue = MovieQueue()
@@ -294,14 +319,14 @@ def migrateVersion2():
         queue.markComplete = True
         Session.add(queue)
         Session.flush()
-
+        
         log.info('Doing some stuff to RenameHistory')
         history = Session.query(RenameHistory).filter_by(movieQueue = movie.id).first()
         if history:
             history.movieQueue = queue.id
             queue.name = os.path.basename(os.path.dirname(history.old))
             Session.flush()
-
+        
     Session.add(DbVersion(1)) # Add version 1 for teh nice
     Session.add(DbVersion(2))
     Session.flush()
