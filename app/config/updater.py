@@ -52,26 +52,28 @@ class Updater(SimplePlugin):
 
         if self.isFrozen:
             return self.checkForUpdateWindows()
-        else:
-            log.info("Updating")
-            self.running = True
 
-            result = self.doUpdateUnix()
-            self.bus.restart()
 
-            self.running = False
-            return result
+        log.info("Updating")
+        self.running = True
+
+        result = self.doUpdate()
+        self.bus.restart()
+
+        self.running = False
+        return result
 
     def getVersion(self, force = False):
 
         if not self.version or force:
+            self.version = ''
             if self.isFrozen:
-                self.version = 'Windows build r%d' % version.windows
-            else:
-                handle = open(self.historyFile, "r")
-                lineList = handle.readlines()
-                handle.close()
-                self.version = lineList[-1].replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
+                self.version = 'Windows build r%d ' % version.windows
+
+            handle = open(self.historyFile, "r")
+            lineList = handle.readlines()
+            handle.close()
+            self.version += lineList[-1].replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
 
         return self.version
 
@@ -82,16 +84,16 @@ class Updater(SimplePlugin):
 
         if self.isFrozen:
             self.updateAvailable = self.checkForUpdateWindows()
-        else:
-            update = self.checkForUpdateUnix()
-            history = open(self.historyFile, 'r').read()
-            self.updateAvailable = update.get('name').replace('.tar.gz', '') not in history
+
+        update = self.checkForUpdateVersion()
+        history = open(self.historyFile, 'r').read()
+        self.updateAvailable = update.get('name').replace('.tar.gz', '') not in history
 
         self.availableString = 'Update available' if self.updateAvailable else 'No update available'
         self.lastCheck = time.time()
         log.info(self.availableString)
 
-    def checkForUpdateUnix(self):
+    def checkForUpdateVersion(self):
         try:
             data = urllib2.urlopen(self.url, timeout = self.timeout)
         except (IOError, URLError):
@@ -101,8 +103,31 @@ class Updater(SimplePlugin):
         name = data.geturl().split('/')[-1]
         return {'name':name, 'data':data}
 
+    def getDownloads(self):
+        try:
+            data = urllib2.urlopen(self.downloads, timeout = self.timeout).read()
+        except (IOError, URLError):
+            log.error('Failed to open %s.' % self.downloads)
+            return False
 
-    def checkForUpdateWindows(self):
+        try:
+            tables = SoupStrainer('table')
+            html = BeautifulSoup(data, parseOnlyThese = tables)
+            resultTable = html.find('table', attrs = {'id':'s3_downloads'})
+
+            return resultTable.findAll('a')['href'].replace(' ', '%20')
+        except AttributeError:
+            log.debug('Nothing found.')
+
+        return []
+
+    def getLatestUpdater(self):
+        downloads = self.getDownloads()
+
+        for download in downloads:
+            print download
+
+    def getLatestWindowsBuild(self):
         try:
             data = urllib2.urlopen(self.downloads, timeout = self.timeout).read()
         except (IOError, URLError):
@@ -133,8 +158,8 @@ class Updater(SimplePlugin):
 
         return False
 
-    def doUpdateUnix(self):
-        update = self.checkForUpdateUnix()
+    def doUpdate(self):
+        update = self.checkForUpdateVersion()
         if not update:
             return False
 
