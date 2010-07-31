@@ -9,12 +9,12 @@ import os
 import logging
 import app
 from app.CouchPotato import CouchPotato as cp_
-from app.config.configApp import configApp 
+from app.config.configApp import configApp
 
 def create_dir(dir):
     if not os.path.isdir(dir):
         os.mkdir(dir)
-        
+
 def init_logging(base_path, target):
     app.configLogging(os.path.join(base_path, 'logging.conf'), target)
     return logging.getLogger(__name__)
@@ -43,9 +43,9 @@ config_name = os.path.basename(config)
 try:
     ca = configApp(config_name)
     cp_.cfg = ca;
-    
+
 except Exception as e:
-    print 'Could not initialize config. Check the path' + str(e) 
+    print 'Could not initialize config. Check the path' + str(e)
     sys.exit(1)
 
 #create directories

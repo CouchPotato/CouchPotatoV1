@@ -1,21 +1,5 @@
 import sys
 import os
-import traceback
-import logging
-
-import bootstrapper
-
-import cherrypy
-from cherrypy.process import plugins
-
-import app
-import app.config.render
-from app.CouchPotato import CouchPotato as cp_
-from app.config.db import initDb
-from app.config.configApp import configApp
-from app.config.routes import setup as Routes
-from app.config.updater import Updater
-from app.lib.cron import CronJobs
 
 rundir = os.path.dirname(os.path.abspath(__file__))
 try:
@@ -33,6 +17,22 @@ else:
 # Include paths
 sys.path.insert(0, path_base)
 sys.path.insert(0, os.path.join(path_base, 'library'))
+
+import traceback
+import logging
+import bootstrapper
+
+import cherrypy
+from cherrypy.process import plugins
+
+import app
+import app.config.render
+from app.CouchPotato import CouchPotato as cp_
+from app.config.db import initDb
+from app.config.configApp import configApp
+from app.config.routes import setup as Routes
+from app.config.updater import Updater
+from app.lib.cron import CronJobs
 
 log = logging.getLogger(__name__)
 

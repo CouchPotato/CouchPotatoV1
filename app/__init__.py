@@ -38,7 +38,7 @@ def configLogging(fname, target):
     else:
         cp.read(fname)
 
-    cp.set('handler_accesslog', 'args', cp.get('handler_accesslog', 'args').replace('{logPath}', target))
+    cp.set('handler_accesslog', 'args', cp.get('handler_accesslog', 'args').replace('{logPath}', os.path.join(target, 'CouchPotato.log')))
 
     formatters = _create_formatters(cp)
 
