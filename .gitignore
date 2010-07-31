@@ -12,7 +12,7 @@
 /logs/
 /pyInstaller/
 /build/
-/config/
+/data/
 /cache/
 
 debug.conf

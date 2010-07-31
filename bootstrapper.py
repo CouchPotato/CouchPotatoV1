@@ -15,8 +15,8 @@ def create_dir(dir):
     if not os.path.isdir(dir):
         os.mkdir(dir)
 
-def init_logging(base_path, target):
-    app.configLogging(os.path.join(base_path, 'logging.conf'), target)
+def init_logging(target, debug = False):
+    app.configLogging(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'debug.conf' if debug else 'logging.conf'), target)
     return logging.getLogger(__name__)
 
 p = OptionParser()
@@ -27,10 +27,12 @@ p.add_option('-q', '--quiet', action = "store_true",
 p.add_option('-p', '--pidfile',
              dest = 'pidfile', default = None,
              help = "Store the process id in the given file")
+p.add_option('-t', '--debug', action = "store_true",
+             dest = 'debug', help = "Run in debug mode")
 
 options, args = p.parse_args()
 
-config = 'config/config.ini'
+config = 'data/config.ini'
 if args.__len__() == 1:
     config = args[0]
 elif args.__len__() > 1:
@@ -51,6 +53,6 @@ except Exception as e:
 #create directories
 create_dir(ca.get('paths', 'cache'))
 
-cp_.log = log = init_logging(cp_.getBasePath(), ca.get('paths', 'logs'))
+cp_.log = log = init_logging(ca.get('paths', 'logs'), options.debug)
 cp_.options = options
 cp_.args = args
