@@ -1,0 +1,62 @@
+<% from time import gmtime, strftime %>
+<%page args="etas, type"/>
+
+<div id="${type}Eta" class="eta">
+	<% now = gmtime() %>
+	% for eta in etas:
+	<% movie = eta.Movie %>
+	% if movie.status == u'want' or movie.status == u'waiting':
+	<% 
+		release = eta.theater if type == 'theater' else eta.dvd
+		gmRelease = gmtime(release)
+		
+		if gmRelease.tm_year < now.tm_year:
+			releaseString = "%Y, %d %B"
+		else:
+			releaseString = "%a, %d %B"
+			
+			
+		extra = {}
+		for e in movie.extra:
+			extra[e.name] = e.value
+		
+		if not extra.get('poster_cover'):
+			searchers.get('movie').getExtraInfo(movie.id)
+		
+		# Check if only HD is queued and no HD seems to be available
+		hdQueue = False
+		otherQueue = False
+		if type == 'dvd':
+			for queue in movie.queue:
+				if queue.qualityType in ['720p','1080p', 'brrip']:
+					hdQueue = True
+				else:
+					otherQueue = True
+	%>
+	<div class="item ${movie.status}" data-id="${movie.id}">
+		<span class="thumbnail">
+			% if extra.get('poster_thumb'):
+			<span class="img"><img src="${extra.get('poster_cover')}" alt="thumbnail" /></span>
+			% endif
+			<span class="info">
+				<span class="notice ${'' if not eta.bluray and hdQueue and not otherQueue else 'disabled'}"><img src="media/images/notice.png" title="${'Only searching for HD qualities, but no original HD source available.' if not eta.bluray and hdQueue and not otherQueue else ''}" /></span>
+				<span class="hd ${'disabled' if not eta.bluray else ''}"><img src="media/images/hd.png" /></span>
+				<span class="imdb"><a href="http://www.imdb.com/title/${movie.imdb}/" target="_blank"><img src="media/images/imdb.png" alt="IMDB" /></a></span>
+				<span class="moviedb ${'disabled' if not movie.movieDb else ''}"><a ${'href="http://www.themoviedb.org/movie/%s"' % str(movie.movieDb) if movie.movieDb else ''} target="_blank"><img src="media/images/moviedb.png" alt="TheMovieDB" /></a></span>
+				<span class="videoeta"><a href="http://videoeta.com/movie/${eta.videoEtaId}" target="_blank"><img src="media/images/videoeta.png" alt="VideoETA" /></a></span>
+			</span>
+		</span>
+		<span class="extra">
+			<h2>${movie.name}</h2>
+			<span class="release">${strftime(releaseString, gmRelease) if release > 0 else 'Unknown'}</span>
+			% if extra.get('overview'):
+			<span class="overview">${extra.get('overview')}</span>
+			% endif
+			% if extra.get('rating') and extra.get('rating') != '0.0':
+			<span class="rating">Rating: ${extra.get('rating')}</span>
+			% endif
+		</span>
+	</div>
+	% endif
+	% endfor
+</div>

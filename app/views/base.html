@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CouchPotato</title>
+	<base href="${baseUrl}">
+	<link href="media/images/favicon.ico" rel="icon" type="image/x-icon" />
+	<% miniCss = Minify.css([
+			'Base.css',
+			'Main.css',
+			'Uniform.css',
+			'UniformGeneric.css'
+		]) %>
+	% if debug:
+	<link href="media/style/Base.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="media/style/Main.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="media/style/Uniform.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="media/style/UniformGeneric.css" media="screen" rel="stylesheet" type="text/css" />
+	% else:
+	<link href="${miniCss}" media="screen" rel="stylesheet" type="text/css" />
+	% endif
+</head>
+<body>
+<% 
+	import time
+	if updater.lastCheck < time.time()-7200:
+		updater.checkForUpdate() 
+
+	miniJs = Minify.js([
+		'Mootools.js',
+		'MootoolsMore.js',
+		'Global.js',
+		'Uniform.js',
+		'Quality.js'
+	]) 
+%>
+	% if debug:
+	<script src="media/script/Mootools.js" type="text/javascript"></script>
+	<script src="media/script/MootoolsMore.js" type="text/javascript"></script>
+	<script src="media/script/Uniform.js" type="text/javascript"></script>
+	<script src="media/script/Quality.js" type="text/javascript"></script>
+	<script src="media/script/Global.js" type="text/javascript"></script>
+	% else:
+	<script src="${miniJs}" type="text/javascript"></script>
+	% endif
+
+	
+	<div id="header">
+	    <div class="navigation">
+
+	        <ul>
+	            <li><a href="${url(controller='movie', action='index')}">Movies</a></li>
+	            <li><a href="${url(controller='feed', action='index')}">Soon</a></li>
+	            <li><a href="${url(controller='config', action='index')}" id="showConfig">Settings</a></li>
+	            <li><a href="${url(controller='log', action='index')}" class="logLink">Logs</a></li>
+	        </ul>
+
+			<div id="addForm">
+		    	<%include file="/movie/add.html" />
+			</div>
+			
+			<script type="text/javascript">
+				
+				window.addEvent('domready', function(){
+
+					var showConfigPopup = function(e){
+						(e).stop()
+
+						var popup = new Element('div', {
+							'class':'configPopup'
+						}).inject(document.body);
+						
+						new Request.HTML({
+							'url': $('showConfig').get('href'),
+							'update': popup,
+							'method': 'get'
+						}).send()
+						
+					}
+					$('showConfig').addEvent('click', showConfigPopup);
+					
+					var hasUpdate = $(document.body).getElement('.updateAvailable');
+					var updateNow = function(updateThis){
+						var us = new Spinner(updateThis).show()
+						new Request.HTML({
+							'url': hasUpdate.getElement('a').get('href'),
+							'update': updateThis,
+							'onComplete': function(){
+								us.hide();
+								(function(){ window.location.reload() }).delay(15000)
+							}
+						}).send()
+					}
+					
+					if(hasUpdate){
+						var clone = hasUpdate.clone()
+							.addClass('noticeMe')
+							.inject($(document.body).getElement('.page .content'), 'top')
+							
+						if (clone.hasClass('git')){
+							clone.getElement('a').addEvent('click', function(e){
+								(e).stop()
+								updateNow(clone)
+							})
+							hasUpdate.getElement('a').addEvent('click', function(e){
+								(e).stop()
+								updateNow(hasUpdate)
+							})
+						}
+					}
+					
+				})
+				
+			</script>
+	    </div>
+	</div>
+	<div class="page">
+	    <div class="content">
+			<% messages = flash.all() %>
+			% if messages:
+			<div class="messages">
+				% for message in messages:
+				<div class="item noticeMe">${message}</div>
+				% endfor
+			</div>
+			% endif
+	        ${next.body()}
+	    </div>
+		<div class="footer">
+			<div class="check">
+			% if yarr.isChecking() and not yarr.stop:
+				<img src="media/images/spinner.gif" alt="refresh" style="width:10px" /> Now checking. ( <a href="${url(controller='cron', action='stop')}">Stop</a> )
+			% else:
+				Next check in ${yarr.nextCheck().get('string')} ( <a href="${url(controller='cron', action='force')}">Force check</a> )
+			% endif
+			</div>
+			<div id="version">
+				Version: <em>${updater.getVersion()}</em>
+				% if updater.updateAvailable and updater.isFrozen:
+					, <span class="updateAvailable windows">Update available: <a href="${updater.updateAvailable}">download update</a></span>
+				% elif updater.updateAvailable:
+					, <span class="updateAvailable git">Update available: <a href="${url(controller='config', action='update')}">update now</a></span>
+				% endif
+				% if updater.lastCheck < time.time()-60:
+					, <a href="${url(controller='config', action='checkForUpdate')}">Check for new version</a>
+				% endif
+			</div>
+		</div>
+	</div>
+</body>
+</html>
