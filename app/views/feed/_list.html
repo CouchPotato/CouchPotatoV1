@@ -42,7 +42,7 @@
 				<span class="notice ${'' if not eta.bluray and hdQueue and not otherQueue else 'disabled'}"><img src="media/images/notice.png" title="${'Only searching for HD qualities, but no original HD source available.' if not eta.bluray and hdQueue and not otherQueue else ''}" /></span>
 				<span class="hd ${'disabled' if not eta.bluray else ''}"><img src="media/images/hd.png" /></span>
 				<span class="imdb"><a href="http://www.imdb.com/title/${movie.imdb}/" target="_blank"><img src="media/images/imdb.png" alt="IMDB" /></a></span>
-				<span class="moviedb ${'disabled' if not movie.movieDb else ''}"><a ${'href="http://www.themoviedb.org/movie/%d"' % movie.movieDb if movie.movieDb else ''} target="_blank"><img src="media/images/moviedb.png" alt="TheMovieDB" /></a></span>
+				<span class="moviedb ${'disabled' if not movie.movieDb else ''}"><a ${'href="http://www.themoviedb.org/movie/%s"' % str(movie.movieDb) if movie.movieDb else ''} target="_blank"><img src="media/images/moviedb.png" alt="TheMovieDB" /></a></span>
 				<span class="videoeta"><a href="http://videoeta.com/movie/${eta.videoEtaId}" target="_blank"><img src="media/images/videoeta.png" alt="VideoETA" /></a></span>
 			</span>
 		</span>
