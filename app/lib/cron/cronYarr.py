@@ -133,20 +133,7 @@ class YarrCron(cronBase, rss):
                 if not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases)):
                     continue
 
-                if self.debug:
-                    log.debug(queue)
-                    results = []
-                else:
-                    results = self.provider.find(movie, queue)
-
-                #search for highest score
-                highest = None
-                highestScore = 0
-                for result in results:
-                    if result.score > highestScore and not self.abort and not self.stop:
-                        if not result.checkNZB or self.validNZB(result.url):
-                            highest = result
-                            highestScore = result.score
+                highest = self.provider.find(movie, queue)
 
                 #send highest to SABnzbd & mark as snatched
                 if highest:
@@ -202,18 +189,6 @@ class YarrCron(cronBase, rss):
                 log.error('File %s already exists.' % fullPath)
 
         return False
-
-    def validNZB(self, url):
-        try:
-            time.sleep(10)
-            data = urllib2.urlopen(url, timeout = self.timeout).info()
-            for check in ['nzb', 'download', 'torrent']:
-                if check in data.get('Content-Type'):
-                    return True
-
-            return False
-        except (IOError, URLError):
-            return False
 
     def doCheck(self, bool = True):
         self.running = bool

@@ -71,6 +71,9 @@ class nzbMatrix(nzbBase):
                 results = []
                 for nzb in xml:
 
+                    title = self.gettextelement(nzb, "title")
+                    if 'error' in title.lower(): continue
+
                     id = int(self.gettextelement(nzb, "link").split('&')[0].partition('id=')[2])
                     size = self.gettextelement(nzb, "description").split('<br /><b>')[2].split('> ')[1]
                     date = str(self.gettextelement(nzb, "description").split('<br /><b>')[3].partition('Added:</b> ')[2])
@@ -78,7 +81,7 @@ class nzbMatrix(nzbBase):
                     new = self.feedItem()
                     new.id = id
                     new.type = 'nzb'
-                    new.name = self.gettextelement(nzb, "title")
+                    new.name = title
                     new.date = int(time.mktime(parse(date).timetuple()))
                     new.size = self.parseSize(size)
                     new.url = self.downloadLink(id)

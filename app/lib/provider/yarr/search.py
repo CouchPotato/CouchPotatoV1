@@ -2,8 +2,10 @@ from app.lib.provider.yarr.sources.nzbmatrix import nzbMatrix
 from app.lib.provider.yarr.sources.nzbs import nzbs
 from app.lib.provider.yarr.sources.tpb import tpb
 from app.lib.qualities import Qualities
+from urllib2 import URLError
 import logging
 import time
+import urllib2
 
 log = logging.getLogger(__name__)
 
@@ -51,10 +53,33 @@ class Searcher():
                 results.extend(source.find(movie, alt, type))
                 time.sleep(wait)
 
+            #search for highest score
+            highest = None
+            highestScore = 0
             if results:
-                return results
+                for result in results:
+                    if result.score > highestScore:
+                        if not result.checkNZB or self.validNZB(result.url):
+                            highest = result
+                            highestScore = result.score
 
-        return {}
+                if highest:
+                    return highest
+
+        return None
+
+    def validNZB(self, url):
+        try:
+            time.sleep(10)
+            log.info('Checking if %s is valid.' % url)
+            data = urllib2.urlopen(url, timeout = 10).info()
+            for check in ['nzb', 'download', 'torrent']:
+                if check in data.get('Content-Type'):
+                    return True
+
+            return False
+        except (IOError, URLError):
+            return False
 
     def findById(self, id):
         ''' Find movie by TheMovieDB ID '''
