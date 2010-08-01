@@ -6,16 +6,19 @@ Created on 31.07.2010
 import logging
 import os
 
+log = logging.getLogger(__name__)
+
 class Environment:
     _debugStatus = True;
-    log = None
+    _log = None
     _basePath = ""
-    cfg = None
-    options = None
-    args = None
-    quiet = False
-    version = '0.3.0'
-    build = 19
+    _cfg = None
+    _options = None
+    _args = None
+    _quiet = False
+    _version = '0.3.0'
+    _build = 19
+    _frozen = False
     @staticmethod
     def doDebug():
         return Environment._debugStatus
@@ -32,3 +35,9 @@ class Environment:
     @staticmethod
     def isQuiet():
         return Environment._quiet
+
+    @staticmethod
+    def get(attr, default = None, set_non_existant = False):
+        return Environment['_' + attr]
+
+
