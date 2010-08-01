@@ -32,7 +32,7 @@ class Bootstrapper(object):
             env_.frozen = False
 
     def detectAppDir(self):
-        appdir = os.path.dirname(os.path.abspath(__file__))
+        appdir = os.path.realpath(os.path.dirname(sys.argv[0]))
         if env_.get('frozen'):
             #path_base = os.environ['_MEIPASS2']
             appdir = os.path.dirname(sys.executable)
