@@ -8,7 +8,7 @@ class Bootstraper(object):
     Initializes the web user interface
     '''
 
-    def __init__(self, name):
+    def __init__(self, name = None):
         '''
         Constructor
         '''
@@ -34,7 +34,6 @@ class Bootstraper(object):
         self.config.update({
             virtual:{
                 'tools.staticdir.on': True,
-                'tools.staticdir.root': env_.getBasePath(),
                 'tools.staticdir.dir': actual,
                 'tools.expires.on': expire_on,
                 'tools.expires.secs': expire_secs
