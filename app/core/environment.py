@@ -4,7 +4,7 @@ import os
 log = logging.getLogger(__name__)
 
 class Environment:
-    _debugStatus = True;
+    _debug = True;
     _log = None
     _appDir = ""
     _dataDir = ""

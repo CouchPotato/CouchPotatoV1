@@ -1,7 +1,10 @@
 import cherrypy
 from cherrypy.process import plugins
 from environment import Environment as env_
+from app.core import getLogger
 myCherry = None
+import logging
+log = getLogger(__name__)
 
 class Bootstraper(object):
     '''
@@ -53,7 +56,6 @@ class Bootstraper(object):
             self.addRoute(route)
 
 class Route(object):
-
     """
     provides means to register a custom controller with
     the frontend easily
@@ -79,6 +81,13 @@ class Route(object):
         self.action = kwargs['action']
 
 
-
 class Frontend(object):
-    pass
+    def __init__(self):
+        pass
+
+    def start(self):
+        log.info('Starting web interface...')
+        cherrypy.engine.start()
+        log.info('Web interface running...')
+        cherrypy.engine.block()
+        log.info('Server terminated')

@@ -2,6 +2,10 @@ from .environment import Environment as env_
 from optparse import OptionParser
 import sys, os
 from app.config.main import Main as Config
+from ConfigParser import ConfigParser
+import logging
+from logging.config import _create_formatters, _install_handlers, \
+    _install_loggers
 
 class Bootstrapper(object):
     '''
@@ -23,6 +27,7 @@ class Bootstrapper(object):
         self.parseOptions()
         self.initAppDirs()
         self.loadConfig()
+        self.initLogging()
 
 
     def detectExeBuild(self):
@@ -70,9 +75,32 @@ class Bootstrapper(object):
     def initAppDirs(self):
         dirs = ('config', 'logs', 'cache')
         for dir in dirs:
-            dir = os.path.join(env_.get('dataDir'), dir)
+            dir = os.path.join(env_.get('appDir'), env_.get('dataDir'), dir)
             if not os.path.isdir(dir):
                 os.mkdir(dir)
+
+    def initLogging(self):
+        # Use logging root 
+        logger = logging.getLogger()
+        # Create formatter 
+        formatter = logging.Formatter("%(asctime)s, %(levelname)-5.5s [%(name)s] %(message)s")
+
+        # Create file logging 
+        rfh = logging.handlers.RotatingFileHandler(\
+            os.path.join(env_.get('dataDir'), 'log.txt'),
+            maxBytes = 500000, backupCount = 5
+        ) #rfh
+        rfh.setLevel(logging.INFO)
+        rfh.setFormatter(formatter)
+        logger.addHandler(rfh)
+
+        # Create console handler and set level to debug 
+        if env_.get('debug'):
+            sh = logging.StreamHandler()
+            sh.setLevel(logging.DEBUG)
+            sh.setFormatter(formatter)
+            logger.addHandler(sh)
+
 
 
 
