@@ -1,31 +1,17 @@
 import ConfigParser
 import logging
 from app.config.wrapper import Wrapper
+import os
 
 log = logging.getLogger(__name__)
 
-class Global(Wrapper):
+class Main(Wrapper):
 
     s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer', 'IMDB', 'Intervals']
     bool = {'true':True, 'false':False}
 
-    def __init__(self, path):
-        Wrapper.__init__(self, path)
-
-    def parser(self):
-        return self.p
-
-    def sections(self):
-        return self.s
-
-    def set(self, section, option, value):
-        return self.p.set(section, option, value)
-
-    def get(self, section, option):
-        value = self.p.get(section, option)
-        if str(value).lower() in self.bool:
-            return self.bool.get(str(value).lower())
-        return value
+    def __init__(self):
+        Wrapper.__init__(self, 'main.ini')
 
     def initConfig(self):
         '''
@@ -41,7 +27,7 @@ class Global(Wrapper):
         self.setDefault('global', 'password', '')
         self.setDefault('global', 'launchbrowser', True)
         self.setDefault('global', 'urlBase', '')
-        self.setDefault('global', 'feelingLucky', False) #choose release automatically?
+        self.setDefault('global', 'feelingLucky', True) #choose release automatically?
 
         self.addSection('Renamer')
         self.setDefault('Renamer', 'enabled', False)
@@ -87,11 +73,6 @@ class Global(Wrapper):
         self.addSection('Quality')
         self.setDefault('Quality', 'hide', 'cam')
         self.setDefault('Quality', 'default', '720p')
-
-        self.addSection('paths')
-        self.setDefault('paths', 'cache', 'cache')
-        self.setDefault('paths', 'database', 'data.db')
-        self.setDefault('paths', 'logs', 'logs')
 
         self.save()
 
