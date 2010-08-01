@@ -3,7 +3,7 @@ Created on 31.07.2010
 
 @author: Christian
 '''
-from optparse import OptionParser
+
 from app.environment import Environment as _env
 
 p = OptionParser()
@@ -30,7 +30,7 @@ _env.setBasePath(os.path.dirname(config))
 config_name = os.path.basename(config)
 #Load Configuration
 try:
-    ca = App(config_name)
+    ca = Global(config_name)
     _env.cfg = ca;
 
 except Exception as e:

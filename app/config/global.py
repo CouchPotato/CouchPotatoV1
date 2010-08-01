@@ -4,7 +4,7 @@ from app.config.wrapper import Wrapper
 
 log = logging.getLogger(__name__)
 
-class App(Wrapper):
+class Global(Wrapper):
 
     s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer', 'IMDB', 'Intervals']
     bool = {'true':True, 'false':False}
