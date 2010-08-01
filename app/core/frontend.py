@@ -1,9 +1,6 @@
-"""
-T
-"""
 import cherrypy
 from cherrypy.process import plugins
-
+from environment import Environment as env_
 myCherry = None
 
 class Bootstraper(object):
@@ -16,11 +13,12 @@ class Bootstraper(object):
         Constructor
         '''
         self.config = {}
+        self.routes = cherrypy.dispatch.RoutesDispatcher()
 
     def getConfig(self):
         pass
 
-    def registerStaticDir(self, virtual, actual, expire = False):
+    def registerStaticDir(self, virtual, actual, expire = False, root = None):
         expire_on = False
         expire_secs = 0
 
@@ -36,16 +34,57 @@ class Bootstraper(object):
         self.config.update({
             virtual:{
                 'tools.staticdir.on': True,
-                'tools.staticdir.root': _env.getBasePath(),
+                'tools.staticdir.root': env_.getBasePath(),
                 'tools.staticdir.dir': actual,
                 'tools.expires.on': expire_on,
                 'tools.expires.secs': expire_secs
             }
         })
+
+        if root:
+            self.config.update({
+                virtual:{'tools.staticdir.root' : root}
+            }) #self.config.update
     # end registerStaticDir
 
+    def registerStaticDirAbs(self, virtual, actual, root, expire = False):
+        self.registerStaticDir(virtual, actual, expire, root)
 
+    def addRoute(self, route):
+        try:
+            self.routes.connect(route.name, route.route, route.controller)
+        except:
+            raise
 
+    def addRoutes(self, routes):
+        for route in routes:
+            self.addRoute(route)
+
+class Route(object):
+
+    """
+    provides means to register a custom controller with
+    the frontend easily
+    """
+    _instances = 0
+    def __init__(self, **kwargs):
+        '''parameters: controller, name, route, action'''
+        self.__class__._instances += 1
+        if 'controller' not in kwargs:
+            kwargs['controller'] = None
+        if 'name' not in kwargs:
+            kwargs['name'] = 'unknown-' \
+                + str(self.__class__._instances)
+        if 'route' not in kwargs:
+            kwargs['route'] = None
+        if 'action' not in kwargs:
+            kwargs['action'] = 'index'
+
+        #now assign kwargs to instance var
+        self.name = kwargs['name']
+        self.controller = kwargs['controller']
+        self.route = kwargs['route']
+        self.action = kwargs['action']
 
 
 
