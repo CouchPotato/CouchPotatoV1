@@ -1,8 +1,3 @@
-'''
-Created on 31.07.2010
-
-@author: Christian
-'''
 import logging
 import os
 
@@ -19,6 +14,7 @@ class Environment:
     _version = '0.3.0'
     _build = 19
     _frozen = False
+    _defaultConfig = 'data/config.ini'
     @staticmethod
     def doDebug():
         return Environment._debugStatus
@@ -37,7 +33,5 @@ class Environment:
         return Environment._quiet
 
     @staticmethod
-    def get(attr, default = None, set_non_existant = False):
-        return Environment['_' + attr]
-
-
+    def get(attr):# default = None, set_non_existant = False):
+        return getattr(Environment, '_' + attr)
