@@ -22,6 +22,8 @@ class Wrapper(object):
         The parameter onLoad is used to run the method against
         the newly created config self.
         '''
+        self.bool = {'true':True, 'false':False}
+
         file = os.path.join(env_.get('dataDir'), 'config', file)
         self._initDirectory(file)
         try:
@@ -62,6 +64,12 @@ class Wrapper(object):
         if str(value).lower() in self.bool:
             return self.bool.get(str(value).lower())
         return value
+
+    def has(self, section, option = False):
+        if option:
+            return self.p.has_section(section) \
+                and self.p.has_option(section, option)
+        return self.p.has_section(section)
 
     def _initDirectory(self, filename):
         directory = os.path.dirname(filename)

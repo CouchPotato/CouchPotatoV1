@@ -1,0 +1,2 @@
+def start():
+    return 'yes'

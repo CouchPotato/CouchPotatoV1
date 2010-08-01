@@ -8,7 +8,6 @@ log = logging.getLogger(__name__)
 class Main(Wrapper):
 
     s = ['Sabnzbd', 'TheMovieDB', 'NZBsorg', 'Renamer', 'IMDB', 'Intervals']
-    bool = {'true':True, 'false':False}
 
     def __init__(self):
         Wrapper.__init__(self, 'main.ini')

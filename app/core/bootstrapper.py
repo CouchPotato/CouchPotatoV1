@@ -24,8 +24,10 @@ class Bootstrapper(object):
         # Include paths
         sys.path.insert(0, env_.get('appDir'))
         sys.path.insert(0, os.path.join(env_.get('appDir'), 'library'))
+        sys.path.insert(0, os.path.join(env_.get('appDir'), 'app', 'lib'))
+        sys.path.insert(0, env_.get('dataDir'))
         self.parseOptions()
-        self.initAppDirs()
+        self.initDataDirs()
         self.loadConfig()
         self.initLogging()
 
@@ -44,7 +46,7 @@ class Bootstrapper(object):
         env_._appDir = appdir
 
     def parseOptions(self):
-        data_dir = self.__class__.DEFAULT_DATA_DIR
+        data_dir = os.path.join(env_.get('appDir'), self.__class__.DEFAULT_DATA_DIR)
         p = OptionParser()
         p.add_option('-d', action = "store_true",
                      dest = 'daemonize', help = "Run the server as a daemon")
@@ -72,12 +74,17 @@ class Bootstrapper(object):
     def loadConfig(self):
         env_.cfg = Config()
 
-    def initAppDirs(self):
-        dirs = ('config', 'logs', 'cache')
+    def initDataDirs(self):
+        dirs = ('config', 'logs', 'cache', 'plugins')
         for dir in dirs:
-            dir = os.path.join(env_.get('appDir'), env_.get('dataDir'), dir)
+            dir = os.path.join(env_.get('dataDir'), dir)
             if not os.path.isdir(dir):
                 os.mkdir(dir)
+
+        plugins = open(os.path.join(env_.get('dataDir'), '__init__.py'), 'w')
+        plugins.close()
+        plugins = open(os.path.join(env_.get('dataDir'), 'plugins', '__init__.py'), 'w')
+        plugins.close()
 
     def initLogging(self):
         # Use logging root 

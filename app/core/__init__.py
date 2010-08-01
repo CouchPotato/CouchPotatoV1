@@ -12,7 +12,8 @@ class getLogger(object):
     def info(self, msg):
         return cherrypy.log(msg, self.name, logging.INFO)
     def error(self, msg):
-        return cherrypy.log(msg, self.logging.ERROR)
+        return cherrypy.log(msg, self.name, logging.ERROR)
 
 #from .frontend import Engine
 import frontend
+from plugin import PluginLoader as extend
