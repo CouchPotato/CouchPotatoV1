@@ -258,15 +258,15 @@
 				</div>
 			</fieldset>
 			<fieldset class="userscript inlineLabels">
-				<a href="/CouchPotato.user.js" class="submit userscriptInstall"><img src="media/images/userscriptPreview.png" /><br />Install UserScript</a>
+				<a href="CouchPotato.user.js" class="submit userscriptInstall"><img src="media/images/userscriptPreview.png" /><br />Install UserScript</a>
 				<p style="font-size:11px">
 					Need a recent version of <a href="http://www.google.com/chrome/" target="_blank">Chrome</a> or when using Firefox, the <a href="https://addons.mozilla.org/en-US/firefox/addon/748/" target="_blank">Greasemonkey addon</a>.
 				</p>
 			</fieldset>
 			<fieldset class="about inlineLabels">
 				<div>
-					<a href="/config/exit/" class="submit">Shutdown</a><span class="or">or</span>
-					<a href="/config/restart/" class="submit restart">Restart</a>
+					<a href="${url(controller='config',action='exit')}" class="submit">Shutdown</a><span class="or">or</span>
+					<a href="${url(controller='config',action='restart')}" class="submit restart">Restart</a>
 				</div>
 				<div id="versionInfo">
 					<h3>Version ${updater.getVersion()}</h3>

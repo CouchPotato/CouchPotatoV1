@@ -106,6 +106,6 @@ class ConfigController(BaseController):
         '''
         imdb UserScript, for easy movie adding
         '''
-        host = cherrypy.request.headers.get('host')
+        host = self.globals['baseUrl']
         return self.render({'host':host})
 
