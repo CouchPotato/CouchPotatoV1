@@ -83,7 +83,7 @@ class Bootstrapper(object):
         # Use logging root 
         logger = logging.getLogger()
         # Create formatter 
-        formatter = logging.Formatter("%(asctime)s, %(levelname)-5.5s [%(name)s] %(message)s")
+        formatter = logging.Formatter("%(message)s")
 
         # Create file logging 
         rfh = logging.handlers.RotatingFileHandler(\
