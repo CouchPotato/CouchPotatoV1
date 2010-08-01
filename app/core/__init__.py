@@ -1,8 +1,9 @@
 from .environment import Environment as env_
 from .bootstrapper import Bootstrapper as bootstrap
-bootstrap()
 import cherrypy
 import logging
+cherrypy.log.screen = False
+cherrypy.log.access_log.propagate = False
 class getLogger(object):
     def __init__(self, name):
         self.name = name
@@ -15,5 +16,3 @@ class getLogger(object):
 
 #from .frontend import Engine
 import frontend
-
-
