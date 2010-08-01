@@ -1,5 +1,5 @@
-from .environment import Environment as _env
-from .bootstrapper import Bootstrapper
+from .environment import Environment as env_
+from .bootstrapper import Bootstrapper as bootstrap
 #from .frontend import Engine
 import frontend
 
