@@ -68,7 +68,7 @@ class tpb(torrentBase):
                 if details:
                     href = re.search('/(?P<id>\d+)/', details['href'])
                     id = href.group('id')
-                    name = details.contents[0]
+                    name = self.toSaveString(details.contents[0])
                     desc = result.find('font', attrs = {'class':'detDesc'}).contents[0].split(',')
                     date = ''
                     size = 0
