@@ -3,6 +3,7 @@ if __name__ == '__main__':
     import os
 
     from app import core
+    from app.core.environment import Environment as env_
 
 
 
@@ -16,11 +17,13 @@ if __name__ == '__main__':
     #initDb()
     #core._env.cfg.get('global', 'server_config')
     #core._env.loadConfig()
-    web_boot = core.frontend.Bootstraper('default')
+    core.bootstrap()
+    web_boot = core.frontend.Bootstraper()
+    web_boot.registerStaticDirAbs(
+        '/', '', env_.get('appDir')
+    )
     web_boot.registerStaticDir('/media', 'media')
-
-
-
-
-
+    web_boot.registerStaticDirAbs(
+        '/cache', 'cache', env_.get('dataDir')
+    )
 
