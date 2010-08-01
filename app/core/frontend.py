@@ -18,7 +18,7 @@ class Bootstraper(object):
     def getConfig(self):
         pass
 
-    def registerStaticDir(self, virtual, actual, expire = False, root = None):
+    def registerStaticDir(self, virtual, root, subfolder, expire = False):
         expire_on = False
         expire_secs = 0
 
@@ -34,20 +34,13 @@ class Bootstraper(object):
         self.config.update({
             virtual:{
                 'tools.staticdir.on': True,
-                'tools.staticdir.dir': actual,
+                'tools.staticdir.dir': subfolder,
+                'tools.staticdir.root' : root,
                 'tools.expires.on': expire_on,
                 'tools.expires.secs': expire_secs
             }
         })
-
-        if root:
-            self.config.update({
-                virtual:{'tools.staticdir.root' : root}
-            }) #self.config.update
     # end registerStaticDir
-
-    def registerStaticDirAbs(self, virtual, actual, root, expire = False):
-        self.registerStaticDir(virtual, actual, expire, root)
 
     def addRoute(self, route):
         try:

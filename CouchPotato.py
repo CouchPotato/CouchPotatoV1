@@ -19,11 +19,11 @@ if __name__ == '__main__':
     #core._env.loadConfig()
     core.bootstrap()
     web_boot = core.frontend.Bootstraper()
-    web_boot.registerStaticDirAbs(
+    web_boot.registerStaticDir(
         '/', '', env_.get('appDir')
     )
-    web_boot.registerStaticDir('/media', 'media')
-    web_boot.registerStaticDirAbs(
-        '/cache', 'cache', env_.get('dataDir')
+    web_boot.registerStaticDir('/media', env_.get('appDir'), 'media')
+    web_boot.registerStaticDir(
+        '/cache', env_.get('dataDir'), 'cache'
     )
 
