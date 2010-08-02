@@ -1,5 +1,3 @@
-from .environment import Environment as env_
-from .bootstrapper import Bootstrapper as bootstrap
 import cherrypy
 import logging
 cherrypy.log.screen = False
@@ -13,6 +11,9 @@ class getLogger(object):
         return cherrypy.log(msg, self.name, logging.INFO)
     def error(self, msg):
         return cherrypy.log(msg, self.name, logging.ERROR)
+
+from .environment import Environment as env_
+from .bootstrapper import Bootstrapper as bootstrap
 
 #from .frontend import Engine
 import frontend

@@ -6,6 +6,7 @@ from ConfigParser import ConfigParser
 import logging
 from logging.config import _create_formatters, _install_handlers, \
     _install_loggers
+from app.core.db import db
 
 class Bootstrapper(object):
     '''
@@ -31,6 +32,7 @@ class Bootstrapper(object):
         self.initDataDirs()
         self.loadConfig()
         self.initLogging()
+        self.db = db.Database(os.path.join(env_.get('dataDir'), 'database.db'))
 
 
     def detectExeBuild(self):
