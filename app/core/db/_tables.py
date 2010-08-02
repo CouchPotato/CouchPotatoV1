@@ -31,10 +31,4 @@ def bootstrap(db):
 
     moduleTypesTable = db.getAutoIdTable('module_types', [('type', 's', {})])
     mapper(VersionsTable, versionsTable)
-    mapper(moduleTypesTable)
-
-
-
-
-
-
+    mapper(ModuleTypesTable, moduleTypesTable)
