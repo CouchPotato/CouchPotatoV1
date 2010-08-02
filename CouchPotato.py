@@ -18,7 +18,7 @@ from app.core.environment import Environment as env_
 #core._env.loadConfig()
 #core.bootstrap()
 core.bootstrap()
-web_boot = core.frontend.Bootstraper()
+web_boot = core.frontend.bootstrap()
 web_boot.registerStaticDir(
     '/', '', env_.get('appDir')
 )

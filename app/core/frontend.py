@@ -91,3 +91,5 @@ class Frontend(object):
         log.info('Web interface running...')
         cherrypy.engine.block()
         log.info('Server terminated')
+
+bootstrap = Bootstraper
