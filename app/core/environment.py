@@ -14,6 +14,7 @@ class Environment:
     _version = '0.3.0'
     _build = 19
     _frozen = False
+    _pluginMgr = None
 
     cfg = None
     @staticmethod

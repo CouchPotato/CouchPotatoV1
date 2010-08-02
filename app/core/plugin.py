@@ -5,6 +5,7 @@ log = getLogger(__name__)
 
 class PluginLoader:
     def __init__(self):
+        env_._pluginMgr = self
         self.plugins = {}
         self.paths = (
                       os.path.join(env_.get('appDir'), 'app', 'lib', 'plugins'),

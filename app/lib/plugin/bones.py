@@ -40,7 +40,10 @@ class Bones(object):
             return self.configFiles[name]
         raise Exception('Config inexistent.')
 
-class Description
+    def getPluginMgr(self):
+        return env_.get('pluginManager')
+
+class Description:
     def __init__(self):
         name = None
         author = None
@@ -57,4 +60,5 @@ class Description
                  'email', 'logo', 'www'
         )
         for attr in attrs:
-            pass
+            if config.has('info', attr):
+                setattr(self, attr, config.get('info', attr))
