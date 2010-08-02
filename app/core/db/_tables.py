@@ -1,38 +1,40 @@
 import db
 from sqlalchemy.orm import mapper
 from sqlalchemy.schema import UniqueConstraint
+from app.core.environment import Environment as env_
 
 class BasicTable(object):
     def __repr__(self):
         return "<" + self.__class__.__name__ + ": "
+    def _release(self):
+        env_.get('db').session.object_session(self).expunge(self)
 
-class VersionsTable(BasicTable):
+class PluginsTable(BasicTable):
     id = None
-    key = None
+    name = None
     type = None
     version = None
     def __repr__(self):
-        return BasicTable.__repr__(self) + self.key + "=" + self.value
+        return BasicTable.__repr__(self) + self.name + str(self.version)
 
-class ModuleTypesTable(BasicTable):
+class PluginTypesTable(BasicTable):
     id = None
     module = None
     type = None
     version = None
-    pass
 
 
 def bootstrap(db):
     columns = [
-        [['module', 's'], {}],
-        [['type', 'i'], {}],
+        [['name', 's'], {}],
+        [['type_id', 'i'], {}],
         [['version', 'i'], {}]
     ]
-    unique = UniqueConstraint('module', 'type', name = 'moduleType')
-    versionsTable = db.getAutoIdTable('versions', columns, unique)
+    unique = UniqueConstraint('name', 'type_id', name = 'pluginType')
+    pluginsTable = db.getAutoIdTable('plugins', columns, unique)
 
-    moduleTypesTable = db.getAutoIdTable('module_types', [[['type', 's'], {}]])
-    mapper(VersionsTable, versionsTable)
-    mapper(ModuleTypesTable, moduleTypesTable)
+    moduleTypesTable = db.getAutoIdTable('plugin_types', [[['name', 's'], {}]])
+    mapper(PluginsTable, pluginsTable)
+    mapper(PluginTypesTable, moduleTypesTable)
 
     db.create()

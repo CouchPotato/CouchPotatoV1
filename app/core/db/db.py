@@ -5,6 +5,10 @@ from app.core import getLogger
 import _tables
 import os
 from sqlalchemy.schema import ForeignKey
+import shutil
+from imaplib import Time2Internaldate
+import time
+from app.core.environment import Environment as env_
 
 
 log = getLogger(__name__)
@@ -22,8 +26,12 @@ class Database(object):
         '''
         Constructor
         '''
+        self.file = file
         self.engine = sql_.create_engine('sqlite:///%s' % file)
         self.metadata = sql_.schema.MetaData(self.engine)
+        self.session = sql_orm_.scoped_session(
+                sql_orm_.sessionmaker(bind = self.engine, autocommit = True)
+        )
 
         log.info('Loading Database...')
         _tables.bootstrap(self)
@@ -41,11 +49,10 @@ class Database(object):
                 Session.flush()
         log.info('Database loaded')
         """
+        env_._db = self
 
     def createSession(self):
-        return sql_orm_.scoped_session(
-                sql_orm_.sessionmaker(bind = self.engine, autocommit = True)
-        ) #END return session
+        return self.session()
 
     def getTable(self, name, columns, constraints = []):
         columns = [self.getColumn(*args_ , **kwargs_) for args_, kwargs_ in columns]
@@ -81,4 +88,22 @@ class Database(object):
 
     def create(self):
         self.metadata.create_all()
+
+    def upgradeDatabase(self, info, scope, latest_version):
+        log.info('Upgrading database for ' + info.name)
+        shutil.copy(self.file, self.file + str(time.localtime()))
+        current_version = info.version
+        if current_version < latest_version:
+            for tempVersion in range(current_version + 1, latest_version + 1):
+                methodName = 'migrateToVersion' + str(tempVersion)
+                if hasattr(scope, methodName):
+                    method = getattr(scope, methodName)
+                    if method():
+                        info.version += 1
+                    else:
+                        log.info('Error while updating: ' + str(info.name))
+                        break
+
+
+
 
