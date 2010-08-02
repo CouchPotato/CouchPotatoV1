@@ -33,13 +33,15 @@ class Bootstrapper(object):
         self.initLogging()
         self.db = db.Database(os.path.join(env_.get('dataDir'), 'database.db'))
 
-    def detectExeBuild(self):
+    @staticmethod
+    def detectExeBuild():
         try:
             env_.frozen = sys.frozen
         except AttributeError:
             env_.frozen = False
 
-    def detectAppDir(self):
+    @staticmethod
+    def detectAppDir():
         appdir = os.path.realpath(os.path.dirname(sys.argv[0]))
         if env_.get('frozen'):
             #path_base = os.environ['_MEIPASS2']
