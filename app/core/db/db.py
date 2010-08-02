@@ -79,3 +79,6 @@ class Database(object):
             ** kwargs
         )
 
+    def create(self):
+        self.metadata.create_all()
+
