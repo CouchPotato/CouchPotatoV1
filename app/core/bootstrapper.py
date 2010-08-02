@@ -6,7 +6,6 @@ from ConfigParser import ConfigParser
 import logging
 from logging.config import _create_formatters, _install_handlers, \
     _install_loggers
-from app.core.db import db
 
 class Bootstrapper(object):
     '''
@@ -21,19 +20,18 @@ class Bootstrapper(object):
         '''
         self.detectExeBuild()
         self.detectAppDir()
-        # Define path based on frozen state
         # Include paths
         sys.path.insert(0, env_.get('appDir'))
         sys.path.insert(0, os.path.join(env_.get('appDir'), 'library'))
         sys.path.insert(0, os.path.join(env_.get('appDir'), 'app', 'lib'))
         sys.path.insert(0, env_.get('dataDir'))
+        from app.core.db import db
         self.parseOptions()
         self.interpretOptions()
         self.initDataDirs()
         self.loadConfig()
         self.initLogging()
         self.db = db.Database(os.path.join(env_.get('dataDir'), 'database.db'))
-
 
     def detectExeBuild(self):
         try:
