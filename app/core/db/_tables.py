@@ -1,5 +1,6 @@
 import db
 from sqlalchemy.orm import mapper
+from sqlalchemy.schema import UniqueConstraint
 
 class BasicTable(object):
     def __repr__(self):
@@ -22,13 +23,14 @@ class ModuleTypesTable(BasicTable):
 
 
 def bootstrap(db):
-    columns = (
-        ('module', 's', {'unique' : 'versions'}),
-        ('type', 'i', {'unique' : 'versions'}),
-        ('version', 'i', {})
-    )
-    versionsTable = db.getAutoIdTable('versions', columns)
+    columns = [
+        [['module', 's'], {}],
+        [['type', 'i'], {}],
+        [['version', 'i'], {}]
+    ]
+    unique = UniqueConstraint('module', 'type', name = 'moduleType')
+    versionsTable = db.getAutoIdTable('versions', columns, unique)
 
-    moduleTypesTable = db.getAutoIdTable('module_types', [('type', 's', {})])
+    moduleTypesTable = db.getAutoIdTable('module_types', [[['type', 's'], {}]])
     mapper(VersionsTable, versionsTable)
     mapper(ModuleTypesTable, moduleTypesTable)

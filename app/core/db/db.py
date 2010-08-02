@@ -4,6 +4,7 @@ import sqlalchemy.types as sql_t_
 from app.core import getLogger
 import _tables
 import os
+from sqlalchemy.schema import ForeignKey
 
 
 log = getLogger(__name__)
@@ -46,27 +47,35 @@ class Database(object):
                 sql_orm_.sessionmaker(bind = self.engine, autocommit = True)
         ) #END return session
 
-    def getTable(self, name, columns):
-        columns = [self.getColumn(name_, type_, **kwargs_) for name_, type_, kwargs_ in columns]
+    def getTable(self, name, columns, constraints = []):
+        columns = [self.getColumn(*args_ , **kwargs_) for args_, kwargs_ in columns]
+        columns.extend(constraints)
         return sql_.schema.Table(
             name,
             self.metadata,
             *columns
         )
 
-    def getAutoIdTable(self, name, columns):
-        columns.insert(0, ('id', 'i', {'primary_key' : True}))
+    def getAutoIdTable(self, name, columns, constraints = []):
+        columns.insert(0, (('id', 'i'), {'primary_key' : True}))
         return self.getTable(
             name, columns
         )
 
-    def getColumn(self, name, type, **kwargs):
-        if Database.typeLookup.has_key(type):
-            type = Database.typeLookup[type]
+    def getColumn(self, *args, **kwargs):
+        args = [arg for arg in args]
+        if Database.typeLookup.has_key(args[1]):
+            args[1] = Database.typeLookup[args[1]]
+
+        #foreign key handling
+        if args.__len__() == 3:
+            if isinstance(args[2], str):
+                args[2] = ForeignKey(args[2])
+            elif isinstance(args[2], tuple):
+                args[2] = ForeignKey(args[2][0], **args[2][1])
 
         return sql_.schema.Column(
-            name,
-            type,
-            **kwargs
+            *args,
+            ** kwargs
         )
 
