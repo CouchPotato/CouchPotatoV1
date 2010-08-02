@@ -64,6 +64,6 @@ class imdb(Bones):
     def getInfo(self):
         return {
                 'name' : 'IMDB Proviver',
-                'author' : 'Rudden & Alshain',
+                'author' : 'Ruud & alshain',
                 'version' : '0.1'
         }

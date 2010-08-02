@@ -27,6 +27,7 @@ class Bootstrapper(object):
         sys.path.insert(0, os.path.join(env_.get('appDir'), 'app', 'lib'))
         sys.path.insert(0, env_.get('dataDir'))
         self.parseOptions()
+        self.interpretOptions()
         self.initDataDirs()
         self.loadConfig()
         self.initLogging()
@@ -70,6 +71,15 @@ class Bootstrapper(object):
 
         env_._args = args
         env_._options = options
+
+    def interpretOptions(self):
+        if env_.get('options').quiet:
+            env_._quiet = True
+        if env_.get('options').daemonize:
+            env_._daemonize = True
+        if env_.get('options').debug:
+            env_._debug = True
+
 
     def loadConfig(self):
         env_.cfg = Config()

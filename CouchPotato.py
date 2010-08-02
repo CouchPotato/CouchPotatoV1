@@ -19,13 +19,8 @@ from app.core.environment import Environment as env_
 #core.bootstrap()
 core.bootstrap()
 web_boot = core.frontend.bootstrap()
-web_boot.registerStaticDir(
-    '/', '', env_.get('appDir')
-)
 web_boot.registerStaticDir('/media', env_.get('appDir'), 'media')
-web_boot.registerStaticDir(
-    '/cache', env_.get('dataDir'), 'cache'
-)
+web_boot.registerStaticDir('/cache', env_.get('dataDir'), 'cache')
 core.extend()
 frontend = core.frontend.Frontend(web_boot)
 frontend.start()
