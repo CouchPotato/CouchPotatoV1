@@ -14,8 +14,6 @@ class getLogger(object):
 
 from .environment import Environment as env_
 from .bootstrapper import Bootstrapper as bootstrap
-bootstrap.detectExeBuild()
-bootstrap.detectAppDir()
 
 #from .frontend import Engine
 import frontend

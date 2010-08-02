@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -29,3 +30,28 @@ class Environment:
     @staticmethod
     def get(attr):# default = None, set_non_existant = False):
         return getattr(Environment, '_' + attr)
+
+    @staticmethod
+    def detectExeBuild():
+        try:
+            Environment.frozen = sys.frozen
+        except AttributeError:
+            Environment.frozen = False
+
+    @staticmethod
+    def detectAppDir():
+        appdir = os.path.realpath(os.path.dirname(sys.argv[0]))
+        if Environment.get('frozen'):
+            #path_base = os.environ['_MEIPASS2']
+            appdir = os.path.dirname(sys.executable)
+        Environment._appDir = appdir
+    @staticmethod
+    def registerPaths():
+        sys.path.insert(0, Environment.get('appDir'))
+        sys.path.insert(0, os.path.join(Environment.get('appDir'), 'library'))
+        sys.path.insert(0, os.path.join(Environment.get('appDir'), 'app', 'lib'))
+
+Environment.detectExeBuild()
+Environment.detectAppDir()
+Environment.registerPaths()
+

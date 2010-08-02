@@ -18,12 +18,7 @@ class Bootstrapper(object):
         '''
         Constructor
         '''
-        self.detectExeBuild()
-        self.detectAppDir()
         # Include paths
-        sys.path.insert(0, env_.get('appDir'))
-        sys.path.insert(0, os.path.join(env_.get('appDir'), 'library'))
-        sys.path.insert(0, os.path.join(env_.get('appDir'), 'app', 'lib'))
         sys.path.insert(0, env_.get('dataDir'))
         from app.core.db import db
         self.parseOptions()
@@ -32,21 +27,6 @@ class Bootstrapper(object):
         self.loadConfig()
         self.initLogging()
         self.db = db.Database(os.path.join(env_.get('dataDir'), 'database.db'))
-
-    @staticmethod
-    def detectExeBuild():
-        try:
-            env_.frozen = sys.frozen
-        except AttributeError:
-            env_.frozen = False
-
-    @staticmethod
-    def detectAppDir():
-        appdir = os.path.realpath(os.path.dirname(sys.argv[0]))
-        if env_.get('frozen'):
-            #path_base = os.environ['_MEIPASS2']
-            appdir = os.path.dirname(sys.executable)
-        env_._appDir = appdir
 
     def parseOptions(self):
         data_dir = os.path.join(env_.get('appDir'), self.__class__.DEFAULT_DATA_DIR)
