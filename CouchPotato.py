@@ -27,5 +27,5 @@ web_boot.registerStaticDir(
     '/cache', env_.get('dataDir'), 'cache'
 )
 core.extend()
-frontend = core.frontend.Frontend()
+frontend = core.frontend.Frontend(web_boot)
 frontend.start()

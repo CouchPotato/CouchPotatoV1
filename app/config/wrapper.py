@@ -74,4 +74,4 @@ class Wrapper(object):
     def _initDirectory(self, filename):
         directory = os.path.dirname(filename)
         if not os.path.isdir(directory):
-            os.mkdir(directory)
+            os.makedirs(directory)

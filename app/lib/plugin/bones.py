@@ -6,18 +6,33 @@ Created on 31.07.2010
 from app.config.wrapper import Wrapper
 from app.core.environment import Environment as env_
 import os
+from app.core import getLogger
+import traceback
+from app.lib.plugin.event import Event
+
+log = getLogger(__name__)
 
 class Bones(object):
     '''
     This class handles the loading of plugin-defined configuration files.
     '''
 
-    def __init__(self, configPath):
+    def __init__(self, name, pluginMgr):
         '''
         Constructor
         '''
-        self.configPath = configPath
+        self.name = name
+        self.pluginMgr = pluginMgr
+        self.configPath = os.path.join('plugins', name)
         self.configFiles = dict()
+        self.info = Info(self.getInfo())
+        self.postConstruct()
+
+    def postConstruct(self):
+        '''stub that is invoked after constructor'''
+        pass
+    def init(self):
+        pass
 
     def loadConfig(self, name):
         cf = self.configFiles
@@ -28,7 +43,7 @@ class Bones(object):
         try:
             cf[name] = Wrapper(filename)
         except:
-            _env.log.info('Failed to load config: ' + str(filename))
+            log.info('Failed to load config: ' + str(filename) + "\n" + traceback.format_exc())
             pass
 
     def loadConfigSet(self, nameSet):
@@ -43,8 +58,19 @@ class Bones(object):
     def getPluginMgr(self):
         return env_.get('pluginManager')
 
-class Description:
-    def __init__(self):
+    def getInfo(self):
+        return {}
+
+    def fire(self, name, data):
+        event = Event(self, name, input)
+        if env_.get('debug'):
+            log.info('FIRING: ' + name)
+
+        self.pluginMgr.fire(event)
+
+
+class Info:
+    def __init__(self, info_dict):
         name = None
         author = None
         description = None
@@ -52,13 +78,14 @@ class Description:
         email = None
         logo = None
         www = None
+        self.fromDict(info_dict)
 
-    def fromConfig(self, config):
+    def fromDict(self, dict):
         attrs = (
                  'name', 'author',
                  'description', 'version',
                  'email', 'logo', 'www'
         )
         for attr in attrs:
-            if config.has('info', attr):
-                setattr(self, attr, config.get('info', attr))
+            if dict.has_key(attr):
+                setattr(self, attr, dict[attr])

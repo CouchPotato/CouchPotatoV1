@@ -1,17 +1,16 @@
-from app.lib.provider.movie.base import MovieBase
-from imdb import IMDb
 import logging
+from app.lib.plugin.bones import Bones
+from library.imdb import IMDb
 
 log = logging.getLogger(__name__)
 
-class imdbWrapper(MovieBase):
+class imdb(Bones):
     """Api for IMDB"""
 
-    def __init__(self, config):
-        MovieBase.__init__(self, config)
-        self.config = config
+    def postConstruct_(self):
+        #MovieBase.__init__(self, config)
+        self.loadConfig(self.name)
 
-        self.p = IMDb('mobile')
 
     def find(self, q, limit = 8, alternative = True):
         ''' Find movie by name '''
@@ -61,11 +60,10 @@ class imdbWrapper(MovieBase):
 
         r = self.p.get_movie(id.replace('tt', ''))
         return self.toResults(r, one = True)
-    
-    def initConfigSettings(self):
-        c = self.config
-        c.setDefault('name', 'IMDB Proviver')
-        c.setDefault('author', 'Rudden')
-        c.setDefault('version', '0.1')
-        c.setDefault('url', None)
-        c.setDefault('support', None)
+
+    def getInfo(self):
+        return {
+                'name' : 'IMDB Proviver',
+                'author' : 'Rudden & Alshain',
+                'version' : '0.1'
+        }

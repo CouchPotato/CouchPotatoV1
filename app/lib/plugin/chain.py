@@ -11,12 +11,12 @@ class Chain(object):
         self.listeners = {}
         self.index = -1
 
-    def fire(self, event, data):
+    def fire(self, event):
         for entry in self:
             self._fire(event, entry['callback'], entry['config'])
 
-    def _fire(self, event, data, callback, config):
-        callback(event, data, config)
+    def _fire(self, event, callback, config):
+        callback(event, config)
 
 
     def __iter__(self):

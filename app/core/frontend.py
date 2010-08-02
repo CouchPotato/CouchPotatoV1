@@ -6,7 +6,7 @@ myCherry = None
 import logging
 log = getLogger(__name__)
 
-class Bootstraper(object):
+class Bootstrapper(object):
     '''
     Initializes the web user interface
     '''
@@ -82,8 +82,18 @@ class Route(object):
 
 
 class Frontend(object):
-    def __init__(self):
-        pass
+    def __init__(self, bootstrapper):
+        self.bootstrapper = bootstrapper
+        conf = {
+        '/': {
+            'request.dispatch': self.bootstrapper.routes,
+            'tools.sessions.on':  True,
+            'tools.sessions.timeout': 240,
+
+            'tools.gzip.on': True,
+            'tools.gzip.mime_types': ['text/html', 'text/plain', 'text/css', 'text/javascript', 'application/javascript']
+        }
+    }
 
     def start(self):
         log.info('Starting web interface...')
@@ -92,4 +102,4 @@ class Frontend(object):
         cherrypy.engine.block()
         log.info('Server terminated')
 
-bootstrap = Bootstraper
+bootstrap = Bootstrapper
