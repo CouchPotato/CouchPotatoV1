@@ -9,6 +9,7 @@ log = getLogger(__name__)
 class PluginLoader:
     def __init__(self):
         env_._pluginMgr = self
+        env_._coreInfo = self.getCoreInfo()
         self.plugins = {}
         self.pluginChains = {}
         self.paths = {
@@ -94,6 +95,12 @@ class PluginLoader:
         session.add(plugin)
         session.flush()
 
+    def getCoreInfo(self):
+        if not self.isPluginInstalled('core', 'core'):
+            raise ValueError('No core version found')
+        info = self.getPluginInfo('core', 'core')
+        return info
+
 
     def getTypeId(self, type_name, create = False):
         type_name = unicode(type_name)
@@ -104,7 +111,7 @@ class PluginLoader:
             if not create:
                 raise
             type = _tables.PluginTypesTable()
-            type.name = unicode(type_name)
+            type.name = type_name
             session.add(type)
             session.flush()
         return type.id

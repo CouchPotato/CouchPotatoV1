@@ -9,6 +9,7 @@ import shutil
 from imaplib import Time2Internaldate
 import time
 from app.core.environment import Environment as env_
+import traceback
 
 
 log = getLogger(__name__)
@@ -33,10 +34,24 @@ class Database(object):
                 sql_orm_.sessionmaker(bind = self.engine, autocommit = True)
         )
 
+        env_._db = self
         log.info('Loading Database...')
+        doUpgrade = os.path.isfile(self.file)
         _tables.bootstrap(self)
+        session = self.createSession()
+        if doUpgrade:
+            info = session.query(_tables.PluginsTable).filter_by(name = unicode('core'), type_id = 1).one()
+            self.upgradeDatabase(info, _tables.latestVersion, _tables)
+        else:
+            type = _tables.PluginTypesTable('core')
+            session.add(type)
+            session.flush()
+            type_id = type.id
+            session.add(_tables.PluginsTable('core', type_id, _tables.latestVersion))
+            session.flush()
+
         """
-        doUpgrade = os.path.isfile(path):
+        
 
         metadata.create_all()
 
@@ -49,7 +64,6 @@ class Database(object):
                 Session.flush()
         log.info('Database loaded')
         """
-        env_._db = self
 
     def createSession(self):
         return self.session()
@@ -89,20 +103,35 @@ class Database(object):
     def create(self):
         self.metadata.create_all()
 
-    def upgradeDatabase(self, info, scope, latest_version):
-        log.info('Upgrading database for ' + info.name)
-        shutil.copy(self.file, self.file + str(time.localtime()))
+    def getDbVersion(self):
+        return env_.get('coreInfo')
+
+
+    def upgradeDatabase(self, info, latest_version, scope):
         current_version = info.version
+        session = self.createSession()
         if current_version < latest_version:
+            log.info('Upgrading database for ' + info.name)
+            shutil.copy(self.file, self.file + '_' + time.strftime("%Y-%m-%d_%H-%M-%S") + '.db')
             for tempVersion in range(current_version + 1, latest_version + 1):
                 methodName = 'migrateToVersion' + str(tempVersion)
                 if hasattr(scope, methodName):
                     method = getattr(scope, methodName)
-                    if method():
+                    try:
+                        method()
                         info.version += 1
-                    else:
-                        log.info('Error while updating: ' + str(info.name))
-                        break
+                        session.add(info)
+                        session.flush()
+                    except:
+                        log.info('Error while updating ' + str(info.name) + ":\n" + traceback.format_exc())
+                        return
+                else:
+                    log.info('Error while updating ' + str(info.name)
+                             + ': method ' + methodName
+                             + ' not found.')
+                    return
+            #for end
+            log.info('Updated ' + str(info.name) + ', is now at version ' + str(info.version))
 
 
 
