@@ -64,7 +64,7 @@ class PluginBones(object):
         self.pluginMgr = pluginMgr
         self.configPath = os.path.join('plugins', name)
         self.configFiles = dict()
-        self.about = About(self.getAbout())
+        self.about = About(self._getAbout())
         self.postConstruct()
         if self.pluginPath:
             self.makoLookup = TemplateLookup(directories = [os.path.join(self.pluginPath, 'views')])
@@ -75,7 +75,7 @@ class PluginBones(object):
     def init(self):
         pass
 
-    def loadConfig(self, name):
+    def _loadConfig(self, name):
         cf = self.configFiles
         if cf.has_key(name):
             return cf[name]
@@ -87,23 +87,26 @@ class PluginBones(object):
             log.info('Failed to load config: ' + str(filename) + "\n" + traceback.format_exc())
             pass
 
-    def loadConfigSet(self, nameSet):
+    def _loadConfigSet(self, nameSet):
         for name in nameSet:
-            self.loadConfig(name)
+            self._loadConfig(name)
 
-    def getConfig(self, name, builder = None):
+    def _getConfig(self, name, builder = None):
         if self.configFiles.has_key(name):
             return self.configFiles[name]
         raise Exception('Config inexistent.')
 
-    def getPluginMgr(self):
+    def _getPluginMgr(self):
         return env_.get('pluginManager')
 
-    def getAbout(self):
+    def _getAbout(self):
         return {}
 
     def _fire(self, name, input = None):
         self._fireCustom(Event, name, input)
+
+    def _getDbSession(self):
+        return env_.get('db').createSession()
 
     def _fireCustom(self, EventType, name, *args, **kwargs):
         event = EventType(self, name, *args, **kwargs)
@@ -115,7 +118,7 @@ class PluginBones(object):
     def _listen(self, to, callback, config = None, position = -1):
         self.pluginMgr.listen(to, callback, config, position)
 
-    def createController(self, view_subfolders = (), ControllerType = PluginController):
+    def _createController(self, view_subfolders = (), ControllerType = PluginController):
         views_path = [self.pluginPath, 'views']
         views_path.extend(view_subfolders)
         views_path = os.path.join(*views_path)

@@ -9,7 +9,7 @@ class imdb(PluginBones):
 
     def postConstruct_(self):
         #MovieBase.__init__(self, config)
-        self.loadConfig(self.name)
+        self._loadConfig(self.name)
 
 
     def find(self, q, limit = 8, alternative = True):
