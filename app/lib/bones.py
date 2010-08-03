@@ -60,6 +60,7 @@ class PluginBones(object):
         Constructor
         '''
         self.name = name
+        self._info = None
         self.pluginPath = path
         self.pluginMgr = pluginMgr
         self.configPath = os.path.join('plugins', name)
@@ -123,6 +124,10 @@ class PluginBones(object):
         views_path.extend(view_subfolders)
         views_path = os.path.join(*views_path)
         return ControllerType(self, views_path, self.makoLookup)
+
+    def _upgradeDatabase(self, latest_version, scope):
+        '''Call this to automatically upgrade your tables'''
+        env_.get('db').upgradeDatabase(self._info, latest_version, scope)
 
 
 class About:
