@@ -1,1 +1,1 @@
-from bones import Bones as Plugin
+from bones import PluginBones as Plugin

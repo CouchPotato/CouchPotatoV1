@@ -1,5 +1,5 @@
 class Event(object):
-    def __init__(self, sender, name, input):
+    def __init__(self, sender, name, input, *args, **kwargs):
         self.sender = sender
         self.senderName = sender.name
         self.name = name

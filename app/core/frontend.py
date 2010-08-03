@@ -15,8 +15,49 @@ class Bootstrapper(object):
         '''
         Constructor
         '''
+
+
+class Route(object):
+    """
+    provides means to register a custom controller with
+    the frontend easily
+    """
+    _instances = 0
+    def __init__(self, **kwargs):
+        '''parameters: controller, name, route, action'''
+        self.__class__._instances += 1
+        if 'controller' not in kwargs:
+            kwargs['controller'] = None
+        if 'name' not in kwargs:
+            kwargs['name'] = 'unknown-' \
+                + str(self.__class__._instances)
+        if 'route' not in kwargs:
+            kwargs['route'] = None
+        if 'action' not in kwargs:
+            kwargs['action'] = 'index'
+
+        #now assign kwargs to instance var
+        self.name = kwargs['name']
+        self.controller = kwargs['controller']
+        self.route = kwargs['route']
+        self.action = kwargs['action']
+
+
+class Frontend(object):
+    def __init__(self):
         self.config = {}
         self.routes = cherrypy.dispatch.RoutesDispatcher()
+        env_._frontend = self
+        self.config = {
+        '/': {
+            'request.dispatch': self.routes,
+            'tools.sessions.on':  True,
+            'tools.sessions.timeout': 240,
+
+            'tools.gzip.on': True,
+            'tools.gzip.mime_types': ['text/html', 'text/plain', 'text/css', 'text/javascript', 'application/javascript']
+            }
+        }
 
     def getConfig(self):
         pass
@@ -55,51 +96,12 @@ class Bootstrapper(object):
         for route in routes:
             self.addRoute(route)
 
-class Route(object):
-    """
-    provides means to register a custom controller with
-    the frontend easily
-    """
-    _instances = 0
-    def __init__(self, **kwargs):
-        '''parameters: controller, name, route, action'''
-        self.__class__._instances += 1
-        if 'controller' not in kwargs:
-            kwargs['controller'] = None
-        if 'name' not in kwargs:
-            kwargs['name'] = 'unknown-' \
-                + str(self.__class__._instances)
-        if 'route' not in kwargs:
-            kwargs['route'] = None
-        if 'action' not in kwargs:
-            kwargs['action'] = 'index'
-
-        #now assign kwargs to instance var
-        self.name = kwargs['name']
-        self.controller = kwargs['controller']
-        self.route = kwargs['route']
-        self.action = kwargs['action']
-
-
-class Frontend(object):
-    def __init__(self, bootstrapper):
-        self.bootstrapper = bootstrapper
-        conf = {
-        '/': {
-            'request.dispatch': self.bootstrapper.routes,
-            'tools.sessions.on':  True,
-            'tools.sessions.timeout': 240,
-
-            'tools.gzip.on': True,
-            'tools.gzip.mime_types': ['text/html', 'text/plain', 'text/css', 'text/javascript', 'application/javascript']
-        }
-    }
-
     def start(self):
+        cherrypy.tree.mount(root = None, config = self.config)
         log.info('Starting web interface...')
         cherrypy.engine.start()
         log.info('Web interface running...')
         cherrypy.engine.block()
         log.info('Server terminated')
 
-bootstrap = Bootstrapper
+bootstrap = Frontend

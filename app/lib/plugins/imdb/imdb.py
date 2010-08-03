@@ -1,10 +1,10 @@
 import logging
-from app.lib.plugin.bones import Bones
+from app.lib.plugin.bones import PluginBones
 from library.imdb import IMDb
 
 log = logging.getLogger(__name__)
 
-class imdb(Bones):
+class imdb(PluginBones):
     """Api for IMDB"""
 
     def postConstruct_(self):

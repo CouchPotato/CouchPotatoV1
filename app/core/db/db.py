@@ -40,7 +40,7 @@ class Database(object):
         _tables.bootstrap(self)
         session = self.createSession()
         if doUpgrade:
-            info = session.query(_tables.PluginsTable).filter_by(name = unicode('core'), type_id = 1).one()
+            info = session.query(_tables.PluginsTable).filter_by(name = u'core', type_id = 1).one()
             self.upgradeDatabase(info, _tables.latestVersion, _tables)
         else:
             type = _tables.PluginTypesTable('core')

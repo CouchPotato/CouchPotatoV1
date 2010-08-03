@@ -36,7 +36,7 @@ class PluginLoader:
         log.info('Loading plugin: ' + name)
         try:
             m = __import__('plugins.' + name)
-            self.registerPlugin(type, name, getattr(m, name).start(name, self))
+            self.registerPlugin(type, name, getattr(m, name).start(name, self, path))
         except:
             log.error("Failed loading plugin: " + name + "\n" + traceback.format_exc())
 
@@ -53,14 +53,14 @@ class PluginLoader:
         for name, plugin in self.plugins.iteritems():
             self.initPlugin(plugin)
 
-    def fire(self, name, event):
-        if self.pluginChainExists(name):
-            self.pluginChains[name].fire(event)
+    def fire(self, event):
+        if self.pluginChainExists(event.name):
+            self.pluginChains[event.name].fire(event)
 
     def pluginChainExists(self, name):
         return self.pluginChains.has_key(name)
 
-    def listen(self, to, callback, config, position = -1):
+    def listen(self, to, callback, config = None, position = -1):
         if not self.pluginChainExists(to):
             self.pluginChains[to] = PluginChain()
 

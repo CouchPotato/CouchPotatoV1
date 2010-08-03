@@ -9,24 +9,38 @@ import os
 from app.core import getLogger
 import traceback
 from app.lib.plugin.event import Event
+from mako.lookup import TemplateLookup
+from mako.template import Template
+from app.core.controller import BasicController
 
 log = getLogger(__name__)
 
-class Bones(object):
+class PluginController(BasicController):
+    def __init__(self, plugin, views, mako_lookup):
+        self.makoLookup = mako_lookup
+
+    def render(self, name, **kwargs):
+        template = Template(filename = name, lookup = self.makoLookup)
+        return template.render_unicode(**kwargs)
+
+class PluginBones(object):
     '''
     This class handles the loading of plugin-defined configuration files.
     '''
 
-    def __init__(self, name, pluginMgr):
+    def __init__(self, name, pluginMgr, path = None, *args, **kwargs):
         '''
         Constructor
         '''
         self.name = name
+        self.pluginPath = path
         self.pluginMgr = pluginMgr
         self.configPath = os.path.join('plugins', name)
         self.configFiles = dict()
         self.info = Info(self.getInfo())
         self.postConstruct()
+        if self.pluginPath:
+            self.makoLookup = TemplateLookup(directories = [os.path.join(self.pluginPath, 'views')])
 
     def postConstruct(self):
         '''stub that is invoked after constructor'''
@@ -61,23 +75,35 @@ class Bones(object):
     def getInfo(self):
         return {}
 
-    def fire(self, name, data):
-        event = Event(self, name, input)
+    def _fire(self, name, input = None):
+        self._fireCustom(Event, name, input)
+
+    def _fireCustom(self, EventType, name, *args, **kwargs):
+        event = EventType(self, name, *args, **kwargs)
         if env_.get('debug'):
             log.info('FIRING: ' + name)
 
         self.pluginMgr.fire(event)
 
+    def _listen(self, to, callback, config = None, position = -1):
+        self.pluginMgr.listen(to, callback, config, position)
+
+    def createController(self, view_subfolders = (), ControllerType = PluginController):
+        views_path = [self.pluginPath, 'views']
+        views_path.extend(view_subfolders)
+        views_path = os.path.join(*views_path)
+        return ControllerType(self, views_path, self.makoLookup)
+
 
 class Info:
     def __init__(self, info_dict):
-        name = None
-        author = None
-        description = None
-        version = None
-        email = None
-        logo = None
-        www = None
+        self.name = None
+        self.author = None
+        self.description = None
+        self.version = None
+        self.email = None
+        self.logo = None
+        self.www = None
         self.fromDict(info_dict)
 
     def fromDict(self, dict):

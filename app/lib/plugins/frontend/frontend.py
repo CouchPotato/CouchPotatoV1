@@ -1,6 +1,10 @@
-from app.lib.plugin.bones import Bones
+from app.lib.plugin.bones import PluginBones
 import cherrypy
-class Frontend(Bones):
+from app.core import getLogger
+from app.core import env_
+
+log = getLogger(__name__)
+class Frontend(PluginBones):
     '''
     Provides an interterface for plugins to register with the frontend
     '''
@@ -8,6 +12,13 @@ class Frontend(Bones):
 
     def postConstruct(self):
         self.tabs = {}
+        self._listen('frontend.route.register', self.registerRoute)
+        self.frontend = env_.get('frontend')
+
+    def registerRoute(self, event, config):
+        route = event.input
+        self.frontend.addRoute(route)
+
 
     def export(self):
         return {
