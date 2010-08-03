@@ -2,7 +2,7 @@ from .environment import Environment as env_
 import os, glob
 from app.core import getLogger
 import sys, traceback
-from app.lib.plugin.chain import Chain as PluginChain
+from app.lib.chain import Chain as PluginChain
 from app.core.db import _tables
 log = getLogger(__name__)
 
@@ -13,11 +13,11 @@ class PluginLoader:
         self.plugins = {}
         self.pluginChains = {}
         self.paths = {
-                      'core' :os.path.join(env_.get('appDir'), 'app', 'lib', 'plugins'),
-                      'user' : os.path.join(env_.get('dataDir'), 'plugins')
+                      'core' : ('app.plugins.', os.path.join(env_.get('appDir'), 'app', 'plugins')),
+                      'user' : ('plugins.', os.path.join(env_.get('dataDir'), 'plugins'))
                       }
-        for type, dir in self.paths.iteritems():
-            self.loadFromDir(type, dir)
+        for type, tuple in self.paths.iteritems():
+            self.loadFromDir(type, tuple[0], tuple[1])
 
         if self.plugins.__len__():
             log.info('Plugins loaded: ' + str(self.plugins.__len__()))
@@ -25,20 +25,31 @@ class PluginLoader:
         else:
             log.info('No plugins have been loaded.')
 
-    def loadFromDir(self, type, dir):
+    def loadFromDir(self, type, module, dir):
         for file in glob.glob(os.path.join(dir, '*')):
             plugin_name = os.path.basename(file)
             plugin_dir = os.path.join(dir, plugin_name)
             if os.path.isdir(plugin_dir):
-                self.loadPlugin(type, plugin_name, plugin_dir)
+                self.loadPlugin(type, module, plugin_name, plugin_dir)
 
-    def loadPlugin(self, type, name, path):
-        log.info('Loading plugin: ' + name)
+    def loadPlugin(self, type, module, name, path):
+        log.info('Loading plugin: ' + module + name)
         try:
-            m = __import__('plugins.' + name)
+            m = self.loadModule(module + name)
             self.registerPlugin(type, name, getattr(m, name).start(name, self, path))
         except:
             log.error("Failed loading plugin: " + name + "\n" + traceback.format_exc())
+
+    def loadModule(self, name):
+        try:
+            m = __import__(name)
+            splitted = name.split('.')
+            for sub in splitted[1:-1]:
+                m = getattr(m, sub)
+            return m
+        except:
+            log.error("Failed loading module: " + name + "\n" + traceback.format_exc())
+            raise
 
     def registerPlugin(self, type_name, name, plugin):
         if not self.isPluginInstalled(name, type_name):

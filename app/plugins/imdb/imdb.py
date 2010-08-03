@@ -1,5 +1,5 @@
 import logging
-from app.lib.plugin.bones import PluginBones
+from app.lib.bones import PluginBones
 from library.imdb import IMDb
 
 log = logging.getLogger(__name__)

@@ -8,7 +8,7 @@ from app.core.environment import Environment as env_
 import os
 from app.core import getLogger
 import traceback
-from app.lib.plugin.event import Event
+from app.lib.event import Event
 from mako.lookup import TemplateLookup
 from mako.template import Template
 from app.core.controller import BasicController

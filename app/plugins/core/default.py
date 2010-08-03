@@ -1,5 +1,5 @@
-from app.lib.plugin.bones import PluginBones, PluginController
-from app.lib.plugin.event import Event
+from app.lib.bones import PluginBones, PluginController
+from app.lib.event import Event
 import cherrypy
 from app.core.frontend import Route
 from app.core.environment import Environment as env_

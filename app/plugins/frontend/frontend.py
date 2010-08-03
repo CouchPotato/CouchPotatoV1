@@ -1,4 +1,4 @@
-from app.lib.plugin.bones import PluginBones
+from app.lib.bones import PluginBones
 import cherrypy
 from app.core import getLogger, decorate
 from app.core import env_
