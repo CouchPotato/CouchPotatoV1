@@ -37,7 +37,7 @@ class TrailerCron(rss, cronBase):
         while True and not self.abort:
             try:
                 movie = trailerQueue.get(timeout = timeout)
-                
+
                 # Thread fix
                 if movie.get('movieId'):
                     movie['movie'] = Db.query(Movie).filter_by(id = movie.get('movieId')).one()
@@ -116,6 +116,7 @@ class TrailerCron(rss, cronBase):
                         movie = guess.pop()
 
             if movie:
+                log.info('Adding "%s" to trailer search.' % movie.name)
                 trailerQueue.put({'movie': movie, 'destination':movieFiles})
             else:
                 log.info('No match found for: %s' % movieFiles.get('filename'))
@@ -131,6 +132,7 @@ class TrailerCron(rss, cronBase):
         return None
 
     def search(self, movie, destination):
+        self.log('Search for trailer for: %s' % movie.name)
 
         if self.abort:
             return
