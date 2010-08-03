@@ -21,13 +21,12 @@ class PluginController(BasicController):
         self.plugin = plugin
         self.makoLookup = mako_lookup
         self.views = views
-        self.static = os.path.join(views, 'static')
         env_.get('frontend').registerStaticDir(
-                            self._getVirtual('static'),
+                            '/' + self._getVirtual(['static']), # /virtualPathNoLeadingSlash
                             self._getStaticDir()
         )#register static
         self.const = {
-            'static' : self._getVirtual('static')
+            'static' : self._getVirtual(['static'])
         }
 
     def render(self, name, vars = {}, *args):
@@ -37,11 +36,11 @@ class PluginController(BasicController):
         template = Template(filename = name, lookup = self.makoLookup)
         return template.render_unicode(*args, **vars)
 
-    def _getVirtual(self, subdirectories = ()):
-        return os.path.join(
+    def _getVirtual(self, subdirectories = []):
+        return '/'.join([
             '_plugins',
             self.plugin._info.name + '-' + str(self.plugin._info.version),
-            *subdirectories
+            ] + subdirectories
         )
 
     def _getStaticDir(self, subdirectories = ()):

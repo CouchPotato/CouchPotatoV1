@@ -16,6 +16,7 @@ class Environment:
     _build = 19
     _frozen = False
     _pluginMgr = None
+    _baseUrl = 'http://localhost:8080'
 
     cfg = None
     @staticmethod

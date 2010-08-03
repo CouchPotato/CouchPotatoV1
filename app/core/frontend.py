@@ -66,7 +66,7 @@ class Frontend(object):
     def getConfig(self):
         pass
 
-    def registerStaticDir(self, virtual, root, subfolder = '/', expire = False):
+    def registerStaticDir(self, virtual, subfolder, root = None, expire = False):
         expire_on = False
         expire_secs = 0
 
@@ -82,8 +82,8 @@ class Frontend(object):
         self.config.update({
             virtual:{
                 'tools.staticdir.on': True,
+                'tools.staticdir.root': root,
                 'tools.staticdir.dir': subfolder,
-                'tools.staticdir.root' : root,
                 'tools.expires.on': expire_on,
                 'tools.expires.secs': expire_secs
             }

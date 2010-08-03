@@ -2,11 +2,13 @@ from app.lib.plugin.bones import PluginBones, PluginController
 from app.lib.plugin.event import Event
 import cherrypy
 from app.core.frontend import Route
+from app.core.environment import Environment as env_
 
-class SomeController(PluginController):
+class CoreController(PluginController):
     @cherrypy.expose
     def index(self):
-        return self.render('index.html')
+        vars = {'baseUrl' : env_.get('baseUrl')}
+        return self.render('index.html', vars)
 
 
 class CouchCore(PluginBones):
@@ -18,6 +20,6 @@ class CouchCore(PluginBones):
         pass
 
     def init(self):
-        controller = self.createController((), SomeController)
+        controller = self.createController((), CoreController)
         route = Route(controller = controller, route = '/')
         self._fire('frontend.route.register', route)
