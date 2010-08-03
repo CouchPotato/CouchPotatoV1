@@ -2,6 +2,7 @@ import cherrypy
 from cherrypy.process import plugins
 from environment import Environment as env_
 from app.core import getLogger
+from app.core.controller import BasicController
 myCherry = None
 import logging
 log = getLogger(__name__)
@@ -47,6 +48,9 @@ class Frontend(object):
     def __init__(self):
         self.config = {}
         self.routes = cherrypy.dispatch.RoutesDispatcher()
+        self.routes.minimization = False
+        self.routes.explicit = False
+        self.routes.append_slash = True
         env_._frontend = self
         self.config = {
         '/': {
@@ -88,7 +92,7 @@ class Frontend(object):
 
     def addRoute(self, route):
         try:
-            self.routes.connect(route.name, route.route, route.controller)
+            self.routes.connect(route.name, route.route, route.controller, action = route.action)
         except:
             raise
 

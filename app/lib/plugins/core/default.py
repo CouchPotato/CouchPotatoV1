@@ -21,6 +21,3 @@ class CouchCore(PluginBones):
         controller = self.createController((), SomeController)
         route = Route(controller = controller, route = '/')
         self._fire('frontend.route.register', route)
-
-
-
