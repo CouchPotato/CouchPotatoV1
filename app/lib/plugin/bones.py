@@ -12,16 +12,44 @@ from app.lib.plugin.event import Event
 from mako.lookup import TemplateLookup
 from mako.template import Template
 from app.core.controller import BasicController
+from copy import copy
 
 log = getLogger(__name__)
 
 class PluginController(BasicController):
     def __init__(self, plugin, views, mako_lookup):
+        self.plugin = plugin
         self.makoLookup = mako_lookup
+        self.views = views
+        self.static = os.path.join(views, 'static')
+        env_.get('frontend').registerStaticDir(
+                            self._getVirtual('static'),
+                            self._getStaticDir()
+        )#register static
+        self.const = {
+            'static' : self._getVirtual('static')
+        }
 
-    def render(self, name, **kwargs):
+    def render(self, name, vars = {}, *args, **kwargs):
+        vars = copy(vars)
+        vars.update(self.const)
+        name = os.path.join(self.views, name)
         template = Template(filename = name, lookup = self.makoLookup)
-        return template.render_unicode(**kwargs)
+        return template.render_unicode(vars, *args, **kwargs)
+
+    def _getVirtual(self, subdirectories = ()):
+        return os.path.join(
+            '_plugins',
+            self.plugin._info.name + '-' + str(self.plugin._info.version),
+            *subdirectories
+        )
+
+    def _getStaticDir(self, subdirectories = ()):
+        return os.path.join(
+            self.plugin.pluginPath,
+            'static',
+            *subdirectories
+        )
 
 class PluginBones(object):
     '''
@@ -37,7 +65,7 @@ class PluginBones(object):
         self.pluginMgr = pluginMgr
         self.configPath = os.path.join('plugins', name)
         self.configFiles = dict()
-        self.info = Info(self.getInfo())
+        self.about = About(self.getAbout())
         self.postConstruct()
         if self.pluginPath:
             self.makoLookup = TemplateLookup(directories = [os.path.join(self.pluginPath, 'views')])
@@ -72,7 +100,7 @@ class PluginBones(object):
     def getPluginMgr(self):
         return env_.get('pluginManager')
 
-    def getInfo(self):
+    def getAbout(self):
         return {}
 
     def _fire(self, name, input = None):
@@ -95,7 +123,7 @@ class PluginBones(object):
         return ControllerType(self, views_path, self.makoLookup)
 
 
-class Info:
+class About:
     def __init__(self, info_dict):
         self.name = None
         self.author = None

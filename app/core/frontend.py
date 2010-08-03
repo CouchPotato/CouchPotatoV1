@@ -66,7 +66,7 @@ class Frontend(object):
     def getConfig(self):
         pass
 
-    def registerStaticDir(self, virtual, root, subfolder, expire = False):
+    def registerStaticDir(self, virtual, root, subfolder = '/', expire = False):
         expire_on = False
         expire_secs = 0
 

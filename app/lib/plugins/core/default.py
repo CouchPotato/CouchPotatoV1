@@ -6,7 +6,7 @@ from app.core.frontend import Route
 class SomeController(PluginController):
     @cherrypy.expose
     def index(self):
-        return 'Hello World'
+        return self.render('index.html')
 
 
 class CouchCore(PluginBones):
