@@ -30,12 +30,12 @@ class PluginController(BasicController):
             'static' : self._getVirtual('static')
         }
 
-    def render(self, name, vars = {}, *args, **kwargs):
+    def render(self, name, vars = {}, *args):
         vars = copy(vars)
         vars.update(self.const)
         name = os.path.join(self.views, name)
         template = Template(filename = name, lookup = self.makoLookup)
-        return template.render_unicode(vars, *args, **kwargs)
+        return template.render_unicode(*args, **vars)
 
     def _getVirtual(self, subdirectories = ()):
         return os.path.join(
