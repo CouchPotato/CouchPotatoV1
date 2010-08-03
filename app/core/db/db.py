@@ -108,6 +108,7 @@ class Database(object):
 
 
     def upgradeDatabase(self, info, latest_version, scope):
+        self.metadata.create_all()
         current_version = info.version
         session = self.createSession()
         if current_version < latest_version:
