@@ -21,7 +21,7 @@ class RenamerCron(cronBase):
     config = {}
     trailer = {}
     minimalFileSize = 1024 * 1024 * 10 # 10MB
-    ignoredInPath = ['_unpack', '.appledouble', '/._'] #unpacking, smb-crap
+    ignoredInPath = ['_unpack', '_failed_', '.appledouble', '/._'] #unpacking, smb-crap
 
     # Filetypes
     movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso']
@@ -106,7 +106,7 @@ class RenamerCron(cronBase):
                 log.debug(subfiles)
 
                 # Stop if something is unpacking
-                if '_unpack' in root.lower():
+                if '_unpack' in root.lower() or '_failed_' in root.lower():
                     break
 
                 for filename in filenames:
@@ -453,7 +453,7 @@ class RenamerCron(cronBase):
         # ignoredpaths
         for i in self.ignoredInPath:
             if i in file.lower():
-                log.info('File still unpacking.')
+                log.debug('File still unpacking.')
                 return True
 
         # All is OK
