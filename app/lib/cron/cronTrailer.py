@@ -132,7 +132,7 @@ class TrailerCron(rss, cronBase):
         return None
 
     def search(self, movie, destination):
-        self.log('Search for trailer for: %s' % movie.name)
+        log.info('Search for trailer for: %s' % movie.name)
 
         if self.abort:
             return
