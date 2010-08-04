@@ -41,9 +41,16 @@ class CouchCore(PluginBones):
         
         Force a custom class by specifying the type using _eventClass
         
-        Returns the results of all completed threads as a list if the event
-        is made to wait.
-        Else return a list with the threads.
+        Results:
+            wait:
+                only one result set available. The most
+                recent resultSet's elemtns from an Event are added
+                to this event's results.
+                
+            no wait:
+                one result set, two Results: the first
+                contains a list with all the events,
+                the second a list with all threads.
         
         """
 
@@ -64,18 +71,19 @@ class CouchCore(PluginBones):
             threads.append(thread)
             thread.start()
         log = getLogger(__name__)
-        results = []
         if wait:
             for i, thread in enumerate(threads):
                 if thread.isAlive():
                     log.info('Waiting for worker ' + str(i))
                 thread.join(timeout)
                 if thread.isAlive(): log.info('Timeout hit on worker ' + str(i))
-                else: results.append(events[i])
+                else: event.addResults(events[i].getResultSet())
             #for end
-            return results
+            return
         #endif wait
-        return threads
+        event.addResult(events)
+        event.addResult(threads)
+        return
 
 def threadedEventWrapper(self, *args, **kwargs):
     return self._fire('threaded.event', *args, **kwargs)

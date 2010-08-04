@@ -1,7 +1,5 @@
 import threading
-from app.lib.event import Event
 from app.core import getLogger
-import time
 
 class EventThread(threading.Thread):
     """
