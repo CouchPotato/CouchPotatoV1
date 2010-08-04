@@ -11,7 +11,10 @@ class Movies(PluginBones):
     '''
 
     def init(self):
+        # Create database
         self._upgradeDatabase(_tables.latestVersion, _tables)
+
+        # Add controller to route
         controller = self._createController((), MovieController)
         route = Route(controller = controller, route = '/movie/')
         self._fire('frontend.route.register', route)

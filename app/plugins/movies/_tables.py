@@ -4,6 +4,10 @@ from sqlalchemy.orm import mapper
 latestVersion = 0
 
 class MovieTable(BasicTable):
+    dateChanged = None
+    name = None
+    status = None
+
     def __repr__(self):
         return BasicTable.__repr__(self) + self.name
 

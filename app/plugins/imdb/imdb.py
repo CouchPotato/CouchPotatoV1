@@ -1,15 +1,18 @@
-from app.lib.bones import PluginBones
-from library.imdb import IMDb
 from app.core import getLogger
+from app.lib.bones import PluginBones
+from app.lib.rss import Rss
+from library.imdb import IMDb
 
 log = getLogger(__name__)
 
-class imdb(PluginBones):
+class imdb(PluginBones, Rss):
     """Api for IMDB"""
 
     def postConstruct(self):
         #MovieBase.__init__(self, config)
         self._loadConfig(self.name)
+
+        self.p = IMDb()
 
         self._listen('findMovieInfo', self.find)
 
@@ -17,40 +20,17 @@ class imdb(PluginBones):
     def find(self, e, config):
         ''' Find movie by name '''
 
-        q = e._input.get('q')
+        q = unicode(e._input.get('q'))
         limit = e._input.get('limit' , 8)
 
         log.info("IMDB - Searching for movie: " + q)
 
-        r = self.p.search_movie(q)
+        searchResults = self.p.search_movie(q)
+        results = self.toResults(searchResults, limit)
 
-        return self.toResults(r, limit)
-
-    def toResults(self, r, limit = 8, one = False):
-        results = []
-
-        if one:
-            new = self.feedItem()
-            new.imdb = 'tt' + r.movieID
-            new.name = self.toSaveString(r['title'])
-            new.year = r['year']
-
-            return new
-        else :
-            nr = 0
-            for movie in r:
-                new = self.feedItem()
-                new.imdb = 'tt' + movie.movieID
-                new.name = self.toSaveString(movie['title'])
-                new.year = movie['year']
-
-                results.append(new)
-                nr += 1
-                if nr == limit:
-                    break
-
-            return results
-
+        # Add the results to the event item
+        log.info('Found %s.' % results)
+        e.addResults(results)
 
     def findById(self, id):
         ''' Find movie by TheMovieDB ID '''
@@ -63,12 +43,28 @@ class imdb(PluginBones):
 
         log.info('IMDB - Searching for movie: %s', str(id))
 
-        r = self.p.get_movie(id.replace('tt', ''))
-        return self.toResults(r, one = True)
+        searchResults = self.p.get_movie(id.replace('tt', ''))
+        result = self.toResult(searchResults)
+
+        log.info('Found %s.' % result)
+        return result
+
+    def toResults(self, results, limit = 8):
+        limitedResults = results[:limit]
+        return [self.toResult(movie) for movie in limitedResults]
+
+    def toResult(self, r):
+
+        new = self.feedItem()
+        new.imdb = 'tt' + r.movieID
+        new.name = r['title']
+        new.year = r['year']
+
+        return new
 
     def getInfo(self):
         return {
-                'name' : 'IMDB Proviver',
-                'author' : 'Ruud & alshain',
-                'version' : '0.1'
+            'name' : 'IMDB Provider',
+            'author' : 'Ruud & alshain',
+            'version' : '0.1'
         }

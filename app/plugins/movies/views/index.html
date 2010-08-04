@@ -33,8 +33,8 @@
 	% for movie in movies:
 	<%
 		extra = {}
-		for e in movie.extra:
-			extra[e.name] = e.value
+		#for e in movie.extra:
+		#	extra[e.name] = e.value
 	%>
 	<div class="item ${movie.status}" data-id="${movie.id}">
 		<span class="title">
