@@ -24,5 +24,5 @@ class MovieController(PluginController):
 
     def search(self, query):
 
-        movieInfo = self.plugin._fire('findMovieInfo', {'q' : query})
+        movieInfo = self.plugin._fire('findMovieInfo', q = query)
         print movieInfo.getResult()

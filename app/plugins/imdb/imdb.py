@@ -20,8 +20,8 @@ class imdb(PluginBones, Rss):
     def find(self, e, config):
         ''' Find movie by name '''
 
-        q = unicode(e._input.get('q'))
-        limit = e._input.get('limit' , 8)
+        q = unicode(e._kwargs.get('q'))
+        limit = e._kwargs.get('limit' , 8)
 
         log.info("IMDB - Searching for movie: " + q)
 
