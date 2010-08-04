@@ -65,8 +65,8 @@ class PluginLoader:
             self.initPlugin(plugin)
 
     def fire(self, event):
-        if self.pluginChainExists(event.name):
-            self.pluginChains[event.name].fire(event)
+        if self.pluginChainExists(event._name):
+            self.pluginChains[event._name].fire(event)
 
     def pluginChainExists(self, name):
         return self.pluginChains.has_key(name)

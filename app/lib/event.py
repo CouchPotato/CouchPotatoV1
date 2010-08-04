@@ -1,18 +1,18 @@
 class Event(object):
     def __init__(self, sender, name, input, *args, **kwargs):
-        self.sender = sender
-        self.senderName = sender.name
-        self.name = name
-        self.input = input
-        self.results = [[]]
+        self._sender = sender
+        self._senderName = sender.name
+        self._name = name
+        self._input = input
+        self._results = [[]]
 
     def addResult(self, result):
-        self.results[0].append(result)
+        self._results[0].append(result)
 
     def getResult(self, position = 0):
-        return self.results[position]
+        return self._results[position]
 
     def setResults(self, results):
-        self.results.insert(0, results)
+        self.results._insert(0, results)
 
 

@@ -21,7 +21,8 @@ class PluginController(BasicController):
         self.plugin = plugin
         self.makoLookup = mako_lookup
         self.views = views
-        env_.get('frontend').registerStaticDir(
+        if os.path.isdir(self._getStaticDir()):
+            env_.get('frontend').registerStaticDir(
                             '/' + self._getVirtual(['static']), # /virtualPathNoLeadingSlash
                             self._getStaticDir()
         )#register static
@@ -49,6 +50,9 @@ class PluginController(BasicController):
             'static',
             *subdirectories
         )
+
+    def _getPlugin(self, name):
+        return env_.get('pluginMgr').getPlugin(name)
 
 class PluginBones(object):
     '''
