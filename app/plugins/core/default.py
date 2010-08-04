@@ -3,7 +3,7 @@ from app.lib.event import Event
 import cherrypy
 from app.core.frontend import Route
 from app.core.environment import Environment as env_
-from app.plugins.core.threaded import EventThread, ThreadedEvent
+from app.plugins.core.threaded import EventThread
 from app.core import getLogger
 
 class CoreController(PluginController):
@@ -76,5 +76,14 @@ class CouchCore(PluginBones):
             return results
         #endif wait
         return threads
+
+def threadedEventWrapper(self, *args, **kwargs):
+    return self._fire('threaded.event', *args, **kwargs)
+def threadedEventWaitWrapper(self, *args, **kwargs):
+    return self._fire('threaded.event.wait', *args, **kwargs)
+
+
+PluginBones._threaded = threadedEventWrapper
+PluginBones._threadedWait = threadedEventWaitWrapper
 
 
