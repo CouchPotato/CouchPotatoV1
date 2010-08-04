@@ -13,10 +13,10 @@ class Frontend(PluginBones):
 
     def postConstruct(self):
         self.tabs = {}
-        #self._listen('frontend.route.register', self.registerRoute)
+        self._listen('frontend.route.register', self.registerRoute)
         self.frontend = env_.get('frontend')
 
-    @decorate.listen('frontend.route.register')
+    #@decorate.listen('frontend.route.register')
     def registerRoute(self, event, config):
         route = event._input
         self.frontend.addRoute(route)

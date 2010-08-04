@@ -1,5 +1,5 @@
 from app.lib.bones import PluginBones
-class MovieLibrary(PluginBones):
+class Library(PluginBones):
     '''
     This plugin provides the movie library for CouchPotato
     '''

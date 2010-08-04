@@ -1,3 +1,3 @@
-from app.plugins.movielibrary.main import MovieLibrary
+from app.plugins.library.main import Library
 def start(*args, **kwargs):
-    return MovieLibrary(*args, **kwargs)
+    return Library(*args, **kwargs)

@@ -1,26 +1,26 @@
-import logging
 from app.lib.bones import PluginBones
 from library.imdb import IMDb
+from app.core import getLogger
 
-log = logging.getLogger(__name__)
+log = getLogger(__name__)
 
 class imdb(PluginBones):
     """Api for IMDB"""
 
-    def postConstruct_(self):
+    def postConstruct(self):
         #MovieBase.__init__(self, config)
         self._loadConfig(self.name)
 
         self._listen('findMovieInfo', self.find)
 
 
-    def find(self, e):
+    def find(self, e, config):
         ''' Find movie by name '''
 
         q = e._input.get('q')
         limit = e._input.get('limit' , 8)
 
-        log.info('IMDB - Searching for movie: %s', q)
+        log.info("IMDB - Searching for movie: " + q)
 
         r = self.p.search_movie(q)
 
