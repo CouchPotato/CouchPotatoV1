@@ -115,9 +115,6 @@ class PluginBones(object):
 
     def _fireCustom(self, EventType, name, *args, **kwargs):
         event = EventType(self, name, *args, **kwargs)
-        if env_.get('debug'):
-            log.info('FIRING: ' + name)
-
         self.pluginMgr.fire(event)
 
     def _listen(self, to, callback, config = None, position = -1):

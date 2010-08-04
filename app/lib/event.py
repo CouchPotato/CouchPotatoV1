@@ -1,7 +1,6 @@
 class Event(object):
     def __init__(self, sender, name, input, *args, **kwargs):
         self._sender = sender
-        self._senderName = sender.name
         self._name = name
         self._input = input
         self._results = [[]]

@@ -4,6 +4,7 @@ from app.core import getLogger
 import sys, traceback
 from app.lib.chain import Chain as PluginChain
 from app.core.db import _tables
+from app.lib.event import Event
 log = getLogger(__name__)
 
 class PluginLoader:
@@ -64,7 +65,23 @@ class PluginLoader:
         for name, plugin in self.plugins.iteritems():
             self.initPlugin(plugin)
 
+        events = [
+                  'core.init',
+                  'core.init.listeners',
+                  'core.init.foreign'
+                  ]
+        for name in events:
+            self.fireQuick(name + '.pre')
+            self.fireQuick(name)
+            self.fireQuick(name + '.post')
+
+    def fireQuick(self, name, input = None):
+        event = Event(None, name, input)
+        self.fire(event)
+
     def fire(self, event):
+        if env_.get('debug'):
+            log.info('FIRING: ' + event._name)
         if self.pluginChainExists(event._name):
             self.pluginChains[event._name].fire(event)
 
