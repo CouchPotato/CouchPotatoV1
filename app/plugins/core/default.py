@@ -23,3 +23,6 @@ class CouchCore(PluginBones):
         controller = self._createController((), CoreController)
         route = Route(controller = controller, route = '/')
         self._fire('frontend.route.register', route)
+
+    def spawnThreadedEvent(self, event, config):
+        self._pluginMgr.get

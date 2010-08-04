@@ -108,14 +108,14 @@ class PluginBones(object):
         return {}
 
     def _fire(self, name, input = None):
-        self._fireCustom(Event, name, input)
+        return self._fireCustom(Event, name, input)
 
     def _getDbSession(self):
         return env_.get('db').createSession()
 
     def _fireCustom(self, EventType, name, *args, **kwargs):
         event = EventType(self, name, *args, **kwargs)
-        self._pluginMgr.fire(event)
+        return self._pluginMgr.fire(event)
 
     def _listen(self, to, callback, config = None, position = -1):
         self._pluginMgr.listen(to, callback, config, position)

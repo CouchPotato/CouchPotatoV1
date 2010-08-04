@@ -16,7 +16,7 @@ class Chain(object):
             self._fire(event, entry['callback'], entry['config'])
 
     def _fire(self, event, callback, config):
-        callback(event, config)
+        return callback(event, config)
 
 
     def add(self, callback, config):

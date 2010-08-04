@@ -77,13 +77,15 @@ class PluginLoader:
 
     def fireQuick(self, name, input = None):
         event = Event(None, name, input)
-        self.fire(event)
+        return self.fire(event)
 
     def fire(self, event):
         if env_.get('debug'):
             log.info('FIRING: ' + event._name)
         if self.pluginChainExists(event._name):
             self.pluginChains[event._name].fire(event)
+
+        return event
 
     def pluginChainExists(self, name):
         return self.pluginChains.has_key(name)
