@@ -1,8 +1,9 @@
 class Event(object):
-    def __init__(self, sender, name, input, *args, **kwargs):
+    def __init__(self, sender, name, *args, **kwargs):
         self._sender = sender
         self._name = name
-        self._input = input
+        self._args = args
+        self._kwargs = kwargs
         self._results = [[]]
 
     def addResult(self, result):

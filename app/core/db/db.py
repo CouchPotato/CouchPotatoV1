@@ -68,7 +68,8 @@ class Database(object):
     def createSession(self):
         return self.session()
 
-    def getTable(self, name, columns, constraints = []):
+    def getTable(self, name, columns, constraints = None):
+        constraints = constraints or [] #protected from persistent default argument
         columns = [self.getColumn(*args_ , **kwargs_) for args_, kwargs_ in columns]
         columns.extend(constraints)
         return sql_.schema.Table(
@@ -77,7 +78,8 @@ class Database(object):
             *columns
         )
 
-    def getAutoIdTable(self, name, columns, constraints = []):
+    def getAutoIdTable(self, name, columns, constraints = None):
+        constraints = constraints or [] #protected from persistent default argument
         columns.insert(0, (('id', 'i'), {'primary_key' : True}))
         return self.getTable(
             name, columns

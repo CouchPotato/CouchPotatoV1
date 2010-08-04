@@ -17,7 +17,7 @@ class Frontend(PluginBones):
         self.frontend = env_.get('frontend')
 
     def registerRoute(self, event, config):
-        route = event._input
+        route = event._args[0]
         self.frontend.addRoute(route)
 
 

@@ -5,6 +5,7 @@ import sys, traceback
 from app.lib.chain import Chain as PluginChain
 from app.core.db import _tables
 from app.lib.event import Event
+import copy
 log = getLogger(__name__)
 
 class PluginLoader:
@@ -113,6 +114,21 @@ class PluginLoader:
         except:
             return False
         return True
+
+    def getListeners(self, name):
+        """
+        Returns a list of all the callbacks + configs that are
+        listening to an event.
+        This list is a copy of the original list, so
+        changes are not being reflected.
+        
+        Return: callbacks[], configs[]
+        """
+        if self.pluginChainExists(name):
+            callbacks = self.pluginChains[name].callbacks.copy()
+            configs = self.pluginChains[name].configurations.copy()
+            return callbacks, configs
+        return {}, {}
 
     def install(self, type_name, name):
         type_id = self.getTypeId(type_name, True)

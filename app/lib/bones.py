@@ -30,14 +30,15 @@ class PluginController(BasicController):
             'static' : self._getVirtual(['static'])
         }
 
-    def render(self, name, vars = {}, *args):
-        vars = copy(vars)
+    def render(self, name, vars = None, *args):
+        vars = copy(vars) if vars else {}
         vars.update(self.const)
         name = os.path.join(self.views, name)
         template = Template(filename = name, lookup = self.makoLookup)
         return template.render_unicode(*args, **vars)
 
-    def _getVirtual(self, subdirectories = []):
+    def _getVirtual(self, subdirectories = None):
+        subdirectories = subdirectories or []
         return '/'.join([
             '_plugins',
             self.plugin._info.name + '-' + str(self.plugin._info.version),
@@ -107,20 +108,21 @@ class PluginBones(object):
     def _getAbout(self):
         return {}
 
-    def _fire(self, name, input = None):
-        return self._fireCustom(Event, name, input)
+    def _fire(self, name, *args, **kwargs):
+        return self._fireCustom(Event, name, *args, **kwargs)
 
     def _getDbSession(self):
         return env_.get('db').createSession()
 
-    def _fireCustom(self, EventType, name, *args, **kwargs):
-        event = EventType(self, name, *args, **kwargs)
+    def _fireCustom(self, EventType, *args, **kwargs):
+        event = EventType(self, *args, **kwargs)
         return self._pluginMgr.fire(event)
 
     def _listen(self, to, callback, config = None, position = -1):
         self._pluginMgr.listen(to, callback, config, position)
 
     def _createController(self, view_subfolders = (), ControllerType = PluginController):
+        #DEFAULT: I assume that () as default is acceptable because () is an immutable object
         views_path = [self._pluginPath, 'views']
         views_path.extend(view_subfolders)
         views_path = os.path.join(*views_path)
