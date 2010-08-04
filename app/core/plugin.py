@@ -71,9 +71,9 @@ class PluginLoader:
                   'core.init.foreign'
                   ]
         for name in events:
-            self.fireQuick(name + '.pre')
+            self.fireQuick(name + '.before')
             self.fireQuick(name)
-            self.fireQuick(name + '.post')
+            self.fireQuick(name + '.after')
 
     def fireQuick(self, name, input = None):
         event = Event(None, name, input)

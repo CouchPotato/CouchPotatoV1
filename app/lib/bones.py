@@ -46,13 +46,13 @@ class PluginController(BasicController):
 
     def _getStaticDir(self, subdirectories = ()):
         return os.path.join(
-            self.plugin.pluginPath,
+            self.plugin._pluginPath,
             'static',
             *subdirectories
         )
 
     def _getPlugin(self, name):
-        return env_.get('pluginMgr').getPlugin(name)
+        return env_.get('_pluginMgr').getPlugin(name)
 
 class PluginBones(object):
     '''
@@ -65,14 +65,14 @@ class PluginBones(object):
         '''
         self.name = name
         self._info = None
-        self.pluginPath = path
-        self.pluginMgr = pluginMgr
-        self.configPath = os.path.join('plugins', name)
-        self.configFiles = dict()
-        self.about = About(self._getAbout())
+        self._pluginPath = path
+        self._pluginMgr = pluginMgr
+        self._configPath = os.path.join('plugins', name)
+        self._configFiles = dict()
+        self._about = About(self._getAbout())
         self.postConstruct()
-        if self.pluginPath:
-            self.makoLookup = TemplateLookup(directories = [os.path.join(self.pluginPath, 'views')])
+        if self._pluginPath:
+            self.makoLookup = TemplateLookup(directories = [os.path.join(self._pluginPath, 'views')])
 
     def postConstruct(self):
         '''stub that is invoked after constructor'''
@@ -81,11 +81,11 @@ class PluginBones(object):
         pass
 
     def _loadConfig(self, name):
-        cf = self.configFiles
+        cf = self._configFiles
         if cf.has_key(name):
             return cf[name]
 
-        filename = os.path.join(self.configPath, name)
+        filename = os.path.join(self._configPath, name)
         try:
             cf[name] = Wrapper(filename)
         except:
@@ -97,8 +97,8 @@ class PluginBones(object):
             self._loadConfig(name)
 
     def _getConfig(self, name, builder = None):
-        if self.configFiles.has_key(name):
-            return self.configFiles[name]
+        if self._configFiles.has_key(name):
+            return self._configFiles[name]
         raise Exception('Config inexistent.')
 
     def _getPluginMgr(self):
@@ -115,13 +115,13 @@ class PluginBones(object):
 
     def _fireCustom(self, EventType, name, *args, **kwargs):
         event = EventType(self, name, *args, **kwargs)
-        self.pluginMgr.fire(event)
+        self._pluginMgr.fire(event)
 
     def _listen(self, to, callback, config = None, position = -1):
-        self.pluginMgr.listen(to, callback, config, position)
+        self._pluginMgr.listen(to, callback, config, position)
 
     def _createController(self, view_subfolders = (), ControllerType = PluginController):
-        views_path = [self.pluginPath, 'views']
+        views_path = [self._pluginPath, 'views']
         views_path.extend(view_subfolders)
         views_path = os.path.join(*views_path)
         return ControllerType(self, views_path, self.makoLookup)
