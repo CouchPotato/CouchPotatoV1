@@ -9,7 +9,7 @@ class Event(object):
         '''append results to the Event'''
         self._results[0].append(result)
 
-    def addResults(self, self, results):
+    def addResults(self, results):
         '''add elements of an iterable at the end of the results list'''
         for result in results:
             self.addResult(result)
