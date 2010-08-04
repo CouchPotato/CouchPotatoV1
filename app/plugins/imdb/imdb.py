@@ -11,9 +11,14 @@ class imdb(PluginBones):
         #MovieBase.__init__(self, config)
         self._loadConfig(self.name)
 
+        self._listen('findMovieInfo', self.find)
 
-    def find(self, q, limit = 8, alternative = True):
+
+    def find(self, e):
         ''' Find movie by name '''
+
+        q = e._input.get('q')
+        limit = e._input.get('limit' , 8)
 
         log.info('IMDB - Searching for movie: %s', q)
 
