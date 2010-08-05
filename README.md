@@ -8,7 +8,7 @@ Features:
 
 * Automatic downloading and sending of NZBs to SABnzbd
 * Automatic downloading of torrents files to a specified directory
-* Easy adding movies via IMDB UserScript
+* Easily add movies via IMDB UserScript
 * Movie sorting & renaming
 * Trailer downloading
 * Quality options to download best available. Overwrite if better is found.
@@ -38,7 +38,7 @@ I'm building CouchPotato in my spare time, so if you want to buy me a coke while
 
 To run CP you will need Python.
 
-## CouchPotato is build using
+## CouchPotato is built using
 
 [CherryPy](http://www.cherrypy.org/),
 [SQLAlchemy](http://www.sqlalchemy.org/),
@@ -97,7 +97,7 @@ Other:
 
 ## Update
 
-Github users can use the build-in update feature (under Settings, or in the CP footer)
+Github users can use the built-in update feature (under Settings, or in the CP footer)
 
 If you're running the Windows Binary Build, you have to shutdown CP and overwrite the .exe with the newer function.
 Make sure your config.ini and data.db are untouched.
