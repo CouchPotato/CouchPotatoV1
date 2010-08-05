@@ -21,8 +21,8 @@ class PluginLoader:
         for type, tuple in self.paths.iteritems():
             self.loadFromDir(type, tuple[0], tuple[1])
 
-        if self.plugins.__len__():
-            log.info('Plugins loaded: ' + str(self.plugins.__len__()))
+        if len(self.plugins):
+            log.info('Plugins loaded: ' + str(len(self.plugins)))
             self.initPlugins()
         else:
             log.info('No plugins have been loaded.')

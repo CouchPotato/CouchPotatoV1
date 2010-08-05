@@ -91,7 +91,7 @@ class Database(object):
             args[1] = Database.typeLookup[args[1]]
 
         #foreign key handling
-        if args.__len__() == 3:
+        if len(args) == 3:
             if isinstance(args[2], str):
                 args[2] = ForeignKey(args[2])
             elif isinstance(args[2], tuple):
