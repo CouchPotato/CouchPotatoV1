@@ -11,7 +11,7 @@ class MakoHandler(cherrypy.dispatch.LateParamPageHandler):
     def __call__(self):
         env = globals().copy()
         env.update(self.next_handler())
-        return self.template.render(**env)
+        return self.template.render_unicode(**env)
 
 
 class MakoLoader(object):
