@@ -15,7 +15,7 @@ class MovieController(PluginController):
         movies = qMovie.order_by(MovieTable.name).filter(or_(MovieTable.status == u'want', MovieTable.status == u'waiting')).all()
         snatched = qMovie.order_by(desc(MovieTable.dateChanged), MovieTable.name).filter_by(status = u'snatched').all()
         downloaded = qMovie.order_by(desc(MovieTable.dateChanged), MovieTable.name).filter_by(status = u'downloaded').all()
-
+        self.search('Gladiator 2000')
         return self.render('index.html', {
             'movies': movies,
             'snatched': snatched,
@@ -24,5 +24,5 @@ class MovieController(PluginController):
 
     def search(self, query):
 
-        movieInfo = self.plugin._fire('findMovieInfo', {'q' : query})
-        print movieInfo.getResult()
+        movieInfo = self.plugin._threadedWait('findMovieInfo', q = query)
+        print movieInfo.getResultSet()

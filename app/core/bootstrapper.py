@@ -43,9 +43,9 @@ class Bootstrapper(object):
 
         options, args = p.parse_args()
 
-        if args.__len__() == 1:
+        if len(args) == 1:
             data_dir = args[0]
-        elif args.__len__() > 1:
+        elif len(args) > 1:
             print ('Invalid argument cound: [data directory]')
             sys.exit(1)
         #register path settings to env
@@ -99,10 +99,3 @@ class Bootstrapper(object):
             sh.setLevel(logging.DEBUG)
             sh.setFormatter(formatter)
             logger.addHandler(sh)
-
-
-
-
-
-
-
