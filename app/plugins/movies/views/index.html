@@ -58,10 +58,10 @@
 			<a href="#"></a>
 		</span>
 		<span class="info">
-			<span class="imdb"><a href="http://www.imdb.com/title/${movie.imdb}/" target="_blank"><img src="media/images/imdb.png" alt="IMDB" /></a></span>
-			<span class="moviedb ${'disabled' if not movie.movieDb else ''}"><a ${'href="http://www.themoviedb.org/movie/%s"' % str(movie.movieDb) if movie.movieDb else ''} target="_blank"><img src="media/images/moviedb.png" alt="TheMovieDB" /></a></span>
-			<a class="forceCheck" href="${url(controller='cron', action='forceSingle', id=movie.id)}" title="Force search/refresh info"><img src="media/images/reload.png" alt="Reload" /></a>
-			<a class="delete" href="${url(controller='movie', action='delete', id=movie.id)}" title="Delete this movie"><img src="media/images/delete.png" alt="Delete" /></a>
+			<span class="imdb"><a href="http://www.imdb.com/title/${movie.imdb}/" target="_blank"><img src="${_static}/images/imdb.png" alt="IMDB" /></a></span>
+			<span class="moviedb ${'disabled' if not movie.movieDb else ''}"><a ${'href="http://www.themoviedb.org/movie/%s"' % str(movie.movieDb) if movie.movieDb else ''} target="_blank"><img src="${_static}/images/moviedb.png" alt="TheMovieDB" /></a></span>
+			<a class="forceCheck" href="${_url(controller='movie', action='reload', id=movie.id)}" title="Force search/refresh info"><img src="${_static}/images/reload.png" alt="Reload" /></a>
+			<a class="delete" href="${_url(controller='movie', action='delete', id=movie.id)}" title="Delete this movie"><img src="${_static}/images/delete.png" alt="Delete" /></a>
 		</span>
 		<div class="queue">
 			<div class="header">
@@ -69,79 +69,10 @@
 				<span class="qualityType">Quality</span>
 				<span class="markComplete"><acronym title="Won't download anything else if it has found this quality.">Finish</acronym></span>
 			</div>
-		% for queue in movie.queue:
-			<div class="item ${'active' if queue.active else 'inactive'} ${'completed' if queue.completed else ''}" data-id="queu-${queue.id}">
-				<span class="found">${'<a target="_blank" href="%s">%s</a>' % (queue.link, queue.name) if queue.name else 'Nothing yet'}</span>
-				<span class="qualityType">${Qualities.types[queue.qualityType]['label']}</span>
-				<span class="markComplete">${'<img src="media/images/ok.png" />' if queue.markComplete else ''}</span>
-			</div>
-		% endfor
 		</div>
 	</div>
 	% endfor
 </div>
-
-<script type="text/javascript">
-	$$('#movies > .item').each(function(el){
-		
-		// Queue items
-		var queue = el.getElement('.queue')
-		
-		var a = el.getElement('.quality a')
-		a.set('html', ' \
-			% for x, type in Qualities.getTypes():
-			<span class="q${type['label']}"></span> \
-			% if x == 'scr':
-			<span class="qR5 qTeleCine qTeleSync qCam"></span> \
-			<% break %>
-			% endif
-			% endfor
-		');
-		queue.getElements('.item').reverse().each(function(qitem){
-			var qualitySpan = a.getElement('.q'+qitem.getElement('.qualityType').get('text'))
-			qualitySpan.inject(a, 'top')
-			qualitySpan.addClass('active')
-			if(qitem.hasClass('completed'))
-				qualitySpan.addClass('completed')
-		})
-		el.addEvent('outerClick', function(){
-			el.removeClass('active')
-		})
-	});
-	
-	$('movies').addEvent('click:relay(.quality a)', function(e, clicked){
-		(e).stop();
-		var el = clicked.getParent('.item')
-		if (el.hasClass('active')){
-			el.removeClass('active');
-		}
-		else {
-			$$('#movies > .active').removeClass('active');
-			el.addClass('active')
-		}
-	});
-	
-	$('movies').addEvent('click:relay(a.delete)', function(e, clicked){
-		(e).stop();
-		new Request({
-			'url': clicked.get('href'),
-			'onSuccess': function(){
-				clicked.getParent('.item').destroy()
-			}
-		}).send()
-	});
-	
-	$('movies').addEvent('click:relay(a.forceCheck)', function(e, clicked){
-		(e).stop();
-		new Request({
-			'url': clicked.get('href'),
-			'onSuccess': function(){
-				clicked.getParent('.item').highlight()
-			}
-		}).send()
-	});
-</script>
-	
 % else:
 <div id="movies">
 	
@@ -169,8 +100,8 @@
 	<span>
 		${movie.name}
 		<span class="actions">
-			<a href="${url(controller='movie', action='downloaded', id=movie.id)}"><img src="media/images/ok.png" title="Movie downloaded correctly." alt="OK" /></a>
-			<a href="${url(controller='movie', action='reAdd', id=movie.id)}"><img src="media/images/undo.png" title="Movie didnt download, re-add it." alt="Undo" /></a>
+			<a href="${_url(controller='movie', action='downloaded', id=movie.id)}"><img src="${_static}/images/ok.png" title="Movie downloaded correctly." alt="OK" /></a>
+			<a href="${_url(controller='movie', action='reAdd', id=movie.id)}"><img src="${_static}/images/undo.png" title="Movie didnt download, re-add it." alt="Undo" /></a>
 		</span>
 	</span>
 	% endfor
@@ -184,9 +115,11 @@
 	<span>
 		${movie.name}
 		<span class="actions">
-			<a href="${url(controller='movie', action='delete', id=movie.id)}"><img src="media/images/delete.png" alt="Delete" /></a>
+			<a href="${_url(controller='movie', action='delete', id=movie.id)}"><img src="${_static}/images/delete.png" alt="Delete" /></a>
 		</span>
 	</span>
 	% endfor
 </div>
 % endif
+
+<%inherit file="/base.html" />

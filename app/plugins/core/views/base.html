@@ -2,25 +2,23 @@
 <html>
 <head>
     <title>CouchPotato</title>
-	<base href="${baseUrl}">
-	<link href="${static}/images/favicon.ico" rel="icon" type="image/x-icon" />
+	<base href="${_baseUrl}">
+	<link href="${_core}/images/favicon.ico" rel="icon" type="image/x-icon" />
 
-	<link href="${static}/style/Base.css" media="screen" rel="stylesheet" type="text/css" />
-	<link href="${static}/style/Main.css" media="screen" rel="stylesheet" type="text/css" />
-	<link href="${static}/style/Uniform.css" media="screen" rel="stylesheet" type="text/css" />
-	<link href="${static}/style/UniformGeneric.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="${_core}/style/Base.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="${_core}/style/Main.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="${_core}/style/Uniform.css" media="screen" rel="stylesheet" type="text/css" />
+	<link href="${_core}/style/UniformGeneric.css" media="screen" rel="stylesheet" type="text/css" />
 
 </head>
 <body>
 
-	<script src="${static}/script/Mootools.js" type="text/javascript"></script>
-	<script src="${static}/script/MootoolsMore.js" type="text/javascript"></script>
-	<script src="${static}/script/Uniform.js" type="text/javascript"></script>
-	<script src="${static}/script/Quality.js" type="text/javascript"></script>
-	<script src="${static}/script/Global.js" type="text/javascript"></script>
+	<script src="${_core}/script/Mootools.js" type="text/javascript"></script>
+	<script src="${_core}/script/MootoolsMore.js" type="text/javascript"></script>
+	<script src="${_core}/script/Uniform.js" type="text/javascript"></script>
+	<script src="${_core}/script/Quality.js" type="text/javascript"></script>
+	<script src="${_core}/script/Global.js" type="text/javascript"></script>
 
-
-	
 	<div id="header">
 	    <div class="navigation">
 
@@ -37,7 +35,7 @@
 	</div>
 	<div class="page">
 	    <div class="content">
-			
+			${next.body()}
 		</div>
 	</div>
 </body>

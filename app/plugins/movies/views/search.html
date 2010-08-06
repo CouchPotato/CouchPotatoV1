@@ -1,0 +1,27 @@
+
+<form method="post" id="movieResults" class="addNew" action="${_url(controller='movie',action='search')}">
+	
+	<div class="row">
+		<a href="" class="submit">Add &raquo;</a>
+	</div>
+
+	<div class="row">
+		<input type="text" name="year" title="year" id="yearInput" value="" />
+		<script type="text/javascript">
+			window.addEvent('domready', function(){
+				new OverText('yearInput').show()
+			});
+		</script>
+	</div>
+	
+	<div class="row">
+		<a href="${_url(controller='movie',action='index')}" class="undo" title="No good, undo!"><img src="${static}media/images/undoBW.png" alt="Start over" /></a>
+		<select name="movienr" class="movieselect">
+			% for movie in results:
+			<option value="${results.index(movie)}">${movie.name} (${movie.year})</option>
+			% endfor
+		</select>
+	</div>
+
+	<input type="hidden" name="add" value="Add" />
+</form>

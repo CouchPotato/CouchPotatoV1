@@ -1,20 +1,23 @@
-'''
-Created on 31.07.2010
-
-@author: Christian
-'''
 from app.config.wrapper import Wrapper
-from app.core.environment import Environment as env_
-import os
-from app.core import getLogger
-import traceback
+from app.core import env_, getLogger
+from app.core.controller import BasicController
 from app.lib.event import Event
+from copy import copy
 from mako.lookup import TemplateLookup
 from mako.template import Template
-from app.core.controller import BasicController
-from copy import copy
+import cherrypy
+import os
+import traceback
 
 log = getLogger(__name__)
+
+### TEMP
+def url(*args, **kwargs):
+    return ''
+
+def redirect(url):
+    raise cherrypy.HTTPRedirect(url)
+### /TEMP
 
 class PluginController(BasicController):
     def __init__(self, plugin, views, mako_lookup):
@@ -27,7 +30,12 @@ class PluginController(BasicController):
                             self._getStaticDir()
         )#register static
         self.const = {
-            'static' : self._getVirtual(['static'])
+            '_static' : self._getVirtual(['static'])
+            # TEMP
+            , '_url': url
+            , '_baseUrl': env_._baseUrl
+            , '_core': '_plugins/core-1/static'
+            # /TEMP
         }
 
     def render(self, name, vars = None, *args):
@@ -73,7 +81,12 @@ class PluginBones(object):
         self._about = About(self._getAbout())
         self.postConstruct()
         if self._pluginPath:
-            self.makoLookup = TemplateLookup(directories = [os.path.join(self._pluginPath, 'views')])
+            self.makoLookup = TemplateLookup(directories = [
+                os.path.join(self._pluginPath, 'views'),
+                # TEMP
+                os.path.join(os.path.dirname(self._pluginPath), 'core', 'views')
+                # /TEMP
+            ])
 
     def postConstruct(self):
         '''stub that is invoked after constructor'''
