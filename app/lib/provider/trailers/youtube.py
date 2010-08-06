@@ -12,7 +12,7 @@ class Youtube(rss):
 
     apiUrl = 'http://gdata.youtube.com/feeds/api/videos'
     watchUrl = 'http://www.youtube.com/watch?v='
-    getVideoUrl = 'http://www.youtube.com/get_video?video_id=%s&t=%s&fmt=%d'
+    getVideoUrl = 'http://www.youtube.com/get_video?video_id=%s&t=%s&eurl=&el=&ps=&asv=&&fmt=%d'
 
     formats = {
         '1080p':{'format': 'mp4', 'quality': 'High Quality (1080p)', 'key': 37},
@@ -77,7 +77,7 @@ class Youtube(rss):
         for video in videos:
             for quality, format in self.formats.iteritems():
                 videoUrl = self.getVideoUrl % (video['id'], video['key'], int(format['key']))
-
+                print videoUrl
                 try:
                     videoData = urllib2.urlopen(videoUrl, timeout = self.timeout)
                     if videoData:
