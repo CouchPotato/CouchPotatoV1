@@ -11,9 +11,17 @@ import logging
 import os
 import sys
 
+try:
+    frozen = sys.frozen
+except AttributeError:
+    frozen = False
+
 log = logging.getLogger(__name__)
 if os.name == 'nt':
-    path = os.path.join(os.path.dirname(sys.executable), 'data.db')
+    if frozen:
+        path = os.path.join(os.path.dirname(sys.executable), 'data.db')
+    else:
+        path = os.path.join(os.path.abspath(os.path.curdir), 'data.db')
 else:
     path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'data.db')
 
