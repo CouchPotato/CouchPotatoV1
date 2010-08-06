@@ -9,8 +9,9 @@ except AttributeError:
 
 # Define path based on frozen state
 if frozen:
-    #path_base = os.environ['_MEIPASS2']
-    path_base = os.path.dirname(sys.executable)
+    path_base = os.environ['_MEIPASS2']
+    rundir = os.path.dirname(sys.executable)
+    #path_base = os.path.dirname(sys.executable)
 else:
     path_base = rundir
 

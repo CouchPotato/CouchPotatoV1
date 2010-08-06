@@ -9,10 +9,11 @@ from sqlalchemy.types import Integer, DateTime, String, Boolean, Text
 import datetime
 import logging
 import os
+import sys
 
 log = logging.getLogger(__name__)
 if os.name == 'nt':
-    path = os.path.join(os.path.abspath(os.path.curdir), 'data.db')
+    path = os.path.join(os.path.dirname(sys.executable), 'data.db')
 else:
     path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'data.db')
 

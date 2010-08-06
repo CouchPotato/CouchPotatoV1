@@ -39,7 +39,10 @@ def configLogging(fname, logPath):
     else:
         cp.read(fname)
 
-    cp.set('handler_accesslog', 'args', cp.get('handler_accesslog', 'args').replace('{logPath}', os.path.join(logPath, 'CouchPotato.log')))
+    logfile = os.path.join(logPath, 'CouchPotato.log')
+    if os.name == 'nt':
+        logfile = logfile.replace('\\', '\\\\')
+    cp.set('handler_accesslog', 'args', cp.get('handler_accesslog', 'args').replace('{logPath}', logfile))
 
     formatters = _create_formatters(cp)
 
