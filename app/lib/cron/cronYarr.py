@@ -145,8 +145,8 @@ class YarrCron(cronBase, rss):
                     waitFor = queue.waitFor * (60 * 60 * 24)
 
                     if queue.markComplete or (not queue.markComplete and highest.date + waitFor < time.time()):
+                        time.sleep(10) # Give these APIs air!
                         if self.config.get('NZB', 'sendTo') == 'Sabnzbd' and highest.type == 'nzb':
-                            time.sleep(10) # Give these APIs air!
                             success = self.sabNzbd.send(highest)
                         else:
                             success = self.blackHole(highest)
