@@ -55,7 +55,7 @@ class TrailerCron(rss, cronBase):
 
     def searchExisting(self):
 
-        if not self.searchingExisting < time.time() - 300:
+        if not self.searchingExisting < time.time() - 300 and not self.debug:
             log.info('Just searched for trailers. Can do a search every 5 minutes.')
             return
 
@@ -68,25 +68,28 @@ class TrailerCron(rss, cronBase):
 
         movieFolder = self.config.get('Renamer', 'destination')
         movieList = []
-        for root, subfiles, filenames in os.walk(movieFolder):
-            log.debug(subfiles)
-            for file in filenames:
-                fullPath = os.path.join(root, file)
-                if not '-trailer' in file.lower() and os.path.getsize(fullPath) > (400 * 1024 * 1024):
-                    hasTrailer = False
-                    nfo = None
-                    for checkfile in filenames:
-                        if '-trailer' in checkfile.lower():
-                            hasTrailer = True
-                        if '.nfo' in checkfile.lower() and checkfile[:2] != '._':
-                            nfo = checkfile
 
-                    if not hasTrailer:
-                        movieList.append({
-                            'directory': root,
-                            'filename': file,
-                            'nfo': nfo
-                        })
+        for dir in os.listdir(unicode(movieFolder)):
+            fullDirPath = os.path.join(movieFolder, dir)
+            for root, subfiles, filenames in os.walk(fullDirPath):
+                log.debug(subfiles)
+                for file in filenames:
+                    fullPath = os.path.join(root, file)
+                    if not '-trailer' in file.lower() and os.path.getsize(fullPath) > (200 * 1024 * 1024):
+                        hasTrailer = False
+                        nfo = None
+                        for checkfile in filenames:
+                            if '-trailer' in checkfile.lower():
+                                hasTrailer = True
+                            if '.nfo' in checkfile.lower() and checkfile[:2] != '._':
+                                nfo = checkfile
+
+                        if not hasTrailer:
+                            movieList.append({
+                                'directory': root,
+                                'filename': file,
+                                'nfo': nfo
+                            })
 
         for movieFiles in movieList:
             movie = None
