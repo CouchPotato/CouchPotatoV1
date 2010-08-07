@@ -74,8 +74,11 @@ class HdTrailers(rss):
                 if 'trailer' in h2.lower():
                     parent = h2.parent.parent.parent
                     trailerLinks = parent.findAll('a', text = re.compile('480p|720p|1080p'))
-                    for trailer in trailerLinks:
-                        results[trailer].insert(0, trailer.parent['href'])
+                    try:
+                        for trailer in trailerLinks:
+                            results[trailer].insert(0, trailer.parent['href'])
+                    except:
+                        pass
 
 
         except AttributeError:
