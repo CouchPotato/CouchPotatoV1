@@ -1,6 +1,7 @@
 from app.lib.provider.rss import rss
 from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
 from string import letters, digits
+from urllib import urlencode
 from urllib2 import URLError
 import logging
 import re
@@ -11,7 +12,7 @@ log = logging.getLogger(__name__)
 class HdTrailers(rss):
 
     apiUrl = 'http://www.hd-trailers.net/movie/%s/'
-    backupUrl = 'http://www.hd-trailers.net/AllTrailers/'
+    backupUrl = 'http://www.hd-trailers.net/blog/'
     providers = ['apple.ico', 'yahoo.ico', 'moviefone.ico', 'myspace.ico', 'favicon.ico']
 
     def __init__(self, config):
@@ -34,14 +35,53 @@ class HdTrailers(rss):
         p480 = []
         p720 = []
         p1080 = []
+        didAlternative = False
         for provider in self.providers:
             results = self.findByProvider(data, provider)
+
+            # Find alternative
+            if results.get('404') and not didAlternative:
+                results = self.findViaAlternative(movie.name)
+                didAlternative = True
 
             p480.extend(results.get('480p'))
             p720.extend(results.get('720p'))
             p1080.extend(results.get('1080p'))
 
         return {'480p':p480, '720p':p720, '1080p':p1080}
+
+    def findViaAlternative(self, movie):
+        results = {'480p':[], '720p':[], '1080p':[]}
+
+        arguments = urlencode({
+            's':movie
+        })
+        url = "%s?%s" % (self.backupUrl, arguments)
+        log.info('Searching %s', url)
+
+        try:
+            data = urllib2.urlopen(url, timeout = self.timeout).read()
+        except (IOError, URLError):
+            log.error('Failed to open %s.' % url)
+            return results
+
+        try:
+            tables = SoupStrainer('div')
+            html = BeautifulSoup(data, parseOnlyThese = tables)
+            resultTable = html.findAll('h2', text = re.compile(movie))
+
+            for h2 in resultTable:
+                if 'trailer' in h2.lower():
+                    parent = h2.parent.parent.parent
+                    trailerLinks = parent.findAll('a', text = re.compile('480p|720p|1080p'))
+                    for trailer in trailerLinks:
+                        results[trailer].insert(0, trailer.parent['href'])
+
+
+        except AttributeError:
+            log.debug('No trailers found in via alternative.')
+
+        return results
 
     def findByProvider(self, data, provider):
 
@@ -69,6 +109,7 @@ class HdTrailers(rss):
 
         except AttributeError:
             log.debug('No trailers found in provider %s.' % provider)
+            results['404'] = True
 
         return results
 
@@ -76,9 +117,9 @@ class HdTrailers(rss):
         safe_chars = letters + digits + ' '
         r = ''.join([char if char in safe_chars else ' ' for char in string])
         name = re.sub('\s+' , '-', r).lower()
-        
+
         try:
             int(name)
-            return '-'+name
+            return '-' + name
         except:
             return name
