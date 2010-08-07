@@ -31,7 +31,7 @@ class TrailerCron(rss, cronBase):
 
         # Sources
         self.sources.append(HdTrailers(self.config))
-        self.sources.append(Youtube(self.config))
+        #self.sources.append(Youtube(self.config))
 
         timeout = 0.1 if self.debug else 1
         while True and not self.abort:
