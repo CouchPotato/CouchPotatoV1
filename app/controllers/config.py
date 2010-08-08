@@ -27,6 +27,10 @@ class ConfigController(BaseController):
              'thename': 'The Big Lebowski',
              'year': 1998,
              'first': 'B',
+             'original': 'The.Big.Lebowski.1998.1080p.BluRay.x264.DTS-GROUP',
+             'group':'GROUP',
+             'audio':'DTS',
+             'video':'x264',
              'quality': '1080P'
         }
 

@@ -8,6 +8,7 @@ import os
 import re
 import shutil
 import time
+import traceback
 
 log = logging.getLogger(__name__)
 
@@ -26,6 +27,8 @@ class RenamerCron(cronBase):
     # Filetypes
     movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso']
     nfoExt = ['*.nfo']
+    audioCodecs = ['DTS', 'AC3', 'AC3D', 'MP3']
+    videoCodecs = ['x264', 'DivX', 'XViD']
     subExt = ['*.sub', '*.srt', '*.idx', '*.ssa', '*.ass']
 
     def conf(self, option):
@@ -208,6 +211,11 @@ class RenamerCron(cronBase):
             if multiple:
                 replacements['cd'] = ' cd' + str(cd)
                 replacements['cdNr'] = ' ' + str(cd)
+
+            replacements['original'] = file['root']
+            replacements['video'] = self.getCodec(file['filename'], RenamerCron.videoCodecs)
+            replacements['audio'] = self.getCodec(file['filename'], RenamerCron.audioCodecs)
+            replacements['group'] = self.getGroup(file['root'])
 
             folder = self.doReplace(folderNaming, replacements)
             filename = self.doReplace(fileNaming, replacements)
@@ -399,6 +407,24 @@ class RenamerCron(cronBase):
 
         return False
 
+    def getCodec(self, filename, codecs):
+        codecs = map(re.escape, codecs)
+        try:
+            codec = re.search('[^A-Z0-9](?P<codec>' + '|'.join(codecs) + ')[^A-Z0-9]', filename, re.I)
+            return (codec and codec.group('codec')) or 'unknown'
+            return 'unknown'
+        except:
+            log.info('Renaming: ' + traceback.format_exc())
+            return 'Exception'
+
+    def getGroup(self, filename):
+        try:
+            group = re.search('-(?P<group>[A-Z0-9]+)$', filename, re.I)
+            return (group and group.group('group')) or 'unknown'
+        except:
+            log.info('Renaming: ' + traceback.format_exc())
+            return 'Exception'
+
     def findFiles(self):
 
         files = []
@@ -421,7 +447,8 @@ class RenamerCron(cronBase):
                         new = {
                            'path': root,
                            'filename': filename,
-                           'ext': os.path.splitext(filename)[1].lower()[1:]
+                           'root' : os.path.splitext(filename)[0],
+                           'ext': os.path.splitext(filename)[1].lower()[1:], #[1:]to remove . from extension
                         }
 
                         #nfo file
