@@ -130,7 +130,7 @@ class YarrCron(cronBase, rss):
             if queue.active and (queue.lastCheck < (now - 60) or self.debug or force) and not queue.completed and not self.abort and not self.stop:
 
                 #skip if no search is set
-                if (not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases)) or not queue.lastCheck < (now - 604800)) and not force:
+                if (not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases)) and not force) or not queue.lastCheck < (now - 604800):
                     continue
 
                 highest = self.provider.find(movie, queue)
