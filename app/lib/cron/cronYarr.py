@@ -40,7 +40,7 @@ class YarrCron(cronBase, rss):
             #check single movie
             for movieId in self.checkTheseMovies:
                 movie = Db.query(Movie).filter_by(id = movieId).one()
-                self._search(movie, force = True)
+                self._search(movie, True)
                 self.checkTheseMovies.pop(0)
 
             #check all movies
@@ -126,8 +126,8 @@ class YarrCron(cronBase, rss):
                 log.debug('%s already completed for "%s". Not searching for any qualities below.' % (queue.qualityType, movie.name))
                 return True
 
-            # only search for active and not completed, minimal 5 min since last search
-            if queue.active and (queue.lastCheck < (now - 300) or self.debug or force) and not queue.completed and not self.abort and not self.stop:
+            # only search for active and not completed, minimal 1 min since last search
+            if queue.active and (queue.lastCheck < (now - 60) or self.debug or force) and not queue.completed and not self.abort and not self.stop:
 
                 #skip if no search is set
                 if (not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases)) and not force) or queue.lastCheck < (now - 604800):
