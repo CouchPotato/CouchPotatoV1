@@ -92,7 +92,7 @@ class YarrCron(cronBase, rss):
 
         # Search all if ETA is unknow, but try update ETA for next time.
         checkETA = False
-        if not movie.eta:
+        if not movie.eta or force:
             checkETA = True
             preReleaseSearch = True
             dvdReleaseSearch = True
@@ -127,10 +127,10 @@ class YarrCron(cronBase, rss):
                 return True
 
             # only search for active and not completed, minimal 1 min since last search
-            if queue.active and (queue.lastCheck < (now - 60) or self.debug or force) and not queue.completed and not self.abort and not self.stop:
+            if queue.active and not queue.completed and not self.abort and not self.stop:
 
                 #skip if no search is set
-                if (not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases)) and not force) or not queue.lastCheck < (now - 604800):
+                if not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases)):
                     continue
 
                 highest = self.provider.find(movie, queue)
