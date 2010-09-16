@@ -3,14 +3,12 @@ from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
 from app.lib.qualities import Qualities
 from sqlalchemy.sql.expression import or_
-from urllib2 import URLError
 import cherrypy
 import datetime
 import logging
 import os
 import time
 import urllib
-import urllib2
 
 log = logging.getLogger(__name__)
 
@@ -45,7 +43,7 @@ class YarrCron(cronBase, rss):
 
             #check all movies
             now = time.time()
-            if (self.lastChecked + self.intervalSec) < now:# and not self.debug:
+            if (self.lastChecked + self.intervalSec) < now: # and not self.debug:
                 self.lastChecked = now
                 self.searchAll()
 
@@ -101,8 +99,8 @@ class YarrCron(cronBase, rss):
             if movie.eta.theater <= now + 604800:
                 preReleaseSearch = True
 
-            # dvdRelease 2 weeks before dvd release
-            if movie.eta.dvd <= now + 1209600:
+            # dvdRelease 6 weeks before dvd release
+            if movie.eta.dvd <= now + 3628800:
                 preReleaseSearch = True
                 dvdReleaseSearch = True
 
@@ -130,7 +128,7 @@ class YarrCron(cronBase, rss):
             if queue.active and not queue.completed and not self.abort and not self.stop:
 
                 #skip if no search is set
-                if not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases)):
+                if (not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases))) and not queue.lastCheck < (now - int(self.config.get('Intervals', 'search')) * 7200):
                     continue
 
                 highest = self.provider.find(movie, queue)

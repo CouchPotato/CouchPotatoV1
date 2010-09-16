@@ -23,6 +23,7 @@ class nzbMatrix(nzbBase):
         1: ['dvdr']
     }
     catBackupId = 2
+    cache = {}
 
     def __init__(self, config):
         log.info('Using NZBMatrix provider')
@@ -38,24 +39,45 @@ class nzbMatrix(nzbBase):
     def addWildcards(self, q):
         return '+"%s"*' % q
 
+    def cleanCache(self):
+
+        tempcache = {}
+        for x, cache in self.cache.iteritems():
+            if cache['time'] + 300 > time.time():
+                tempcache[x] = self.cache[x]
+
+        self.cache = tempcache
+
     def find(self, movie, quality, type, retry = False):
+
+        self.cleanCache();
 
         results = []
         if not self.enabled() or not self.isAvailable(self.searchUrl):
             return results
 
         arguments = urlencode({
-            'term': self.addWildcards(self.toSearchString(movie.name)) + ' ' + self.addWildcards(quality),
-            'subcat':self.getCatId(type),
-            'username':self.conf('username'),
-            'apikey':self.conf('apikey')
+            'term': movie.imdb, #self.addWildcards(self.toSearchString(movie.name)) + ' ' + self.addWildcards(quality),
+            'subcat': self.getCatId(type),
+            'username': self.conf('username'),
+            'apikey': self.conf('apikey'),
+            'searchin': 'weblink'
         })
         url = "%s?%s" % (self.searchUrl, arguments)
 
         log.info('Searching: %s', url)
 
         try:
-            data = urllib2.urlopen(url, timeout = self.timeout)
+            if(self.cache.get(str(movie.imdb) + '-' + str(self.getCatId(type)))):
+                data = self.cache[str(movie.imdb) + '-' + str(self.getCatId(type))]['data']
+                log.info('Getting RSS from cache.')
+            else:
+                data = urllib2.urlopen(url, timeout = self.timeout)
+                self.cache[str(movie.imdb) + '-' + str(self.getCatId(type))] = {
+                    'time': time.time(),
+                    'data': data
+                }
+
         except (IOError, URLError):
             log.error('Failed to open %s.' % url)
             return results
@@ -89,7 +111,7 @@ class nzbMatrix(nzbBase):
                     new.score = self.calcScore(new, movie)
                     new.checkNZB = True
 
-                    if new.date > time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60) and self.isCorrectMovie(new, movie, type):
+                    if new.date > time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60) and self.isCorrectMovie(new, movie, type, imdbResults = True):
                         results.append(new)
                         log.info('Found: %s', new.name)
 

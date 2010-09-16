@@ -2,7 +2,7 @@ from app.config.db import Session as Db, Movie
 from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
 from app.lib.provider.trailers.hdtrailers import HdTrailers
-from app.lib.provider.trailers.youtube import Youtube
+#from app.lib.provider.trailers.youtube import Youtube
 from urllib2 import URLError
 import Queue
 import cherrypy
