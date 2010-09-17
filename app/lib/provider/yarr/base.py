@@ -99,10 +99,10 @@ class nzbBase(rss):
         if type['minSize'] > item.size:
             log.debug('"%s" is to small to be %s. %sMB instead of the minimal of %sMB.' % (item.name, type['label'], item.size, type['minSize']))
             return False
-        
+
         # Contains lower quality string
         if self.containsOtherQuality(item.name, type):
-            log.info('Wrong quality: %s' % item.name)
+            log.info('Wrong or no quality: %s' % item.name)
             return False
 
         if imdbResults:
@@ -121,23 +121,23 @@ class nzbBase(rss):
             return True
 
         return False
-    
+
     def containsOtherQuality(self, name, preferedType):
 
         nzbWords = re.split('\W+', self.toSearchString(name).lower())
 
         for x, type in Qualities.types.iteritems():
-            if str(type['key']) != str(preferedType['key']):
-                # Main in words
-                if type['key'].lower() in nzbWords:
-                    return True
-                
-                # Alt in words
-                for alt in type['alternative']:
-                    if alt.lower() in nzbWords:
-                        return True
-        
-        return False
+            other = str(type['key']) != str(preferedType['key'])
+
+            # Main in words
+            if type['key'].lower() in nzbWords:
+                return other
+
+            # Alt in words
+            for alt in type['alternative']:
+                if alt.lower() in nzbWords:
+                    return other
+        return True
 
     def checkIMDB(self, haystack, imdbId):
 
