@@ -42,6 +42,13 @@
 					<label for="">Search every</label>
 					<input type="text" name="Intervals.search" value="${config.get('Intervals', 'search')}" class="textInput xsmall"/> hour(s)
 				</div>
+				<div class="ctrlHolder">
+					<label for="">Ignore words</label>
+					<input type="text" name="global.ignoreWords" value="${config.get('global', 'ignoreWords')}" class="textInput large"/>
+					<p class="formHint">
+						Comma seperated. NZB/Torrents containing these words are ignored. Example: GERMAN, DUBBED, HDTV
+					</p>
+				</div>
 			</fieldset>
 			<fieldset class="nzb inlineLabels" id="nzbsFieldset">
 				<div class="ctrlHolder checkbox">

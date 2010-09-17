@@ -19,7 +19,7 @@ class nzbBase(rss):
         'x264:1',
         '720p:2', '1080p:2', 'bluray:10', 'dvd:1', 'dvdrip:1', 'brrip:1', 'bdrip:1',
         'metis:1', 'diamond:1', 'wiki:1', 'CBGB:1',
-        'german:-10', 'french:-10', 'spanish:-10', 'swesub:-20'
+        'german:-10', 'french:-10', 'spanish:-10', 'swesub:-20', 'danish:-10'
     ]
 
     catIds = {}
@@ -93,6 +93,14 @@ class nzbBase(rss):
             return 0
 
     def isCorrectMovie(self, item, movie, qualityType, imdbResults = False):
+        
+        # Contains ignored word
+        nzbWords = re.split('\W+', self.toSearchString(item.name).lower())
+        ignoredWords = self.config.get('global', 'ignoreWords').split(',')
+        for word in ignoredWords:
+            if word.strip().lower() in nzbWords:
+                log.info('NZB contains ignored word %s: %s' % (word, item.name))
+                return False
 
         # Check for size first
         type = Qualities.types.get(qualityType)
