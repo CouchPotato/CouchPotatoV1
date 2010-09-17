@@ -125,19 +125,19 @@ class nzbBase(rss):
     def containsOtherQuality(self, name, preferedType):
 
         nzbWords = re.split('\W+', self.toSearchString(name).lower())
-
+        
+        found = {}
         for x, type in Qualities.types.iteritems():
-            other = str(type['key']) != str(preferedType['key'])
-
             # Main in words
             if type['key'].lower() in nzbWords:
-                return other
+                found[type['key']] = True
 
             # Alt in words
             for alt in type['alternative']:
                 if alt.lower() in nzbWords:
-                    return other
-        return True
+                    found[type['key']] = True
+
+        return not (found.get(preferedType['key']) and len(found) == 1)
 
     def checkIMDB(self, haystack, imdbId):
 
