@@ -22,7 +22,7 @@ class RenamerCron(cronBase):
     config = {}
     trailer = {}
     minimalFileSize = 1024 * 1024 * 10 # 10MB
-    ignoredInPath = ['_unpack', '_failed_', '.appledouble', '/._'] #unpacking, smb-crap
+    ignoredInPath = ['_unpack', '_failed_', '_unknown_', '.appledouble', '/._'] #unpacking, smb-crap
 
     # Filetypes
     movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso']
@@ -99,6 +99,14 @@ class RenamerCron(cronBase):
                 if self.config.get('Trailer', 'quality'):
                     self.trailerQueue.put({'movieId': movie['movie'].id, 'destination':finalDestination})
             else:
+                try:
+                    file = files['files'][0]
+                    path = file['path'].split(os.sep)
+                    path.extend(['_UNKNOWN_'+path.pop()])
+                    shutil.move(file['path'], os.sep.join(path))
+                except IOError:
+                    pass
+
                 log.info('No Match found for: %s' % str(files['files']))
 
         # Cleanup
@@ -109,7 +117,7 @@ class RenamerCron(cronBase):
                 log.debug(subfiles)
 
                 # Stop if something is unpacking
-                if '_unpack' in root.lower() or '_failed_' in root.lower():
+                if '_unpack' in root.lower() or '_failed_' in root.lower() or '_unknown_' in root.lower():
                     break
 
                 for filename in filenames:
