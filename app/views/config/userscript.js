@@ -75,7 +75,7 @@ if(location.href.indexOf("imdb.com") >= 0){
 	
 	if (isMovie == true) {
 		var navbar, newElement;
-		var year = document.getElementById('tn15title').getElementsByTagName('a')[0].text
+		var year = document.getElementsByTagName('h1')[0].getElementsByTagName('a')[0].text
 	
 		var iFrame = create('iframe', {
 			src : cpLocation + link + '?id=' + id + '&year=' + year,
