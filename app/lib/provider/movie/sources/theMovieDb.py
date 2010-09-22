@@ -93,14 +93,13 @@ class theMovieDb(movieBase):
                         if imdb:
                             log.info('Found movie, but with no date, getting data from %s.' % imdb)
                             r = i.get_movie(imdb.replace('tt', ''))
-                            if r:
-                                year = r['year']
+                            year = r.get('year', None)
                         else:
                             log.info('Found movie, but with no date, searching IMDB.')
                             r = i.search_movie(name)
                             if len(r) > 0:
                                 imdb = 'tt' + r[0].movieID
-                                year = r[0]['year']
+                                year = r[0].get('year', None)
 
                     results.append(self.fillFeedItem(id, name, imdb, year))
 

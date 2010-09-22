@@ -107,7 +107,7 @@ class MovieController(BaseController):
             if year:
                 result.year = year
 
-            if result.year == 'None':
+            if result.year == 'None' or not result.year:
                 return self.render({'error': 'year'})
             else:
                 self._addMovie(result, quality)
