@@ -5,6 +5,8 @@ import logging
 import re
 import time
 import urllib2
+import math
+
 log = logging.getLogger(__name__)
 
 class nzbBase(rss):
@@ -24,6 +26,9 @@ class nzbBase(rss):
 
     catIds = {}
     catBackupId = ''
+
+    lastUse = 0
+    timeBetween = 1
 
     available = True
     availableCheck = 0
@@ -93,7 +98,7 @@ class nzbBase(rss):
             return 0
 
     def isCorrectMovie(self, item, movie, qualityType, imdbResults = False):
-        
+
         # Contains ignored word
         nzbWords = re.split('\W+', self.toSearchString(item.name).lower())
         ignoredWords = self.config.get('global', 'ignoreWords').split(',')
@@ -133,9 +138,9 @@ class nzbBase(rss):
     def containsOtherQuality(self, name, preferedType):
 
         nzbWords = re.split('\W+', self.toSearchString(name).lower())
-        
+
         found = {}
-        for x, type in Qualities.types.iteritems():
+        for type in Qualities.types.itervalues():
             # Main in words
             if type['key'].lower() in nzbWords:
                 found[type['key']] = True
@@ -200,18 +205,33 @@ class nzbBase(rss):
 
     def isAvailable(self, testUrl):
 
-        if self.availableCheck < time.time() - 900:
-            self.availableCheck = time.time()
+        now = time.time()
+
+        if self.availableCheck < now - 900:
+            self.availableCheck = now
             try:
-                urllib2.urlopen(testUrl, timeout = 30)
+                self.urlopen(testUrl, 30)
                 self.available = True
             except (IOError, URLError):
                 log.error('%s unavailable, trying again in an 15 minutes.' % self.name)
                 self.available = False
-            time.sleep(5)
 
         return self.available
 
+    def urlopen(self, url, timeout = 10):
+
+        self.wait()
+        data = urllib2.urlopen(url, timeout = timeout)
+        self.lastUse = time.time()
+
+        return data
+
+    def wait(self):
+        now = time.time()
+        wait = math.ceil(self.lastUse - now + self.timeBetween)
+        if wait > 0:
+            log.debug('Waiting for %s, %d seconds' % (self.name, wait))
+            time.sleep(self.lastUse - now + self.timeBetween)
 
 class torrentBase(nzbBase):
 

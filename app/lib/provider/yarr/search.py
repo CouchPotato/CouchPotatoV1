@@ -37,8 +37,6 @@ class Searcher():
 
         qualities = Qualities()
 
-        wait = 1 if self.debug else 5
-
         for source in self.sources:
 
             results = []
@@ -46,12 +44,10 @@ class Searcher():
             # find by main name
             type = queue.qualityType
             results.extend(source.find(movie, type, type))
-            time.sleep(wait)
 
             # Search for alternative naming
             for alt in qualities.getAlternatives(type):
                 results.extend(source.find(movie, alt, type))
-                time.sleep(wait)
 
             #search for highest score
             highest = None

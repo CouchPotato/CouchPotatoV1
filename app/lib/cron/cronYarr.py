@@ -162,9 +162,6 @@ class YarrCron(cronBase, rss):
 
                     return True
 
-                if not self.debug:
-                    time.sleep(5)
-
                 queue.lastCheck = now
                 Db.flush()
 

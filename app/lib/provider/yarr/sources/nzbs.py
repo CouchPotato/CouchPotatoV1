@@ -23,6 +23,8 @@ class nzbs(nzbBase):
     }
     catBackupId = 't2'
 
+    timeBetween = 3 # Seconds
+
     def __init__(self, config):
         log.info('Using NZBs.org provider')
 
@@ -53,7 +55,7 @@ class nzbs(nzbBase):
         log.info('Searching: %s', url)
 
         try:
-            data = urllib2.urlopen(url, timeout = self.timeout)
+            data = self.urlopen(url)
         except (IOError, URLError):
             log.error('Failed to open %s.' % url)
             return results

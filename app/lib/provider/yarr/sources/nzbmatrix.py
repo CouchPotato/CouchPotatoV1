@@ -25,6 +25,8 @@ class nzbMatrix(nzbBase):
     catBackupId = 2
     cache = {}
 
+    timeBetween = 10 # Seconds
+
     def __init__(self, config):
         log.info('Using NZBMatrix provider')
 
@@ -45,6 +47,8 @@ class nzbMatrix(nzbBase):
         for x, cache in self.cache.iteritems():
             if cache['time'] + 300 > time.time():
                 tempcache[x] = self.cache[x]
+            else:
+                log.debug('Removing cache %s' % x)
 
         self.cache = tempcache
 
@@ -64,18 +68,19 @@ class nzbMatrix(nzbBase):
             'searchin': 'weblink'
         })
         url = "%s?%s" % (self.searchUrl, arguments)
-
-        log.info('Searching: %s', url)
+        cacheId = str(movie.imdb) + '-' + str(self.getCatId(type))
 
         try:
-            if(self.cache.get(str(movie.imdb) + '-' + str(self.getCatId(type)))):
-                data = self.cache[str(movie.imdb) + '-' + str(self.getCatId(type))]['data']
-                log.info('Getting RSS from cache.')
+            cached = False
+            if(self.cache.get(cacheId)):
+                data = True
+                cached = True
+                log.info('Getting RSS from cache: %s.' % cacheId)
             else:
-                data = urllib2.urlopen(url, timeout = self.timeout)
-                self.cache[str(movie.imdb) + '-' + str(self.getCatId(type))] = {
-                    'time': time.time(),
-                    'data': data
+                log.info('Searching: %s', url)
+                data = self.urlopen(url)
+                self.cache[cacheId] = {
+                    'time': time.time()
                 }
 
         except (IOError, URLError):
@@ -85,7 +90,11 @@ class nzbMatrix(nzbBase):
         if data:
             try:
                 try:
-                    xml = self.getItems(data)
+                    if cached:
+                        xml = self.cache[cacheId]['xml']
+                    else:
+                        xml = self.getItems(data)
+                        self.cache[cacheId]['xml'] = xml
                 except:
                     log.debug('No valid xml or to many requests.. You never know with %s.' % self.name)
                     return results
