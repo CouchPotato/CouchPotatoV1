@@ -132,6 +132,7 @@ class MovieETA(object):
     dvd = 0
     theater = 0
     bluray = 0
+    lastCheck = 0
 
     def __repr__(self):
         return "<movieeta: %s" % self.videoEtaId

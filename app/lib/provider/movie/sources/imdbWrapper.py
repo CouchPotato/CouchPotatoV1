@@ -59,3 +59,6 @@ class imdbWrapper(movieBase):
 
         r = self.p.get_movie(id.replace('tt', ''))
         return self.toResults(r, one = True)
+    
+    def findReleaseDate(self, movie):
+        pass

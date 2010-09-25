@@ -34,8 +34,8 @@ class etaCron(rss, cronBase):
                 #do a search
                 self.running = True
                 result = self.search(movie)
-                if result:
-                    self.save(movie, result)
+                self.save(movie, result)
+
 
                 etaQueue.task_done()
                 time.sleep(timeout)
@@ -59,10 +59,10 @@ class etaCron(rss, cronBase):
             Db.add(row)
 
         row.movieId = movie.id
-        row.videoEtaId = result.get('id')
-        row.theater = result.get('theater')
-        row.dvd = result.get('dvd')
-        row.bluray = result.get('bluray')
+        row.videoEtaId = result.get('id', 0)
+        row.theater = result.get('theater', 0)
+        row.dvd = result.get('dvd', 0)
+        row.bluray = result.get('bluray', 0)
         row.lastCheck = int(time.time())
         Db.flush()
 
@@ -99,6 +99,8 @@ class etaCron(rss, cronBase):
 
         if page == 1 and len(results) > 29:
             return self.search(movie, page = 2)
+
+        return {}
 
     def getDetails(self, id):
         url = self.detailUrl + str(id)

@@ -41,7 +41,7 @@ class FeedController(BaseController):
 
         return self.render({'dvd': dvd, 'theater':theater, 'dvdNow': dvdNow, 'running': self.cron.get('eta').isRunning()})
 
-    def renewEta(self, **data):
+    def renewEta(self):
 
         self.cron.get('eta').all()
 

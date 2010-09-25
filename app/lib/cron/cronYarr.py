@@ -109,13 +109,13 @@ class YarrCron(cronBase, rss):
                 checkETA = True
                 dvdReleaseSearch = False
 
-            # Force ETA check once a week
-            if movie.eta.dvd == 0 or movie.eta.theater == 0:
+            # Force ETA check once a week or 3 weeks
+            if ((movie.eta.dvd == 0 or movie.eta.theater == 0) and movie.eta.lastCheck < now - 604800) or (movie.eta.lastCheck < now - 1814400):
                 checkETA = True
 
-            # Minimal week interval for ETA check
-            if checkETA and movie.eta.lastCheck < now - 604800:
-                cherrypy.config.get('searchers').get('etaQueue').put({'id':movie.id})
+        # Minimal week interval for ETA check
+        if checkETA:
+            cherrypy.config.get('searchers').get('etaQueue').put({'id':movie.id})
 
         for queue in movie.queue:
 

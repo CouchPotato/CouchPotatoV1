@@ -168,3 +168,6 @@ class theMovieDb(movieBase):
             True
         else:
             False
+
+    def findReleaseDate(self, movie):
+        pass
