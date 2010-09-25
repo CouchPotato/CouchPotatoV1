@@ -112,6 +112,10 @@ class RenamerCron(cronBase):
         # Cleanup
         if self.conf('cleanup'):
             path = self.conf('download')
+            
+            if self.conf('destination') == path:
+                log.error('Download folder and movie destination shouldn\'t be the same. Change it in Settings >> Renaming.')
+                return
 
             for root, subfiles, filenames in os.walk(path):
                 log.debug(subfiles)
