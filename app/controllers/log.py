@@ -34,7 +34,7 @@ class LogController(BaseController):
         for line in lines:
             log += line
 
-        return self.render({'file':filename, 'log':latinToAscii(escape(log))})
+        return self.render({'file':filename, 'log':escape(latinToAscii(log))})
 
     @cherrypy.expose
     def clear(self):
