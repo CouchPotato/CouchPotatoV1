@@ -1,3 +1,4 @@
+from app import latinToAscii
 from app.controllers import BaseController, url, redirect
 from markupsafe import escape
 import cherrypy
@@ -33,7 +34,7 @@ class LogController(BaseController):
         for line in lines:
             log += line
 
-        return self.render({'file':filename, 'log':escape(log)})
+        return self.render({'file':filename, 'log':latinToAscii(escape(log))})
 
     @cherrypy.expose
     def clear(self):
