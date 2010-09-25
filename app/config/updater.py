@@ -40,8 +40,8 @@ class Updater(SimplePlugin):
         if not os.path.isfile(self.historyFile):
             self.history('UNKNOWN Build.')
 
-        self.checkForUpdate()
-        self.getVersion()
+        #self.checkForUpdate()
+        #self.getVersion()
 
     start.priority = 70
 
