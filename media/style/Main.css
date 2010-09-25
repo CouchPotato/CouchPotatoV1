@@ -36,9 +36,10 @@ a img {
 
 a {
 	text-decoration:none;
-	color:#1C4FAD;
+	color: #6ea1d7;
 	outline: 0;
 }
+a:hover { color: #4d66c4; }
 
 .page {
 	width: 960px;
@@ -72,6 +73,18 @@ a {
 	.footer .check {
 		color: #333;
 	}
+
+#toTop {
+	background: black;
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	padding: 10px 10px 10px 40px;
+	background: #f7f7f7 url('../../media/images/toTop.gif') no-repeat 10px center;
+	border-radius: 5px 0 0 0; 
+	-moz-border-radius: 5px 0 0 0; 
+	-webkit-border-radius: 5px 0 0 0; 
+}
 	
 form {
 	padding:0;
@@ -227,11 +240,17 @@ form {
 	#filterDetails span {
 		margin: 0 0 0 20px;
 		color: #999;
+		background: #f3f3f3;
+		border-radius: 5px; 
+		-moz-border-radius: 5px; 
+		-webkit-border-radius: 5px;
+		padding: 5px 10px;
 	}
 		#filterDetails strong {
 			color:  #666;
 		}
-	#filterDetails a {
+	
+	#filterDetails .toggle {
 		margin-left: 10px;
 	}
 	

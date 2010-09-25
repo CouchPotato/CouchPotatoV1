@@ -82,11 +82,15 @@ var ScrollSpy = new Class( {
 });
 
 window.addEvent('domready', function() {
-	$$('.disabled').setStyle('opacity', 0.1)
 
 	var topbar = $('header').set('tween', {
 		duration : 200
 	});
+	var backToTop = $('toTop').set('tween', {
+		duration : 200
+	});
+	backToTop.setStyle('opacity', 0);
+	
 	var topbarME = function() {
 		topbar.tween('opacity', 1);
 	}, topbarML = function() {
@@ -98,10 +102,12 @@ window.addEvent('domready', function() {
 		onLeave : function(pos) {
 			topbar.tween('opacity', 1).removeEvents('mouseenter', topbarME)
 					.removeEvents('mouseleave', topbarML);
+			backToTop.tween('opacity', 0);
 		},
 		onEnter : function() {
 			topbar.tween('opacity', 0.5).addEvent('mouseenter', topbarME)
 					.addEvent('mouseleave', topbarML);
+			backToTop.tween('opacity', 1);
 		}
 	});
 

@@ -5,19 +5,20 @@
 %>
 % if totalMovies > 0:
 <div id="filterDetails">
-	<span class="counter"><strong>${totalMovies}</strong> wanted</span>
+	<span class="counter"><strong>${totalMovies}</strong> <a href="movie/#wanted">wanted</a></span>
 	% if totalSnatched > 0:
-	<span class="counter"><strong>${totalSnatched}</strong> snatched</span>
+	<span class="counter"><strong>${totalSnatched}</strong> <a href="movie/#snatched">snatched</a></span>
 	% endif
 	% if totalDownloaded > 0:
-	<span class="counter"><strong>${totalDownloaded}</strong> downloaded</span>
+	<span class="counter"><strong>${totalDownloaded}</strong> <a href="movie/#downloaded">downloaded</a></span>
 	% endif
-	<a href="#">Show details</a>
+	<a href="#" class="toggle">Show details</a>
 </div>
+<a name="wanted"></a>
 <h1>Wanted</h1>
 <div id="movies" class="list">
 	<script type="text/javascript">
-		var filterDetails = $('filterDetails').getElement('a')
+		var filterDetails = $('filterDetails').getElement('.toggle')
 		var toggleThem = function(){
 			$('movies').toggleClass('list')
 			filterDetails.set('text', !$('movies').hasClass('list') ? 'Hide details' : 'Show details')
@@ -163,6 +164,7 @@
 % endif
 
 % if totalSnatched > 0:
+<a name="snatched"></a>
 <h1>Snatched</h1>
 <div id="snatched" class="smallList">
 	% for movie in snatched:
@@ -178,6 +180,7 @@
 % endif
 
 % if totalDownloaded > 0:
+<a name="downloaded"></a>
 <h1>Downloaded</h1>
 <div id="downloaded" class="smallList">
 	% for movie in downloaded:
