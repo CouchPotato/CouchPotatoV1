@@ -146,7 +146,8 @@
 					<label for="">Movie destination</label>
 					<input type="text" name="Renamer.destination" value="${config.get('Renamer', 'destination')}" class="textInput large"/>
 					<p class="formHint">
-						Where the movies should be moved to
+						Where the movies should be moved to. <br />
+						Should NOT be the same as the "Download folder".
 					</p>
 				</div>
 				<div class="ctrlHolder">
@@ -291,7 +292,7 @@
 			</fieldset>
 			
 			<fieldset class="quality inlineLabels qualityTemplates">
-				<h3>Custom Qualities:</h3>
+				<h3>Custom Qualities</h3>
 				<div class="customList"></div>
 				<div class="ctrlHolder">
 					<a href="#" id="newTemplate">Create a new custom quality.</a>
@@ -322,6 +323,28 @@
 						% endfor
 					</div>
 				</div>
+			</fieldset>
+			<fieldset class="quality inlineLabels qualitySizes">
+				<h3>Quality sizes</h3>
+				<p class="formHint">
+					Only download the quality that is between these two sizes.<br />
+					All that are outside these sizes, will be ignored.
+				</p>
+				<div class="ctrlHolder">
+					<span class="size header">
+						<span>Minimum</span>
+						<span>Maximum</span> 
+					</span>
+				</div>
+				% for key, quality in Qualities.getTypes():
+				<div class="ctrlHolder">
+					<label for="">${quality['label']}</label>
+					<span class="size">
+						<span><input type="text" name="Quality.sMin-${key}" value="${config.get('Quality', 'sMin-'+key)}" class="textInput small"/>MB</span>
+						<span><input type="text" name="Quality.sMax-${key}" value="${config.get('Quality', 'sMax-'+key)}" class="textInput small"/>MB</span>
+					</span>
+				</div>
+				% endfor
 			</fieldset>
 		</div>
 			

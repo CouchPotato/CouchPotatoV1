@@ -9,16 +9,16 @@ log = logging.getLogger(__name__)
 class Qualities:
 
     types = {
-        '1080p':    {'key': '1080p', 'minSize': 5000, 'order':1, 'label': '1080P', 'alternative': [], 'ext':['mkv', 'm2ts']},
-        '720p':     {'key': '720p', 'minSize': 3500, 'order':2, 'label': '720P', 'alternative': [], 'ext':['mkv', 'm2ts']},
-        'brrip':    {'key': 'brrip', 'minSize': 700, 'order':3, 'label': 'BR-Rip', 'alternative': ['bdrip'], 'ext':['mkv', 'avi']},
-        'dvdr':     {'key': 'dvdr', 'minSize': 3000, 'order':4, 'label': 'DVD-R', 'alternative': [], 'ext':['iso']},
-        'dvdrip':   {'key': 'dvdrip', 'minSize': 600, 'order':5, 'label': 'DVD-Rip', 'alternative': [], 'ext':['avi', 'mpg', 'mpeg']},
-        'scr':      {'key': 'scr', 'minSize': 600, 'order':6, 'label': 'Screener', 'alternative': ['dvdscr'], 'ext':['avi', 'mpg', 'mpeg']},
-        'r5':       {'key': 'r5', 'minSize': 600, 'order':7, 'label': 'R5', 'alternative': [], 'ext':['avi', 'mpg', 'mpeg']},
-        'tc':       {'key': 'tc', 'minSize': 600, 'order':8, 'label': 'TeleCine', 'alternative': ['telecine'], 'ext':['avi', 'mpg', 'mpeg']},
-        'ts':       {'key': 'ts', 'minSize': 600, 'order':9, 'label': 'TeleSync', 'alternative': ['telesync'], 'ext':['avi', 'mpg', 'mpeg']},
-        'cam':      {'key': 'cam', 'minSize': 600, 'order':10, 'label': 'Cam', 'alternative': [], 'ext':['avi', 'mpg', 'mpeg']}
+        '1080p':    {'key': '1080p', 'size': (5000, 20000), 'order':1, 'label': '1080P', 'alternative': [], 'ext':['mkv', 'm2ts']},
+        '720p':     {'key': '720p', 'size': (3500, 10000), 'order':2, 'label': '720P', 'alternative': [], 'ext':['mkv', 'm2ts']},
+        'brrip':    {'key': 'brrip', 'size': (700, 25000), 'order':3, 'label': 'BR-Rip', 'alternative': ['bdrip'], 'ext':['mkv', 'avi']},
+        'dvdr':     {'key': 'dvdr', 'size': (3000, 10000), 'order':4, 'label': 'DVD-R', 'alternative': [], 'ext':['iso']},
+        'dvdrip':   {'key': 'dvdrip', 'size': (600, 2400), 'order':5, 'label': 'DVD-Rip', 'alternative': [], 'ext':['avi', 'mpg', 'mpeg']},
+        'scr':      {'key': 'scr', 'size': (600, 1000), 'order':6, 'label': 'Screener', 'alternative': ['dvdscr'], 'ext':['avi', 'mpg', 'mpeg']},
+        'r5':       {'key': 'r5', 'size': (600, 1000), 'order':7, 'label': 'R5', 'alternative': [], 'ext':['avi', 'mpg', 'mpeg']},
+        'tc':       {'key': 'tc', 'size': (600, 1000), 'order':8, 'label': 'TeleCine', 'alternative': ['telecine'], 'ext':['avi', 'mpg', 'mpeg']},
+        'ts':       {'key': 'ts', 'size': (600, 1000), 'order':9, 'label': 'TeleSync', 'alternative': ['telesync'], 'ext':['avi', 'mpg', 'mpeg']},
+        'cam':      {'key': 'cam', 'size': (600, 1000), 'order':10, 'label': 'Cam', 'alternative': [], 'ext':['avi', 'mpg', 'mpeg']}
     }
     preReleases = ['cam', 'ts', 'tc', 'r5', 'scr', 'dvdr', 'dvdrip']
 
@@ -27,6 +27,12 @@ class Qualities:
 
     def conf(self, option):
         return cherrypy.config.get('config').get('Quality', option)
+
+    def minimumSize(self, type, key = 'sMin'):
+        return int(self.conf(key + '-' + type))
+
+    def maximumSize(self, type):
+        return self.minimumSize(type, 'sMax')
 
     def all(self, custom = None, enabled = None):
         q = Db.query(QualityTemplate).order_by(QualityTemplate.order)
@@ -174,7 +180,8 @@ class Qualities:
 
                 # Check extension + filesize
                 for ext in quality.get('ext'):
-                    if ext in checkThis and (os.path.getsize(checkThis) / 1024 / 1024) >= quality.get('minSize'):
+                    size = (os.path.getsize(checkThis) / 1024 / 1024)
+                    if ext in checkThis and size >= self.minimumSize() and size <= self.maximumSize():
                         found = True
 
                 if found:

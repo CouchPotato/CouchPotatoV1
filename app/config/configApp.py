@@ -97,6 +97,11 @@ class configApp():
         self.setDefault('Quality', 'hide', 'cam')
         self.setDefault('Quality', 'default', '720p')
 
+        from app.lib.qualities import Qualities
+        for type in Qualities.types.itervalues():
+            self.setDefault('Quality', 'sMin-' + type['key'], type['size'][0])
+            self.setDefault('Quality', 'sMax-' + type['key'], type['size'][1])
+
         self.save()
 
     def save(self):

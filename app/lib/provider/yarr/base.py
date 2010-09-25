@@ -107,15 +107,24 @@ class nzbBase(rss):
                 log.info('NZB contains ignored word %s: %s' % (word, item.name))
                 return False
 
-        # Check for size first
-        type = Qualities.types.get(qualityType)
-        if type['minSize'] > item.size:
-            log.debug('"%s" is to small to be %s. %sMB instead of the minimal of %sMB.' % (item.name, type['label'], item.size, type['minSize']))
-            return False
+        q = Qualities()
+        type = q.types.get(qualityType)
 
         # Contains lower quality string
         if self.containsOtherQuality(item.name, type):
-            log.info('Wrong or no quality: %s' % item.name)
+            log.info('Wrong: %s, looking for %s' % (item.name, type['label']))
+            return False
+
+        # File to small
+        minSize = q.minimumSize(qualityType)
+        if minSize > item.size:
+            log.info('"%s" is too small to be %s. %sMB instead of the minimal of %sMB.' % (item.name, type['label'], item.size, minSize))
+            return False
+
+        # File to large
+        maxSize = q.maximumSize(qualityType)
+        if maxSize < item.size:
+            log.info('"%s" is too large to be %s. %sMB instead of the maximum of %sMB.' % (item.name, type['label'], item.size, maxSize))
             return False
 
         if imdbResults:

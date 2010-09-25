@@ -727,6 +727,11 @@ h1 {
 				line-height: 20px;
 			}
 			
+			#configForm fieldset > .formHint {
+				margin: 0 10px;
+				font-size: 12px;
+			}
+			
 			#configForm span.or {
 				color: #999;
 				padding: 0 5px;
@@ -850,8 +855,44 @@ h1 {
 				font-size: 16px;
 				padding: 20px;
 			}
+
+		#configForm .qualitySizes {
+			overflow: hidden;
+		}
+			#configForm .qualitySizes label {
+				text-align: right;
+			}
+			#configForm .qualitySizes .ctrlHolder {
+				padding: 4px 10px 3px;
+			}
+
+			#configForm .qualitySizes .item {
+				clear: both;
+				overflow: hidden;
+				border-bottom: 1px solid #f3f3f3;
+				padding: 3px 0 2px;
+			}
+			#configForm .qualitySizes .item:last-child { border: 0; }
+
+			#configForm .qualitySizes .size {
+				float: right;
+				width: 275px;
+			}
+
+				#configForm .qualitySizes .size span {
+					float: left;
+					color: #666;
+					width: 85px;
+				}
 			
-	
+				#configForm .qualitySizes .size input {
+					width: 40px !important;
+				}
+
+			#configForm .qualitySizes .header {
+				font-weight: bold;
+			}
+
 		#configForm fieldset.about {
 			padding: 65px 20px 0;
 			text-align:center;
