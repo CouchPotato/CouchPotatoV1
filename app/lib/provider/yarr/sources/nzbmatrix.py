@@ -4,7 +4,6 @@ from urllib import urlencode
 from urllib2 import URLError
 import logging
 import time
-import urllib2
 
 log = logging.getLogger(__name__)
 
@@ -23,7 +22,6 @@ class nzbMatrix(nzbBase):
         1: ['dvdr']
     }
     catBackupId = 2
-    cache = {}
 
     timeBetween = 10 # Seconds
 
@@ -40,17 +38,6 @@ class nzbMatrix(nzbBase):
 
     def addWildcards(self, q):
         return '+"%s"*' % q
-
-    def cleanCache(self):
-
-        tempcache = {}
-        for x, cache in self.cache.iteritems():
-            if cache['time'] + 300 > time.time():
-                tempcache[x] = self.cache[x]
-            else:
-                log.debug('Removing cache %s' % x)
-
-        self.cache = tempcache
 
     def find(self, movie, quality, type, retry = False):
 
@@ -128,6 +115,8 @@ class nzbMatrix(nzbBase):
             except SyntaxError:
                 log.error('Failed to parse XML response from NZBMatrix.com')
                 return False
+
+        return results
 
     def getApiExt(self):
         return '&username=%s&apikey=%s' % (self.conf('username'), self.conf('apikey'))

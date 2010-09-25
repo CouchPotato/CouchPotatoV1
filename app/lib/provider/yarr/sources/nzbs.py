@@ -3,7 +3,6 @@ from urllib import urlencode
 from urllib2 import URLError
 import logging
 import time
-import urllib2
 
 log = logging.getLogger(__name__)
 
@@ -38,6 +37,8 @@ class nzbs(nzbBase):
 
     def find(self, movie, quality, type, retry = False):
 
+        self.cleanCache();
+
         results = []
         if not self.enabled() or not self.isAvailable(self.apiUrl):
             return results
@@ -51,11 +52,20 @@ class nzbs(nzbBase):
             'age': self.config.get('NZB', 'retention')
         })
         url = "%s?%s" % (self.apiUrl, arguments)
-
-        log.info('Searching: %s', url)
+        cacheId = str(movie.imdb) + '-' + str(self.getCatId(type))
 
         try:
-            data = self.urlopen(url)
+            cached = False
+            if(self.cache.get(cacheId)):
+                data = True
+                cached = True
+                log.info('Getting RSS from cache: %s.' % cacheId)
+            else:
+                log.info('Searching: %s', url)
+                data = self.urlopen(url)
+                self.cache[cacheId] = {
+                    'time': time.time()
+                }
         except (IOError, URLError):
             log.error('Failed to open %s.' % url)
             return results
@@ -64,7 +74,11 @@ class nzbs(nzbBase):
             log.debug('Parsing NZBs.org RSS.')
             try:
                 try:
-                    xml = self.getItems(data)
+                    if cached:
+                        xml = self.cache[cacheId]['xml']
+                    else:
+                        xml = self.getItems(data)
+                        self.cache[cacheId]['xml'] = xml
                 except:
                     if retry == False:
                         log.error('No valid xml, to many requests? Try again in 15sec.')
@@ -100,6 +114,8 @@ class nzbs(nzbBase):
             except SyntaxError:
                 log.error('Failed to parse XML response from NZBs.org')
                 return False
+
+        return results
 
 
     def getApiExt(self):

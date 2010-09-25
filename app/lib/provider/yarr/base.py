@@ -27,6 +27,8 @@ class nzbBase(rss):
     catIds = {}
     catBackupId = ''
 
+    cache = {}
+
     lastUse = 0
     timeBetween = 1
 
@@ -241,6 +243,17 @@ class nzbBase(rss):
         if wait > 0:
             log.debug('Waiting for %s, %d seconds' % (self.name, wait))
             time.sleep(self.lastUse - now + self.timeBetween)
+
+    def cleanCache(self):
+
+        tempcache = {}
+        for x, cache in self.cache.iteritems():
+            if cache['time'] + 300 > time.time():
+                tempcache[x] = self.cache[x]
+            else:
+                log.debug('Removing cache %s' % x)
+
+        self.cache = tempcache
 
 class torrentBase(nzbBase):
 
