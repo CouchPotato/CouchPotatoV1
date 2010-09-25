@@ -39,18 +39,12 @@ class imdbWrapper(movieBase):
         else :
             nr = 0
             for movie in r:
-                new = self.feedItem()
-                new.imdb = 'tt' + movie.movieID
-                new.name = self.toSaveString(movie['title'])
-                new.year = movie['year']
-
-                results.append(new)
+                results.append(self.toResults(movie, one = True))
                 nr += 1
                 if nr == limit:
                     break
 
             return results
-
 
     def findById(self, id):
         ''' Find movie by TheMovieDB ID '''
