@@ -15,6 +15,9 @@ class MovieController(BaseController):
         Show all wanted, snatched, downloaded movies
         '''
 
+        if cherrypy.request.path_info == '/':
+            return redirect(url(controller = 'movie', action = 'index'))
+
         qMovie = Db.query(Movie)
         movies = qMovie.order_by(Movie.name).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
         snatched = qMovie.order_by(desc(Movie.dateChanged), Movie.name).filter_by(status = u'snatched').all()
