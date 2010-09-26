@@ -92,8 +92,6 @@ class Searcher():
 
         return []
 
-
-
     def findByImdbId(self, id):
         ''' Find movie by IMDB ID '''
 
@@ -103,4 +101,3 @@ class Searcher():
                 return result
 
         return []
-

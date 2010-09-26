@@ -1,3 +1,4 @@
+from app import latinToAscii
 from app.config.db import Movie, Session as Db
 from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
@@ -137,7 +138,7 @@ class YarrCron(cronBase, rss):
                 if highest:
 
                     #update what I found
-                    queue.name = highest.name
+                    queue.name = latinToAscii(highest.name)
                     queue.link = highest.detailUrl
 
                     waitFor = queue.waitFor * (60 * 60 * 24)

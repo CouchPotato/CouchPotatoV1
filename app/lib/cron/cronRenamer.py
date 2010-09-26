@@ -22,7 +22,7 @@ class RenamerCron(cronBase):
     config = {}
     trailer = {}
     minimalFileSize = 1024 * 1024 * 10 # 10MB
-    ignoredInPath = ['_unpack', '_failed_', '_unknown_', '.appledouble', '/._'] #unpacking, smb-crap
+    ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '/._'] #unpacking, smb-crap
 
     # Filetypes
     movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso']
@@ -102,7 +102,7 @@ class RenamerCron(cronBase):
                 try:
                     file = files['files'][0]
                     path = file['path'].split(os.sep)
-                    path.extend(['_UNKNOWN_'+path.pop()])
+                    path.extend(['_UNKNOWN_' + path.pop()])
                     shutil.move(file['path'], os.sep.join(path))
                 except IOError:
                     pass
@@ -112,7 +112,7 @@ class RenamerCron(cronBase):
         # Cleanup
         if self.conf('cleanup'):
             path = self.conf('download')
-            
+
             if self.conf('destination') == path:
                 log.error('Download folder and movie destination shouldn\'t be the same. Change it in Settings >> Renaming.')
                 return
@@ -258,6 +258,12 @@ class RenamerCron(cronBase):
                 shutil.move(old, dest)
                 justAdded.append(dest)
             else:
+                try:
+                    path = file['path'].split(os.sep)
+                    path.extend(['_EXISTS_' + path.pop()])
+                    shutil.move(file['path'], os.sep.join(path))
+                except IOError:
+                    pass
                 log.error('File %s already exists or not better.' % latinToAscii(filename))
                 break
 
@@ -380,23 +386,21 @@ class RenamerCron(cronBase):
 
                 # last resort, match every word in path to db
                 lastResort = {}
-                dir = dir.replace('.', ' ').lower()
-                dirSplit = dir.split(' ')
+                dirSplit = re.split('\W+', dir.lower())
                 for s in dirSplit:
                     if s:
                         results = Db.query(Movie).filter(Movie.name.like('%' + s + '%')).all()
                         for r in results:
                             lastResort[r.id] = r
 
-                for x in lastResort:
-                    l = lastResort[x]
+                for l in lastResort.itervalues():
                     wordCount = 0
-                    words = l.name.lower().split(' ')
+                    words = re.split('\W+', l.name.lower())
                     for word in words:
-                        if word.lower() in dir:
+                        if word in dir.lower():
                             wordCount += 1
 
-                    if wordCount == len(words) and len(words) > 0:
+                    if wordCount == len(words) and len(words) > 0 and str(l.year) in dir:
                         log.info('Found via last resort searching.')
                         return {
                             'queue': None,
