@@ -13,6 +13,7 @@ Features:
 * Trailer downloading
 * Quality options to download best available. Overwrite if better is found.
 * A "Coming Soon" page with soon to be released DVD and Theater info.
+* Support for NZBs.org, NZBMatrix, Newznab.com and ThePirateBay.
 
 
 ![preview thumb](http://github.com/RuudBurger/CouchPotato/raw/master/media/images/screenshot.png)
@@ -50,6 +51,7 @@ To run CP you will need Python.
 [TheMovieDB](http://www.themoviedb.org/),
 [NZBMatrix](http://nzbmatrix.com/),
 [NZBs.org](http://www.nzbs.org/),
+[Newznab.com](http://www.newznab.com/),
 [HD-Trailers](http://www.hd-trailers.net/),
 [The Pirate Bay](http://thepiratebay.org/),
 [PyInstaller](http://www.pyinstaller.org/)
