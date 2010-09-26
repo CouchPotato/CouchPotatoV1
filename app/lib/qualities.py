@@ -172,15 +172,15 @@ class Qualities:
 
             for type, quality in self.getTypes():
                 # Check tags
-                if type in checkThis: found = True
+                if type in checkThis.lower(): found = True
                 for alt in quality.get('alternative'):
-                    if alt in checkThis:
+                    if alt in checkThis.lower():
                         found = True
 
                 # Check extension + filesize
                 for ext in quality.get('ext'):
                     size = (os.path.getsize(checkThis) / 1024 / 1024)
-                    if ext in checkThis and size >= self.minimumSize(type) and size <= self.maximumSize(type):
+                    if ext in checkThis.lower() and size >= self.minimumSize(type) and size <= self.maximumSize(type):
                         found = True
 
                 if found:
