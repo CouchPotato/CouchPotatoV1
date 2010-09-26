@@ -45,7 +45,7 @@ class nzbs(nzbBase):
 
         arguments = urlencode({
             'action':'search',
-            'q': self.toSearchString(movie.name + ' ' + quality),
+            'q': self.toSearchString(movie.name),
             'catid':self.getCatId(type),
             'i':self.conf('id'),
             'h':self.conf('key'),
