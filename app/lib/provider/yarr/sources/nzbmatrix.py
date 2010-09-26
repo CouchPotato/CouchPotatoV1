@@ -36,9 +36,6 @@ class nzbMatrix(nzbBase):
     def enabled(self):
         return self.config.get('NZB', 'enabled') and self.conf('username') and self.conf('apikey')
 
-    def addWildcards(self, q):
-        return '+"%s"*' % q
-
     def find(self, movie, quality, type, retry = False):
 
         self.cleanCache();
@@ -48,7 +45,7 @@ class nzbMatrix(nzbBase):
             return results
 
         arguments = urlencode({
-            'term': movie.imdb, #self.addWildcards(self.toSearchString(movie.name)) + ' ' + self.addWildcards(quality),
+            'term': movie.imdb,
             'subcat': self.getCatId(type),
             'username': self.conf('username'),
             'apikey': self.conf('apikey'),
