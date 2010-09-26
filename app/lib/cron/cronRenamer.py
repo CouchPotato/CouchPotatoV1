@@ -347,7 +347,11 @@ class RenamerCron(cronBase):
 
         replaced = re.sub(r"[\x00:\*\?\"<>\|]", '', replaced)
 
-        return replaced
+        sep = self.conf('separator')
+        return self.replaceDoubles(replaced).replace(' ', ' ' if not sep else sep)
+
+    def replaceDoubles(self, string):
+        return string.replace('  ', ' ').replace(' .', '.')
 
     def getMovie(self, imdbId):
         '''

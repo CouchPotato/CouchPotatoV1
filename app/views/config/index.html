@@ -165,12 +165,23 @@
 						<span><strong>thename</strong>: The Movie</span>
 						<span><strong>ext</strong>: ext</span>
 						<span><strong>year</strong>: 2010</span>
-            <span><strong>quality</strong>: 1080P</span>
+						<span><strong>quality</strong>: 1080P</span>
 						<span><strong>namethe</strong>: Movie, The</span><br />
 						<span><strong>first</strong>: First character of movie (without "The")</span><br />
 						Only with multiple files:
 						<span><strong>cd</strong>: cd1</span>
 						<span><strong>cdNr</strong>: 1</span>
+					</p>
+				</div>
+				<div class="ctrlHolder checkbox">
+					<label for="">Name separator</label>
+					<select name="Renamer.separator" class="textInput large">
+						% for sep, label in {' ':'space', '.':'dot', '-':'dash'}.iteritems():
+						<option value="${sep}"${' selected="selected"' if sep == config.get('Renamer', 'separator') else ''}>${label}</option>
+						% endfor
+					</select>
+					<p class="formHint">
+						Replace all the spaces with dots or dashes.
 					</p>
 				</div>
 				<div class="ctrlHolder checkbox">

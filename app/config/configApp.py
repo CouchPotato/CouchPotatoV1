@@ -53,6 +53,7 @@ class configApp():
         self.setDefault('Renamer', 'destination', '')
         self.setDefault('Renamer', 'folderNaming', '<namethe> (<year>)')
         self.setDefault('Renamer', 'fileNaming', '<thename><cd>.<ext>')
+        self.setDefault('Renamer', 'separator', ' ')
         self.setDefault('Renamer', 'cleanup', False)
 
         self.addSection('Trailer')
