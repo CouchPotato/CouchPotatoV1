@@ -1,3 +1,4 @@
+from app.lib.provider.yarr.sources.newznab import newznab
 from app.lib.provider.yarr.sources.nzbmatrix import nzbMatrix
 from app.lib.provider.yarr.sources.nzbs import nzbs
 from app.lib.provider.yarr.sources.tpb import tpb
@@ -24,6 +25,10 @@ class Searcher():
 
         #nzbs
         s = nzbs(config)
+        self.sources.append(s)
+
+        #newznab
+        s = newznab(config)
         self.sources.append(s)
 
         #tpb
