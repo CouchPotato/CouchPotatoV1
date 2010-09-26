@@ -265,6 +265,23 @@
 					</p>
 				</div>
 			</fieldset>
+			<fieldset class="providers inlineLabels">
+				<h3>newznab.com</h3>
+				<div class="ctrlHolder">
+					<label for="">Host</label>
+					<input type="text" name="newznab.host" value="${config.get('newznab', 'host')}" class="textInput large"/>
+					<p class="formHint">
+						The hostname of your newznab provider.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Apikey</label>
+					<input type="text" name="newznab.apikey" value="${config.get('newznab', 'apikey')}" class="textInput large"/>
+					<p class="formHint">
+						Can be found after login on the "API" page, bottom left. The string after "&amp;apikey=".
+					</p>
+				</div>
+			</fieldset>
 			<fieldset class="userscript inlineLabels">
 				<a href="CouchPotato.user.js" class="submit userscriptInstall"><img src="media/images/userscriptPreview.png" /><br />Install UserScript</a>
 				<p style="font-size:11px">
