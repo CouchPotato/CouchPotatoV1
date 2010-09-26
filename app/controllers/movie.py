@@ -190,6 +190,5 @@ class MovieController(BaseController):
 
         #gogo find nzb for added movie via Cron
         self.cron.get('yarr').forceCheck(new.id)
-        self.searchers.get('etaQueue').put({'id':new.id})
 
         self.flash.add('movie-' + str(new.id), '"%s" (%s) added.' % (new.name, new.year))
