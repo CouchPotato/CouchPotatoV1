@@ -161,6 +161,11 @@ class nzbBase(rss):
                 if alt.lower() in nzbWords:
                     found[type['key']] = True
 
+        # Allow other qualities
+        for allowed in preferedType['allow']:
+            if found.get(allowed):
+                del found[allowed]
+
         return not (found.get(preferedType['key']) and len(found) == 1)
 
     def checkIMDB(self, haystack, imdbId):
