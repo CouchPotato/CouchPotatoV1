@@ -149,6 +149,13 @@ class TrailerCron(rss, cronBase):
 
         trailerFinal = os.path.join(destination.get('directory'), trailerFinal)
 
+        # Rename existing trailer
+        for file in os.listdir(destination.get('directory')):
+            if '-trailer' in file:
+                oldName = os.path.join(destination.get('directory'), file)
+                shutil.move(oldName, trailerFinal + os.path.splitext(file)[1])
+                return True
+
         for source in self.sources:
             results = source.find(movie)
             if results:
