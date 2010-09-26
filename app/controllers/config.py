@@ -48,7 +48,7 @@ class ConfigController(BaseController):
         config = cherrypy.config.get('config')
 
         # catch checkboxes
-        for bool in ['Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup', 'global.launchbrowser', 'Torrents.enabled', 'NZB.enabled']:
+        for bool in ['Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup', 'global.launchbrowser', 'Torrents.enabled', 'NZB.enabled', 'NZBMatrix.enabled', 'NZBsorg.enabled', 'newznab.enabled']:
             if not data.get(bool):
                 data[bool] = False
 
