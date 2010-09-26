@@ -221,6 +221,7 @@
 					</p>
 				</div>
 			</fieldset>
+
 			<fieldset class="providers inlineLabels">
 				<div class="ctrlHolder">
 					<label for="">TheMovieDB Api-Key</label>
@@ -230,8 +231,12 @@
 					</p>
 				</div>
 			</fieldset>
-			<fieldset class="providers inlineLabels">
+			<fieldset class="providers inlineLabels" id="nzbmatrixFieldset">
 				<h3>NZBMatrix.com</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Enable</label>
+					<input type="checkbox" name="NZBMatrix.enabled" value="True" ${' checked="checked"' if config.get('NZBMatrix', 'enabled') else ''} />
+				</div>
 				<div class="ctrlHolder">
 					<label for="">Username</label>
 					<input type="text" name="NZBMatrix.username" value="${config.get('NZBMatrix', 'username')}" class="textInput large"/>
@@ -248,8 +253,12 @@
 					</p>
 				</div>
 			</fieldset>
-			<fieldset class="providers inlineLabels">
+			<fieldset class="providers inlineLabels" id="nzbsorgFieldset">
 				<h3>NZBs.org</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Enable</label>
+					<input type="checkbox" name="NZBsorg.enabled" value="True" ${' checked="checked"' if config.get('NZBsorg', 'enabled') else ''} />
+				</div>
 				<div class="ctrlHolder">
 					<label for="">Id</label>
 					<input type="text" name="NZBsorg.id" value="${config.get('NZBsorg', 'id')}" class="textInput large"/>
@@ -265,8 +274,15 @@
 					</p>
 				</div>
 			</fieldset>
-			<fieldset class="providers inlineLabels">
-				<h3>newznab.com</h3>
+			<fieldset class="providers inlineLabels" id="newznabFieldset">
+				<h3>Newznab</h3>
+				<p class="formHint">
+					More info can be found at <a href="http://newznab.com" target="_blank">Newznab.com</a>.
+				</p>
+				<div class="ctrlHolder checkbox">
+					<label for="">Enable</label>
+					<input type="checkbox" name="newznab.enabled" value="True" ${' checked="checked"' if config.get('newznab', 'enabled') else ''} />
+				</div>
 				<div class="ctrlHolder">
 					<label for="">Host</label>
 					<input type="text" name="newznab.host" value="${config.get('newznab', 'host')}" class="textInput large"/>
@@ -282,6 +298,7 @@
 					</p>
 				</div>
 			</fieldset>
+
 			<fieldset class="userscript inlineLabels">
 				<a href="CouchPotato.user.js" class="submit userscriptInstall"><img src="media/images/userscriptPreview.png" /><br />Install UserScript</a>
 				<p style="font-size:11px">
@@ -477,7 +494,7 @@
 	            fieldset.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
 	    }
 		
-		$each(['renamingFieldset','torrentsFieldset','nzbsFieldset'],function(item){
+		$each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset'],function(item){
 		    var fieldset = $(item)
 		    var checkbox = fieldset.getElement('[type=checkbox]')
 		    isEnabled(checkbox, fieldset)

@@ -34,7 +34,7 @@ class nzbMatrix(nzbBase):
         return self.config.get('NZBMatrix', option)
 
     def enabled(self):
-        return self.config.get('NZB', 'enabled') and self.conf('username') and self.conf('apikey')
+        return self.conf('enabled') and self.config.get('NZB', 'enabled') and self.conf('username') and self.conf('apikey')
 
     def find(self, movie, quality, type, retry = False):
 

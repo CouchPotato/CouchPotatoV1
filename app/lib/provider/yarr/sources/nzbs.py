@@ -33,7 +33,7 @@ class nzbs(nzbBase):
         return self.config.get('NZBsorg', option)
 
     def enabled(self):
-        return self.config.get('NZB', 'enabled') and self.conf('id') and self.conf('key')
+        return self.conf('enabled') and self.config.get('NZB', 'enabled') and self.conf('id') and self.conf('key')
 
     def find(self, movie, quality, type, retry = False):
 

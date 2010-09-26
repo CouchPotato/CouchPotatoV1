@@ -34,7 +34,7 @@ class newznab(nzbBase):
         return self.config.get('newznab', option)
 
     def enabled(self):
-        return self.config.get('NZB', 'enabled') and self.conf('host') and self.conf('apikey')
+        return self.conf('enabled') and self.config.get('NZB', 'enabled') and self.conf('host') and self.conf('apikey')
 
     def getUrl(self, type):
         host = self.conf('host')

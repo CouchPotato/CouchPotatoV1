@@ -60,12 +60,15 @@ class configApp():
         self.setDefault('Trailer', 'name', 'movie-trailer')
 
         self.addSection('NZBsorg')
+        self.setDefault('NZBsorg', 'enabled', True)
         self.setDefault('NZBsorg', 'id', '')
         self.setDefault('NZBsorg', 'key', '')
         self.addSection('NZBMatrix')
+        self.setDefault('NZBMatrix', 'enabled', True)
         self.setDefault('NZBMatrix', 'username', '')
         self.setDefault('NZBMatrix', 'apikey', '')
         self.addSection('newznab')
+        self.setDefault('newznab', 'enabled', False)
         self.setDefault('newznab', 'host', '')
         self.setDefault('newznab', 'apikey', '')
 
