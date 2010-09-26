@@ -90,6 +90,10 @@ window.addEvent('domready', function() {
 		duration : 200
 	});
 	backToTop.setStyle('opacity', 0);
+	backToTop.addEvent('click', function(e){
+		(e).stop();
+		window.scroll(0,0);
+	})
 	
 	var topbarME = function() {
 		topbar.tween('opacity', 1);
