@@ -105,7 +105,7 @@ class nzbBase(rss):
         nzbWords = re.split('\W+', self.toSearchString(item.name).lower())
         ignoredWords = self.config.get('global', 'ignoreWords').split(',')
         for word in ignoredWords:
-            if word.strip().lower() in nzbWords:
+            if word.strip() and word.strip().lower() in nzbWords:
                 log.info('NZB contains ignored word %s: %s' % (word, item.name))
                 return False
 
