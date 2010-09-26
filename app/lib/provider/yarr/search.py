@@ -70,6 +70,10 @@ class Searcher():
         return None
 
     def validNZB(self, url):
+
+        if self.debug:
+            return True
+
         try:
             time.sleep(10)
             log.info('Checking if %s is valid.' % url)
