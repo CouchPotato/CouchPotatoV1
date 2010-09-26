@@ -109,7 +109,7 @@ class newznab(nzbBase):
                     new.name = self.gettextelement(nzb, "title")
                     new.date = int(time.mktime(parse(date).timetuple()))
                     new.size = int(size) / 1024 / 1024
-                    new.url = self.downloadLink(id)
+                    new.url = self.downloadLink(new.id)
                     new.content = self.gettextelement(nzb, "description")
                     new.score = self.calcScore(new, movie)
 
