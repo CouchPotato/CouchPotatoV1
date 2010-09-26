@@ -1,2 +1,2 @@
 version = '0.3.0'
-windows = 22
+windows = 23
