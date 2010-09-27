@@ -1,5 +1,5 @@
 from app import latinToAscii
-from app.config.db import Movie, Session as Db
+from app.config.db import Movie, Session as Db, History
 from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
 from app.lib.qualities import Qualities
@@ -159,6 +159,14 @@ class YarrCron(cronBase, rss):
                         movie.dateChanged = datetime.datetime.now()
                         queue.lastCheck = now
                         queue.completed = True
+                        Db.flush()
+
+                        # Add to history
+                        h = History()
+                        h.movie = movie.id
+                        h.value = str(highest.id) + '-' + str(highest.size)
+                        h.status = u'snatched'
+                        Db.add(h)
                         Db.flush()
 
                     return True

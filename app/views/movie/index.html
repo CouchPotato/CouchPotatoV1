@@ -163,6 +163,30 @@
 </div>
 % endif
 
+
+<script type="text/javascript">
+	window.addEvent('domready', function(){
+		$(document.body).addEvent('click:relay(a.reAdd)', function(e, clicked){
+			(e).stop();
+			new Question('What do you want to do?', [
+				{
+					'text': 'Download same version again.', 
+					'href': clicked.get('href')
+				},
+				{
+					'text': 'Find another version to download.',
+					'href': clicked.get('href') + '&failed=true'
+				},
+				{
+					'text': 'Cancel',
+					'class': 'cancel',
+					'cancel': true
+				}
+			])
+		});
+	})
+</script>
+
 % if totalSnatched > 0:
 <a name="snatched"></a>
 <h1>Snatched</h1>
@@ -172,7 +196,7 @@
 		${movie.name}
 		<span class="actions">
 			<a href="${url(controller='movie', action='downloaded', id=movie.id)}"><img src="media/images/ok.png" title="Movie downloaded correctly." alt="OK" /></a>
-			<a href="${url(controller='movie', action='reAdd', id=movie.id)}"><img src="media/images/undo.png" title="Movie didnt download, re-add it." alt="Undo" /></a>
+			<a href="${url(controller='movie', action='reAdd', id=movie.id)}" class="reAdd" data-id="${movie.id}"><img src="media/images/undo.png" title="Movie didnt download, re-add it." alt="Undo" /></a>
 		</span>
 	</span>
 	% endfor
@@ -188,6 +212,7 @@
 		${movie.name}
 		<span class="actions">
 			<a href="${url(controller='movie', action='delete', id=movie.id)}"><img src="media/images/delete.png" alt="Delete" /></a>
+			<a href="${url(controller='movie', action='reAdd', id=movie.id)}" class="reAdd" data-id="${movie.id}"><img src="media/images/undo.png" title="Movie didnt download, re-add it." alt="Undo" /></a>
 		</span>
 	</span>
 	% endfor

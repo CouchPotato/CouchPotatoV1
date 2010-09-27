@@ -1,11 +1,13 @@
+from app.config.db import Session as Db, History
 from app.lib.provider.rss import rss
 from app.lib.qualities import Qualities
+from sqlalchemy.sql.expression import and_
 from urllib2 import URLError
 import logging
+import math
 import re
 import time
 import urllib2
-import math
 
 log = logging.getLogger(__name__)
 
@@ -101,6 +103,11 @@ class nzbBase(rss):
 
     def isCorrectMovie(self, item, movie, qualityType, imdbResults = False):
 
+        # Ignore already added.
+        if self.alreadyTried(item, movie.id):
+            log.info('Already tried this one, ignored: %s' % item.name)
+            return False
+
         # Contains ignored word
         nzbWords = re.split('\W+', self.toSearchString(item.name).lower())
         ignoredWords = self.config.get('global', 'ignoreWords').split(',')
@@ -145,6 +152,9 @@ class nzbBase(rss):
             return True
 
         return False
+
+    def alreadyTried(self, nzb, movie):
+        return Db.query(History).filter(and_(History.movie == movie, History.value == str(nzb.id) + '-' + str(nzb.size), History.status == u'ignore')).first()
 
     def containsOtherQuality(self, name, preferedType):
 

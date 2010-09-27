@@ -60,16 +60,24 @@ class MovieController(BaseController):
 
 
     @cherrypy.expose
-    def reAdd(self, id):
+    def reAdd(self, id, **data):
         '''
         Re-add movie and force search
         '''
 
         movie = Db.query(Movie).filter_by(id = id).one()
 
+        if data.get('failed'):
+            for history in movie.history:
+                if history.status == u'snatched':
+                    history.status = u'ignore'
+                    Db.flush()
+
         for x in movie.queue:
-            x.completed = False
-            Db.flush()
+            if x.completed == True:
+                x.completed = False
+                Db.flush()
+                break
 
         #set status
         movie.status = u'want'

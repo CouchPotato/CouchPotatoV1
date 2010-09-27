@@ -87,6 +87,13 @@ renameHistoryTable = Table('RenameHistory', metadata,
                      Column('new', String())
             )
 
+historyTable = Table('History', metadata,
+                     Column('id', Integer, primary_key = True),
+                     Column('movie', Integer, ForeignKey('Movie.id')),
+                     Column('value', String()),
+                     Column('status', String())
+            )
+
 qualityTemplateTable = Table('QualityTemplate', metadata,
                      Column('id', Integer, primary_key = True),
                      Column('name', Integer, unique = True),
@@ -147,6 +154,14 @@ class RenameHistory(object):
     def __repr__(self):
         return "<renamehistory: %s" % self.name
 
+class History(object):
+    movie = None
+    status = None
+    value = None
+
+    def __repr__(self):
+        return "<history: value=%s status=%s" % (self.value, self.status)
+
 class QualityTemplate(object):
     id = None
     name = None
@@ -170,12 +185,14 @@ movieMapper = mapper(Movie, movieTable, properties = {
                 movieQueueTable.c.active == True), order_by = movieQueueTable.c.order, lazy = 'joined'),
    'template': relation(QualityTemplate, backref = 'Movie'),
    'eta': relation(MovieETA, backref = 'Movie', uselist = False, lazy = 'joined', viewonly = True),
-   'extra': relation(MovieExtra, backref = 'Movie', lazy = 'joined', viewonly = True)
+   'extra': relation(MovieExtra, backref = 'Movie', lazy = 'joined', viewonly = True),
+   'history': relation(History, backref = 'Movie')
 })
 movieQueueMapper = mapper(MovieQueue, movieQueueTable)
 movieEtaMapper = mapper(MovieETA, movieEtaTable)
 movieExtraMapper = mapper(MovieExtra, movieExtraTable)
 renameHistoryMapper = mapper(RenameHistory, renameHistoryTable)
+HistoryMapper = mapper(History, historyTable)
 qualityMapper = mapper(QualityTemplate, qualityTemplateTable, properties = {
    'types': relation(QualityTemplateType, backref = 'QualityTemplate', order_by = qualityTemplateTypeTable.c.order, lazy = 'joined')
 })
