@@ -1,3 +1,4 @@
+from app.lib import cleanHost
 from app.lib.provider.yarr.base import nzbBase
 from dateutil.parser import parse
 from urllib import urlencode
@@ -37,15 +38,7 @@ class newznab(nzbBase):
         return self.conf('enabled') and self.config.get('NZB', 'enabled') and self.conf('host') and self.conf('apikey')
 
     def getUrl(self, type):
-        host = self.conf('host')
-
-        if not 'http' in host:
-            host = 'http://' + host
-
-        if host[-1:] != '/':
-            host += '/'
-
-        return host + 'api?t=' + type
+        return cleanHost(self.conf('host')) + 'api?t=' + type
 
     def find(self, movie, quality, type, retry = False):
 

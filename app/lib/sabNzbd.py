@@ -1,5 +1,6 @@
-import logging
+from app.lib import cleanHost
 from urllib import urlencode
+import logging
 import urllib2
 
 log = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ class sabNzbd():
             log.error("Config properties are not filled in correctly.")
             return False
 
-        url = 'http://' + self.conf('host') + "/sabnzbd/api?" + urlencode({
+        url = cleanHost(self.conf('host')) + "sabnzbd/api?" + urlencode({
             'ma_username': self.conf('username'),
             'ma_password': self.conf('password'),
             'apikey': self.conf('apikey'),
