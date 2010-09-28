@@ -21,6 +21,7 @@ class nzbBase(rss):
         'proper:2', 'repack:2',
         'unrated:1',
         'x264:1',
+        'DTS:4', 'AC3:2',
         '720p:2', '1080p:2', 'bluray:10', 'dvd:1', 'dvdrip:1', 'brrip:1', 'bdrip:1',
         'metis:1', 'diamond:1', 'wiki:1', 'CBGB:1',
         'german:-10', 'french:-10', 'spanish:-10', 'swesub:-20', 'danish:-10'
