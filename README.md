@@ -31,6 +31,10 @@ If you find a bug or need a feature that you think is awesome! Let me know!
 I'm building CouchPotato in my spare time, so if you want to buy me a coke while I'm coding, that would be awesome!
 
 
+## Changelog
+
+[Can be found here](http://github.com/RuudBurger/CouchPotato/blob/master/changelog.md)
+
 ## Todo
 
 [Can be found here](http://github.com/RuudBurger/CouchPotato/blob/master/todo.md)
