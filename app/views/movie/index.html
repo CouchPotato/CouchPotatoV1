@@ -5,16 +5,16 @@
 %>
 % if totalMovies > 0:
 <div id="filterDetails">
-	<span class="counter"><strong>${totalMovies}</strong> <a href="movie/#wanted">wanted</a></span>
+	<span class="counter"><strong>${totalMovies}</strong> <a href="movie/#">wanted</a></span>
 	% if totalSnatched > 0:
-	<span class="counter"><strong>${totalSnatched}</strong> <a href="movie/#snatched">snatched</a></span>
+	<span class="counter"><strong>${totalSnatched}</strong> <a href="movie/#sn">snatched</a></span>
 	% endif
 	% if totalDownloaded > 0:
-	<span class="counter"><strong>${totalDownloaded}</strong> <a href="movie/#downloaded">downloaded</a></span>
+	<span class="counter"><strong>${totalDownloaded}</strong> <a href="movie/#dl">downloaded</a></span>
 	% endif
 	<a href="#" class="toggle">Show details</a>
 </div>
-<a name="wanted"></a>
+
 <h1>Wanted</h1>
 <div id="movies" class="list">
 	<script type="text/javascript">
@@ -188,7 +188,7 @@
 </script>
 
 % if totalSnatched > 0:
-<a name="snatched"></a>
+<a name="sn"></a>
 <h1>Snatched</h1>
 <div id="snatched" class="smallList">
 	% for movie in snatched:
@@ -204,7 +204,7 @@
 % endif
 
 % if totalDownloaded > 0:
-<a name="downloaded"></a>
+<a name="dl"></a>
 <h1>Downloaded</h1>
 <div id="downloaded" class="smallList">
 	% for movie in downloaded:

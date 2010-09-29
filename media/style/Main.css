@@ -259,12 +259,18 @@ form {
 		vertical-align: bottom;
 	}
 
+a[name=sn], a[name=dl] {
+	display: block;
+	clear: both;
+	margin: -40px 0 80px;
+}
+
 #movies {
 	clear: both;
-	padding: 0 0 20px;
+	padding: 0;
 	font-size: 20px;
 	overflow:hidden;
-	margin: 40px -10px 30px;
+	margin: 40px -10px 0;
 }
 
 	#movies #firstAdd {
@@ -504,9 +510,7 @@ form {
 .smallList {
 	clear: both;
 	overflow: hidden;
-	margin-bottom: 40px;
 }
-.smallList:last-child { margin-bottom: 0;  }
 
 	.smallList > span {
 		background: #f7f7f7;
