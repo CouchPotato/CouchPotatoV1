@@ -29,7 +29,7 @@ class configApp():
         value = self.p.get(section, option)
         if str(value).lower() in self.bool:
             return self.bool.get(str(value).lower())
-        return value.strip()
+        return value if type(value) != str else value.strip()
 
     def initConfig(self):
         '''
