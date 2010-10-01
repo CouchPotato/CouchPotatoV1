@@ -29,7 +29,7 @@ class movieSearcher():
         movies = Db.query(Movie).order_by(Movie.name).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
         for movie in movies:
             if not movie.extra:
-                self.getExtraInfo(movie.id)
+                self.getExtraInfo(movie)
 
     def find(self, q, limit = 8, alternative = True):
         ''' Find movie by name '''
@@ -110,9 +110,10 @@ class movieSearcher():
     def findReleaseDate(self, movieId):
         pass
 
-    def getExtraInfo(self, movieId, overwrite = False):
+    def getExtraInfo(self, movie, overwrite = False):
 
-        movie = Db.query(Movie).filter_by(id = movieId).one()
+        if(type(movie) == int):
+            movie = Db.query(Movie).filter_by(id = movie).one()
 
         # Try and update if no tmdbId
         if not movie.movieDb:
