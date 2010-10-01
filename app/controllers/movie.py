@@ -1,10 +1,10 @@
+from app.config.cplog import CPLog
 from app.config.db import Session as Db, Movie, QualityTemplate, MovieQueue
 from app.controllers import BaseController, url, redirect
 from sqlalchemy.sql.expression import or_, desc
 import cherrypy
-import logging
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class MovieController(BaseController):
 

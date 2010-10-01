@@ -1,3 +1,4 @@
+from app.config.cplog import CPLog
 from app.config.db import Movie, MovieETA, Session as Db
 from app.lib.cron.cronBase import cronBase
 from app.lib.provider.rss import rss
@@ -5,14 +6,13 @@ from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup, SoupStrainer
 from sqlalchemy.sql.expression import or_
 from urllib2 import URLError
 import Queue
-import logging
 import re
 import time
 import urllib
 import urllib2
 
 etaQueue = Queue.Queue()
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class etaCron(rss, cronBase):
 

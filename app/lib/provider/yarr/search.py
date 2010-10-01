@@ -1,14 +1,14 @@
+from app.config.cplog import CPLog
 from app.lib.provider.yarr.sources.newznab import newznab
 from app.lib.provider.yarr.sources.nzbmatrix import nzbMatrix
 from app.lib.provider.yarr.sources.nzbs import nzbs
 from app.lib.provider.yarr.sources.tpb import tpb
 from app.lib.qualities import Qualities
 from urllib2 import URLError
-import logging
 import time
 import urllib2
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class Searcher():
 
@@ -38,7 +38,7 @@ class Searcher():
 
     def find(self, movie, queue):
         ''' Find movie by name '''
-        log.debug('Searching for movie: %s', movie.name)
+        log.debug('Searching for movie: %s' % movie.name)
 
         qualities = Qualities()
 

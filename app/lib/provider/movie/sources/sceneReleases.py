@@ -1,10 +1,10 @@
+from app.config.cplog import CPLog
 from app.lib.provider.movie.base import movieBase
-import logging
 import sha
 import urllib
 import xml.etree.ElementTree as XMLTree
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class sceneReleases(movieBase):
 

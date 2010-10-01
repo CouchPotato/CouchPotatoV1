@@ -1,12 +1,12 @@
+from app.config.cplog import CPLog
 from app.config.db import Session as Db, MovieExtra, Movie
 from app.lib.provider.movie.sources.imdbWrapper import imdbWrapper
 from app.lib.provider.movie.sources.theMovieDb import theMovieDb
 from sqlalchemy.sql.expression import and_, or_
 import cherrypy
-import logging
 import os
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class movieSearcher():
 

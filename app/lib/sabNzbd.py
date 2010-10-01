@@ -1,9 +1,9 @@
+from app.config.cplog import CPLog
 from app.lib import cleanHost
 from urllib import urlencode
-import logging
 import urllib2
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class sabNzbd():
 

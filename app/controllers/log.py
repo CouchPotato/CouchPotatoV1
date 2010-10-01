@@ -1,11 +1,11 @@
 from app import latinToAscii
+from app.config.cplog import CPLog
 from app.controllers import BaseController, url, redirect
 from markupsafe import escape
 import cherrypy
-import logging
 import os
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 file = 'CouchPotato.log'
 
 class LogController(BaseController):

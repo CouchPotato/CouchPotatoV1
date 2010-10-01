@@ -1,7 +1,7 @@
+from app.config.cplog import CPLog
 import ConfigParser
-import logging
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class configApp():
 

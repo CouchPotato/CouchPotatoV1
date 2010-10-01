@@ -1,10 +1,10 @@
+from app.config.cplog import CPLog
 from app.config.db import QualityTemplate, QualityTemplateType, Session as Db
 from sqlalchemy.sql.expression import or_
 import cherrypy
-import logging
 import os
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class Qualities:
 

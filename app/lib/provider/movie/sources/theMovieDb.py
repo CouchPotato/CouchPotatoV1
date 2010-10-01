@@ -1,13 +1,13 @@
+from app.config.cplog import CPLog
 from app.lib.provider.movie.base import movieBase
 from imdb import IMDb
 from urllib import quote_plus
 from urllib2 import URLError
 import cherrypy
-import logging
 import os
 import urllib2
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class theMovieDb(movieBase):
     """Api for theMovieDb"""
@@ -27,7 +27,7 @@ class theMovieDb(movieBase):
         if self.isDisabled():
             return False
 
-        log.debug('TheMovieDB - Searching for movie: %s', q)
+        log.debug('TheMovieDB - Searching for movie: %s' % q)
 
         url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.conf('key'), quote_plus(self.toSearchString(q)))
 
@@ -112,7 +112,7 @@ class theMovieDb(movieBase):
                     if nr == limit:
                         break
 
-                log.info('TheMovieDB - Found: %s', results)
+                log.info('TheMovieDB - Found: %s' % results)
                 return results
             except SyntaxError:
                 log.error('TheMovieDB - Failed to parse XML response from TheMovieDb')

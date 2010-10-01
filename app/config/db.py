@@ -1,3 +1,4 @@
+from app.config.cplog import CPLog
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError, NoSuchTableError
 from sqlalchemy.ext.sqlsoup import SqlSoup
@@ -7,16 +8,16 @@ from sqlalchemy.schema import MetaData, Table, Column, ForeignKey
 from sqlalchemy.sql.expression import and_, desc
 from sqlalchemy.types import Integer, DateTime, String, Boolean, Text
 import datetime
-import logging
 import os
 import sys
+
+log = CPLog(__name__)
 
 try:
     frozen = sys.frozen
 except AttributeError:
     frozen = False
 
-log = logging.getLogger(__name__)
 if os.name == 'nt':
     if frozen:
         path = os.path.join(os.path.dirname(sys.executable), 'data.db')

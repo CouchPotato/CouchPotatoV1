@@ -1,16 +1,16 @@
+from app.config.cplog import CPLog
 from app.lib.provider.yarr.base import torrentBase
 from app.lib.qualities import Qualities
 from dateutil.parser import parse
 from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
 from urllib import quote_plus
 from urllib2 import URLError
-import logging
 import os
 import re
 import time
 import urllib2
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class tpb(torrentBase):
     """Api for the Pirate Bay"""

@@ -1,3 +1,4 @@
+from app.config.cplog import CPLog
 from app.lib.cron.cronETA import startEtaCron, etaQueue
 from app.lib.cron.cronRenamer import startRenamerCron
 from app.lib.cron.cronTrailer import startTrailerCron, trailerQueue
@@ -7,24 +8,9 @@ from app.lib.provider.yarr.search import Searcher
 from app.lib.sabNzbd import sabNzbd
 from cherrypy.process import plugins
 import cherrypy
-import logging
 import sys
 
-log = logging.getLogger(__name__)
-
-# Log error to file
-class LogFile(object):
-    """File-like object to log text using the `logging` module."""
-
-    def __init__(self, name = None):
-        self.logger = logging.getLogger(name)
-
-    def write(self, msg, level = logging.INFO):
-        if 'Traceback' in msg and not 'bsouplxml' in msg:
-            self.logger.critical(msg)
-
-    def flush(self):
-        pass
+log = CPLog(__name__)
 
 class CronJobs(plugins.SimplePlugin):
 
@@ -70,7 +56,7 @@ class CronJobs(plugins.SimplePlugin):
         self.threads['yarr'] = yarrCronJob
 
         #log all errors/tracebacks to logfile
-        sys.stderr = LogFile('stderr')
+        #sys.stderr = LogFile('stderr')
 
     def stop(self):
         log.info("Stopping Cronjobs.")

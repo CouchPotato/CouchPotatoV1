@@ -1,11 +1,11 @@
+from app.config.cplog import CPLog
 from app.config.db import Session as Db, Movie, MovieETA
 from app.controllers import BaseController, url, redirect
 from sqlalchemy.sql.expression import or_
 import cherrypy
-import logging
 import time
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class FeedController(BaseController):
     """ Search for new and cool movies and other stuff """

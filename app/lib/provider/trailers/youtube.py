@@ -1,12 +1,12 @@
+from app.config.cplog import CPLog
 from app.lib.provider.rss import rss
 from urllib2 import URLError
-import logging
 import re
 import urllib
 import urllib2
 import xml.etree.ElementTree as XMLTree
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class Youtube(rss):
 

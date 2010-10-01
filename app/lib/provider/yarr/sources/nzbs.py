@@ -1,10 +1,10 @@
+from app.config.cplog import CPLog
 from app.lib.provider.yarr.base import nzbBase
 from urllib import urlencode
 from urllib2 import URLError
-import logging
 import time
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class nzbs(nzbBase):
     """Api for nzbs"""

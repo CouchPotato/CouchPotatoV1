@@ -1,12 +1,12 @@
+from app.config.cplog import CPLog
 from app.lib import cleanHost
 from app.lib.provider.yarr.base import nzbBase
 from dateutil.parser import parse
 from urllib import urlencode
 from urllib2 import URLError
-import logging
 import time
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class newznab(nzbBase):
     """Api for Newznab"""

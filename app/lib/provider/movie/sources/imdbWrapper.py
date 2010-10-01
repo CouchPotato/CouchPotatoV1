@@ -1,8 +1,8 @@
+from app.config.cplog import CPLog
 from app.lib.provider.movie.base import movieBase
 from imdb import IMDb
-import logging
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class imdbWrapper(movieBase):
     """Api for theMovieDb"""
@@ -59,6 +59,6 @@ class imdbWrapper(movieBase):
 
         r = self.p.get_movie(id.replace('tt', ''))
         return self.toResults(r, one = True)
-    
+
     def findReleaseDate(self, movie):
         pass
