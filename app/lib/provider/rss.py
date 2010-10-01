@@ -43,7 +43,10 @@ class rss:
             return
 
     def getItems(self, data, path = 'channel/item'):
-        return XMLTree.parse(data).findall(path)
+        try:
+            return XMLTree.parse(data).findall(path)
+        except:
+            return
 
     class feedItem(dict):
         ''' NZB item '''
