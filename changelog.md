@@ -1,6 +1,11 @@
 CouchPotato
 =====
 
+Version 24:
+
+* Enhancement: Use movie object to get extra movie information on startup.
+* Fix: Would quit on startup, because of invalid tMDB xml.
+
 Version 23:
 
 * New: Newznab.com support
