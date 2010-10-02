@@ -1,6 +1,11 @@
 CouchPotato
 =====
 
+Version 25:
+
+* Enhancement: Better logging class.
+* Fix: NZBs.org needs API-key for RSS check.
+
 Version 24:
 
 * Enhancement: Use movie object to get extra movie information on startup.
