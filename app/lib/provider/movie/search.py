@@ -112,7 +112,7 @@ class movieSearcher():
 
     def getExtraInfo(self, movie, overwrite = False):
 
-        if(type(movie) == int):
+        if(type(movie) in [int, str, unicode]):
             movie = Db.query(Movie).filter_by(id = movie).one()
 
         # Try and update if no tmdbId
