@@ -51,7 +51,7 @@ class tpb(torrentBase):
 
         url = self.apiUrl % (quote_plus(self.toSearchString(movie.name + ' ' + quality) + self.makeIgnoreString(type)), self.getCatId(type))
 
-        log.info('Searching: %s', url)
+        log.info('Searching: %s' % url)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
@@ -120,7 +120,7 @@ class tpb(torrentBase):
                         new.content = self.getInfo(new.detailUrl)
                         if self.isCorrectMovie(new, movie, type):
                             results.append(new)
-                            log.info('Found: %s', new.name)
+                            log.info('Found: %s' % new.name)
 
             return results
 
