@@ -1,7 +1,7 @@
 from app import latinToAscii
 from app.config.cplog import CPLog
 from app.config.db import Movie, RenameHistory, Session as Db, MovieQueue
-from app.lib.cron.cronBase import cronBase
+from app.lib.cron.base import cronBase
 from app.lib.qualities import Qualities
 import fnmatch
 import os

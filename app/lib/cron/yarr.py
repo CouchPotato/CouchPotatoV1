@@ -1,7 +1,7 @@
 from app import latinToAscii
 from app.config.cplog import CPLog
 from app.config.db import Movie, Session as Db, History
-from app.lib.cron.cronBase import cronBase
+from app.lib.cron.base import cronBase
 from app.lib.provider.rss import rss
 from app.lib.qualities import Qualities
 from sqlalchemy.sql.expression import or_

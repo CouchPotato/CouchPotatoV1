@@ -1,6 +1,6 @@
 from app.config.cplog import CPLog
 from app.config.db import Session as Db, Movie
-from app.lib.cron.cronBase import cronBase
+from app.lib.cron.base import cronBase
 from app.lib.provider.rss import rss
 from app.lib.provider.trailers.hdtrailers import HdTrailers
 from urllib2 import URLError

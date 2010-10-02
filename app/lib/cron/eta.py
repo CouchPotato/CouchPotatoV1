@@ -1,6 +1,6 @@
 from app.config.cplog import CPLog
 from app.config.db import Movie, MovieETA, Session as Db
-from app.lib.cron.cronBase import cronBase
+from app.lib.cron.base import cronBase
 from app.lib.provider.rss import rss
 from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup, SoupStrainer
 from sqlalchemy.sql.expression import or_
