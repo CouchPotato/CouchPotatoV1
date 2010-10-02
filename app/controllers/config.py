@@ -86,7 +86,7 @@ class ConfigController(BaseController):
     @cherrypy.expose
     def restart(self):
 
-        cherrypy.engine.restart()
+        cherrypy.engine.graceful()
 
     @cherrypy.expose
     def update(self):

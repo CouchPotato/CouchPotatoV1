@@ -57,7 +57,9 @@ class Updater(SimplePlugin):
             self.running = True
 
             result = self.doUpdateUnix()
-            self.bus.restart()
+
+            time.sleep(1)
+            self.bus.graceful()
 
             self.running = False
             return result
