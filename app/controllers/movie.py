@@ -147,13 +147,13 @@ class MovieController(BaseController):
             result = self.searchers.get('movie').findByImdbId(id)
 
             self._addMovie(result, data.get('quality'), data.get('year'))
-            log.info('Added : %s', result.name)
+            log.info('Added : %s' % result.name)
             success = True
 
         return self.render({'id':id, 'result':result, 'success':success, 'year':data.get('year')})
 
     def _addMovie(self, movie, quality, year = None):
-        log.info('Adding movie to database: %s', movie.name)
+        log.info('Adding movie to database: %s' % movie.name)
 
         if movie.id:
             exists = Db.query(Movie).filter_by(movieDb = movie.id).first()
