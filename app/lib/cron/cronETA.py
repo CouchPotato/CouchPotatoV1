@@ -81,7 +81,7 @@ class etaCron(rss, cronBase):
         })
         url = "%s?%s" % (self.searchUrl, arguments)
 
-        log.debug('Search url: %s.', url)
+        log.debug('Search url: %s.' % url)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
@@ -105,7 +105,7 @@ class etaCron(rss, cronBase):
     def getDetails(self, id):
         url = self.detailUrl + str(id)
 
-        log.info('Scanning %s.', url)
+        log.info('Scanning %s.' % url)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
@@ -146,7 +146,7 @@ class etaCron(rss, cronBase):
             'theater': theaterDate,
             'bluray': len(bluray) > 0
         }
-        log.debug('Found: %s', dates)
+        log.debug('Found: %s' % dates)
         return dates
 
     def parseDate(self, text, format = "%B %d, %Y"):
