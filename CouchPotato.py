@@ -77,7 +77,7 @@ def server_start():
             'server.socket_port':           int(ca.get('global', 'port')),
             'server.socket_host':               ca.get('global', 'host'),
             'server.environment':               ca.get('global', 'server.environment'),
-            'engine.autoreload_on':             ca.get('global', 'engine.autoreload_on') and not options.daemonize,
+            'engine.autoreload_on':             ca.get('global', 'server.environment') == 'development',
             'tools.mako.collection_size':       500,
             'tools.mako.directories':           os.path.join(path_base, 'app', 'views'),
 
