@@ -59,7 +59,7 @@ class Updater(SimplePlugin):
             result = self.doUpdateUnix()
 
             time.sleep(1)
-            self.bus.graceful()
+            cherrypy.engine.restart()
 
             self.running = False
             return result
