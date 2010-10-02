@@ -40,7 +40,6 @@ class nzbs(nzbBase):
         self.cleanCache();
 
         results = []
-        print self.apiUrl + self.getApiExt()
         if not self.enabled() or not self.isAvailable(self.apiUrl + '?test' + self.getApiExt()):
             return results
 
