@@ -32,6 +32,7 @@ class CPLog():
         # Overwrite functions
         self.logger.time = self.time
         self.logger.error = self.logError
+        self.logger.access = self.access
 
         # Set screen and level
         self.logger.screen = debug
@@ -49,6 +50,8 @@ class CPLog():
         h.setFormatter(logging.Formatter('%(asctime)s %(levelname)-5.5s %(message)s', '%H:%M:%S'))
         self.logger.error_log.addHandler(h)
 
+    def access(self):
+        pass
 
     def logError(self, msg = '', context = '', severity = logging.INFO, traceback = False):
 
