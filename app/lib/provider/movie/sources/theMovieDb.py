@@ -31,7 +31,7 @@ class theMovieDb(movieBase):
 
         url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.conf('key'), quote_plus(self.toSearchString(q)))
 
-        log.info('Searching: %s', url)
+        log.info('Searching: %s' % url)
 
         data = urllib2.urlopen(url, timeout = self.timeout)
 

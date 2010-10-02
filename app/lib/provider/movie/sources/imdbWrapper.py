@@ -20,7 +20,7 @@ class imdbWrapper(movieBase):
     def find(self, q, limit = 8, alternative = True):
         ''' Find movie by name '''
 
-        log.info('IMDB - Searching for movie: %s', q)
+        log.info('IMDB - Searching for movie: %s' % q)
 
         r = self.p.search_movie(q)
 
@@ -55,7 +55,7 @@ class imdbWrapper(movieBase):
     def findByImdbId(self, id):
         ''' Find movie by IMDB ID '''
 
-        log.info('IMDB - Searching for movie: %s', str(id))
+        log.info('IMDB - Searching for movie: %s' % str(id))
 
         r = self.p.get_movie(id.replace('tt', ''))
         return self.toResults(r, one = True)
