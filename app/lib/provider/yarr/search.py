@@ -19,22 +19,9 @@ class Searcher():
         self.config = config
         self.debug = debug
 
-        #nzbmatrix
-        m = nzbMatrix(config)
-        self.sources.append(m)
-
-        #nzbs
-        s = nzbs(config)
-        self.sources.append(s)
-
-        #newznab
-        s = newznab(config)
-        self.sources.append(s)
-
-        #tpb
-        t = tpb(config)
-        self.sources.append(t)
-
+        for yarr in [nzbMatrix, nzbs, newznab, tpb]:
+            m = yarr(config)
+            self.sources.append(m)
 
     def find(self, movie, queue):
         ''' Find movie by name '''
