@@ -25,7 +25,7 @@ class RenamerCron(cronBase):
     ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '/._'] #unpacking, smb-crap
 
     # Filetypes
-    movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso']
+    movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso', '*.img']
     nfoExt = ['*.nfo']
     audioCodecs = ['DTS', 'AC3', 'AC3D', 'MP3']
     videoCodecs = ['x264', 'DivX', 'XViD']
