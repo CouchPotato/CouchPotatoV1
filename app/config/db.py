@@ -183,10 +183,10 @@ versionMapper = mapper(DbVersion, dbVersionTable)
 movieMapper = mapper(Movie, movieTable, properties = {
    'queue': relation(MovieQueue, backref = 'Movie', primaryjoin =
                 and_(movieQueueTable.c.movieId == movieTable.c.id,
-                movieQueueTable.c.active == True), order_by = movieQueueTable.c.order, lazy = 'joined'),
+                movieQueueTable.c.active == True), order_by = movieQueueTable.c.order),
    'template': relation(QualityTemplate, backref = 'Movie'),
-   'eta': relation(MovieETA, backref = 'Movie', uselist = False, lazy = 'joined', viewonly = True),
-   'extra': relation(MovieExtra, backref = 'Movie', lazy = 'joined', viewonly = True),
+   'eta': relation(MovieETA, backref = 'Movie', uselist = False, viewonly = True),
+   'extra': relation(MovieExtra, backref = 'Movie', viewonly = True),
    'history': relation(History, backref = 'Movie')
 })
 movieQueueMapper = mapper(MovieQueue, movieQueueTable)
@@ -195,7 +195,7 @@ movieExtraMapper = mapper(MovieExtra, movieExtraTable)
 renameHistoryMapper = mapper(RenameHistory, renameHistoryTable)
 HistoryMapper = mapper(History, historyTable)
 qualityMapper = mapper(QualityTemplate, qualityTemplateTable, properties = {
-   'types': relation(QualityTemplateType, backref = 'QualityTemplate', order_by = qualityTemplateTypeTable.c.order, lazy = 'joined')
+   'types': relation(QualityTemplateType, backref = 'QualityTemplate', order_by = qualityTemplateTypeTable.c.order)
 })
 qualityCustomMapper = mapper(QualityTemplateType, qualityTemplateTypeTable)
 
