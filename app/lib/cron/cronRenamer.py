@@ -2,6 +2,7 @@ from app import latinToAscii
 from app.config.db import Movie, RenameHistory, Session as Db, MovieQueue
 from app.lib.cron.cronBase import cronBase
 from app.lib.qualities import Qualities
+from app.lib.cron import cronXBMC
 import fnmatch
 import logging
 import os
@@ -160,6 +161,9 @@ class RenamerCron(cronBase):
         rename files based on movie data & conf
         '''
 
+        print "RENAMING, BITCH"
+        print files
+
         multiple = False
         if len(files['files']) > 1:
             multiple = True
@@ -294,6 +298,10 @@ class RenamerCron(cronBase):
 
             queue.completed = True
             Db.flush()
+
+        #import pdb; pdb.set_trace()
+
+        cronXBMC.XbmcMetaFetcher(self.config, movie.movieDb, finalDestination)
 
         return {
             'directory': finalDestination,
