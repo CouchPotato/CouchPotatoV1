@@ -235,7 +235,7 @@ class SessionTransaction(object):
 
     def _assert_is_open(self, error_msg="The transaction is closed"):
         if self.session is None:
-            raise sa_exc.InvalidRequestError(error_msg)
+            raise sa_exc.ResourceClosedError(error_msg)
 
     @property
     def _is_transaction_boundary(self):
@@ -278,8 +278,11 @@ class SessionTransaction(object):
 
         for s in set(self._new).union(self.session._new):
             self.session._expunge_state(s)
-
+            
         for s in set(self._deleted).union(self.session._deleted):
+            if s.deleted:
+                # assert s in self._deleted
+                del s.deleted
             self.session._update_impl(s)
 
         assert not self.session._deleted
@@ -427,7 +430,8 @@ class SessionTransaction(object):
         return self
 
     def __exit__(self, type, value, traceback):
-        self._assert_is_open("Cannot end transaction context. The transaction was closed from within the context")
+        self._assert_is_open("Cannot end transaction context. The transaction "
+                                    "was closed from within the context")
         if self.session.transaction is None:
             return
         if type is None:
@@ -442,71 +446,8 @@ class SessionTransaction(object):
 class Session(object):
     """Manages persistence operations for ORM-mapped objects.
 
-    The Session is the front end to SQLAlchemy's **Unit of Work**
-    implementation.  The concept behind Unit of Work is to track modifications
-    to a field of objects, and then be able to flush those changes to the
-    database in a single operation.
-
-    SQLAlchemy's unit of work includes these functions:
-
-    * The ability to track in-memory changes on scalar- and collection-based
-      object attributes, such that database persistence operations can be
-      assembled based on those changes.
-
-    * The ability to organize individual SQL queries and population of newly
-      generated primary and foreign key-holding attributes during a persist
-      operation such that referential integrity is maintained at all times.
-
-    * The ability to maintain insert ordering against the order in which new
-      instances were added to the session.
-
-    * An Identity Map, which is a dictionary keying instances to their unique
-      primary key identity. This ensures that only one copy of a particular
-      entity is ever present within the session, even if repeated load
-      operations for the same entity occur. This allows many parts of an
-      application to get a handle to a particular object without any chance of
-      modifications going to two different places.
-
-    When dealing with instances of mapped classes, an instance may be
-    *attached* to a particular Session, else it is *unattached* . An instance
-    also may or may not correspond to an actual row in the database. These
-    conditions break up into four distinct states:
-
-    * *Transient* - an instance that's not in a session, and is not saved to
-      the database; i.e. it has no database identity. The only relationship
-      such an object has to the ORM is that its class has a ``mapper()``
-      associated with it.
-
-    * *Pending* - when you ``add()`` a transient instance, it becomes
-      pending. It still wasn't actually flushed to the database yet, but it
-      will be when the next flush occurs.
-
-    * *Persistent* - An instance which is present in the session and has a
-      record in the database. You get persistent instances by either flushing
-      so that the pending instances become persistent, or by querying the
-      database for existing instances (or moving persistent instances from
-      other sessions into your local session).
-
-    * *Detached* - an instance which has a record in the database, but is not
-      in any session. Theres nothing wrong with this, and you can use objects
-      normally when they're detached, **except** they will not be able to
-      issue any SQL in order to load collections or attributes which are not
-      yet loaded, or were marked as "expired".
-
-    The session methods which control instance state include ``add()``,
-    ``delete()``, ``merge()``, and ``expunge()``.
-
-    The Session object is generally **not** threadsafe.  A session which is
-    set to ``autocommit`` and is only read from may be used by concurrent
-    threads if it's acceptable that some object instances may be loaded twice.
-
-    The typical pattern to managing Sessions in a multi-threaded environment
-    is either to use mutexes to limit concurrent access to one thread at a
-    time, or more commonly to establish a unique session for every thread,
-    using a threadlocal variable.  SQLAlchemy provides a thread-managed
-    Session adapter, provided by the :func:`~sqlalchemy.orm.scoped_session`
-    function.
-
+    The Session's usage paradigm is described at :ref:`session_toplevel`.
+    
     """
 
     public_methods = (
@@ -525,8 +466,9 @@ class Session(object):
                  query_cls=query.Query):
         """Construct a new Session.
 
-        Arguments to ``Session`` are described using the
-        :func:`~sqlalchemy.orm.sessionmaker` function.
+        Arguments to :class:`.Session` are described using the
+        :func:`.sessionmaker` function, which is the 
+        typical point of entry.
 
         """
         
@@ -703,28 +645,52 @@ class Session(object):
     def execute(self, clause, params=None, mapper=None, **kw):
         """Execute a clause within the current transaction.
 
-        Returns a ``ResultProxy`` of execution results.  `autocommit` Sessions
-        will create a transaction on the fly.
+        Returns a :class:`~sqlalchemy.engine.base.ResultProxy` representing
+        results of the statement execution, in the same manner as that of an
+        :class:`~sqlalchemy.engine.base.Engine` or
+        :class:`~sqlalchemy.engine.base.Connection`.
 
-        Connection ambiguity in multi-bind or unbound Sessions will be
-        resolved by inspecting the clause for binds.  The 'mapper' and
-        'instance' keyword arguments may be used if this is insufficient, See
-        ``get_bind()`` for more information.
+        :meth:`Session.execute` accepts any executable clause construct, such
+        as :func:`~sqlalchemy.sql.expression.select`,
+        :func:`~sqlalchemy.sql.expression.insert`,
+        :func:`~sqlalchemy.sql.expression.update`,
+        :func:`~sqlalchemy.sql.expression.delete`, and
+        :func:`~sqlalchemy.sql.expression.text`, and additionally accepts
+        plain strings that represent SQL statements. If a plain string is
+        passed, it is first converted to a
+        :func:`~sqlalchemy.sql.expression.text` construct, which here means
+        that bind parameters should be specified using the format ``:param``.
 
-        clause
+        The statement is executed within the current transactional context of
+        this :class:`Session`. If this :class:`Session` is set for
+        "autocommit", and no transaction is in progress, an ad-hoc transaction
+        will be created for the life of the result (i.e., a connection is
+        checked out from the connection pool, which is returned when the
+        result object is closed).
+        
+        If the :class:`Session` is not bound to an
+        :class:`~sqlalchemy.engine.base.Engine` or
+        :class:`~sqlalchemy.engine.base.Connection`, the given clause will be
+        inspected for binds (i.e., looking for "bound metadata"). If the
+        session is bound to multiple connectables, the ``mapper`` keyword
+        argument is typically passed in to specify which bind should be used
+        (since the :class:`Session` keys multiple bind sources to a series of
+        :func:`mapper` objects). See :meth:`get_bind` for further details on
+        bind resolution.
+        
+        :param clause:
             A ClauseElement (i.e. select(), text(), etc.) or
             string SQL statement to be executed
 
-        params
+        :param params:
             Optional, a dictionary of bind parameters.
 
-        mapper
+        :param mapper:
           Optional, a ``mapper`` or mapped class
 
-        \**kw
+        :param \**kw:
           Additional keyword arguments are sent to :meth:`get_bind()`
           which locates a connectable to use for the execution.
-          Subclasses of :class:`Session` may override this.
           
         """
         clause = expression._literal_as_text(clause)
@@ -893,6 +859,13 @@ class Session(object):
         Eagerly-loaded relational attributes will eagerly load within the
         single refresh operation.
 
+        Note that a highly isolated transaction will return the same values as
+        were previously read in that same transaction, regardless of changes
+        in database state outside of that transaction - usage of
+        :meth:`~Session.refresh` usually only makes sense if non-ORM SQL
+        statement were emitted in the ongoing transaction, or if autocommit
+        mode is turned on.
+        
         :param attribute_names: optional.  An iterable collection of
           string attribute names indicating a subset of attributes to 
           be refreshed.
@@ -917,22 +890,55 @@ class Session(object):
                 mapperutil.instance_str(instance))
 
     def expire_all(self):
-        """Expires all persistent instances within this Session."""
+        """Expires all persistent instances within this Session.
+        
+        When any attributes on a persitent instance is next accessed, 
+        a query will be issued using the
+        :class:`.Session` object's current transactional context in order to
+        load all expired attributes for the given instance.   Note that
+        a highly isolated transaction will return the same values as were 
+        previously read in that same transaction, regardless of changes
+        in database state outside of that transaction.
 
+        To expire individual objects and individual attributes 
+        on those objects, use :meth:`Session.expire`.
+        
+        The :class:`Session` object's default behavior is to 
+        expire all state whenever the :meth:`Session.rollback`
+        or :meth:`Session.commit` methods are called, so that new
+        state can be loaded for the new transaction.   For this reason,
+        calling :meth:`Session.expire_all` should not be needed when 
+        autocommit is ``False``, assuming the transaction is isolated.
+
+        """
         for state in self.identity_map.all_states():
             _expire_state(state, state.dict, None, instance_dict=self.identity_map)
 
     def expire(self, instance, attribute_names=None):
         """Expire the attributes on an instance.
 
-        Marks the attributes of an instance as out of date.  When an expired
-        attribute is next accessed, query will be issued to the database and
-        the attributes will be refreshed with their current database value.
-        ``expire()`` is a lazy variant of ``refresh()``.
+        Marks the attributes of an instance as out of date. When an expired
+        attribute is next accessed, a query will be issued to the
+        :class:`.Session` object's current transactional context in order to
+        load all expired attributes for the given instance.   Note that
+        a highly isolated transaction will return the same values as were 
+        previously read in that same transaction, regardless of changes
+        in database state outside of that transaction.
+        
+        To expire all objects in the :class:`.Session` simultaneously,
+        use :meth:`Session.expire_all`.
+        
+        The :class:`Session` object's default behavior is to 
+        expire all state whenever the :meth:`Session.rollback`
+        or :meth:`Session.commit` methods are called, so that new
+        state can be loaded for the new transaction.   For this reason,
+        calling :meth:`Session.expire` only makes sense for the specific
+        case that a non-ORM SQL statement was emitted in the current
+        transaction.
 
-        The ``attribute_names`` argument is an iterable collection
-        of attribute names indicating a subset of attributes to be
-        expired.
+        :param instance: The instance to be refreshed.
+        :param attribute_names: optional list of string attribute names
+          indicating a subset of attributes to be expired.
 
         """
         try:
@@ -1037,6 +1043,7 @@ class Session(object):
 
         self.identity_map.discard(state)
         self._deleted.pop(state, None)
+        state.deleted = True
 
     def _save_without_cascade(self, instance):
         """Used by scoping.py to save on init without cascade."""
@@ -1244,7 +1251,13 @@ class Session(object):
             raise sa_exc.InvalidRequestError(
                 "Instance '%s' is not persisted" %
                 mapperutil.state_str(state))
-
+        
+        if state.deleted:
+            raise sa_exc.InvalidRequestError(
+                "Instance '%s' has been deleted.  Use the make_transient() "
+                "function to send this object back to the transient state." %
+                mapperutil.state_str(state)
+            )
         self._attach(state)
         self._deleted.pop(state, None)
         self.identity_map.add(state)
@@ -1590,20 +1603,40 @@ def make_transient(instance):
     This will remove its association with any 
     session and additionally will remove its "identity key",
     such that it's as though the object were newly constructed,
-    except retaining its values.
+    except retaining its values.   It also resets the
+    "deleted" flag on the state if this object
+    had been explicitly deleted by its session.
+    
+    Attributes which were "expired" or deferred at the
+    instance level are reverted to undefined, and 
+    will not trigger any loads.
     
     """
     state = attributes.instance_state(instance)
     s = _state_session(state)
     if s:
         s._expunge_state(state)
-    del state.key
-    
+
+    # remove expired state and 
+    # deferred callables
+    state.callables.clear()
+    if state.key:
+        del state.key
+    if state.deleted:
+        del state.deleted
     
 def object_session(instance):
-    """Return the ``Session`` to which instance belongs, or None."""
+    """Return the ``Session`` to which instance belongs.
+    
+    If the instance is not a mapped instance, an error is raised.
 
-    return _state_session(attributes.instance_state(instance))
+    """
+    
+    try:
+        return _state_session(attributes.instance_state(instance))
+    except exc.NO_STATE:
+        raise exc.UnmappedInstanceError(instance)
+        
 
 def _state_session(state):
     if state.session_id:

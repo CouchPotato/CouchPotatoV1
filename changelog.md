@@ -3,7 +3,9 @@ CouchPotato
 
 Version 25:
 
+* Enhancement: Link to Changelog when new Windows Build is available.
 * Enhancement: Better logging class.
+* Enhancement: SQLAlchemy updated to 0.6.4, removed unused code.
 * Fix: NZBs.org needs API-key for RSS check.
 
 Version 24:

@@ -22,9 +22,13 @@ class ScopedSession(object):
 
     Usage::
 
-      Session = scoped_session(sessionmaker(autoflush=True))
+      Session = scoped_session(sessionmaker())
 
-      ... use session normally.
+    ... use Session normally.
+      
+    The internal registry is accessible as well,
+    and by default is an instance of :class:`.ThreadLocalRegistry`.
+      
 
     """
 
@@ -58,13 +62,11 @@ class ScopedSession(object):
             self.registry().close()
         self.registry.clear()
 
-    @deprecated("Session.mapper is deprecated.  "
+    @deprecated("0.5", ":meth:`.ScopedSession.mapper` is deprecated.  "
         "Please see http://www.sqlalchemy.org/trac/wiki/UsageRecipes/SessionAwareMapper "
         "for information on how to replicate its behavior.")
     def mapper(self, *args, **kwargs):
-        """return a mapper() function which associates this ScopedSession with the Mapper.
-
-        DEPRECATED.
+        """return a :func:`.mapper` function which associates this ScopedSession with the Mapper.
 
         """
 
@@ -91,6 +93,7 @@ class ScopedSession(object):
         class when called.
 
         e.g.::
+        
             Session = scoped_session(sessionmaker())
 
             class MyClass(object):

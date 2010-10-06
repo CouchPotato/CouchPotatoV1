@@ -22,6 +22,7 @@ class InstanceState(object):
     _strong_obj = None
     modified = False
     expired = False
+    deleted = False
     
     def __init__(self, obj, manager):
         self.class_ = obj.__class__
@@ -163,7 +164,7 @@ class InstanceState(object):
                         "Cannot deserialize object of type %r - no mapper() has"
                         " been configured for this class within the current Python process!" %
                         self.class_)
-        elif manager.mapper and not manager.mapper.compiled:
+        elif manager.is_mapped and not manager.mapper.compiled:
             manager.mapper.compile()
             
         self.committed_state = state.get('committed_state', {})
