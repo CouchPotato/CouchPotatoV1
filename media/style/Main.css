@@ -237,9 +237,8 @@ form {
 	float: right;
 	width: 650px;
 }
-	#filterDetails span {
+	#filterDetails a {
 		margin: 0 0 0 20px;
-		color: #999;
 		background: #f3f3f3;
 		border-radius: 5px; 
 		-moz-border-radius: 5px; 
@@ -326,13 +325,15 @@ a[name=sn], a[name=dl] {
 				float: left;
 				margin: 12px 20px 5px 10px;
 				width: 92px;
-			}
-
-			#movies .title .thumbnail img {
+				height: 138px;
 				-moz-border-radius: 3px; 
 				-webkit-border-radius: 3px;
 				-moz-box-shadow: 0 0 3px rgba(0,0,0,0.35);
 				-webkit-box-shadow: 0 0 3px rgba(0,0,0,0.35);
+				line-height: 0;
+			}
+			#movies .title .thumbnail.empty {
+				visibility: hidden;
 			}
 
 			#movies .title .extra {
@@ -437,11 +438,19 @@ a[name=sn], a[name=dl] {
 			width: 97px;
 			text-align: right;
 		}
-
-			#movies .info img {
-				vertical-align: middle;
-				margin-left: 3px;
+			#movies .info a {
+				display: block;
+				height: 20px;
+				width: 20px;
+				background: no-repeat center;
+				float: left;
+				padding: 3px 2px;
 			}
+
+			#movies .info .imdb { background-image: url('../images/imdb.png'); }
+			#movies .info .moviedb { background-image: url('../images/moviedb.png'); }
+			#movies .info .forceCheck { background-image: url('../images/reload.png'); }
+			#movies .info .delete { background-image: url('../images/delete.png'); }
 	
 	#movies > .item .queue { display: none; }
 	#movies > .item.active .queue { display: block; }
@@ -494,7 +503,7 @@ a[name=sn], a[name=dl] {
 			background: #dffbbe !important;
 		}
 	
-			#movies > .item .queue span {
+			#movies > .item .queue span, #movies > .item .queue acronym {
 				display: block;
 				float: left;
 				text-align: left;
@@ -502,8 +511,13 @@ a[name=sn], a[name=dl] {
 			}
 	
 			#movies > .item .queue .found { width: 200px; overflow: hidden; height: 24px; }
-			#movies > .item .queue .qualityType { width: 60px; text-align: center; }
-			#movies > .item .queue .markComplete { width: 40px; text-align: center; }
+			#movies > .item .queue .qualityType { width: 50px; text-align: center; }
+			#movies > .item .queue .markComplete { 
+				width: 37px;
+				height: 25px;
+				text-align: center;
+			}
+			#movies > .item .queue .markComplete.active { background: url('../images/ok.png') no-repeat center; }
 
 
 /*** Downloaded ***/
@@ -512,7 +526,7 @@ a[name=sn], a[name=dl] {
 	overflow: hidden;
 }
 
-	.smallList > span {
+	.smallList span {
 		background: #f7f7f7;
 		padding: 10px 10px;
 		margin: 0 5px 5px 0;
@@ -520,13 +534,20 @@ a[name=sn], a[name=dl] {
 		float: left;
 	}
 	
-	.smallList .actions {
+	.smallList {
 		padding-left:10px;
 	}
 	
-		.smallList .actions img {
-			vertical-align: middle;
+		.smallList a {
+			display: inline-block;
+			height: 20px;
+			width: 20px;
+			background: no-repeat center;
+			margin-bottom: -6px;
 		}
+		.smallList .delete { background-image: url('../images/delete.png'); }
+		.smallList .correct { background-image: url('../images/ok.png'); }
+		.smallList .reAdd { background-image: url('../images/reload.png'); }
 
 /*** Logs ***/
 #logs {
