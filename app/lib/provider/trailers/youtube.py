@@ -36,7 +36,7 @@ class Youtube(rss):
         })
         url = "%s?%s" % (self.apiUrl, arguments)
 
-        log.info('Searching: %s', url)
+        log.info('Searching: %s' % url)
 
         data = urllib.urlopen(url)
 

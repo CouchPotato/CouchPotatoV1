@@ -24,7 +24,7 @@ class HdTrailers(rss):
     def find(self, movie):
 
         url = self.apiUrl % self.movieUrlName(movie.name)
-        log.info('Searching %s', url)
+        log.info('Searching %s' % url)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
@@ -57,7 +57,7 @@ class HdTrailers(rss):
             's':movie
         })
         url = "%s?%s" % (self.backupUrl, arguments)
-        log.info('Searching %s', url)
+        log.info('Searching %s' % url)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
