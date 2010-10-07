@@ -31,8 +31,8 @@ class sabNzbd():
 
         if self.conf('username'):
             params['ma_username'] = self.conf('username')
-        if self.conf('ma_password'):
-            params['ma_password'] = self.conf('ma_password')
+        if self.conf('password'):
+            params['ma_password'] = self.conf('password')
 
         url = cleanHost(self.conf('host')) + "sabnzbd/api?" + urlencode(params)
 
