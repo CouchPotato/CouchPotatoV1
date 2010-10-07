@@ -215,7 +215,7 @@ class RenamerCron(cronBase):
 
         finalDestination = None
         finalFilename = self.doReplace(fileNaming, replacements)
-        for file in files['files']:
+        for file in sorted(files['files']):
             log.info('Trying to find a home for: %s' % latinToAscii(file['filename']))
 
             replacements['ext'] = file['ext']
