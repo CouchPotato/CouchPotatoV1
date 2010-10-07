@@ -66,7 +66,7 @@ class YarrCron(cronBase, rss):
         self.stop = True
 
     def searchAll(self):
-        log.info('Searching for new download for all movies.')
+        log.info('Searching for new downloads, for all movies.')
         self.doCheck()
 
         #get all wanted movies
