@@ -447,10 +447,10 @@ a[name=sn], a[name=dl] {
 				padding: 3px 2px;
 			}
 
-			#movies .info .imdb { background-image: url('../images/imdb.png'); }
-			#movies .info .moviedb { background-image: url('../images/moviedb.png'); }
-			#movies .info .forceCheck { background-image: url('../images/reload.png'); }
-			#movies .info .delete { background-image: url('../images/delete.png'); }
+			#movies .info .imdb { background-image: url('../../media/images/imdb.png'); }
+			#movies .info .moviedb { background-image: url('../../media/images/moviedb.png'); }
+			#movies .info .forceCheck { background-image: url('../../media/images/reload.png'); }
+			#movies .info .delete { background-image: url('../../media/images/delete.png'); }
 	
 	#movies > .item .queue { display: none; }
 	#movies > .item.active .queue { display: block; }
@@ -517,7 +517,7 @@ a[name=sn], a[name=dl] {
 				height: 25px;
 				text-align: center;
 			}
-			#movies > .item .queue .markComplete.active { background: url('../images/ok.png') no-repeat center; }
+			#movies > .item .queue .markComplete.active { background: url('../../media/images/ok.png') no-repeat center; }
 
 
 /*** Downloaded ***/
@@ -545,9 +545,9 @@ a[name=sn], a[name=dl] {
 			background: no-repeat center;
 			margin-bottom: -6px;
 		}
-		.smallList .delete { background-image: url('../images/delete.png'); }
-		.smallList .correct { background-image: url('../images/ok.png'); }
-		.smallList .reAdd { background-image: url('../images/reload.png'); }
+		.smallList .delete { background-image: url('../../media/images/delete.png'); }
+		.smallList .correct { background-image: url('../../media/images/ok.png'); }
+		.smallList .reAdd { background-image: url('../../media/images/reload.png'); }
 
 /*** Logs ***/
 #logs {
