@@ -3,14 +3,18 @@ from library.minify import Minify
 import cherrypy
 import routes
 
-def url(*args, **kwargs):
+def base():
     host = 'http://' + cherrypy.request.headers.get('host')
     base = cherrypy.config.get('config').get('global', 'urlbase')
     base = host + '/' + base if base else host
 
-    return cherrypy.url(routes.url_for(*args, **kwargs), base = base)
+    return base
+
+def url(*args, **kwargs):
+    return cherrypy.url(routes.url_for(*args, **kwargs), base = base())
 
 def redirect(url):
+    url = url if url else base()
     raise cherrypy.HTTPRedirect(url)
 
 class BaseController:
