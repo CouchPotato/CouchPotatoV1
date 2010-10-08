@@ -237,7 +237,7 @@ form {
 	float: right;
 	width: 650px;
 }
-	#filterDetails a {
+	#filterDetails a, #filterDetails span {
 		margin: 0 0 0 20px;
 		background: #f3f3f3;
 		border-radius: 5px; 
@@ -253,9 +253,14 @@ form {
 		margin-left: 10px;
 	}
 	
-	#filterDetails a img {
-		margin-right: 5px;
-		vertical-align: bottom;
+	#filterDetails .reload {
+		background: #f3f3f3 url('../../media/images/reload.png') no-repeat 7px 7px;
+		padding-left: 28px;
+	}
+	
+	#filterDetails .spinner {
+		background: #f3f3f3 url('../../media/images/spinner.gif') no-repeat 7px center;
+		padding-left: 28px;
 	}
 
 a[name=sn], a[name=dl] {
@@ -588,7 +593,7 @@ h1 {
 		}
 			#feed .eta .item:nth-child(odd) .thumbnail { float: left; }
 			
-			#feed .eta .item .thumbnail .img img {
+			#feed .eta .item .thumbnail .img {
 				max-width: 175px;
 				-moz-border-radius: 3px; 
 				-webkit-border-radius: 3px;
@@ -604,10 +609,18 @@ h1 {
 				line-height: 0;
 			}
 			
-				#feed .eta .info img {
-					vertical-align: middle;
-					margin: 0 5px;
+				#feed .eta .info a, #feed .eta .info span {
+					display: inline-block;
+					height: 20px;
+					width: 32px;
+					background: no-repeat center;
+					margin-bottom: -6px;
 				}
+				#feed .eta .info .moviedb { background-image: url('../../media/images/moviedb.png'); }
+				#feed .eta .info .imdb { background-image: url('../../media/images/imdb.png'); }
+				#feed .eta .info .hd { background-image: url('../../media/images/hd.png'); }
+				#feed .eta .info .notice { background-image: url('../../media/images/notice.png'); }
+				#feed .eta .info .videoeta { background-image: url('../../media/images/videoeta.png'); }
 		
 		#feed .eta .item .extra {
 			float: left;
