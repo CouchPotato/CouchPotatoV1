@@ -12,6 +12,7 @@ body {
 	padding: 0;
 	background: #fff;
 }
+	body.noscroll { overflow: hidden; }
 
 	#clean {
 		background: transparent !important;
@@ -578,11 +579,12 @@ h1 {
 	#feed .eta .item {
 		display: block;
 		width: 450px;
+		clear: right;
 		float: right;
 		margin: 20px 0 15px;
 	}
 		#feed .eta .item:nth-child(odd) {
-			clear: both;
+			clear: left;
 			float: left;
 		}
 		
@@ -590,10 +592,11 @@ h1 {
 			float: left;
 			margin: 5px 15px 4px 0;
 			width: 180px;
+			text-align: center;
 		}
-			#feed .eta .item:nth-child(odd) .thumbnail { float: left; }
-			
+
 			#feed .eta .item .thumbnail .img {
+				display: inline-block;
 				max-width: 175px;
 				-moz-border-radius: 3px; 
 				-webkit-border-radius: 3px;

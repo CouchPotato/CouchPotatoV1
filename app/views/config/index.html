@@ -467,10 +467,6 @@
 			form.getElement('fieldset.userscript p').setStyles({'height':'300px', 'display':'block'})
 		}
 		
-		$('configForm').position({
-			'position': 'center'
-		});
-		
 		// Match label to input, cause i'm lazy
 		form.getElements('label').each(function(el, nr){
 			if(!el.get('for')){
@@ -547,6 +543,10 @@
 				}
 			}).send()
 		});
+
+		$('configForm').position({
+			'position': 'center'
+		});
 		
 		// Menu
 		$('configForm').getElements('ul a').addEvent('click', function(e){
@@ -567,10 +567,12 @@
 		var firstItem = $('configForm').getElement('ul li:last-child a');
 		showForm(firstItem, firstItem.get('href').substr(1));
 					
+		$(document.body).addClass('noscroll')
 		$(document.body).mask({
 			'hideOnClick': true,
 			'destroyOnHide': true,
 			'onHide': function(){
+				$(document.body).removeClass('noscroll')
 				$('configForm').getParent().destroy();
 			}
 		}).show();
