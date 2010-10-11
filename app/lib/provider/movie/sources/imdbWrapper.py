@@ -65,7 +65,8 @@ class imdbWrapper(movieBase):
             return self.toResults(r, one = True)
         else:
             self.p.update(r)
-            self.p.update(r, 'release dates')
+            self.p.update(r, info='release dates')
+            self.p.update(r, info='taglines')
             return r
 
     def findReleaseDate(self, movie):

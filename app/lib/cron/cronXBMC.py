@@ -21,7 +21,15 @@ def build_nfo(movie):
     root = add_sub(root, "rating", movie.get("rating"))
     root = add_sub(root, "votes", movie.get("votes"))
     root = add_sub(root, "mpaa", movie.get("mpaa"))
-    root = add_sub(root, "certification"
+    root = add_sub(root, "certification", get_usa_certification(movie.get("certification")))
+    root = add_sub(root, "genre", " / ".join(movie.get("genre")))
+    root = add_sub(root, "studio", movie.get("production company")[0].get("name"))
+    root = add_sub(root, "director", movie.get("director")[0].get("name"))
+    root = add_sub(root, "credits", get_writers(movie.get("writer")))
+    root = add_sub(root, "tagline", movie.get("tagline")[0])
+    root = add_sub(root, "outline", movie.get("plot outline"))
+    root = add_sub(root, "plot", movie.get('plot')[0].split("::")[0])
+    root = add_sub(root, "runtime", "%s minutes" % movie.get("runtime")[0])
 
 
 def prettify(elem):
@@ -39,7 +47,13 @@ def add_sub(elem, tag, text):
     else:
         return elem
 
-def get_certification(cert_list):
+def get_writers(writer_list):
+    try:
+        return " / ".join([x['name'] for x in writer_list])
+    except:
+        return None
+
+def get_usa_certification(cert_list):
     for cert in cert_list:
         if 'usa' in cert.lower():
             return cert
