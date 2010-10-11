@@ -7,12 +7,14 @@ log = logging.getLogger(__name__)
 class imdbWrapper(movieBase):
     """Api for theMovieDb"""
 
-    def __init__(self, config):
+    def __init__(self, config, http = False):
         log.info('Using IMDB provider.')
 
         self.config = config
-
-        self.p = IMDb('mobile')
+        if not http:
+            self.p = IMDb('mobile')
+        else:
+            self.p = IMDb('http')
 
     def conf(self, option):
         return self.config.get('IMDB', option)
@@ -52,13 +54,19 @@ class imdbWrapper(movieBase):
         return []
 
 
-    def findByImdbId(self, id):
+    def findByImdbId(self, id, details = False):
         ''' Find movie by IMDB ID '''
 
         log.info('IMDB - Searching for movie: %s', str(id))
 
         r = self.p.get_movie(id.replace('tt', ''))
-        return self.toResults(r, one = True)
-    
+
+        if not details:
+            return self.toResults(r, one = True)
+        else:
+            self.p.update(r)
+            self.p.update(r, 'release dates')
+            return r
+
     def findReleaseDate(self, movie):
         pass

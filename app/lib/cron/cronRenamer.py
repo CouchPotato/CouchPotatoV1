@@ -301,7 +301,9 @@ class RenamerCron(cronBase):
 
         #import pdb; pdb.set_trace()
 
-        cronXBMC.XbmcMetaFetcher(self.config, movie.movieDb, finalDestination)
+        #cronXBMC.XbmcMetaFetcher(self.config, movie.movieDb, finalDestination)
+        cronXBMC.XbmcMetaFetcher(self.config, movie.imdb)
+
 
         return {
             'directory': finalDestination,
