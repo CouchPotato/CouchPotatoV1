@@ -69,5 +69,8 @@ class imdbWrapper(movieBase):
             self.p.update(r, info='taglines')
             return r
 
+    def get_IMDb_instance(self):
+        return IMDb('http')
+
     def findReleaseDate(self, movie):
         pass
