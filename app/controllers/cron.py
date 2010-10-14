@@ -1,8 +1,8 @@
+from app.config.cplog import CPLog
 from app.controllers import BaseController, redirect
 import cherrypy
-import logging
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class CronController(BaseController):
     """ Do stuff to the cron. (sounds kinky!) """

@@ -19,36 +19,25 @@ else:
 sys.path.insert(0, path_base)
 sys.path.insert(0, os.path.join(path_base, 'library'))
 
-# Use debug conf if available
-import logging
-import app
-logdir = os.path.join(rundir, 'logs')
-if not os.path.isdir(logdir):
-    os.mkdir(logdir)
-debugconfig = os.path.join(path_base, 'debug.conf')
-if os.path.isfile(debugconfig):
-    app.configLogging(debugconfig, logdir)
-    debug = True
-else:
-    debug = False
-    app.configLogging(os.path.join(path_base, 'logging.conf'), logdir)
-
-log = logging.getLogger(__name__)
+# Configure logging
+from app.config.cplog import CPLog
+debug = os.path.isfile(os.path.join(path_base, 'debug.conf'))
+log = CPLog()
+log.config(os.path.join(rundir, 'logs'), debug)
 
 # Create cache dir
 cachedir = os.path.join(rundir, 'cache')
 if not os.path.isdir(cachedir):
     os.mkdir(cachedir)
 
+import cherrypy
+import app.config.render
 from app.config.db import initDb
 from optparse import OptionParser
 from app.config.configApp import configApp
-import app.config.render
 from app.config.routes import setup as Routes
 from app.lib.cron import CronJobs
 from app.config.updater import Updater
-
-import cherrypy
 from cherrypy.process import plugins
 
 def server_start():
@@ -64,6 +53,10 @@ def server_start():
     options, args = p.parse_args()
 
     config = os.path.join(rundir, 'config.ini')
+
+    # Stop logging
+    if options.quiet or options.daemonize:
+        cherrypy.config.update({'log.screen': False})
 
     # Config app
     ca = configApp(config)
@@ -84,7 +77,7 @@ def server_start():
             'server.socket_port':           int(ca.get('global', 'port')),
             'server.socket_host':               ca.get('global', 'host'),
             'server.environment':               ca.get('global', 'server.environment'),
-            'engine.autoreload_on':             ca.get('global', 'engine.autoreload_on') and not options.daemonize,
+            'engine.autoreload_on':             ca.get('global', 'server.environment') == 'development',
             'tools.mako.collection_size':       500,
             'tools.mako.directories':           os.path.join(path_base, 'app', 'views'),
 
@@ -140,19 +133,14 @@ def server_start():
         cherrypy.tools.mybasic_auth = cherrypy.Tool('on_start_resource', app.basicAuth)
 
     # I'll do my own logging, thanks!
-    cherrypy.log.error_log.propagate = False
-    cherrypy.log.access_log.propagate = False
+    #cherrypy.log.error_log.propagate = False
+    #cherrypy.log.access_log.propagate = False
 
     #No Root controller as we provided all our own.
     cherrypy.tree.mount(root = None, config = conf)
 
-    # Stop logging
-    if options.quiet:
-        cherrypy.config.update({'log.screen': False})
-
     # Deamonize
     if options.daemonize:
-        cherrypy.config.update({'log.screen': False})
         plugins.Daemonizer(cherrypy.engine).subscribe()
 
     # PIDfile

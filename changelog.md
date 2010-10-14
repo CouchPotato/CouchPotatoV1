@@ -1,6 +1,14 @@
 CouchPotato
 =====
 
+Version 25 (not release):
+
+* Enhancement: Link to Changelog when new Windows Build is available.
+* Enhancement: Better logging class.
+* Enhancement: SQLAlchemy updated to 0.6.4, removed unused code.
+* Enhancement: Optimized PNGs, Movie list and CSS.
+* Fix: NZBs.org needs API-key for RSS check.
+
 Version 24:
 
 * Enhancement: Use movie object to get extra movie information on startup.

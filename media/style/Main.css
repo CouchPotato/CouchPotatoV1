@@ -12,6 +12,7 @@ body {
 	padding: 0;
 	background: #fff;
 }
+	body.noscroll { overflow: hidden; }
 
 	#clean {
 		background: transparent !important;
@@ -237,9 +238,8 @@ form {
 	float: right;
 	width: 650px;
 }
-	#filterDetails span {
+	#filterDetails a, #filterDetails span {
 		margin: 0 0 0 20px;
-		color: #999;
 		background: #f3f3f3;
 		border-radius: 5px; 
 		-moz-border-radius: 5px; 
@@ -254,9 +254,14 @@ form {
 		margin-left: 10px;
 	}
 	
-	#filterDetails a img {
-		margin-right: 5px;
-		vertical-align: bottom;
+	#filterDetails .reload {
+		background: #f3f3f3 url('../../media/images/reload.png') no-repeat 7px 7px;
+		padding-left: 28px;
+	}
+	
+	#filterDetails .spinner {
+		background: #f3f3f3 url('../../media/images/spinner.gif') no-repeat 7px center;
+		padding-left: 28px;
 	}
 
 a[name=sn], a[name=dl] {
@@ -326,13 +331,15 @@ a[name=sn], a[name=dl] {
 				float: left;
 				margin: 12px 20px 5px 10px;
 				width: 92px;
-			}
-
-			#movies .title .thumbnail img {
+				height: 138px;
 				-moz-border-radius: 3px; 
 				-webkit-border-radius: 3px;
 				-moz-box-shadow: 0 0 3px rgba(0,0,0,0.35);
 				-webkit-box-shadow: 0 0 3px rgba(0,0,0,0.35);
+				line-height: 0;
+			}
+			#movies .title .thumbnail.empty {
+				visibility: hidden;
 			}
 
 			#movies .title .extra {
@@ -437,11 +444,19 @@ a[name=sn], a[name=dl] {
 			width: 97px;
 			text-align: right;
 		}
-
-			#movies .info img {
-				vertical-align: middle;
-				margin-left: 3px;
+			#movies .info a {
+				display: block;
+				height: 20px;
+				width: 20px;
+				background: no-repeat center;
+				float: left;
+				padding: 3px 2px;
 			}
+
+			#movies .info .imdb { background-image: url('../../media/images/imdb.png'); }
+			#movies .info .moviedb { background-image: url('../../media/images/moviedb.png'); }
+			#movies .info .forceCheck { background-image: url('../../media/images/reload.png'); }
+			#movies .info .delete { background-image: url('../../media/images/delete.png'); }
 	
 	#movies > .item .queue { display: none; }
 	#movies > .item.active .queue { display: block; }
@@ -494,7 +509,7 @@ a[name=sn], a[name=dl] {
 			background: #dffbbe !important;
 		}
 	
-			#movies > .item .queue span {
+			#movies > .item .queue span, #movies > .item .queue acronym {
 				display: block;
 				float: left;
 				text-align: left;
@@ -502,8 +517,13 @@ a[name=sn], a[name=dl] {
 			}
 	
 			#movies > .item .queue .found { width: 200px; overflow: hidden; height: 24px; }
-			#movies > .item .queue .qualityType { width: 60px; text-align: center; }
-			#movies > .item .queue .markComplete { width: 40px; text-align: center; }
+			#movies > .item .queue .qualityType { width: 50px; text-align: center; }
+			#movies > .item .queue .markComplete { 
+				width: 37px;
+				height: 25px;
+				text-align: center;
+			}
+			#movies > .item .queue .markComplete.active { background: url('../../media/images/ok.png') no-repeat center; }
 
 
 /*** Downloaded ***/
@@ -512,7 +532,7 @@ a[name=sn], a[name=dl] {
 	overflow: hidden;
 }
 
-	.smallList > span {
+	.smallList span {
 		background: #f7f7f7;
 		padding: 10px 10px;
 		margin: 0 5px 5px 0;
@@ -520,13 +540,20 @@ a[name=sn], a[name=dl] {
 		float: left;
 	}
 	
-	.smallList .actions {
+	.smallList {
 		padding-left:10px;
 	}
 	
-		.smallList .actions img {
-			vertical-align: middle;
+		.smallList a {
+			display: inline-block;
+			height: 20px;
+			width: 20px;
+			background: no-repeat center;
+			margin-bottom: -6px;
 		}
+		.smallList .delete { background-image: url('../../media/images/delete.png'); }
+		.smallList .correct { background-image: url('../../media/images/ok.png'); }
+		.smallList .reAdd { background-image: url('../../media/images/reload.png'); }
 
 /*** Logs ***/
 #logs {
@@ -552,11 +579,12 @@ h1 {
 	#feed .eta .item {
 		display: block;
 		width: 450px;
+		clear: right;
 		float: right;
 		margin: 20px 0 15px;
 	}
 		#feed .eta .item:nth-child(odd) {
-			clear: both;
+			clear: left;
 			float: left;
 		}
 		
@@ -564,10 +592,11 @@ h1 {
 			float: left;
 			margin: 5px 15px 4px 0;
 			width: 180px;
+			text-align: center;
 		}
-			#feed .eta .item:nth-child(odd) .thumbnail { float: left; }
-			
-			#feed .eta .item .thumbnail .img img {
+
+			#feed .eta .item .thumbnail .img {
+				display: inline-block;
 				max-width: 175px;
 				-moz-border-radius: 3px; 
 				-webkit-border-radius: 3px;
@@ -583,10 +612,18 @@ h1 {
 				line-height: 0;
 			}
 			
-				#feed .eta .info img {
-					vertical-align: middle;
-					margin: 0 5px;
+				#feed .eta .info a, #feed .eta .info span {
+					display: inline-block;
+					height: 20px;
+					width: 32px;
+					background: no-repeat center;
+					margin-bottom: -6px;
 				}
+				#feed .eta .info .moviedb { background-image: url('../../media/images/moviedb.png'); }
+				#feed .eta .info .imdb { background-image: url('../../media/images/imdb.png'); }
+				#feed .eta .info .hd { background-image: url('../../media/images/hd.png'); }
+				#feed .eta .info .notice { background-image: url('../../media/images/notice.png'); }
+				#feed .eta .info .videoeta { background-image: url('../../media/images/videoeta.png'); }
 		
 		#feed .eta .item .extra {
 			float: left;

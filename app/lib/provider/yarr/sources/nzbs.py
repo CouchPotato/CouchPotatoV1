@@ -1,10 +1,10 @@
+from app.config.cplog import CPLog
 from app.lib.provider.yarr.base import nzbBase
 from urllib import urlencode
 from urllib2 import URLError
-import logging
 import time
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class nzbs(nzbBase):
     """Api for nzbs"""
@@ -40,7 +40,7 @@ class nzbs(nzbBase):
         self.cleanCache();
 
         results = []
-        if not self.enabled() or not self.isAvailable(self.apiUrl):
+        if not self.enabled() or not self.isAvailable(self.apiUrl + '?test' + self.getApiExt()):
             return results
 
         arguments = urlencode({
@@ -61,7 +61,7 @@ class nzbs(nzbBase):
                 cached = True
                 log.info('Getting RSS from cache: %s.' % cacheId)
             else:
-                log.info('Searching: %s', url)
+                log.info('Searching: %s' % url)
                 data = self.urlopen(url)
                 self.cache[cacheId] = {
                     'time': time.time()
@@ -108,7 +108,7 @@ class nzbs(nzbBase):
 
                     if self.isCorrectMovie(new, movie, type):
                         results.append(new)
-                        log.info('Found: %s', new.name)
+                        log.info('Found: %s' % new.name)
 
                 return results
             except SyntaxError:

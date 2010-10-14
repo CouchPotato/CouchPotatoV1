@@ -129,7 +129,8 @@ def column_mapped_collection(mapping_spec):
     from sqlalchemy.orm.util import _state_mapper
     from sqlalchemy.orm.attributes import instance_state
 
-    cols = [expression._no_literals(q) for q in util.to_list(mapping_spec)]
+    cols = [expression._only_column_elements(q, "mapping_spec") 
+                for q in util.to_list(mapping_spec)]
     if len(cols) == 1:
         def keyfunc(value):
             state = instance_state(value)
@@ -188,7 +189,7 @@ class collection(object):
     The recipe decorators all require parens, even those that take no
     arguments::
 
-        @collection.adds('entity'):
+        @collection.adds('entity')
         def insert(self, position, entity): ...
 
         @collection.removes_return()

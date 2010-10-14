@@ -797,11 +797,25 @@ class Connectable(object):
 class Connection(Connectable):
     """Provides high-level functionality for a wrapped DB-API connection.
 
-    Provides execution support for string-based SQL statements as well
-    as ClauseElement, Compiled and DefaultGenerator objects.  Provides
-    a :meth:`begin` method to return Transaction objects.
+    Provides execution support for string-based SQL statements as well as
+    :class:`.ClauseElement`, :class:`.Compiled` and :class:`.DefaultGenerator`
+    objects. Provides a :meth:`begin` method to return :class:`.Transaction`
+    objects.
 
-    The Connection object is **not** thread-safe.
+    The Connection object is **not** thread-safe.  While a Connection can be
+    shared among threads using properly synchronized access, it is still
+    possible that the underlying DBAPI connection may not support shared
+    access between threads.  Check the DBAPI documentation for details.
+    
+    The Connection object represents a single dbapi connection checked out
+    from the connection pool. In this state, the connection pool has no affect
+    upon the connection, including its expiration or timeout state. For the
+    connection pool to properly manage connections, connections should be
+    returned to the connection pool (i.e. ``connection.close()``) whenever the
+    connection is not in use. If your application has a need for management
+    of multiple connections or is otherwise long running (this includes all
+    web applications, threaded or not), don't hold a single connection open at
+    the module level.
 
     .. index::
       single: thread safety; Connection
@@ -812,9 +826,9 @@ class Connection(Connectable):
                  _branch=False, _execution_options=None):
         """Construct a new Connection.
 
-        Connection objects are typically constructed by an
-        :class:`~sqlalchemy.engine.Engine`, see the ``connect()`` and
-        ``contextual_connect()`` methods of Engine.
+        The constructor here is not public and is only called only by an
+        :class:`.Engine`. See :meth:`.Engine.connect` and
+        :meth:`.Engine.contextual_connect` methods.
         
         """
         self.engine = engine
@@ -908,7 +922,15 @@ class Connection(Connectable):
                 self.__connection = self.engine.raw_connection()
                 self.__invalid = False
                 return self.__connection
-            raise exc.InvalidRequestError("This Connection is closed")
+            raise exc.ResourceClosedError("This Connection is closed")
+
+    @property
+    def _connection_is_valid(self):
+        # use getattr() for is_valid to support exceptions raised in
+        # dialect initializer, where the connection is not wrapped in
+        # _ConnectionFairy
+        
+        return getattr(self.__connection, 'is_valid', False)
 
     @property
     def info(self):
@@ -954,15 +976,18 @@ class Connection(Connectable):
         operations in a non-transactional state.
 
         """
-
+        if self.invalidated:
+            return
+            
         if self.closed:
-            raise exc.InvalidRequestError("This Connection is closed")
+            raise exc.ResourceClosedError("This Connection is closed")
 
-        if self.__connection.is_valid:
+        if self._connection_is_valid:
             self.__connection.invalidate(exception)
         del self.__connection
         self.__invalid = True
-
+    
+        
     def detach(self):
         """Detach the underlying DB-API connection from its connection pool.
 
@@ -1055,11 +1080,8 @@ class Connection(Connectable):
             raise
 
     def _rollback_impl(self):
-        # use getattr() for is_valid to support exceptions raised in 
-        # dialect initializer, 
-        # where we do not yet have the pool wrappers plugged in
         if not self.closed and not self.invalidated and \
-                        getattr(self.__connection, 'is_valid', False):
+                        self._connection_is_valid:
             if self._echo:
                 self.engine.logger.info("ROLLBACK")
             try:
@@ -1085,37 +1107,37 @@ class Connection(Connectable):
         if name is None:
             self.__savepoint_seq += 1
             name = 'sa_savepoint_%s' % self.__savepoint_seq
-        if self.__connection.is_valid:
+        if self._connection_is_valid:
             self.engine.dialect.do_savepoint(self, name)
             return name
 
     def _rollback_to_savepoint_impl(self, name, context):
-        if self.__connection.is_valid:
+        if self._connection_is_valid:
             self.engine.dialect.do_rollback_to_savepoint(self, name)
         self.__transaction = context
 
     def _release_savepoint_impl(self, name, context):
-        if self.__connection.is_valid:
+        if self._connection_is_valid:
             self.engine.dialect.do_release_savepoint(self, name)
         self.__transaction = context
 
     def _begin_twophase_impl(self, xid):
-        if self.__connection.is_valid:
+        if self._connection_is_valid:
             self.engine.dialect.do_begin_twophase(self, xid)
 
     def _prepare_twophase_impl(self, xid):
-        if self.__connection.is_valid:
+        if self._connection_is_valid:
             assert isinstance(self.__transaction, TwoPhaseTransaction)
             self.engine.dialect.do_prepare_twophase(self, xid)
 
     def _rollback_twophase_impl(self, xid, is_prepared):
-        if self.__connection.is_valid:
+        if self._connection_is_valid:
             assert isinstance(self.__transaction, TwoPhaseTransaction)
             self.engine.dialect.do_rollback_twophase(self, xid, is_prepared)
         self.__transaction = None
 
     def _commit_twophase_impl(self, xid, is_prepared):
-        if self.__connection.is_valid:
+        if self._connection_is_valid:
             assert isinstance(self.__transaction, TwoPhaseTransaction)
             self.engine.dialect.do_commit_twophase(self, xid, is_prepared)
         self.__transaction = None
@@ -1146,7 +1168,22 @@ class Connection(Connectable):
         return self.execute(object, *multiparams, **params).scalar()
 
     def execute(self, object, *multiparams, **params):
-        """Executes and returns a ResultProxy."""
+        """Executes the given construct and returns a :class:`.ResultProxy`.
+        
+        The construct can be one of:
+        
+        * a textual SQL string
+        * any :class:`.ClauseElement` construct that is also
+          a subclass of :class:`.Executable`, such as a 
+          :func:`.select` construct
+        * a :class:`.FunctionElement`, such as that generated
+          by :attr:`.func`, will be automatically wrapped in
+          a SELECT statement, which is then executed.
+        * a :class:`.DDLElement` object
+        * a :class:`.DefaultGenerator` object
+        * a :class:`.Compiled` object
+            
+        """
 
         for c in type(object).__mro__:
             if c in Connection.executors:
@@ -1443,6 +1480,12 @@ class Connection(Connectable):
 class Transaction(object):
     """Represent a Transaction in progress.
 
+    The object provides :meth:`.rollback` and :meth:`.commit`
+    methods in order to control transaction boundaries.  It 
+    also implements a context manager interface so that 
+    the Python ``with`` statement can be used with the 
+    :meth:`.Connection.begin` method.
+    
     The Transaction object is **not** threadsafe.
 
     .. index::
@@ -1450,12 +1493,17 @@ class Transaction(object):
     """
 
     def __init__(self, connection, parent):
+        """The constructor for :class:`.Transaction` is private
+        and is called from within the :class:`.Connection.begin` 
+        implementation.
+        
+        """
         self.connection = connection
         self._parent = parent or self
         self.is_active = True
 
     def close(self):
-        """Close this transaction.
+        """Close this :class:`.Transaction`.
 
         If this transaction is the base transaction in a begin/commit
         nesting, the transaction will rollback().  Otherwise, the
@@ -1463,6 +1511,7 @@ class Transaction(object):
 
         This is used to cancel a Transaction without affecting the scope of
         an enclosing transaction.
+        
         """
         if not self._parent.is_active:
             return
@@ -1470,6 +1519,9 @@ class Transaction(object):
             self.rollback()
 
     def rollback(self):
+        """Roll back this :class:`.Transaction`.
+        
+        """
         if not self._parent.is_active:
             return
         self._do_rollback()
@@ -1479,6 +1531,8 @@ class Transaction(object):
         self._parent.rollback()
 
     def commit(self):
+        """Commit this :class:`.Transaction`."""
+        
         if not self._parent.is_active:
             raise exc.InvalidRequestError("This transaction is inactive")
         self._do_commit()
@@ -1667,7 +1721,14 @@ class Engine(Connectable, log.Identified):
         return expression._FunctionGenerator(bind=self)
 
     def text(self, text, *args, **kwargs):
-        """Return a sql.text() object for performing literal queries."""
+        """Return a :func:`~sqlalchemy.sql.expression.text` construct, 
+        bound to this engine.
+        
+        This is equivalent to::
+        
+            text("SELECT * FROM table", bind=engine)
+            
+        """
 
         return expression.text(text, bind=self, *args, **kwargs)
 
@@ -1711,6 +1772,21 @@ class Engine(Connectable, log.Identified):
             conn.close()
 
     def execute(self, statement, *multiparams, **params):
+        """Executes the given construct and returns a :class:`.ResultProxy`.
+        
+        The arguments are the same as those used by
+        :meth:`.Connection.execute`.
+        
+        Here, a :class:`.Connection` is acquired using the
+        :meth:`~.Engine.contextual_connect` method, and the statement executed
+        with that connection. The returned :class:`.ResultProxy` is flagged
+        such that when the :class:`.ResultProxy` is exhausted and its
+        underlying cursor is closed, the :class:`.Connection` created here
+        will also be closed, which allows its associated DBAPI connection
+        resource to be returned to the connection pool.
+        
+        """
+
         connection = self.contextual_connect(close_with_result=True)
         return connection.execute(statement, *multiparams, **params)
 
@@ -1726,16 +1802,30 @@ class Engine(Connectable, log.Identified):
         return connection._execute_compiled(compiled, multiparams, params)
 
     def connect(self, **kwargs):
-        """Return a newly allocated Connection object."""
+        """Return a new :class:`.Connection` object.
+        
+        The :class:`.Connection`, upon construction, will procure a DBAPI connection
+        from the :class:`.Pool` referenced by this :class:`.Engine`,
+        returning it back to the :class:`.Pool` after the :meth:`.Connection.close`
+        method is called.
+        
+        """
 
         return self.Connection(self, **kwargs)
 
     def contextual_connect(self, close_with_result=False, **kwargs):
-        """Return a Connection object which may be newly allocated, 
-        or may be part of some ongoing context.
+        """Return a :class:`.Connection` object which may be part of some ongoing context.
+        
+        By default, this method does the same thing as :meth:`.Engine.connect`.
+        Subclasses of :class:`.Engine` may override this method
+        to provide contextual behavior.
 
-        This Connection is meant to be used by the various 
-        "auto-connecting" operations.
+        :param close_with_result: When True, the first :class:`.ResultProxy` created
+          by the :class:`.Connection` will call the :meth:`.Connection.close` method
+          of that connection as soon as any pending result rows are exhausted.  
+          This is used to supply the "connectionless execution" behavior provided
+          by the :meth:`.Engine.execute` method.
+          
         """
 
         return self.Connection(self, 
@@ -2212,7 +2302,7 @@ class ResultProxy(object):
         consistent across backends.
         
         Usage of this method is normally unnecessary; the
-        inserted_primary_key method provides a
+        :attr:`~ResultProxy.inserted_primary_key` attribute provides a
         tuple of primary key values for a newly inserted row,
         regardless of database backend.
         
@@ -2270,7 +2360,9 @@ class ResultProxy(object):
             if _autoclose_connection and \
                 self.connection.should_close_with_result:
                 self.connection.close()
-
+            # allow consistent errors
+            self.cursor = None
+            
     def __iter__(self):
         while True:
             row = self.fetchone()
@@ -2297,9 +2389,9 @@ class ResultProxy(object):
             
         return self.context._inserted_primary_key
 
-    @util.deprecated("Use inserted_primary_key")
+    @util.deprecated("0.6", "Use :attr:`.ResultProxy.inserted_primary_key`")
     def last_inserted_ids(self):
-        """deprecated.  use inserted_primary_key."""
+        """Return the primary key for the row just inserted."""
         
         return self.inserted_primary_key
         
@@ -2352,14 +2444,32 @@ class ResultProxy(object):
         return self.dialect.supports_sane_multi_rowcount
 
     def _fetchone_impl(self):
-        return self.cursor.fetchone()
+        try:
+            return self.cursor.fetchone()
+        except AttributeError:
+            self._non_result()
 
     def _fetchmany_impl(self, size=None):
-        return self.cursor.fetchmany(size)
+        try:
+            return self.cursor.fetchmany(size)
+        except AttributeError:
+            self._non_result()
 
     def _fetchall_impl(self):
-        return self.cursor.fetchall()
-
+        try:
+            return self.cursor.fetchall()
+        except AttributeError:
+            self._non_result()
+    
+    def _non_result(self):
+        if self._metadata is None:
+            raise exc.ResourceClosedError(
+            "This result object does not return rows. "
+            "It has been closed automatically.",
+            )
+        else:
+            raise exc.ResourceClosedError("This result object is closed.")
+        
     def process_rows(self, rows):
         process_row = self._process_row
         metadata = self._metadata
@@ -2416,7 +2526,6 @@ class ResultProxy(object):
         Else the cursor is automatically closed and None is returned.
         
         """
-
         try:
             row = self._fetchone_impl()
             if row is not None:
@@ -2436,6 +2545,9 @@ class ResultProxy(object):
         Returns None if no row is present.
         
         """
+        if self._metadata is None:
+            self._non_result()
+
         try:
             row = self._fetchone_impl()
         except Exception, e:

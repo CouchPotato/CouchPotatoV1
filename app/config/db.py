@@ -1,3 +1,4 @@
+from app.config.cplog import CPLog
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError, NoSuchTableError
 from sqlalchemy.ext.sqlsoup import SqlSoup
@@ -7,16 +8,16 @@ from sqlalchemy.schema import MetaData, Table, Column, ForeignKey
 from sqlalchemy.sql.expression import and_, desc
 from sqlalchemy.types import Integer, DateTime, String, Boolean, Text
 import datetime
-import logging
 import os
 import sys
+
+log = CPLog(__name__)
 
 try:
     frozen = sys.frozen
 except AttributeError:
     frozen = False
 
-log = logging.getLogger(__name__)
 if os.name == 'nt':
     if frozen:
         path = os.path.join(os.path.dirname(sys.executable), 'data.db')
@@ -182,10 +183,10 @@ versionMapper = mapper(DbVersion, dbVersionTable)
 movieMapper = mapper(Movie, movieTable, properties = {
    'queue': relation(MovieQueue, backref = 'Movie', primaryjoin =
                 and_(movieQueueTable.c.movieId == movieTable.c.id,
-                movieQueueTable.c.active == True), order_by = movieQueueTable.c.order, lazy = 'joined'),
+                movieQueueTable.c.active == True), order_by = movieQueueTable.c.order),
    'template': relation(QualityTemplate, backref = 'Movie'),
-   'eta': relation(MovieETA, backref = 'Movie', uselist = False, lazy = 'joined', viewonly = True),
-   'extra': relation(MovieExtra, backref = 'Movie', lazy = 'joined', viewonly = True),
+   'eta': relation(MovieETA, backref = 'Movie', uselist = False, viewonly = True),
+   'extra': relation(MovieExtra, backref = 'Movie', viewonly = True),
    'history': relation(History, backref = 'Movie')
 })
 movieQueueMapper = mapper(MovieQueue, movieQueueTable)
@@ -194,7 +195,7 @@ movieExtraMapper = mapper(MovieExtra, movieExtraTable)
 renameHistoryMapper = mapper(RenameHistory, renameHistoryTable)
 HistoryMapper = mapper(History, historyTable)
 qualityMapper = mapper(QualityTemplate, qualityTemplateTable, properties = {
-   'types': relation(QualityTemplateType, backref = 'QualityTemplate', order_by = qualityTemplateTypeTable.c.order, lazy = 'joined')
+   'types': relation(QualityTemplateType, backref = 'QualityTemplate', order_by = qualityTemplateTypeTable.c.order)
 })
 qualityCustomMapper = mapper(QualityTemplateType, qualityTemplateTypeTable)
 

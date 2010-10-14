@@ -1,15 +1,15 @@
 from app import version
+from app.config.cplog import CPLog
 from cherrypy.process.plugins import SimplePlugin
 from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
 from urllib2 import URLError
 import cherrypy
-import logging
 import os
 import tarfile
 import time
 import urllib2
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class Updater(SimplePlugin):
 
@@ -57,7 +57,9 @@ class Updater(SimplePlugin):
             self.running = True
 
             result = self.doUpdateUnix()
-            self.bus.restart()
+
+            time.sleep(1)
+            cherrypy.engine.restart()
 
             self.running = False
             return result

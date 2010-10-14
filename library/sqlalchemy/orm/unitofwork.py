@@ -110,6 +110,12 @@ class UOWTransaction(object):
         # or insert/updated, or just refreshed
         self.states = {}
     
+        # tracks InstanceStates which will be receiving
+        # a "post update" call.  Keys are mappers,
+        # values are a set of states and a set of the 
+        # columns which should be included in the update.
+        self.post_update_states = util.defaultdict(lambda: (set(), set()))
+        
     @property
     def has_work(self):
         return bool(self.states)
@@ -185,9 +191,9 @@ class UOWTransaction(object):
     
     def issue_post_update(self, state, post_update_cols):
         mapper = state.manager.mapper.base_mapper
-        mapper._save_obj([state], self, \
-                    postupdate=True, \
-                    post_update_cols=set(post_update_cols))
+        states, cols = self.post_update_states[mapper]
+        states.add(state)
+        cols.update(post_update_cols)
     
     @util.memoized_property
     def _mapper_for_dep(self):
@@ -213,7 +219,7 @@ class UOWTransaction(object):
         
     def states_for_mapper_hierarchy(self, mapper, isdelete, listonly):
         checktup = (isdelete, listonly)
-        for mapper in mapper.base_mapper.polymorphic_iterator():
+        for mapper in mapper.base_mapper.self_and_descendants:
             for state in self.mappers[mapper]:
                 if self.states[state] == checktup:
                     yield state
@@ -312,11 +318,11 @@ class IterateMappersMixin(object):
     def _mappers(self, uow):
         if self.fromparent:
             return iter(
-                m for m in self.dependency_processor.parent.polymorphic_iterator()
+                m for m in self.dependency_processor.parent.self_and_descendants
                 if uow._mapper_for_dep[(m, self.dependency_processor)]
             )
         else:
-            return self.dependency_processor.mapper.polymorphic_iterator()
+            return self.dependency_processor.mapper.self_and_descendants
     
 class Preprocess(IterateMappersMixin):
     def __init__(self, dependency_processor, fromparent):
@@ -414,7 +420,18 @@ class ProcessAll(IterateMappersMixin, PostSortRec):
                 (isdelete, listonly) = uow.states[state]
                 if isdelete == self.delete and not listonly:
                     yield state
+
+class IssuePostUpdate(PostSortRec):
+    def __init__(self, uow, mapper, isdelete):
+        self.mapper = mapper
+        self.isdelete = isdelete
+
+    def execute(self, uow):
+        states, cols = uow.post_update_states[self.mapper]
+        states = [s for s in states if uow.states[s][0] == self.isdelete]
         
+        self.mapper._post_update(states, uow, cols)
+
 class SaveUpdateAll(PostSortRec):
     def __init__(self, uow, mapper):
         self.mapper = mapper

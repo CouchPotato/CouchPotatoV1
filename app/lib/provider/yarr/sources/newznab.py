@@ -1,12 +1,12 @@
+from app.config.cplog import CPLog
 from app.lib import cleanHost
 from app.lib.provider.yarr.base import nzbBase
 from dateutil.parser import parse
 from urllib import urlencode
 from urllib2 import URLError
-import logging
 import time
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class newznab(nzbBase):
     """Api for Newznab"""
@@ -65,7 +65,7 @@ class newznab(nzbBase):
                 cached = True
                 log.info('Getting RSS from cache: %s.' % cacheId)
             else:
-                log.info('Searching: %s', url)
+                log.info('Searching: %s' % url)
                 data = self.urlopen(url)
                 self.cache[cacheId] = {
                     'time': time.time()
@@ -108,7 +108,7 @@ class newznab(nzbBase):
 
                     if new.date > time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60) and self.isCorrectMovie(new, movie, type, imdbResults = True):
                         results.append(new)
-                        log.info('Found: %s', new.name)
+                        log.info('Found: %s' % new.name)
 
                 return results
             except SyntaxError:

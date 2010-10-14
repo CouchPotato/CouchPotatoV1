@@ -1,19 +1,19 @@
 from app import latinToAscii
+from app.config.cplog import CPLog
 from app.config.db import Movie, RenameHistory, Session as Db, MovieQueue
-from app.lib.cron.cronBase import cronBase
+from app.lib.cron.base import cronBase
 from app.lib.qualities import Qualities
 
 from app.lib.provider.movie.sources import imdbWrapper
 from library.xmg import xmg
 import fnmatch
-import logging
 import os
 import re
 import shutil
 import time
 import traceback
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class RenamerCron(cronBase):
 
@@ -28,7 +28,7 @@ class RenamerCron(cronBase):
     ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '/._'] #unpacking, smb-crap
 
     # Filetypes
-    movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso']
+    movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso', '*.img']
     nfoExt = ['*.nfo']
     audioCodecs = ['DTS', 'AC3', 'AC3D', 'MP3']
     videoCodecs = ['x264', 'DivX', 'XViD']
@@ -226,7 +226,7 @@ class RenamerCron(cronBase):
 
         finalDestination = None
         finalFilename = self.doReplace(fileNaming, replacements)
-        for file in files['files']:
+        for file in sorted(files['files']):
             log.info('Trying to find a home for: %s' % latinToAscii(file['filename']))
 
             replacements['ext'] = file['ext']

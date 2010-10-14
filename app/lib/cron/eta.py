@@ -1,18 +1,18 @@
+from app.config.cplog import CPLog
 from app.config.db import Movie, MovieETA, Session as Db
-from app.lib.cron.cronBase import cronBase
+from app.lib.cron.base import cronBase
 from app.lib.provider.rss import rss
 from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup, SoupStrainer
 from sqlalchemy.sql.expression import or_
 from urllib2 import URLError
 import Queue
-import logging
 import re
 import time
 import urllib
 import urllib2
 
 etaQueue = Queue.Queue()
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class etaCron(rss, cronBase):
 
@@ -81,7 +81,7 @@ class etaCron(rss, cronBase):
         })
         url = "%s?%s" % (self.searchUrl, arguments)
 
-        log.debug('Search url: %s.', url)
+        log.debug('Search url: %s.' % url)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
@@ -105,7 +105,7 @@ class etaCron(rss, cronBase):
     def getDetails(self, id):
         url = self.detailUrl + str(id)
 
-        log.info('Scanning %s.', url)
+        log.info('Scanning %s.' % url)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
@@ -146,7 +146,7 @@ class etaCron(rss, cronBase):
             'theater': theaterDate,
             'bluray': len(bluray) > 0
         }
-        log.debug('Found: %s', dates)
+        log.debug('Found: %s' % dates)
         return dates
 
     def parseDate(self, text, format = "%B %d, %Y"):

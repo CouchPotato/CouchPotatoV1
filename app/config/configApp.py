@@ -1,7 +1,7 @@
+from app.config.cplog import CPLog
 import ConfigParser
-import logging
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class configApp():
 
@@ -38,7 +38,6 @@ class configApp():
 
         self.addSection('global')
         self.setDefault('global', 'server.environment', 'production')
-        self.setDefault('global', 'engine.autoreload_on', False)
         self.setDefault('global', 'host', '0.0.0.0')
         self.setDefault('global', 'port', 5000)
         self.setDefault('global', 'username', '')

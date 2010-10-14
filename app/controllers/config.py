@@ -1,12 +1,12 @@
+from app.config.cplog import CPLog
 from app.config.db import QualityTemplate, Session as Db
 from app.controllers import BaseController, redirect
 from app.lib.qualities import Qualities
 import cherrypy
 import json
-import logging
 import sys
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class ConfigController(BaseController):
 

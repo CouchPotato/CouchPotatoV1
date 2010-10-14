@@ -1,10 +1,10 @@
+from app.config.cplog import CPLog
 from app.config.db import Session as Db, Movie, QualityTemplate, MovieQueue
 from app.controllers import BaseController, url, redirect
 from sqlalchemy.sql.expression import or_, desc
 import cherrypy
-import logging
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class MovieController(BaseController):
 
@@ -147,13 +147,13 @@ class MovieController(BaseController):
             result = self.searchers.get('movie').findByImdbId(id)
 
             self._addMovie(result, data.get('quality'), data.get('year'))
-            log.info('Added : %s', result.name)
+            log.info('Added : %s' % result.name)
             success = True
 
         return self.render({'id':id, 'result':result, 'success':success, 'year':data.get('year')})
 
     def _addMovie(self, movie, quality, year = None):
-        log.info('Adding movie to database: %s', movie.name)
+        log.info('Adding movie to database: %s' % movie.name)
 
         if movie.id:
             exists = Db.query(Movie).filter_by(movieDb = movie.id).first()

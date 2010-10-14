@@ -1,15 +1,15 @@
+from app.config.cplog import CPLog
 from app.config.db import Session as Db, History
 from app.lib.provider.rss import rss
 from app.lib.qualities import Qualities
 from sqlalchemy.sql.expression import and_
 from urllib2 import URLError
-import logging
 import math
 import re
 import time
 import urllib2
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class nzbBase(rss):
 

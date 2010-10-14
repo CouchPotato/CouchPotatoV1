@@ -1,13 +1,13 @@
+from app.config.cplog import CPLog
 from app.lib.provider.rss import rss
 from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
 from string import letters, digits
 from urllib import urlencode
 from urllib2 import URLError
-import logging
 import re
 import urllib2
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class HdTrailers(rss):
 
@@ -24,7 +24,7 @@ class HdTrailers(rss):
     def find(self, movie):
 
         url = self.apiUrl % self.movieUrlName(movie.name)
-        log.info('Searching %s', url)
+        log.info('Searching %s' % url)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
@@ -57,7 +57,7 @@ class HdTrailers(rss):
             's':movie
         })
         url = "%s?%s" % (self.backupUrl, arguments)
-        log.info('Searching %s', url)
+        log.info('Searching %s' % url)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()

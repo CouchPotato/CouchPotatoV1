@@ -1,8 +1,8 @@
+from app.config.cplog import CPLog
 from app.lib.provider.movie.base import movieBase
 from imdb import IMDb
-import logging
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class imdbWrapper(movieBase):
     """Api for theMovieDb"""
@@ -22,7 +22,7 @@ class imdbWrapper(movieBase):
     def find(self, q, limit = 8, alternative = True):
         ''' Find movie by name '''
 
-        log.info('IMDB - Searching for movie: %s', q)
+        log.info('IMDB - Searching for movie: %s' % q)
 
         r = self.p.search_movie(q)
 
@@ -57,7 +57,7 @@ class imdbWrapper(movieBase):
     def findByImdbId(self, id, details = False):
         ''' Find movie by IMDB ID '''
 
-        log.info('IMDB - Searching for movie: %s', str(id))
+        log.info('IMDB - Searching for movie: %s' % str(id))
 
         r = self.p.get_movie(id.replace('tt', ''))
 
@@ -71,6 +71,7 @@ class imdbWrapper(movieBase):
 
     def get_IMDb_instance(self):
         return IMDb('http')
+
 
     def findReleaseDate(self, movie):
         pass

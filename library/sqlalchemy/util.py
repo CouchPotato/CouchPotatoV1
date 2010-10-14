@@ -4,7 +4,14 @@
 # This module is part of SQLAlchemy and is released under
 # the MIT License: http://www.opensource.org/licenses/mit-license.php
 
-import inspect, itertools, operator, sys, warnings, weakref, gc
+import inspect
+import itertools
+import operator
+import sys
+import warnings
+import weakref
+import re
+
 # Py2K
 import __builtin__
 # end Py2K
@@ -169,6 +176,32 @@ class frozendict(dict):
     def __repr__(self):
         return "frozendict(%s)" % dict.__repr__(self)
 
+
+# find or create a dict implementation that supports __missing__
+class _probe(dict):
+    def __missing__(self, key):
+        return 1
+        
+try:
+    try:
+        _probe()['missing']
+        py25_dict = dict
+    except KeyError:
+        class py25_dict(dict):
+            def __getitem__(self, key):
+                try:
+                    return dict.__getitem__(self, key)
+                except KeyError:
+                    try:
+                        missing = self.__missing__
+                    except AttributeError:
+                        raise KeyError(key)
+                    else:
+                        return missing(key)
+finally:
+    del _probe
+
+
 def to_list(x, default=None):
     if x is None:
         return default
@@ -215,6 +248,20 @@ except:
             newkeywords.update(fkeywords)
             return func(*(args + fargs), **newkeywords)
         return newfunc
+
+try:
+    import hashlib
+    _md5 = hashlib.md5
+except ImportError:
+    import md5
+    _md5 = md5.new
+
+def md5_hex(x):
+    # Py3K
+    #x = x.encode('utf-8')
+    m = _md5()
+    m.update(x)
+    return m.hexdigest()
 
 
 def accepts_a_list_as_starargs(list_deprecation=None):
@@ -1221,16 +1268,30 @@ class UniqueAppender(object):
 
 class ScopedRegistry(object):
     """A Registry that can store one or multiple instances of a single
-    class on a per-thread scoped basis, or on a customized scope.
+    class on the basis of a "scope" function.
+    
+    The object implements ``__call__`` as the "getter", so by
+    calling ``myregistry()`` the contained object is returned
+    for the current scope.
 
-    createfunc
+    :param createfunc:
       a callable that returns a new object to be placed in the registry
 
-    scopefunc
+    :param scopefunc:
       a callable that will return a key to store/retrieve an object.
     """
 
     def __init__(self, createfunc, scopefunc):
+        """Construct a new :class:`.ScopedRegistry`.
+        
+        :param createfunc:  A creation function that will generate
+          a new value for the current scope, if none is present.
+          
+        :param scopefunc:  A function that returns a hashable
+          token representing the current scope (such as, current
+          thread identifier).
+        
+        """
         self.createfunc = createfunc
         self.scopefunc = scopefunc
         self.registry = {}
@@ -1243,18 +1304,28 @@ class ScopedRegistry(object):
             return self.registry.setdefault(key, self.createfunc())
 
     def has(self):
+        """Return True if an object is present in the current scope."""
+        
         return self.scopefunc() in self.registry
 
     def set(self, obj):
+        """Set the value forthe current scope."""
+        
         self.registry[self.scopefunc()] = obj
 
     def clear(self):
+        """Clear the current scope, if any."""
+        
         try:
             del self.registry[self.scopefunc()]
         except KeyError:
             pass
 
 class ThreadLocalRegistry(ScopedRegistry):
+    """A :class:`.ScopedRegistry` that uses a ``threading.local()`` 
+    variable for storage.
+    
+    """
     def __init__(self, createfunc):
         self.createfunc = createfunc
         self.registry = threading.local()
@@ -1413,6 +1484,7 @@ def function_named(fn, name):
                           fn.func_defaults, fn.func_closure)
     return fn
 
+
 class memoized_property(object):
     """A read-only @property that is only evaluated once."""
     def __init__(self, fget, doc=None):
@@ -1422,7 +1494,7 @@ class memoized_property(object):
 
     def __get__(self, obj, cls):
         if obj is None:
-            return None
+            return self
         obj.__dict__[self.__name__] = result = self.fget(obj)
         return result
 
@@ -1442,7 +1514,7 @@ class memoized_instancemethod(object):
 
     def __get__(self, obj, cls):
         if obj is None:
-            return None
+            return self
         def oneshot(*args, **kw):
             result = self.fget(obj, *args, **kw)
             memo = lambda *a, **kw: result
@@ -1456,6 +1528,24 @@ class memoized_instancemethod(object):
 
 def reset_memoized(instance, name):
     instance.__dict__.pop(name, None)
+
+
+class group_expirable_memoized_property(object):
+    """A family of @memoized_properties that can be expired in tandem."""
+
+    def __init__(self):
+        self.attributes = []
+
+    def expire_instance(self, instance):
+        """Expire all memoized properties for *instance*."""
+        stash = instance.__dict__
+        for attribute in self.attributes:
+            stash.pop(attribute, None)
+
+    def __call__(self, fn):
+        self.attributes.append(fn.__name__)
+        return memoized_property(fn)
+
 
 class WeakIdentityMapping(weakref.WeakKeyDictionary):
     """A WeakKeyDictionary with an object identity index.
@@ -1608,21 +1698,23 @@ def warn_deprecated(msg, stacklevel=3):
 def warn_pending_deprecation(msg, stacklevel=3):
     warnings.warn(msg, exc.SAPendingDeprecationWarning, stacklevel=stacklevel)
 
-def deprecated(message=None, add_deprecation_to_docstring=True):
+def deprecated(version, message=None, add_deprecation_to_docstring=True):
     """Decorates a function and issues a deprecation warning on use.
 
-    message
+    :param message:
       If provided, issue message in the warning.  A sensible default
       is used if not provided.
 
-    add_deprecation_to_docstring
+    :param add_deprecation_to_docstring:
       Default True.  If False, the wrapped function's __doc__ is left
       as-is.  If True, the 'message' is prepended to the docs if
       provided, or sensible default if message is omitted.
+
     """
 
     if add_deprecation_to_docstring:
-        header = message is not None and message or 'Deprecated.'
+        header = ".. deprecated:: %s %s" % \
+                    (version, (message or ''))
     else:
         header = None
 
@@ -1639,37 +1731,49 @@ def pending_deprecation(version, message=None,
                         add_deprecation_to_docstring=True):
     """Decorates a function and issues a pending deprecation warning on use.
 
-    version
+    :param version:
       An approximate future version at which point the pending deprecation
       will become deprecated.  Not used in messaging.
 
-    message
+    :param message:
       If provided, issue message in the warning.  A sensible default
       is used if not provided.
 
-    add_deprecation_to_docstring
+    :param add_deprecation_to_docstring:
       Default True.  If False, the wrapped function's __doc__ is left
       as-is.  If True, the 'message' is prepended to the docs if
       provided, or sensible default if message is omitted.
     """
 
     if add_deprecation_to_docstring:
-        header = message is not None and message or 'Deprecated.'
+        header = ".. deprecated:: %s (pending) %s" % \
+                        (version, (message or ''))
     else:
         header = None
 
     if message is None:
         message = "Call to deprecated function %(func)s"
-
+    
     def decorate(fn):
         return _decorate_with_warning(
             fn, exc.SAPendingDeprecationWarning,
             message % dict(func=fn.__name__), header)
     return decorate
 
+def _sanitize_rest(text):
+    def repl(m):
+        type_, name = m.group(1, 2)
+        if type_ in ("func", "meth"):
+            name += "()"
+        return name
+    return re.sub(r'\:(\w+)\:`~?\.?(.+?)`', repl, text)
+    
+    
 def _decorate_with_warning(func, wtype, message, docstring_header=None):
     """Wrap a function with a warnings.warn and augmented docstring."""
 
+    message = _sanitize_rest(message)
+    
     @decorator
     def warned(fn, *args, **kwargs):
         warnings.warn(wtype(message), stacklevel=3)
@@ -1699,6 +1803,11 @@ class classproperty(property):
 
     This is helpful when you need to compute __table_args__ and/or
     __mapper_args__ when using declarative."""
+    
+    def __init__(self, fget, *arg, **kw):
+        super(classproperty, self).__init__(fget, *arg, **kw)
+        self.__doc__ = fget.__doc__
+        
     def __get__(desc, self, cls):
         return desc.fget(cls)
 

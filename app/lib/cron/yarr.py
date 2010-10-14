@@ -1,17 +1,17 @@
 from app import latinToAscii
+from app.config.cplog import CPLog
 from app.config.db import Movie, Session as Db, History
-from app.lib.cron.cronBase import cronBase
+from app.lib.cron.base import cronBase
 from app.lib.provider.rss import rss
 from app.lib.qualities import Qualities
 from sqlalchemy.sql.expression import or_
 import cherrypy
 import datetime
-import logging
 import os
 import time
 import urllib
 
-log = logging.getLogger(__name__)
+log = CPLog(__name__)
 
 class YarrCron(cronBase, rss):
 
@@ -66,7 +66,7 @@ class YarrCron(cronBase, rss):
         self.stop = True
 
     def searchAll(self):
-        log.info('Searching for new download for all movies.')
+        log.info('Searching for new downloads, for all movies.')
         self.doCheck()
 
         #get all wanted movies

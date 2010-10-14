@@ -114,5 +114,7 @@ window.addEvent('domready', function() {
 			backToTop.tween('opacity', 1);
 		}
 	});
+	
+	$(document.body).getElements('.disabled').setStyle('opacity', 0.2)
 
 })
