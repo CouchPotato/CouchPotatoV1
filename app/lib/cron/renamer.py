@@ -103,10 +103,7 @@ class RenamerCron(cronBase):
                 #Generate XBMC metadata
                 wrapper = imdbWrapper.imdbWrapper(self.config)
                 imdbpy = wrapper.get_IMDb_instance()
-                print "GENERATING METADATA"
-                import pdb; pdb.set_trace()
                 xmg.metagen(finalDestination['directory'], imdb_id = movie['movie'].imdb)
-                print "DONE WITH METADATA GEN"
 
                 if self.config.get('Trailer', 'quality'):
                     self.trailerQueue.put({'movieId': movie['movie'].id, 'destination':finalDestination})
