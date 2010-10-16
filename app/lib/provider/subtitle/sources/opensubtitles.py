@@ -82,7 +82,7 @@ class openSubtitles(subtitleBase):
             if params:
                 results = self.server.SearchSubtitles(self.token, [params])
         except Exception, e:
-            log.error("Couldn\'t search OpenSubtitles: %s" % e)
+            log.error("Couldn\'t search OpenSubtitles: %s, token:%s, params:%s, result:%s" % (e, self.token, params, results))
             return subtitles
 
         if results.get('data'):
