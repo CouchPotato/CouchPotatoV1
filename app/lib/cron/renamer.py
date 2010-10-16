@@ -322,8 +322,8 @@ class RenamerCron(cronBase):
 
                 if not fullPath in dontDelete:
 
-                    # Only delete media files
-                    if '*.' + ext in self.movieExt and not '-trailer' in filename:
+                    # Only delete media files and subtitles
+                    if ('*.' + ext in self.movieExt or '*.' + ext in self.subExt) and not '-trailer' in filename:
                         files.append(fullPath)
 
         log.info('Quality Old: %s, New %s.' % (int(oldSize / 1024 / 1024), int(newSize / 1024 / 1024)))
