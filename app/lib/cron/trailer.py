@@ -188,11 +188,8 @@ class TrailerCron(rss, cronBase):
 
         log.info('Downloading trailer "%s", %d MB' % (url, int(data.info().getheaders("Content-Length")[0]) / 1024 / 1024))
 
-        if self.debug:
-            return
-
         with open(tempTrailerFile, 'wb') as f:
-            f.write(data.read())
+            f.write(data.read() if not self.debug else 'trailer')
 
         log.info('Download of %s finished.' % url)
 
