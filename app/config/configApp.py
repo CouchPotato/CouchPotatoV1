@@ -108,6 +108,12 @@ class configApp():
             self.setDefault('Quality', 'sMin-' + type['key'], type['size'][0])
             self.setDefault('Quality', 'sMax-' + type['key'], type['size'][1])
 
+        self.addSection('Subtitles')
+        self.setDefault('Subtitles', 'enabled', False)
+        self.setDefault('Subtitles', 'languages', 'en')
+        self.setDefault('Subtitles', 'addLanguage', True)
+        self.setDefault('Subtitles', 'name', 'filename') #filename, subtitle
+
         self.save()
 
     def save(self):

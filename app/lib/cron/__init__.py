@@ -1,6 +1,7 @@
 from app.config.cplog import CPLog
 from app.lib.cron.eta import startEtaCron, etaQueue
 from app.lib.cron.renamer import startRenamerCron
+from app.lib.cron.subtitle import subtitleQueue, startSubtitleCron
 from app.lib.cron.trailer import startTrailerCron, trailerQueue
 from app.lib.cron.yarr import startYarrCron
 from app.lib.provider.movie.search import movieSearcher
@@ -41,6 +42,11 @@ class CronJobs(plugins.SimplePlugin):
         trailerCronJob = startTrailerCron(config, self.debug)
         self.threads['trailer'] = trailerCronJob
         self.searchers['trailerQueue'] = trailerQueue
+
+        #subtitle cron
+        subtitleCronJob = startSubtitleCron(config, self.debug)
+        self.threads['subtitle'] = subtitleCronJob
+        self.searchers['subtitleQueue'] = subtitleQueue
 
         etaCron = startEtaCron(self.debug)
         self.threads['eta'] = etaCron

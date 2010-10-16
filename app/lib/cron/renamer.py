@@ -3,6 +3,7 @@ from app.config.cplog import CPLog
 from app.config.db import Movie, RenameHistory, Session as Db, MovieQueue
 from app.lib.cron.base import cronBase
 from app.lib.qualities import Qualities
+import cherrypy
 import fnmatch
 import os
 import re
@@ -98,6 +99,9 @@ class RenamerCron(cronBase):
                 finalDestination = self.renameFiles(files, movie['movie'], movie['queue'])
                 if self.config.get('Trailer', 'quality'):
                     self.trailerQueue.put({'movieId': movie['movie'].id, 'destination':finalDestination})
+
+                # Search for subtitles
+                cherrypy.config['cron']['subtitle'].forDirectory(finalDestination['directory'])
             else:
                 try:
                     file = files['files'][0]

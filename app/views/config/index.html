@@ -7,6 +7,7 @@
 		<li><a href="#quality">Quality</a></li>
 		<li><a href="#renaming">Renaming</a></li>
 		<li><a href="#trailers">Trailers</a></li>
+		<li><a href="#subtitles">Subtitles</a></li>
 		<li><a href="#userscript">Userscript</a></li>
 		<li><a href="#about">About</a></li>
 	</ul>
@@ -391,6 +392,38 @@
 				</div>
 				% endfor
 			</fieldset>
+			
+			<fieldset class="subtitles inlineLabels" id="subtitleFieldset">
+				<div class="ctrlHolder checkbox">
+					<label for="">Enable</label>
+					<input type="checkbox" name="Subtitles.enabled" value="True" ${' checked="checked"' if config.get('Subtitles', 'enabled') else ''} />
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Language</label>
+					<input type="text" name="Subtitles.languages" value="${config.get('Subtitles', 'languages')}" class="textInput large"/>
+					<p class="formHint">
+						Comma seperated 2-letter language code (<a href="http://en.wikipedia.org/wiki/ISO_639-1_language_matrix" target="_blank">ISO 639-1</a>). <br />
+						Example: &quot;en, nl&quot;. Most importent first.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Naming</label>
+					<select name="Subtitles.name" class="textInput large">
+						<option value="filename"${' selected="selected"' if 'filename' == config.get('Subtitles', 'name') else ''}>filename.ext</option>
+						<option value="subtitle"${' selected="selected"' if 'subtitle' == config.get('Subtitles', 'name') else ''}>subtitle.ext</option>
+					</select>
+					<p class="formHint">
+						&quot;There Will Be Blood.srt&quot; or &quot;Subtitle.srt&quot;
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Add language to name</label>
+					<input type="checkbox" name="Subtitles.addLanguage" value="True" ${' checked="checked"' if config.get('Subtitles', 'addLanguage') else ''} />
+					<p class="formHint">
+						Add language shortcode to end of subtitle name. Example: &quot;There Will Be Blood.en.srt&quot;
+					</p>
+				</div>
+			</fieldset>
 		</div>
 			
 		<div class="buttonHolder">
@@ -501,7 +534,7 @@
 	            fieldset.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
 	    }
 		
-		$each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset'],function(item){
+		$each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset'],function(item){
 		    var fieldset = $(item)
 		    var checkbox = fieldset.getElement('[type=checkbox]')
 		    isEnabled(checkbox, fieldset)

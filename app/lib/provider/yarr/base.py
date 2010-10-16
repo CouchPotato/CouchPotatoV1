@@ -3,11 +3,8 @@ from app.config.db import Session as Db, History
 from app.lib.provider.rss import rss
 from app.lib.qualities import Qualities
 from sqlalchemy.sql.expression import and_
-from urllib2 import URLError
-import math
 import re
 import time
-import urllib2
 
 log = CPLog(__name__)
 
@@ -31,12 +28,6 @@ class nzbBase(rss):
     catBackupId = ''
 
     cache = {}
-
-    lastUse = 0
-    timeBetween = 1
-
-    available = True
-    availableCheck = 0
 
     sizeGb = ['gb', 'gib']
     sizeMb = ['mb', 'mib']
@@ -195,19 +186,6 @@ class nzbBase(rss):
 
         return False
 
-    def correctName(self, nzbName, movieName):
-
-        nzbWords = re.split('\W+', self.toSearchString(nzbName).lower())
-        movieWords = re.split('\W+', self.toSearchString(movieName).lower())
-
-        # Replace .,-_ with space
-        found = 0
-        for word in movieWords:
-            if word in nzbWords:
-                found += 1
-
-        return found == len(movieWords)
-
     def getCatId(self, prefQuality):
         ''' Selecting category by quality '''
 
@@ -229,36 +207,6 @@ class nzbBase(rss):
 
     def getApiExt(self):
         return ''
-
-    def isAvailable(self, testUrl):
-
-        now = time.time()
-
-        if self.availableCheck < now - 900:
-            self.availableCheck = now
-            try:
-                self.urlopen(testUrl, 30)
-                self.available = True
-            except (IOError, URLError):
-                log.error('%s unavailable, trying again in an 15 minutes.' % self.name)
-                self.available = False
-
-        return self.available
-
-    def urlopen(self, url, timeout = 10):
-
-        self.wait()
-        data = urllib2.urlopen(url, timeout = timeout)
-        self.lastUse = time.time()
-
-        return data
-
-    def wait(self):
-        now = time.time()
-        wait = math.ceil(self.lastUse - now + self.timeBetween)
-        if wait > 0:
-            log.debug('Waiting for %s, %d seconds' % (self.name, wait))
-            time.sleep(self.lastUse - now + self.timeBetween)
 
     def cleanCache(self):
 
