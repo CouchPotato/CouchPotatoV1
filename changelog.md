@@ -3,6 +3,7 @@ CouchPotato
 
 Version 25 (not release):
 
+* New: Subtitles support using SubScene and OpenSubtitles
 * Enhancement: Link to Changelog when new Windows Build is available.
 * Enhancement: Better logging class.
 * Enhancement: SQLAlchemy updated to 0.6.4, removed unused code.
