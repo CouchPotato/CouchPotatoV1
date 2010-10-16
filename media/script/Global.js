@@ -42,9 +42,9 @@ var ScrollSpy = new Class( {
 		mode : "vertical",
 		max : 0,
 		container : window,
-		onEnter : $empty,
-		onLeave : $empty,
-		onTick : $empty
+		onEnter : Function.from(),
+		onLeave : Function.from(),
+		onTick : Function.from()
 	},
 	initialize : function(b) {
 		this.setOptions(b);

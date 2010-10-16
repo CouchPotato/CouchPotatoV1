@@ -439,7 +439,7 @@
 
 	var form = $('configForm').getElement('form');
 	window.addEvent('domready', function(){
-		
+
 		// Quality sorting and hiding
 		var sq = form.getElement('.standardQualities')
 		var saveQualityTemplateOrder = function(){
@@ -450,10 +450,10 @@
 				var label = el.getElement('.label')
 				label.setStyle('opacity', 1)
 				
-				data.extend([el.get('data-id')])
+				data.append([el.get('data-id')])
 				
 				if (!checkbox.get('checked')){
-					hide.extend([el.get('data-name')])
+					hide.append([el.get('data-name')])
 					label.setStyle('opacity', 0.6)
 				}
 			})
@@ -462,7 +462,7 @@
 		}
 		
 		sq.getElements('.item input[type=checkbox]').addEvent('click', saveQualityTemplateOrder)
-		
+
 		var qualitySortable = new Sortables(sq, {
 			'revert': true,
 			'clone': true,
@@ -471,8 +471,7 @@
 			'onComplete': saveQualityTemplateOrder
 		});
 		saveQualityTemplateOrder()
-		
-		
+
 		var qt = form.getElement('.qualityTemplates')
 <%
 		import json
@@ -495,7 +494,7 @@
 		})
 
 		// Replace Userscript IE
-		if (Browser.Engine.trident){
+		if (Browser.ie){
 			form.getElement('fieldset.userscript a').setStyle('display', 'none')
 			form.getElement('fieldset.userscript p').setStyles({'height':'300px', 'display':'block'})
 		}
@@ -534,7 +533,7 @@
 	            fieldset.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
 	    }
 		
-		$each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset'],function(item){
+		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset'],function(item){
 		    var fieldset = $(item)
 		    var checkbox = fieldset.getElement('[type=checkbox]')
 		    isEnabled(checkbox, fieldset)
