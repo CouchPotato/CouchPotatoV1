@@ -55,7 +55,7 @@ class openSubtitles(subtitleBase):
                 search = {
                     'moviehash': self.hashFile(filePath),
                     'moviebytesize': str(os.path.getsize(filePath)),
-                    'sublanguageid': self.languages.get(lang)
+                    'sublanguageid': self.languages.get(lang.strip())
                 }
 
                 results = self.getItems(movie, file, search)
