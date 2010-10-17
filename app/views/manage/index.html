@@ -1,0 +1,69 @@
+<!-- <script type="text/javascript">
+
+	window.addEvent('domready', function(){
+		new Request.JSON({
+			'method': 'get',
+			'url': 'actions/movies/',
+			'onComplete': function(movies){
+				var container = $('library').getElement('.movies')
+				movies.each(function(movie){
+					console.log(movie)
+					new Element('div', {
+						'text': movie.folder
+					}).inject(container)
+				})
+			}
+		}).send()
+	})
+
+</script>
+
+<div id="library">
+	<ul class="alphabet">
+		<% alphabet = ['all','#','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'] %>
+		% for char in alphabet:
+			<li class="char-${char}"><a href="#">${char}</a></li>
+		% endfor
+	</ul>
+	<div class="movies"></div>
+</div> -->
+
+
+<%
+	trailersEnabled = config.get('Trailer', 'quality')
+	subtitlesEnabled = config.get('Subtitles', 'enabled')
+%>
+
+<h1>This is just a temporary page, soon this page will be awesome! For now, only 2 buttons.</h1>
+<div>Both trailers and subtitles use the "Movie Destination" set in: Settings &gt;&gt; Renaming</div>
+
+<ul class="action">
+% if not trailersEnabled:
+	<li title="Check settings">Trailer searching disabled. Check settings to enable.</li>
+% else:
+	<li><a id="searchForTrailers" class="item" href="${url(controller='cron', action='searchForTrailers')}" title="Search and download trailers">Download trailers</a></li>
+% endif
+% if not subtitlesEnabled:
+	<li title="Check settings">Subtitle searching disabled. Check settings to enable.</li>
+% else:
+	<li><a id="searchForSubtitle" class="item" href="${url(controller='cron', action='searchForSubtitles')}" title="Search and download subtitles">Download subtitles</a></li>
+% endif
+</ul>
+
+<script type="text/javascript">
+	window.addEvent('domready', function(){
+		
+		['searchForTrailers','searchForSubtitle'].each(function(item){
+			var button = $(item)
+			button.addEvent('click', function(e){
+				(e).stop()
+				new Request({
+					'url': button.get('href')
+				}).send()
+				button.set('text', 'Search started. Check log for updates.')
+			})
+		})
+	})
+</script>
+
+<%inherit file="/base.html" />

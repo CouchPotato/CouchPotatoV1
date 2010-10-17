@@ -115,8 +115,8 @@ class openSubtitles(subtitleBase):
             data = self.server.DownloadSubtitles(self.token, ids)
             self.lastUse = time.time()
             log.info('Subtitle download "%s" finished.' % subtitle['name'])
-        except (IOError, URLError):
-            log.error('Failed to open %s.' % data['subtitles'])
+        except Exception, e:
+            log.error('Failed to open %s.' % e)
             return None
 
         subtitlesFiles = []

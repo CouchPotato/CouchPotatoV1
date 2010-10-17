@@ -1,6 +1,7 @@
 from app import latinToAscii
 from app.config.cplog import CPLog
 from app.config.db import Movie, Session as Db, MovieQueue
+import cherrypy
 import fnmatch
 import os
 import re
@@ -8,6 +9,9 @@ import re
 log = CPLog(__name__)
 
 class Library:
+
+    def __init__(self):
+        self.config = cherrypy.config.get('config')
 
     minimalFileSize = 1024 * 1024 * 200 # 10MB
     ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '/._', '/.'] #unpacking, smb-crap, hidden files
@@ -17,6 +21,7 @@ class Library:
         'subtitle': ['*.sub', '*.srt', '*.idx', '*.ssa', '*.ass'],
         'trailer': ['*.mov', '*.mp4', '*.flv']
     }
+    noTables = False
 
     def getMovies(self, folder = None):
 
@@ -79,6 +84,10 @@ class Library:
                 if movie['movie']:
                     movie['history'] = self.getHistory(movie['movie'])
 
+                if self.noTables:
+                    movie['history'] = [h.id for h in movie['history']] if movie['history'] else movie['history']
+                    movie['movie'] = movie['movie'].id if movie['movie'] else movie['movie']
+
                 movies.append(movie)
 
         return movies
@@ -92,7 +101,6 @@ class Library:
         return None
 
     def determineMovie(self, movie):
-
 
         for file in movie['files']:
             dirnames = movie['path'].split(os.path.sep)
@@ -145,6 +153,7 @@ class Library:
         Get movie based on IMDB id.
         If not in local DB, go fetch it from theMovieDb
         '''
+
         return Db.query(Movie).filter_by(imdb = imdbId).first()
 
     def filesizeBetween(self, file, min = 0, max = 100000):

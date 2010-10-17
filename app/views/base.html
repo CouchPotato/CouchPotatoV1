@@ -33,7 +33,8 @@
 		'Global.js',
 		'Uniform.js',
 		'Quality.js',
-		'Question.js'
+		'Question.js',
+		'Library.js'
 	]
 	miniJs = Minify.js(jsFiles) 
 %>
@@ -48,12 +49,17 @@
 	
 	<div id="header">
 	    <div class="navigation">
-
+	    	<% tabs = [
+		            {'href': 'movie', 'title':'Gimmy gimmy gimmy!', 'label':'Wanted'},
+		            {'href': 'manage', 'title':'Do stuff to your existing movies!', 'label':'Manage'},
+		            {'href': 'feed', 'title':'Which wanted movies are released soon?', 'label':'Soon'},
+		            {'href': 'log', 'title':'Show recent logs.', 'class':'logLink', 'label':'Logs'},
+		            {'href': 'config', 'title':'Change settings.', 'id':'showConfig'}
+	    		] %>
 	        <ul>
-	            <li><a href="${url(controller='movie', action='index')}">Movies</a></li>
-	            <li><a href="${url(controller='feed', action='index')}">Soon</a></li>
-	            <li><a href="${url(controller='config', action='index')}" id="showConfig">Settings</a></li>
-	            <li><a href="${url(controller='log', action='index')}" class="logLink">Logs</a></li>
+	    	% for tab in tabs:
+	            <li><a href="${url(controller=tab.get('href'), action='index')}" title="${tab.get('title')}" id="${tab.get('id', '')}" class="${tab.get('class', '')}">${tab.get('label', '')}</a></li>
+	        % endfor
 	        </ul>
 
 			<div id="addForm">
@@ -78,7 +84,11 @@
 						}).send()
 						
 					}
-					$('showConfig').addEvent('click', showConfigPopup);
+					$('showConfig').addEvents({
+						'click': showConfigPopup,
+						'mouseover': function(){ this.setStyle('opacity', 0.5) },
+						'mouseout': function(){ this.setStyle('opacity', 1) }
+					});
 					
 					var hasUpdate = $(document.body).getElement('.updateAvailable');
 					var updateNow = function(updateThis){

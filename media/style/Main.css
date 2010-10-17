@@ -119,7 +119,7 @@ form {
 		float: left;
 		padding: 0;
 		margin: 0 0 0 6px;
-		width: 400px;
+		width: 450px;
 	}
 
 	#header .navigation ul li {
@@ -137,7 +137,12 @@ form {
 			padding: 15px;
 		}
 			#header .navigation ul li:first-child a { padding-left: 10px; }
-			#header .navigation ul li a.logLink { font-size: 13px; padding: 22px; }
+			#header .navigation ul li a.logLink { font-size: 13px; padding: 23px 20px 15px; }
+			#header .navigation ul li a#showConfig { 
+				background: url('../../media/images/gear.png') no-repeat center;
+				height: 35px;
+				width: 10px;
+			}
 
 			#header .navigation ul li span {
 				display: block;
