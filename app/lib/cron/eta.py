@@ -32,7 +32,7 @@ class etaCron(rss, cronBase):
                 else:
                     movie = queue.get('movie')
 
-                if not cherrypy.config.get('global').get('debug'):
+                if not cherrypy.config.get('debug'):
                     #do a search
                     self.running = True
                     result = self.search(movie)
