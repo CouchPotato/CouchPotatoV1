@@ -180,7 +180,7 @@ class SubtitleHistory(object):
     data = None
 
     def __repr__(self):
-        return "<history: value=%s status=%s" % (self.value, self.status)
+        return "<history: file=%s data=%s" % (self.file, self.data)
 
 class QualityTemplate(object):
     id = None
