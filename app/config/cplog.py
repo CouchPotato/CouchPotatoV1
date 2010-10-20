@@ -24,7 +24,10 @@ class CPLog():
         self.log(msg, severity = logging.ERROR)
 
     def log(self, msg = '', severity = logging.INFO):
-        self.logger.error(msg = app.latinToAscii(msg), context = self.context, severity = severity)
+        try:
+            self.logger.error(msg = app.latinToAscii(msg), context = self.context, severity = severity)
+        except:
+            self.logger.error(msg = msg, context = self.context, severity = severity)
 
     def config(self, logPath, debug = False):
 
