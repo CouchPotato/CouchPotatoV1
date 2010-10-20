@@ -24,12 +24,12 @@ class HdTrailers(rss):
     def find(self, movie):
 
         url = self.apiUrl % self.movieUrlName(movie.name)
-        log.info('Searching %s' % url)
+        log.debug('Searching %s' % url)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
-        except (IOError, URLError):
-            log.error('Failed to open %s.' % url)
+        except (IOError, URLError), e:
+            log.debug('Failed to open %s. %s' % (url, e))
             return []
 
         p480 = []
@@ -57,12 +57,12 @@ class HdTrailers(rss):
             's':movie
         })
         url = "%s?%s" % (self.backupUrl, arguments)
-        log.info('Searching %s' % url)
+        log.debug('Searching %s' % url)
 
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
-        except (IOError, URLError):
-            log.error('Failed to open %s.' % url)
+        except (IOError, URLError), e:
+            log.debug('Failed to open %s. %s' % (url, e))
             return results
 
         try:
