@@ -62,8 +62,9 @@ class rss:
     def getItems(self, data, path = 'channel/item'):
         try:
             return XMLTree.parse(data).findall(path)
-        except:
-            return
+        except Exception, e:
+            log.error('Error parsing RSS. %s' % e)
+            return []
 
     def wait(self):
         now = time.time()
