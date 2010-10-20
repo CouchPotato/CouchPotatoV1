@@ -1,4 +1,3 @@
-from app import latinToAscii
 from app.config.cplog import CPLog
 from app.lib.cron.base import cronBase
 from app.lib.library import Library
@@ -57,8 +56,8 @@ class SubtitleCron(rss, cronBase, Library):
         if not self.isEnabled():
             return
 
+        log.info('Searching for subtitles: %s.' % movie['folder'])
         for provider in self.providers:
-            log.info('Search %s for subtitles: %s.' % (provider.name, latinToAscii(movie['folder'])))
             result = provider.find(movie)
             if(result.get('subtitles')):
                 subtitleDownloads = result['download'](result)
@@ -73,7 +72,11 @@ class SubtitleCron(rss, cronBase, Library):
                         subtitlePath = os.path.join(movie['path'], movieFile['filename'][:-len(movieFile['ext'])])
                         subtitleExt = os.path.splitext(subtitleFile)[1].lower()[1:]
                         lang = result['language'] + '.' if self.conf('addLanguage') else ''
-                        shutil.move(subtitleFile, subtitlePath + lang + subtitleExt)
+
+                        if cherrypy.config.get('debug'):
+                            log.debug('Downloading %s to %s' % (subtitleFile, subtitlePath + lang + subtitleExt))
+                        else:
+                            shutil.move(subtitleFile, subtitlePath + lang + subtitleExt)
 
                     break
 
@@ -89,14 +92,15 @@ class SubtitleCron(rss, cronBase, Library):
         elif not self.isEnabled():
             return
 
-        log.info('Start searching for subtitles.')
+        log.info('Start adding movies to subtitle search.')
+        self.searchingExisting = time.time()
         movies = self.getMovies(directory)
 
         for movie in movies:
             if not movie.get('subtitles'):
                 subtitleQueue.put(movie)
 
-        log.info('Done searching for subtitles.')
+        log.info('Done adding movies to subtitle search.')
 
 def startSubtitleCron(config, debug):
     cron = SubtitleCron()

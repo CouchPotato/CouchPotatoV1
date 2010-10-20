@@ -57,7 +57,7 @@ class subscene(subtitleBase):
         valid = []
         for lang in self.conf('languages').split(','):
             for result in results:
-                if not self.alreadyDownloaded(movie['movie'], releaseName, result['id']) and self.simplifyString(releaseName) in self.simplifyString(result['name']) and result['language'] == lang:
+                if self.simplifyString(releaseName) in self.simplifyString(result['name']) and result['language'] == lang and not self.alreadyDownloaded(movie['movie'], releaseName, result['id']):
                     valid.append(result)
                     break
 

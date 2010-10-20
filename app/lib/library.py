@@ -1,6 +1,7 @@
 from app import latinToAscii
 from app.config.cplog import CPLog
 from app.config.db import Movie, Session as Db, MovieQueue
+from app.lib import hashFile
 import cherrypy
 import fnmatch
 import os
@@ -21,6 +22,16 @@ class Library:
         'subtitle': ['*.sub', '*.srt', '*.idx', '*.ssa', '*.ass'],
         'trailer': ['*.mov', '*.mp4', '*.flv']
     }
+    # From Plex/XBMC
+    multipartRegEx = [
+        '[ _\.-]+cd[ _\.-]*([0-9a-d]+)', #*cd1
+        '[ _\.-]+dvd[ _\.-]*([0-9a-d]+)', #*dvd1
+        '[ _\.-]+part[ _\.-]*([0-9a-d]+)', #*part1.mkv
+        '[ _\.-]+dis[ck][ _\.-]*([0-9a-d]+)', #*disk1.mkv
+        '()[ _\.-]+([0-9]*[abcd]+)(\.....?)$',
+        '([a-z])([0-9]+)(\.....?)$',
+        '()([ab])(\.....?)$' #*a.mkv 
+    ]
     noTables = False
 
     def getMovies(self, folder = None):
@@ -33,6 +44,7 @@ class Library:
             return movies
 
         for root, subfiles, filenames in os.walk(movieFolder):
+            if self.abort:  return movies
 
             movie = {
                 'movie': None,
@@ -69,6 +81,13 @@ class Library:
                             movie['files'].append(new)
 
             if movie['files']:
+
+                # Check hash
+#                fullPath = os.path.join(movie['path'], movie['files'][0]['filename'])
+#                hash = hashFile(fullPath)
+#                bytesize = os.path.getsize(fullPath)
+#                results = cherrypy.config['searchers']['movie'].findByHash(hash, bytesize)
+
                 # Find movie by nfo
                 if movie['nfo']:
                     for nfo in movie['nfo']:
@@ -84,6 +103,10 @@ class Library:
                 if movie['movie']:
                     movie['history'] = self.getHistory(movie['movie'])
 
+                # Create filename without cd1/cd2 etc
+                movie['filename'] = self.removeMultipart(os.path.splitext(movie['files'][0]['filename'])[0])
+
+                # Give back ids, not table rows
                 if self.noTables:
                     movie['history'] = [h.id for h in movie['history']] if movie['history'] else movie['history']
                     movie['movie'] = movie['movie'].id if movie['movie'] else movie['movie']
@@ -91,6 +114,16 @@ class Library:
                 movies.append(movie)
 
         return movies
+
+    def removeMultipart(self, name):
+        for regex in self.multipartRegEx:
+            try:
+                found = re.sub(regex, '', name)
+                if found != name:
+                    return found
+            except:
+                pass
+        return name
 
     def getHistory(self, movie):
 

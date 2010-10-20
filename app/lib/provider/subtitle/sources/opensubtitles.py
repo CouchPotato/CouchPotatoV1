@@ -1,10 +1,10 @@
 from app.config.cplog import CPLog
+from app.lib import hashFile
 from app.lib.provider.subtitle.base import subtitleBase
-from urllib2 import URLError
+from hashlib import md5
 import base64
 import cherrypy
 import os
-import struct
 import time
 import xmlrpclib
 import zlib
@@ -16,12 +16,18 @@ class openSubtitles(subtitleBase):
     name = "OpenSubtitles"
     siteUrl = "http://www.opensubtitles.org/"
     searchUrl = "http://api.opensubtitles.org/xml-rpc"
+    hashes = {}
 
     def __init__(self, config, extensions):
         self.config = config
         self.extensions = extensions
 
-        #Login
+        self.login()
+
+    def conf(self, value):
+        return self.config.get('Subtitles', value)
+
+    def login(self):
         self.wait()
         self.server = xmlrpclib.Server(self.searchUrl)
         self.lastUse = time.time()
@@ -32,9 +38,6 @@ class openSubtitles(subtitleBase):
         except Exception:
             log.error("Open subtitles could not be contacted for login")
             self.token = None
-
-    def conf(self, value):
-        return self.config.get('Subtitles', value)
 
     def find(self, movie):
 
@@ -48,13 +51,14 @@ class openSubtitles(subtitleBase):
         }
 
         self.wait()
-
+        self.hashes = {}
         for lang in self.conf('languages').split(','):
             for file in movie['files']:
                 filePath = os.path.join(movie['path'], file['filename'])
+                info = self.getInfo(filePath)
                 search = {
-                    'moviehash': self.hashFile(filePath),
-                    'moviebytesize': str(os.path.getsize(filePath)),
+                    'moviehash': info.get('moviehash'),
+                    'moviebytesize': info.get('moviebytesize'),
                     'sublanguageid': self.languages.get(lang.strip())
                 }
 
@@ -73,14 +77,22 @@ class openSubtitles(subtitleBase):
 
         return data
 
+    def getInfo(self, filePath):
+        key = md5(filePath).digest()
+        if not self.hashes.get(key):
+            self.hashes[key] = {
+                'moviehash': hashFile(filePath),
+                'moviebytesize': str(os.path.getsize(filePath))
+            }
+        return self.hashes.get(key)
+
     def getItems(self, movie, file, params):
 
         subtitles = []
         results = []
 
         try:
-            if params:
-                results = self.server.SearchSubtitles(self.token, [params])
+            results = self.server.SearchSubtitles(self.token, [params])
         except Exception, e:
             log.error("Couldn\'t search OpenSubtitles: %s, token:%s, params:%s, result:%s" % (e, self.token, params, results))
             return subtitles
@@ -153,40 +165,6 @@ class openSubtitles(subtitleBase):
                 return - 1
 
         return 0
-
-    def hashFile(self, name):
-        try:
-            longlongformat = 'q'  # long long 
-            bytesize = struct.calcsize(longlongformat)
-
-            f = open(name, "rb")
-
-            filesize = os.path.getsize(name)
-            hash = filesize
-
-            if filesize < 65536 * 2:
-                return "SizeError"
-
-            for x in range(65536 / bytesize):
-                buffer = f.read(bytesize)
-                (l_value,) = struct.unpack(longlongformat, buffer)
-                hash += l_value
-                hash = hash & 0xFFFFFFFFFFFFFFFF #to remain as 64bit number  
-
-
-            f.seek(max(0, filesize - 65536), 0)
-            for x in range(65536 / bytesize):
-                buffer = f.read(bytesize)
-                (l_value,) = struct.unpack(longlongformat, buffer)
-                hash += l_value
-                hash = hash & 0xFFFFFFFFFFFFFFFF
-
-            f.close()
-            returnedhash = "%016x" % hash
-            return returnedhash
-
-        except(IOError):
-            return False
 
     languages = {
         "en": "eng",
