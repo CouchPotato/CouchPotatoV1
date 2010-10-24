@@ -18,3 +18,4 @@ WindowsStart.py
 WindowsUpdater.py
 /data/
 *.wpr
+/.idea/

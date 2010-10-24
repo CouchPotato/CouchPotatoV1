@@ -86,8 +86,9 @@ class Updater(SimplePlugin):
             self.updateAvailable = self.checkForUpdateWindows()
         else:
             update = self.checkForUpdateUnix()
-            history = open(self.historyFile, 'r').read()
-            self.updateAvailable = update.get('name').replace('.tar.gz', '') not in history
+            if update:
+                history = open(self.historyFile, 'r').read()
+                self.updateAvailable = update.get('name').replace('.tar.gz', '') not in history
 
         self.availableString = 'Update available' if self.updateAvailable else 'No update available'
         self.lastCheck = time.time()

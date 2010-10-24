@@ -107,6 +107,9 @@ class RenamerCron(cronBase):
 
                 if self.config.get('Trailer', 'quality'):
                     self.trailerQueue.put({'movieId': movie['movie'].id, 'destination':finalDestination})
+
+                # Search for subtitles
+                cherrypy.config['cron']['subtitle'].forDirectory(finalDestination['directory'])
             else:
                 try:
                     file = files['files'][0]
@@ -168,6 +171,7 @@ class RenamerCron(cronBase):
         '''
         rename files based on movie data & conf
         '''
+
         multiple = False
         if len(files['files']) > 1:
             multiple = True
@@ -303,8 +307,6 @@ class RenamerCron(cronBase):
             queue.completed = True
             Db.flush()
 
-        #import pdb; pdb.set_trace()
-
         return {
             'directory': finalDestination,
             'filename': finalFilename
@@ -328,8 +330,8 @@ class RenamerCron(cronBase):
 
                 if not fullPath in dontDelete:
 
-                    # Only delete media files
-                    if '*.' + ext in self.movieExt and not '-trailer' in filename:
+                    # Only delete media files and subtitles
+                    if ('*.' + ext in self.movieExt or '*.' + ext in self.subExt) and not '-trailer' in filename:
                         files.append(fullPath)
 
         log.info('Quality Old: %s, New %s.' % (int(oldSize / 1024 / 1024), int(newSize / 1024 / 1024)))

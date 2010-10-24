@@ -6,6 +6,7 @@ from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup, SoupStrainer
 from sqlalchemy.sql.expression import or_
 from urllib2 import URLError
 import Queue
+import cherrypy
 import re
 import time
 import urllib
@@ -31,11 +32,12 @@ class etaCron(rss, cronBase):
                 else:
                     movie = queue.get('movie')
 
-                #do a search
-                self.running = True
-                result = self.search(movie)
-                self.save(movie, result)
-
+                if not cherrypy.config.get('debug'):
+                    #do a search
+                    self.running = True
+                    result = self.search(movie)
+                    if result:
+                        self.save(movie, result)
 
                 etaQueue.task_done()
                 time.sleep(timeout)

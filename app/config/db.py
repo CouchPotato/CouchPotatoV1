@@ -95,6 +95,15 @@ historyTable = Table('History', metadata,
                      Column('status', String())
             )
 
+subtitleHistoryTable = Table('SubtitleHistory', metadata,
+                     Column('id', Integer, primary_key = True),
+                     Column('movie', Integer, ForeignKey('Movie.id')),
+                     Column('file', String()),
+                     Column('subtitle', String()),
+                     Column('status', String()),
+                     Column('data', Text())
+            )
+
 qualityTemplateTable = Table('QualityTemplate', metadata,
                      Column('id', Integer, primary_key = True),
                      Column('name', Integer, unique = True),
@@ -153,7 +162,7 @@ class MovieExtra(object):
 
 class RenameHistory(object):
     def __repr__(self):
-        return "<renamehistory: %s" % self.name
+        return "<renamehistory: %s" % self.movieQueue
 
 class History(object):
     movie = None
@@ -162,6 +171,16 @@ class History(object):
 
     def __repr__(self):
         return "<history: value=%s status=%s" % (self.value, self.status)
+
+class SubtitleHistory(object):
+    movie = None
+    status = None
+    file = None
+    subtitle = None
+    data = None
+
+    def __repr__(self):
+        return "<history: file=%s data=%s" % (self.file, self.data)
 
 class QualityTemplate(object):
     id = None
@@ -189,11 +208,14 @@ movieMapper = mapper(Movie, movieTable, properties = {
    'extra': relation(MovieExtra, backref = 'Movie', viewonly = True),
    'history': relation(History, backref = 'Movie')
 })
-movieQueueMapper = mapper(MovieQueue, movieQueueTable)
+movieQueueMapper = mapper(MovieQueue, movieQueueTable, properties = {
+    'renamehistory': relation(RenameHistory, backref = 'MovieQueue')
+})
 movieEtaMapper = mapper(MovieETA, movieEtaTable)
 movieExtraMapper = mapper(MovieExtra, movieExtraTable)
 renameHistoryMapper = mapper(RenameHistory, renameHistoryTable)
 HistoryMapper = mapper(History, historyTable)
+SubtitleHistoryMapper = mapper(SubtitleHistory, subtitleHistoryTable)
 qualityMapper = mapper(QualityTemplate, qualityTemplateTable, properties = {
    'types': relation(QualityTemplateType, backref = 'QualityTemplate', order_by = qualityTemplateTypeTable.c.order)
 })

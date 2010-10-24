@@ -43,7 +43,7 @@ var Question = new Class( {
 	createAnswer : function(options) {
 		var self = this
 
-		var answer = new Element('a', $merge(options, {
+		var answer = new Element('a', Object.merge(options, {
 			'class' : 'answer '+options['class']
 		})).inject(this.container)
 

@@ -83,7 +83,6 @@ class nzbMatrix(nzbBase):
                     log.debug('No valid xml or to many requests.. You never know with %s.' % self.name)
                     return results
 
-                results = []
                 for nzb in xml:
 
                     title = self.gettextelement(nzb, "title")
@@ -111,7 +110,6 @@ class nzbMatrix(nzbBase):
                 return results
             except SyntaxError:
                 log.error('Failed to parse XML response from NZBMatrix.com')
-                return False
 
         return results
 

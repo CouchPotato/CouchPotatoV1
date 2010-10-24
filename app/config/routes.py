@@ -3,6 +3,7 @@ from app.controllers.cron import CronController
 from app.controllers.feed import FeedController
 from app.controllers.log import LogController
 from app.controllers.movie import MovieController
+from app.controllers.manage import ManageController
 import cherrypy
 
 def setup():
@@ -13,21 +14,11 @@ def setup():
 
     mapper.connect('main', '/', controller = MovieController(), action = 'index')
 
-    mapper.connect('movie', '/movie/', controller = MovieController(), action = 'index')
-    mapper.connect('movie', '/movie/:action/', controller = MovieController(), action = 'index')
-
-    mapper.connect('cron', '/cron/', controller = CronController())
-    mapper.connect('cron', '/cron/:action/', controller = CronController(), action = 'index')
-
-    mapper.connect('config', '/config/', controller = ConfigController())
-    mapper.connect('config', '/config/:action/', controller = ConfigController(), action = 'index')
+    for controller in [MovieController, FeedController, ConfigController, CronController, ManageController, LogController]:
+        name = str(controller).split('.')[-2]
+        mapper.connect(name, '/' + name + '/', controller = controller(), action = 'index')
+        mapper.connect(name, '/' + name + '/:action/', controller = controller(), action = 'index')
 
     mapper.connect('userscript', '/CouchPotato.user.js', controller = ConfigController(), action = 'userscript')
-
-    mapper.connect('log', '/log/', controller = LogController())
-    mapper.connect('log', '/log/:action/', controller = LogController(), action = 'index')
-
-    mapper.connect('feed', '/feed/', controller = FeedController())
-    mapper.connect('feed', '/feed/:action/', controller = FeedController(), action = 'index')
 
     return mapper

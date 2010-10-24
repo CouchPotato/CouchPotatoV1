@@ -15,7 +15,7 @@ var Quality = new Class({
 				'change': self.saveQualityTemplate.bind(self)
 			}
 		});
-		$each(types, function(type){
+		Object.each(types, function(type){
 			new Element('option', {
 				'value': type.key,
 				'text': type.label
@@ -23,7 +23,7 @@ var Quality = new Class({
 		})
 		
 		if(existing)
-			$each(existing, function(item){
+			Object.each(existing, function(item){
 				self.add(item)
 			});
 		
@@ -107,7 +107,7 @@ var Quality = new Class({
 		).inject(this.list)
 		
 		if(properties.types)
-			$each(properties.types, function(type){
+			Object.each(properties.types, function(type){
 				self.newType(type).inject(self.temptype)
 			})
 		
@@ -203,14 +203,14 @@ var Quality = new Class({
 			}
 
 			template.getElements('.types .item').each(function(type){
-				temp.types.extend([{
+				temp.types.append([{
 					'id': type.get('data-id'),
 					'type': type.getElement('select').get('value'), 
 					'markComplete': type.getElement('input[type=checkbox]').get('checked')
 				}])
 			})
 			
-			templateJson.extend([temp])
+			templateJson.append([temp])
 		});
 
 		this.json.set('value', JSON.encode(templateJson))

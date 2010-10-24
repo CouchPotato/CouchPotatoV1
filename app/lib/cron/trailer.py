@@ -1,6 +1,8 @@
 from app.config.cplog import CPLog
 from app.config.db import Session as Db, Movie
+from app.lib import library
 from app.lib.cron.base import cronBase
+from app.lib.library import Library
 from app.lib.provider.rss import rss
 from app.lib.provider.trailers.hdtrailers import HdTrailers
 from urllib2 import URLError
@@ -16,10 +18,10 @@ import urllib2
 trailerQueue = Queue.Queue()
 log = CPLog(__name__)
 
-class TrailerCron(rss, cronBase):
+class TrailerCron(rss, cronBase, Library):
 
     formats = ['1080p', '720p', '480p']
-    sources = []
+    providers = []
     config = None
     searchingExisting = 0
 
@@ -28,22 +30,19 @@ class TrailerCron(rss, cronBase):
 
         self.tempdir = cherrypy.config.get('cachePath')
 
-        # Sources
-        self.sources.append(HdTrailers(self.config))
-        #self.sources.append(Youtube(self.config))
+        # Provider
+        for provider in [HdTrailers]:
+            p = provider(self.config)
+            self.providers.append(p)
 
         timeout = 0.1 if self.debug else 1
         while True and not self.abort:
             try:
                 movie = trailerQueue.get(timeout = timeout)
 
-                # Thread fix
-                if movie.get('movieId'):
-                    movie['movie'] = Db.query(Movie).filter_by(id = movie.get('movieId')).one()
-
                 #do a search
                 self.running = True
-                self.search(movie['movie'], movie['destination'])
+                self.search(movie)
                 self.running = False
 
                 trailerQueue.task_done()
@@ -52,79 +51,33 @@ class TrailerCron(rss, cronBase):
 
         log.info('TrailerCron shutting down.')
 
-    def searchExisting(self):
+    def conf(self, value):
+        return self.config.get('Trailer', value)
+
+    def isEnabled(self):
+        return self.conf('quality')
+
+    def forDirectory(self, directory):
+        log.info('Finding trailers for: %s' % directory)
+        self.searchExisting(directory, force = True)
+
+    def searchExisting(self, directory = None, force = False):
 
         if not self.searchingExisting < time.time() - 300 and not self.debug:
             log.info('Just searched for trailers. Can do a search every 5 minutes.')
             return
-
-        if not self.config.get('Trailer', 'quality') or not self.config.get('Renamer', 'destination'):
-            log.info('No trailer quality set or no movie folder found.')
+        elif not self.isEnabled():
             return
 
-        log.info('Searching for trailers for existing movies.')
+        log.info('Adding movies to trailer search.')
         self.searchingExisting = time.time()
+        movies = self.getMovies(directory)
 
-        movieFolder = self.config.get('Renamer', 'destination')
-        movieList = []
+        for movie in movies:
+            if not movie.get('trailer') or force:
+                trailerQueue.put(movie)
 
-        for dir in os.listdir(unicode(movieFolder)):
-            fullDirPath = os.path.join(movieFolder, dir)
-            for root, subfiles, filenames in os.walk(fullDirPath):
-                log.debug(subfiles)
-                for file in filenames:
-                    fullPath = os.path.join(root, file)
-                    if not '-trailer' in file.lower() and os.path.getsize(fullPath) > (200 * 1024 * 1024):
-                        hasTrailer = False
-                        nfo = None
-                        for checkfile in filenames:
-                            if '-trailer' in checkfile.lower():
-                                hasTrailer = True
-                            if '.nfo' in checkfile.lower() and checkfile[:2] != '._':
-                                nfo = checkfile
-
-                        if not hasTrailer:
-                            movieList.append({
-                                'directory': root,
-                                'filename': file,
-                                'nfo': nfo
-                            })
-
-        for movieFiles in movieList:
-            movie = None
-            nfo = None
-            year = None
-
-            if movieFiles.get('nfo'):
-                nfoFile = os.path.join(movieFiles.get('directory'), movieFiles.get('nfo'))
-                handle = open(nfoFile, 'r')
-                nfo = self.getItems(handle, '')
-                handle.close()
-
-            # Get name via nfo
-            if nfo:
-                imdb = self.gettextelement(nfo[0], 'id')
-                if imdb:
-                    movie = cherrypy.config.get('searchers').get('movie').findByImdbId(imdb)
-            else:
-                q = self.toSearchString(os.path.splitext(movieFiles.get('filename'))[0])
-
-                year = self.findYear(movieFiles.get('filename'))
-                year = year if year else self.findYear(movieFiles.get('directory'))
-
-                if q and year:
-                    guess = cherrypy.config.get('searchers').get('movie').find(q + ' ' + year, limit = 1, alternative = False)
-                    if guess:
-                        movie = guess.pop()
-
-            if movie:
-                log.info('Adding "%s" to trailer search.' % movie.name)
-                trailerQueue.put({'movie': movie, 'destination':movieFiles})
-            else:
-                log.info('No match found for: %s' % movieFiles.get('filename'))
-
-            if not self.debug:
-                time.sleep(1)
+        log.info('Done adding movies to trailer search.')
 
     def findYear(self, text):
         matches = re.search('(?P<year>[0-9]{4})', text)
@@ -133,40 +86,46 @@ class TrailerCron(rss, cronBase):
 
         return None
 
-    def search(self, movie, destination):
-        log.info('Search for trailer for: %s' % movie.name)
+    def search(self, movie):
+        log.info('Search for trailer for: %s' % movie['folder'])
 
         if self.abort:
             return
 
-        if self.config.get('Trailer', 'name') == 'movie-trailer':
+        if self.conf('name') == 'movie-trailer':
             trailerFinal = 'movie-trailer'
         else:
-            trailerFinal = os.path.splitext(destination.get('filename'))[0]
-            trailerFinal = trailerFinal[:len(trailerFinal) - 1] if trailerFinal[-1] == '.' else trailerFinal
-            trailerFinal += '-trailer'
+            trailerFinal = movie['filename'] + '-trailer'
 
-        trailerFinal = os.path.join(destination.get('directory'), trailerFinal)
+        trailerFinal = os.path.join(movie['path'], trailerFinal)
 
         # Rename existing trailer
-        for file in os.listdir(destination.get('directory')):
-            if '-trailer' in file:
-                oldName = os.path.join(destination.get('directory'), file)
-                shutil.move(oldName, trailerFinal + os.path.splitext(file)[1])
-                return True
+        if movie['trailer']:
+            addNumber = len(movie['trailer']) > 1
+            i = 1
+            for trailer in movie['trailer']:
+                oldName = os.path.join(movie['path'], trailer['filename'])
+                newName = trailerFinal if not addNumber else trailerFinal + str(i)
+                shutil.move(oldName, newName + '.' + trailer['ext'])
+                i += 1
+            return True
 
-        for source in self.sources:
-            results = source.find(movie)
+        if not movie['movie']:
+            log.info("Unknown movie: '%s'." % movie['folder'])
+            return
+
+        for provider in self.providers:
+            results = provider.find(movie['movie'])
             if results:
                 for quality, items in results.iteritems():
-                    if quality == self.config.get('Trailer', 'quality'):
+                    if quality == self.conf('quality'):
                         for result in items:
                             trailer = self.download(result)
                             if trailer:
                                 shutil.move(trailer, trailerFinal + os.path.splitext(trailer)[1])
                                 return True
 
-        log.info('No trailer found for %s.' % movie.name)
+        log.debug('No trailer found for %s.' % movie['folder'])
 
     def download(self, url):
         try:
@@ -188,11 +147,8 @@ class TrailerCron(rss, cronBase):
 
         log.info('Downloading trailer "%s", %d MB' % (url, int(data.info().getheaders("Content-Length")[0]) / 1024 / 1024))
 
-        if self.debug:
-            return
-
         with open(tempTrailerFile, 'wb') as f:
-            f.write(data.read())
+            f.write(data.read() if not self.debug else 'trailer')
 
         log.info('Download of %s finished.' % url)
 
