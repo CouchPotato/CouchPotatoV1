@@ -24,7 +24,7 @@ class IdError(XmgException):
 class NfoError(XmgException):
     pass
 
-def metagen(location, fanart_height_min = 0, fanart_width_min = 0, name=None, imdb_id=None, tmdb_id=None, imdbpy=None):
+def metagen(location, fanart_min_height = 0, fanart_min_width = 0, name=None, imdb_id=None, tmdb_id=None, imdbpy=None):
     ''' metagen is used to download metadata for a movie or tv show and then create
     the necessary files for the media to be imported into XBMC.
 
@@ -105,7 +105,7 @@ def metagen(location, fanart_height_min = 0, fanart_width_min = 0, name=None, im
     #TODO: Search by movie hash
 
     write_nfo(nfo_gen(imdbpy_movie, i), location_dir)
-    get_fanart(imdb_id, location_dir, fanart_height_min, fanart_width_min)
+    get_fanart(imdb_id, location_dir, fanart_min_height, fanart_min_width)
 
 
 def nfo_gen(imdbpy_movie, imdbpy):

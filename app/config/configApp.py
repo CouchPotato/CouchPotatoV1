@@ -114,6 +114,16 @@ class configApp():
         self.setDefault('Subtitles', 'addLanguage', True)
         self.setDefault('Subtitles', 'name', 'filename') #filename, subtitle
 
+        self.addSection('XBMC')
+        self.setDefault('XBMC', 'meta_enabled', False)
+        self.setDefault('XBMC', 'notify', False)
+        self.setDefault('XBMC', 'update_library', False)
+        self.setDefault('XBMC', 'host', 'localhost')
+        self.setDefault('XBMC', 'username', 'xbmc')
+        self.setDefault('XBMC', 'password', 'xbmc')
+        self.setDefault('XBMC', 'fanart_min_height', 0)
+        self.setDefault('XBMC', 'fanart_min_width', 0)
+
         self.save()
 
     def save(self):

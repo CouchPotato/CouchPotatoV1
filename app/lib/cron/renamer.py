@@ -12,6 +12,7 @@ import re
 import shutil
 import time
 import traceback
+import cherrypy
 
 log = CPLog(__name__)
 
@@ -101,9 +102,21 @@ class RenamerCron(cronBase):
                 finalDestination = self.renameFiles(files, movie['movie'], movie['queue'])
 
                 #Generate XBMC metadata
-                wrapper = imdbWrapper.imdbWrapper(self.config)
-                imdbpy = wrapper.get_IMDb_instance()
-                xmg.metagen(finalDestination['directory'], imdb_id = movie['movie'].imdb)
+                print "Checking if we should generate meta..."
+                if self.config.get('XBMC', 'meta_enabled'):
+                    print "Generating meta"
+                    xmg.metagen(finalDestination['directory'],
+                                imdb_id = movie['movie'].imdb,
+                                fanart_min_height = self.config.get('XBMC', 'fanart_min_height'),
+                                fanart_min_width = self.config.get('XBMC', 'fanart_min_width'))
+                    print "Done generating meta"
+                else:
+                    print "Not checking for meta"
+
+
+#                    wrapper = imdbWrapper.imdbWrapper(self.config)
+#                    imdbpy = wrapper.get_IMDb_instance()
+#                    xmg.metagen(finalDestination['directory'], imdb_id = movie['movie'].imdb)
 
                 if self.config.get('Trailer', 'quality'):
                     self.trailerQueue.put({'movieId': movie['movie'].id, 'destination':finalDestination})
