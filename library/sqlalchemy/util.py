@@ -584,6 +584,18 @@ def asbool(obj):
             raise ValueError("String is not true/false: %r" % obj)
     return bool(obj)
 
+def bool_or_str(*text):
+    """Return a callable that will evaulate a string as 
+    boolean, or one of a set of "alternate" string values.
+    
+    """
+    def bool_or_value(obj):
+        if obj in text:
+            return obj
+        else:
+            return asbool(obj)
+    return bool_or_value
+    
 def coerce_kw_type(kw, key, type_, flexi_bool=True):
     """If 'key' is present in dict 'kw', coerce its value to type 'type\_' if
     necessary.  If 'flexi_bool' is True, the string '0' is considered false
@@ -745,7 +757,7 @@ class NamedTuple(tuple):
         return t
 
     def keys(self):
-        return self._labels
+        return [l for l in self._labels if l is not None]
 
 
 class OrderedProperties(object):
@@ -1801,8 +1813,12 @@ class classproperty(property):
     """A decorator that behaves like @property except that operates
     on classes rather than instances.
 
-    This is helpful when you need to compute __table_args__ and/or
-    __mapper_args__ when using declarative."""
+    The decorator is currently special when using the declarative
+    module, but note that the 
+    :class:`~.sqlalchemy.ext.declarative.declared_attr`
+    decorator should be used for this purpose with declarative.
+    
+    """
     
     def __init__(self, fget, *arg, **kw):
         super(classproperty, self).__init__(fget, *arg, **kw)

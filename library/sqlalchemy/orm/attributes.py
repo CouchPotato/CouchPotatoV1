@@ -42,8 +42,15 @@ PASSIVE_NO_INITIALIZE = True #util.symbol('PASSIVE_NO_INITIALIZE')
 
 # this is used by backrefs.
 PASSIVE_NO_FETCH = util.symbol('PASSIVE_NO_FETCH')
-"""Symbol indicating that loader callables should not boe fired off.
+"""Symbol indicating that loader callables should not be fired off.
    Non-initialized attributes should be initialized to an empty value."""
+
+PASSIVE_ONLY_PERSISTENT = util.symbol('PASSIVE_ONLY_PERSISTENT')
+"""Symbol indicating that loader callables should only fire off for
+persistent objects.
+
+Loads of "previous" values during change events use this flag.
+"""
 
 PASSIVE_OFF = False #util.symbol('PASSIVE_OFF')
 """Symbol indicating that loader callables should be executed."""
@@ -392,7 +399,7 @@ class AttributeImpl(object):
 
             # Return a new, empty value
             return self.initialize(state, dict_)
-
+    
     def append(self, state, dict_, value, initiator, passive=PASSIVE_OFF):
         self.set(state, dict_, value, initiator, passive=passive)
 
@@ -448,7 +455,7 @@ class ScalarAttributeImpl(AttributeImpl):
             self, state, dict_.get(self.key, NO_VALUE))
 
     def set(self, state, dict_, value, initiator, passive=PASSIVE_OFF):
-        if initiator is self:
+        if initiator and initiator.parent_token is self.parent_token:
             return
 
         if self.active_history:
@@ -527,7 +534,7 @@ class MutableScalarAttributeImpl(ScalarAttributeImpl):
         state.mutable_dict.pop(self.key)
 
     def set(self, state, dict_, value, initiator, passive=PASSIVE_OFF):
-        if initiator is self:
+        if initiator and initiator.parent_token is self.parent_token:
             return
 
         if self.extensions:
@@ -589,14 +596,14 @@ class ScalarObjectAttributeImpl(ScalarAttributeImpl):
         setter operation.
 
         """
-        if initiator is self:
+        if initiator and initiator.parent_token is self.parent_token:
             return
 
         if self.active_history:
-            old = self.get(state, dict_)
+            old = self.get(state, dict_, passive=PASSIVE_ONLY_PERSISTENT)
         else:
             old = self.get(state, dict_, passive=PASSIVE_NO_FETCH)
-             
+        
         value = self.fire_replace_event(state, dict_, value, old, initiator)
         dict_[self.key] = value
 
@@ -615,7 +622,7 @@ class ScalarObjectAttributeImpl(ScalarAttributeImpl):
                 previous is not None and
                 previous is not PASSIVE_NO_RESULT):
                 self.sethasparent(instance_state(previous), False)
-
+        
         for ext in self.extensions:
             value = ext.set(state, value, previous, initiator or self)
 
@@ -719,7 +726,7 @@ class CollectionAttributeImpl(AttributeImpl):
             self.key, state, self.collection_factory)
 
     def append(self, state, dict_, value, initiator, passive=PASSIVE_OFF):
-        if initiator is self:
+        if initiator and initiator.parent_token is self.parent_token:
             return
 
         collection = self.get_collection(state, dict_, passive=passive)
@@ -732,7 +739,7 @@ class CollectionAttributeImpl(AttributeImpl):
             collection.append_with_event(value, initiator)
 
     def remove(self, state, dict_, value, initiator, passive=PASSIVE_OFF):
-        if initiator is self:
+        if initiator and initiator.parent_token is self.parent_token:
             return
 
         collection = self.get_collection(state, state.dict, passive=passive)
@@ -752,7 +759,7 @@ class CollectionAttributeImpl(AttributeImpl):
         setter operation.
         """
 
-        if initiator is self:
+        if initiator and initiator.parent_token is self.parent_token:
             return
 
         self._set_iterable(
@@ -777,15 +784,16 @@ class CollectionAttributeImpl(AttributeImpl):
         else:
             new_values = list(iterable)
 
-        old = self.get(state, dict_)
-
-        # ignore re-assignment of the current collection, as happens
-        # implicitly with in-place operators (foo.collection |= other)
-        if old is iterable:
+        old = self.get(state, dict_, passive=PASSIVE_ONLY_PERSISTENT)
+        if old is PASSIVE_NO_RESULT:
+            old = self.initialize(state, dict_)
+        elif old is iterable:
+            # ignore re-assignment of the current collection, as happens
+            # implicitly with in-place operators (foo.collection |= other)
             return
 
         state.modified_event(dict_, self, True, old)
-
+        
         old_collection = self.get_collection(state, dict_, old)
 
         dict_[self.key] = user_data
@@ -855,7 +863,7 @@ class GenericBackrefExtension(interfaces.AttributeExtension):
     def set(self, state, child, oldchild, initiator):
         if oldchild is child:
             return child
-            
+
         if oldchild is not None and oldchild is not PASSIVE_NO_RESULT:
             # With lazy=None, there's no guarantee that the full collection is
             # present when updating via a backref.
