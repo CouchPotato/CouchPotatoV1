@@ -1,14 +1,20 @@
 CouchPotato
 =====
 
-Version 25 (not release):
+Version 26 (not release):
+
+
+Version 25:
 
 * New: Subtitles support using SubScene and OpenSubtitles
 * Enhancement: Link to Changelog when new Windows Build is available.
 * Enhancement: Better logging class.
 * Enhancement: SQLAlchemy updated to 0.6.4, removed unused code.
 * Enhancement: Optimized PNGs, Movie list and CSS.
+* Enhancement: Movie manage page, beginning.
+* Enhancement: Mootools 1.3
 * Fix: NZBs.org needs API-key for RSS check.
+* Fix: Don't bug out the search on invalid RSS feed.
 
 Version 24:
 
