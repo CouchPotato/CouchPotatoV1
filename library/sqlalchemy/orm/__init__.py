@@ -84,6 +84,7 @@ __all__ = (
     'eagerload',
     'eagerload_all',
     'extension',
+    'immediateload',
     'join',
     'joinedload',
     'joinedload_all',
@@ -255,7 +256,19 @@ def relationship(argument, secondary=None, **kwargs):
 
       * ``all`` - shorthand for "save-update,merge, refresh-expire,
         expunge, delete"
-
+    
+    :param cascade_backrefs=True:
+      a boolean value indicating if the ``save-update`` cascade should
+      operate along a backref event.   When set to ``False`` on a
+      one-to-many relationship that has a many-to-one backref, assigning
+      a persistent object to the many-to-one attribute on a transient object
+      will not add the transient to the session.  Similarly, when
+      set to ``False`` on a many-to-one relationship that has a one-to-many
+      backref, appending a persistent object to the one-to-many collection
+      on a transient object will not add the transient to the session.
+      
+      ``cascade_backrefs`` is new in 0.6.5.
+      
     :param collection_class:
       a class or callable that returns a new list-holding object. will
       be used in place of a plain list for storing elements.
@@ -318,25 +331,33 @@ def relationship(argument, secondary=None, **kwargs):
       which is already higher up in the chain.  This option applies
       both to joined- and subquery- eager loaders.
 
-    :param lazy=('select'|'joined'|'subquery'|'noload'|'dynamic'): specifies 
-      how the related items should be loaded. Values include:
+    :param lazy='select': specifies 
+      how the related items should be loaded.  Default value is 
+      ``select``.  Values include:
 
-      * 'select' - items should be loaded lazily when the property is first
-        accessed.
+      * ``select`` - items should be loaded lazily when the property is first
+        accessed, using a separate SELECT statement, or identity map
+        fetch for simple many-to-one references.
+        
+      * ``immediate`` - items should be loaded as the parents are loaded,
+        using a separate SELECT statement, or identity map fetch for
+        simple many-to-one references.  (new as of 0.6.5)
 
-      * 'joined' - items should be loaded "eagerly" in the same query as
-        that of the parent, using a JOIN or LEFT OUTER JOIN.
+      * ``joined`` - items should be loaded "eagerly" in the same query as
+        that of the parent, using a JOIN or LEFT OUTER JOIN.  Whether
+        the join is "outer" or not is determined by the ``innerjoin``
+        parameter.
               
-      * 'subquery' - items should be loaded "eagerly" within the same
+      * ``subquery`` - items should be loaded "eagerly" within the same
         query as that of the parent, using a second SQL statement
         which issues a JOIN to a subquery of the original
         statement.
 
-      * 'noload' - no loading should occur at any time.  This is to 
+      * ``noload`` - no loading should occur at any time.  This is to 
         support "write-only" attributes, or attributes which are
         populated in some manner specific to the application.
 
-      * 'dynamic' - the attribute will return a pre-configured
+      * ``dynamic`` - the attribute will return a pre-configured
         :class:`~sqlalchemy.orm.query.Query` object for all read 
         operations, onto which further filtering operations can be
         applied before iterating the results.  The dynamic 
@@ -352,6 +373,31 @@ def relationship(argument, secondary=None, **kwargs):
       * None - a synonym for 'noload'
        
       Detailed discussion of loader strategies is at :ref:`loading_toplevel`.
+    
+    :param load_on_pending=False:
+      Indicates loading behavior for transient or pending parent objects.
+      
+      When set to ``True``, causes the lazy-loader to
+      issue a query for a parent object that is not persistent, meaning it has
+      never been flushed.  This may take effect for a pending object when
+      autoflush is disabled, or for a transient object that has been
+      "attached" to a :class:`.Session` but is not part of its pending
+      collection. Attachment of transient objects to the session without
+      moving to the "pending" state is not a supported behavior at this time.
+      
+      Note that the load of related objects on a pending or transient object
+      also does not trigger any attribute change events - no user-defined
+      events will be emitted for these attributes, and if and when the 
+      object is ultimately flushed, only the user-specific foreign key 
+      attributes will be part of the modified state.
+      
+      The load_on_pending flag does not improve behavior
+      when the ORM is used normally - object references should be constructed
+      at the object level, not at the foreign key level, so that they
+      are present in an ordinary way before flush() proceeds.  This flag
+      is not not intended for general use.
+      
+      New in 0.6.5.
       
     :param order_by:
       indicates the ordering that should be applied when loading these
@@ -917,11 +963,24 @@ def compile_mappers():
         m.compile()
 
 def clear_mappers():
-    """Remove all mappers that have been created thus far.
-
-    The mapped classes will return to their initial "unmapped" state and can
-    be re-mapped with new mappers.
-
+    """Remove all mappers from all classes.
+    
+    This function removes all instrumentation from classes and disposes
+    of their associated mappers.  Once called, the classes are unmapped 
+    and can be later re-mapped with new mappers.
+    
+    :func:`.clear_mappers` is *not* for normal use, as there is literally no
+    valid usage for it outside of very specific testing scenarios. Normally,
+    mappers are permanent structural components of user-defined classes, and
+    are never discarded independently of their class.  If a mapped class itself
+    is garbage collected, its mapper is automatically disposed of as well. As
+    such, :func:`.clear_mappers` is only for usage in test suites that re-use
+    the same classes with different mappings, which is itself an extremely rare
+    use case - the only such use case is in fact SQLAlchemy's own test suite,
+    and possibly the test suites of other ORM extension libraries which 
+    intend to test various combinations of mapper construction upon a fixed
+    set of classes.
+    
     """
     mapperlib._COMPILE_MUTEX.acquire()
     try:
@@ -1082,7 +1141,7 @@ def subqueryload_all(*keys):
         query.options(subqueryload_all(User.orders, Order.items,
         Item.keywords))
 
-    See also:  :func:`joinedload_all`, :func:`lazyload`
+    See also:  :func:`joinedload_all`, :func:`lazyload`, :func:`immediateload`
 
     """
     return strategies.EagerLazyOption(keys, lazy="subquery", chained=True)
@@ -1094,7 +1153,7 @@ def lazyload(*keys):
 
     Used with :meth:`~sqlalchemy.orm.query.Query.options`.
 
-    See also:  :func:`eagerload`, :func:`subqueryload`
+    See also:  :func:`eagerload`, :func:`subqueryload`, :func:`immediateload`
 
     """
     return strategies.EagerLazyOption(keys, lazy=True)
@@ -1105,11 +1164,24 @@ def noload(*keys):
 
     Used with :meth:`~sqlalchemy.orm.query.Query.options`.
 
-    See also:  :func:`lazyload`, :func:`eagerload`, :func:`subqueryload`
+    See also:  :func:`lazyload`, :func:`eagerload`, :func:`subqueryload`, :func:`immediateload`
 
     """
     return strategies.EagerLazyOption(keys, lazy=None)
 
+def immediateload(*keys):
+    """Return a ``MapperOption`` that will convert the property of the given 
+    name into an immediate load.
+    
+    Used with :meth:`~sqlalchemy.orm.query.Query.options`.
+
+    See also:  :func:`lazyload`, :func:`eagerload`, :func:`subqueryload`
+    
+    New as of verison 0.6.5.
+    
+    """
+    return strategies.EagerLazyOption(keys, lazy='immediate')
+    
 def contains_alias(alias):
     """Return a ``MapperOption`` that will indicate to the query that
     the main table has been aliased.

@@ -30,6 +30,7 @@ from sqlalchemy.orm.util import (
      ExtensionCarrier, _INSTRUMENTOR, _class_to_mapper, 
      _state_mapper, class_mapper, instance_str, state_str,
      )
+import sys
 
 __all__ = (
     'Mapper',
@@ -193,7 +194,7 @@ class Mapper(object):
         else:
             self.polymorphic_map = _polymorphic_map
 
-        if include_properties:
+        if include_properties is not None:
             self.include_properties = util.to_set(include_properties)
         else:
             self.include_properties = None
@@ -638,7 +639,9 @@ class Mapper(object):
                             "or more attributes for these same-named columns "
                             "explicitly."
                              % (prop.columns[-1], column, key))
-
+                    
+                # this hypothetically changes to 
+                # prop.columns.insert(0, column) when we do [ticket:1892]
                 prop.columns.append(column)
                 self._log("appending to existing ColumnProperty %s" % (key))
                              
@@ -787,12 +790,13 @@ class Mapper(object):
                     # the order of mapper compilation
                     for mapper in list(_mapper_registry):
                         if getattr(mapper, '_compile_failed', False):
-                            raise sa_exc.InvalidRequestError(
-                                    "One or more mappers failed to compile. "
-                                    "Exception was probably "
-                                    "suppressed within a hasattr() call. "
-                                    "Message was: %s" %
-                                    mapper._compile_failed)
+                            e = sa_exc.InvalidRequestError(
+                                    "One or more mappers failed to initialize - "
+                                    "can't proceed with initialization of other "
+                                    "mappers.  Original exception was: %s"
+                                    % mapper._compile_failed)
+                            e._compile_failed = mapper._compile_failed
+                            raise e
                         if not mapper.compiled:
                             mapper._post_configure_properties()
 
@@ -801,9 +805,9 @@ class Mapper(object):
                 finally:
                     _already_compiling = False
             except:
-                import sys
                 exc = sys.exc_info()[1]
-                self._compile_failed = exc
+                if not hasattr(exc, '_compile_failed'):
+                    self._compile_failed = exc
                 raise
         finally:
             self._expire_memoizations()
@@ -1295,8 +1299,8 @@ class Mapper(object):
                 column in self.primary_key]
 
     # TODO: improve names?
-    def _get_state_attr_by_column(self, state, dict_, column):
-        return self._columntoproperty[column]._getattr(state, dict_, column)
+    def _get_state_attr_by_column(self, state, dict_, column, passive=False):
+        return self._columntoproperty[column]._getattr(state, dict_, column, passive=passive)
 
     def _set_state_attr_by_column(self, state, dict_, column, value):
         return self._columntoproperty[column]._setattr(state, dict_, value, column)
@@ -1399,25 +1403,30 @@ class Mapper(object):
 
         """
         visited_instances = util.IdentitySet()
-        visitables = [(self._props.itervalues(), 'property', state)]
+        prp, mpp = object(), object()
+
+        visitables = [(deque(self._props.values()), prp, state)]
 
         while visitables:
             iterator, item_type, parent_state = visitables[-1]
-            try:
-                if item_type == 'property':
-                    prop = iterator.next()
-                    visitables.append(
-                                (prop.cascade_iterator(type_, parent_state, 
-                                visited_instances, halt_on), 'mapper', None)
-                                )
-                elif item_type == 'mapper':
-                    instance, instance_mapper, corresponding_state  = \
-                                    iterator.next()
-                    yield (instance, instance_mapper)
-                    visitables.append((instance_mapper._props.itervalues(), 
-                                            'property', corresponding_state))
-            except StopIteration:
+            if not iterator:
                 visitables.pop()
+                continue
+                
+            if item_type is prp:
+                prop = iterator.popleft()
+                if type_ not in prop.cascade:
+                    continue
+                queue = deque(prop.cascade_iterator(type_, parent_state, 
+                            visited_instances, halt_on))
+                if queue:
+                    visitables.append((queue,mpp, None))
+            elif item_type is mpp:
+                instance, instance_mapper, corresponding_state  = \
+                                iterator.popleft()
+                yield (instance, instance_mapper)
+                visitables.append((deque(instance_mapper._props.values()), 
+                                        prp, corresponding_state))
 
     @_memoized_compiled_property
     def _compiled_cache(self):
@@ -2126,10 +2135,11 @@ class Mapper(object):
                     state.load_path = load_path
 
             if not new_populators:
-                new_populators[:], existing_populators[:] = \
-                                    self._populators(context, path, row,
-                                                        adapter)
-
+                self._populators(context, path, row, adapter,
+                                new_populators,
+                                existing_populators
+                )
+                
             if isnew:
                 populators = new_populators
             else:
@@ -2300,20 +2310,24 @@ class Mapper(object):
             return instance
         return _instance
 
-    def _populators(self, context, path, row, adapter):
+    def _populators(self, context, path, row, adapter,
+            new_populators, existing_populators):
         """Produce a collection of attribute level row processor callables."""
         
-        new_populators, existing_populators = [], []
+        delayed_populators = []
         for prop in self._props.itervalues():
-            newpop, existingpop = prop.create_row_processor(
+            newpop, existingpop, delayedpop = prop.create_row_processor(
                                                     context, path, 
                                                     self, row, adapter)
             if newpop:
                 new_populators.append((prop.key, newpop))
             if existingpop:
                 existing_populators.append((prop.key, existingpop))
-        return new_populators, existing_populators
-
+            if delayedpop:
+                delayed_populators.append((prop.key, delayedpop))
+        if delayed_populators:
+            new_populators.extend(delayed_populators)
+            
     def _configure_subclass_mapper(self, context, path, adapter):
         """Produce a mapper level row processor callable factory for mappers
         inheriting this one."""
@@ -2373,6 +2387,11 @@ def validates(*names):
     can then raise validation exceptions to halt the process from continuing,
     or can modify or replace the value before proceeding.   The function
     should otherwise return the given value.
+    
+    Note that a validator for a collection **cannot** issue a load of that
+    collection within the validation routine - this usage raises
+    an assertion to avoid recursion overflows.  This is a reentrant
+    condition which is not supported.
 
     """
     def wrap(fn):

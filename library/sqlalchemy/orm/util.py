@@ -515,8 +515,7 @@ def with_parent(instance, prop):
 
     return prop.compare(operators.eq, 
                         instance, 
-                        value_is_parent=True, 
-                        detect_transient_pending=True)
+                        value_is_parent=True)
 
 
 def _entity_info(entity, compile=True):
@@ -582,6 +581,12 @@ def _orm_columns(entity):
 def _orm_selectable(entity):
     mapper, selectable, is_aliased_class = _entity_info(entity)
     return selectable
+
+def _attr_as_key(attr):
+    if hasattr(attr, 'key'):
+        return attr.key
+    else:
+        return expression._column_as_key(attr)
 
 def _is_aliased_class(entity):
     return isinstance(entity, AliasedClass)

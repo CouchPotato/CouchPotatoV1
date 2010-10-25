@@ -812,10 +812,7 @@ class Connection(Connectable):
     upon the connection, including its expiration or timeout state. For the
     connection pool to properly manage connections, connections should be
     returned to the connection pool (i.e. ``connection.close()``) whenever the
-    connection is not in use. If your application has a need for management
-    of multiple connections or is otherwise long running (this includes all
-    web applications, threaded or not), don't hold a single connection open at
-    the module level.
+    connection is not in use.
 
     .. index::
       single: thread safety; Connection
@@ -1072,7 +1069,7 @@ class Connection(Connectable):
 
     def _begin_impl(self):
         if self._echo:
-            self.engine.logger.info("BEGIN")
+            self.engine.logger.info("BEGIN (implicit)")
         try:
             self.engine.dialect.do_begin(self.connection)
         except Exception, e:
@@ -2252,7 +2249,7 @@ class ResultProxy(object):
         self.context = context
         self.dialect = context.dialect
         self.closed = False
-        self.cursor = context.cursor
+        self.cursor = self._saved_cursor = context.cursor
         self.connection = context.root_connection
         self._echo = self.connection._echo and \
                         context.engine._should_log_debug()
@@ -2307,12 +2304,12 @@ class ResultProxy(object):
         regardless of database backend.
         
         """
-        return self.cursor.lastrowid
+        return self._saved_cursor.lastrowid
     
     def _cursor_description(self):
         """May be overridden by subclasses."""
         
-        return self.cursor.description
+        return self._saved_cursor.description
             
     def _autoclose(self):
         """called by the Connection to autoclose cursors that have no pending
