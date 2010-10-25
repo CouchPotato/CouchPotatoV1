@@ -46,7 +46,6 @@ host - host/ip + port (foo:8080)
 
     # Web server doesn't like POST, GET is the way to go
     url = 'http://%s/xbmcCmds/xbmcHttp/?%s' % (host, enc_command)
-    print url
 
     try:
         # If we have a password, use authentication

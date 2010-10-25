@@ -111,6 +111,7 @@ class RenamerCron(cronBase):
                                 imdb_id = movie['movie'].imdb,
                                 fanart_min_height = self.config.get('XBMC', 'fanartMinHeight'),
                                 fanart_min_width = self.config.get('XBMC', 'fanartMinWidth'))
+                    log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
 
                 if self.config.get('Trailer', 'quality'):
                     self.trailerQueue.put({'movieId': movie['movie'].id, 'destination':finalDestination})
@@ -125,12 +126,15 @@ class RenamerCron(cronBase):
                                     self.config.get('XBMC', 'host'),
                                     self.config.get('XBMC', 'username'),
                                     self.config.get('XBMC', 'password'))
+                    log.info('XBMC notification sent to %s' % self.config.get('XBMC', 'host'))
+
 
                 #Update XBMC Library
                 if self.config.get('XBMC', 'updatelibrary'):
                     xbmc.updateLibrary(self.config.get('XBMC', 'host'),
                                        self.config.get('XBMC', 'username'),
                                        self.config.get('XBMC', 'password'))
+                    log.info('XBMC library update initiated')
 
             else:
                 try:
