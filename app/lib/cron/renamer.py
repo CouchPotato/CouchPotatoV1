@@ -195,7 +195,7 @@ class RenamerCron(cronBase):
 
     def getSourceMedia(self, files):
         '''
-        get source media ... durr
+        get source media from filename... durr
         '''
         for media in self.sourceMedia:
             for mediaAlias in self.sourceMedia[media]:
@@ -217,6 +217,7 @@ class RenamerCron(cronBase):
         destination = self.conf('destination')
         folderNaming = self.conf('foldernaming')
         fileNaming = self.conf('filenaming')
+        import pdb; pdb.set_trace()
 
         # Remove weird chars from moviename
         moviename = re.sub(r"[\x00\/\\:\*\?\"<>\|]", '', movie.name)
@@ -246,6 +247,7 @@ class RenamerCron(cronBase):
              'year': movie.year,
              'first': namethe[0].upper(),
              'quality': quality,
+             'sourcemedia': movieSourceMedia
         }
         if multiple:
             cd = 1
@@ -282,14 +284,6 @@ class RenamerCron(cronBase):
 
             folder = self.doReplace(folderNaming, replacements)
             filename = self.doReplace(fileNaming, replacements)
-
-            #insert source media into filename
-            if self.config.get('XBMC', 'sourceRename') and movieSourceMedia:
-                splitted = os.path.splitext(filename)
-                if splitted[0][-1] == ".":
-                    splitted = list(splitted)
-                    splitted[0] = splitted[0][:-1]
-                filename = "%s.%s%s" % (splitted[0], movieSourceMedia, splitted[1])
 
             old = os.path.join(file['path'], file['filename'])
             dest = os.path.join(destination, folder, filename)
@@ -402,7 +396,8 @@ class RenamerCron(cronBase):
 
         replaced = string
         for x, r in replacements.iteritems():
-            replaced = replaced.replace('<' + x + '>', str(r))
+            if r is not None:
+                replaced = replaced.replace('<' + x + '>', str(r))
 
         replaced = re.sub(r"[\x00:\*\?\"<>\|]", '', replaced)
 
