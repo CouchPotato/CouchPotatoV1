@@ -23,18 +23,12 @@ import sys
 import base64
 import time, struct
 
-#import config
-
-import sickbeard
-
-from sickbeard import logger
-
 try:
     import xml.etree.cElementTree as etree
 except ImportError:
     import xml.etree.ElementTree as etree
 
-def sendToXBMC(command, host, username=None, password=None):
+def sendToXBMC(command, host, username, password):
     '''
 Handles communication with XBMC servers
 
@@ -44,122 +38,43 @@ passed to /xbmcCmds/xbmcHttp
 host - host/ip + port (foo:8080)
 '''
 
-    if not username:
-        username = sickbeard.XBMC_USERNAME
-    if not password:
-        password = sickbeard.XBMC_PASSWORD
-
     for key in command:
         if type(command[key]) == unicode:
             command[key] = command[key].encode('utf-8')
 
     enc_command = urllib.urlencode(command)
-    logger.log("Encoded command is " + enc_command, logger.DEBUG)
+
     # Web server doesn't like POST, GET is the way to go
     url = 'http://%s/xbmcCmds/xbmcHttp/?%s' % (host, enc_command)
+    print url
 
     try:
         # If we have a password, use authentication
         req = urllib2.Request(url)
         if password:
-            logger.log("Adding Password to XBMC url", logger.DEBUG)
             base64string = base64.encodestring('%s:%s' % (username, password))[:-1]
             authheader = "Basic %s" % base64string
             req.add_header("Authorization", authheader)
 
-        logger.log("Contacting XBMC via url: " + url, logger.DEBUG)
         handle = urllib2.urlopen(req)
         response = handle.read()
-        logger.log("response: " + response, logger.DEBUG)
     except IOError, e:
         # print "Warning: Couldn't contact XBMC HTTP server at " + host + ": " + str(e)
-        logger.log("Warning: Couldn't contact XBMC HTTP server at " + host + ": " + str(e))
         response = ''
 
     return response
 
-def notifyXBMC(input, title="midgetPVR", host=None, username=None, password=None):
-
-    global XBMC_TIMEOUT
-
-    if not host:
-        host = sickbeard.XBMC_HOST
-    if not username:
-        username = sickbeard.XBMC_USERNAME
-    if not password:
-        password = sickbeard.XBMC_PASSWORD
-
-    logger.log("Sending notification for " + input, logger.DEBUG)
-
-    fileString = title + "," + input
-
+def notifyXBMC(header, message, host, username, password):
     for curHost in [x.strip() for x in host.split(",")]:
-        command = {'command': 'ExecBuiltIn', 'parameter': 'Notification(' +fileString + ')' }
-        logger.log("Sending notification to XBMC via host: "+ curHost +"username: "+ username + " password: " + password, logger.DEBUG)
+        command = {'command': 'ExecBuiltIn', 'parameter': 'Notification(%s, %s)' % (header, message)}
         request = sendToXBMC(command, curHost, username, password)
 
-def updateLibrary(host, showName=None):
+def updateLibrary(host, username, password):
+    updateCommand = {'command': 'ExecBuiltIn', 'parameter': 'XBMC.updatelibrary(video)'}
+    request = sendToXBMC(updateCommand, host, username, password)
 
-    global XBMC_TIMEOUT
-
-    logger.log("Updating library in XBMC", logger.DEBUG)
-
-    if not host:
-        logger.log('No host specified, no updates done', logger.DEBUG)
+    if not request:
         return False
-
-    # if we're doing per-show
-    if showName:
-        pathSql = 'select path.strPath from path, tvshow, tvshowlinkpath where \
-tvshow.c00 = "%s" and tvshowlinkpath.idShow = tvshow.idShow \
-and tvshowlinkpath.idPath = path.idPath' % (showName)
-
-        # Use this to get xml back for the path lookups
-        xmlCommand = {'command': 'SetResponseFormat(webheader;false;webfooter;false;header;<xml>;footer;</xml>;opentag;<tag>;closetag;</tag>;closefinaltag;false)'}
-        # Sql used to grab path(s)
-        sqlCommand = {'command': 'QueryVideoDatabase(%s)' % (pathSql)}
-        # Set output back to default
-        resetCommand = {'command': 'SetResponseFormat()'}
-
-        # Set xml response format, if this fails then don't bother with the rest
-        request = sendToXBMC(xmlCommand, host)
-        if not request:
-            return False
-
-        sqlXML = sendToXBMC(sqlCommand, host)
-        request = sendToXBMC(resetCommand, host)
-
-        if not sqlXML:
-            logger.log("Invalid response for " + showName + " on " + host, logger.DEBUG)
-            return False
-
-        encSqlXML = urllib.quote(sqlXML,':\\/<>')
-        et = etree.fromstring(encSqlXML)
-        paths = et.findall('.//field')
-
-        if not paths:
-            logger.log("No valid paths found for " + showName + " on " + host, logger.DEBUG)
-            return False
-
-        for path in paths:
-            # Don't need it double-encoded, gawd this is dumb
-            unEncPath = urllib.unquote(path.text)
-            logger.log("XBMC Updating " + showName + " on " + host + " at " + unEncPath, logger.DEBUG)
-            updateCommand = {'command': 'ExecBuiltIn', 'parameter': 'XBMC.updatelibrary(video, %s)' % (unEncPath)}
-            request = sendToXBMC(updateCommand, host)
-            if not request:
-                return False
-            # Sleep for a few seconds just to be sure xbmc has a chance to finish
-            # each directory
-            if len(paths) > 1:
-                time.sleep(5)
-    else:
-        logger.log("XBMC Updating " + host, logger.DEBUG)
-        updateCommand = {'command': 'ExecBuiltIn', 'parameter': 'XBMC.updatelibrary(video)'}
-        request = sendToXBMC(updateCommand, host)
-
-        if not request:
-            return False
 
     return True
 

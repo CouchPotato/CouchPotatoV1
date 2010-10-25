@@ -4,7 +4,7 @@ from app.config.db import Movie, RenameHistory, Session as Db, MovieQueue
 from app.lib.cron.base import cronBase
 from app.lib.qualities import Qualities
 
-from app.lib.provider.movie.sources import imdbWrapper
+from app.lib import xbmc
 from library.xmg import xmg
 import fnmatch
 import os
@@ -117,6 +117,21 @@ class RenamerCron(cronBase):
 
                 # Search for subtitles
                 cherrypy.config['cron']['subtitle'].forDirectory(finalDestination['directory'])
+
+                #Notify XBMC
+                if self.config.get('XBMC', 'notify'):
+                    xbmc.notifyXBMC('CouchPotato',
+                                    'Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year),
+                                    self.config.get('XBMC', 'host'),
+                                    self.config.get('XBMC', 'username'),
+                                    self.config.get('XBMC', 'password'))
+
+                #Update XBMC Library
+                if self.config.get('XBMC', 'updatelibrary'):
+                    xbmc.updateLibrary(self.config.get('XBMC', 'host'),
+                                       self.config.get('XBMC', 'username'),
+                                       self.config.get('XBMC', 'password'))
+
             else:
                 try:
                     file = files['files'][0]
