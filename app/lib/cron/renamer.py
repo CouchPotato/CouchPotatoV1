@@ -217,7 +217,6 @@ class RenamerCron(cronBase):
         destination = self.conf('destination')
         folderNaming = self.conf('foldernaming')
         fileNaming = self.conf('filenaming')
-        import pdb; pdb.set_trace()
 
         # Remove weird chars from moviename
         moviename = re.sub(r"[\x00\/\\:\*\?\"<>\|]", '', movie.name)
