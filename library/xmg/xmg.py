@@ -38,12 +38,12 @@ def metagen(location, fanart_min_height = 0, fanart_min_width = 0, name=None, im
 
     fanart_height/width_min:  Sets lowest acceptable resolution fanart.  0 means
     disregard.  If no fanart available at specified resolution or greater, then
-    we disregard.
+    we disregard this setting, and download highest resolution that is available.
 
-    name*:  In the case of a movie, this should be the full movie name followed
-    by the year of the movie in parentheses. e.g. "The Matrix (1999)".  If this
-    is specific enough to generate only one search result then we'll continue.
-    Otherwise, we'll raise IdError.
+    name*:  In the case of a movie, ideally this should be the full movie name
+    followed by the year of the movie in parentheses. e.g. "The Matrix (1999)".
+    If this is specific enough to generate only one search result then we'll
+    continue. Otherwise, we'll raise IdError.
 
     Because of the imprecise nature of this method of id, only use it if you
     don't have the imdb_id or tmdb_id

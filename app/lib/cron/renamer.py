@@ -34,6 +34,10 @@ class RenamerCron(cronBase):
     audioCodecs = ['DTS', 'AC3', 'AC3D', 'MP3']
     videoCodecs = ['x264', 'DivX', 'XViD']
     subExt = ['*.sub', '*.srt', '*.idx', '*.ssa', '*.ass']
+    sourceMedia = { 'bluray': ['bluray', 'blu-ray', 'brrip', 'br-rip'],
+                    'hddvd': ['hddvd', 'hd-dvd'],
+                    'dvd': ['dvd'],
+                    'hdtv': ['hdtv']}
 
     def conf(self, option):
         return self.config.get('Renamer', option)
@@ -102,21 +106,11 @@ class RenamerCron(cronBase):
                 finalDestination = self.renameFiles(files, movie['movie'], movie['queue'])
 
                 #Generate XBMC metadata
-                print "Checking if we should generate meta..."
-                if self.config.get('XBMC', 'meta_enabled'):
-                    print "Generating meta"
+                if self.config.get('XBMC', 'metaEnabled'):
                     xmg.metagen(finalDestination['directory'],
                                 imdb_id = movie['movie'].imdb,
-                                fanart_min_height = self.config.get('XBMC', 'fanart_min_height'),
-                                fanart_min_width = self.config.get('XBMC', 'fanart_min_width'))
-                    print "Done generating meta"
-                else:
-                    print "Not checking for meta"
-
-
-#                    wrapper = imdbWrapper.imdbWrapper(self.config)
-#                    imdbpy = wrapper.get_IMDb_instance()
-#                    xmg.metagen(finalDestination['directory'], imdb_id = movie['movie'].imdb)
+                                fanart_min_height = self.config.get('XBMC', 'fanartMinHeight'),
+                                fanart_min_width = self.config.get('XBMC', 'fanartMinWidth'))
 
                 if self.config.get('Trailer', 'quality'):
                     self.trailerQueue.put({'movieId': movie['movie'].id, 'destination':finalDestination})
@@ -180,11 +174,23 @@ class RenamerCron(cronBase):
         except TypeError:
             return None
 
+    def getSourceMedia(self, files):
+        '''
+        get source media ... durr
+        '''
+        for media in self.sourceMedia:
+            for mediaAlias in self.sourceMedia[media]:
+                for file in files['files']:
+                    if mediaAlias in file['filename'].lower() or mediaAlias in file['path'].lower():
+                        return media
+        return None
+
     def renameFiles(self, files, movie, queue = None):
         '''
         rename files based on movie data & conf
         '''
 
+        movieSourceMedia = self.getSourceMedia(files)
         multiple = False
         if len(files['files']) > 1:
             multiple = True
@@ -240,6 +246,7 @@ class RenamerCron(cronBase):
 
         finalDestination = None
         finalFilename = self.doReplace(fileNaming, replacements)
+
         for file in sorted(files['files']):
             log.info('Trying to find a home for: %s' % latinToAscii(file['filename']))
 
@@ -256,6 +263,14 @@ class RenamerCron(cronBase):
 
             folder = self.doReplace(folderNaming, replacements)
             filename = self.doReplace(fileNaming, replacements)
+
+            #insert source media into filename
+            if self.config.get('XBMC', 'sourceRename') and movieSourceMedia:
+                splitted = os.path.splitext(filename)
+                if splitted[0][-1] == ".":
+                    splitted = list(splitted)
+                    splitted[0] = splitted[0][:-1]
+                filename = "%s.%s%s" % (splitted[0], movieSourceMedia, splitted[1])
 
             old = os.path.join(file['path'], file['filename'])
             dest = os.path.join(destination, folder, filename)
