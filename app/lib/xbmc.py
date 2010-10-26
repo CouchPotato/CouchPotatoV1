@@ -64,13 +64,29 @@ host - host/ip + port (foo:8080)
     return response
 
 def notifyXBMC(header, message, host, username, password):
+    '''
+    To notify multiple hosts pass us a comma-separated string of hosts.
+    '''
+    if
     for curHost in [x.strip() for x in host.split(",")]:
         command = {'command': 'ExecBuiltIn', 'parameter': 'Notification(%s, %s)' % (header, message)}
         request = sendToXBMC(command, curHost, username, password)
 
-def updateLibrary(host, username, password):
+def updateLibrary(host, username, password, multiple = False):
+    '''
+    To update multiple hosts pass us a comma-separated string of hosts and set mutliple = True,
+    otherwise we just use the first host even if receive more than one.
+
+    When doing multiple hosts, we return True even if we were only succesful with 1 of multiple.
+    '''
     updateCommand = {'command': 'ExecBuiltIn', 'parameter': 'XBMC.updatelibrary(video)'}
-    request = sendToXBMC(updateCommand, host, username, password)
+    hosts = [x.strip() for x in host.split(",")]
+
+    if not multiple:
+        hosts = hosts[:1]
+
+    for curHost in hosts:
+        request = sendToXBMC(updateCommand, host, username, password)
 
     if not request:
         return False
