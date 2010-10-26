@@ -67,7 +67,7 @@ def notifyXBMC(header, message, host, username, password):
     '''
     To notify multiple hosts pass us a comma-separated string of hosts.
     '''
-    if
+
     for curHost in [x.strip() for x in host.split(",")]:
         command = {'command': 'ExecBuiltIn', 'parameter': 'Notification(%s, %s)' % (header, message)}
         request = sendToXBMC(command, curHost, username, password)
