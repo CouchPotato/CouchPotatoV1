@@ -109,8 +109,11 @@ class RenamerCron(cronBase):
                 if self.config.get('XBMC', 'metaEnabled'):
                     xmg.metagen(finalDestination['directory'],
                                 imdb_id = movie['movie'].imdb,
+                                poster_min_height = self.config.get('XBMC', 'posterMinHeight'),
+                                poster_min_width = self.config.get('XBMC', 'posterMinWidth'),
                                 fanart_min_height = self.config.get('XBMC', 'fanartMinHeight'),
                                 fanart_min_width = self.config.get('XBMC', 'fanartMinWidth'))
+
                     log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
 
                 if self.config.get('Trailer', 'quality'):

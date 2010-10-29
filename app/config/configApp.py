@@ -123,6 +123,8 @@ class configApp():
         self.setDefault('XBMC', 'password', 'xbmc')
         self.setDefault('XBMC', 'fanartMinHeight', 0)
         self.setDefault('XBMC', 'fanartMinWidth', 0)
+        self.setDefault('XBMC', 'posterMinHeight', 0)
+        self.setDefault('XBMC', 'posterMinWidth', 0)
 
         self.save()
 

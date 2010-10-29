@@ -24,7 +24,7 @@ class IdError(XmgException):
 class NfoError(XmgException):
     pass
 
-def metagen(location, fanart_min_height = 0, fanart_min_width = 0, name=None, imdb_id=None, tmdb_id=None, imdbpy=None):
+def metagen(location, fanart_min_height = 0, fanart_min_width = 0, poster_min_height = 0, poster_min_width = 0, name=None, imdb_id=None, tmdb_id=None, imdbpy=None):
     ''' metagen is used to download metadata for a movie or tv show and then create
     the necessary files for the media to be imported into XBMC.
 
@@ -106,6 +106,7 @@ def metagen(location, fanart_min_height = 0, fanart_min_width = 0, name=None, im
 
     write_nfo(nfo_gen(imdbpy_movie, i), location_dir)
     get_fanart(imdb_id, location_dir, fanart_min_height, fanart_min_width)
+    get_poster(imdb_id, location_dir, poster_min_height, poster_min_width)
 
 
 def nfo_gen(imdbpy_movie, imdbpy):
@@ -115,13 +116,26 @@ def nfo_gen(imdbpy_movie, imdbpy):
     #TODO: Generate full nfo XML
     return nfo
 
-def get_imagelist(imdb_id):
-    ''' Returns a list of image urls from TMDb.
-    '''
+def get_tmdb_imdb(imdb_id):
     url = "http://api.themoviedb.org/2.1/Movie.imdbLookup/en/json/%s/%s" % (__tmdb_apikey__, "tt" + imdb_id)
     response = urllib2.urlopen(url)
     data = json.loads(response.read())[0]
-    data = [image['image'] for image in data['backdrops'] if image['image']['size'] == 'original']
+    return data
+
+
+def get_fanartlist(imdb_id):
+    ''' Returns a list of image urls from TMDb.
+    '''
+    data = get_tmdb_imdb(imdb_id)
+    data = [image['image'] for image in data['backdrops'] if image['image'].get('size') == 'original']
+
+    return data
+
+def get_posterlist(imdb_id):
+    ''' Returns a list of image urls from TMDb.
+    '''
+    data = get_tmdb_imdb(imdb_id)
+    data = [image['image'] for image in data['posters'] if image['image'].get('size') == 'original']
 
     return data
 
@@ -134,14 +148,53 @@ def get_fanart(imdb_id, dir, min_height, min_width):
     we disregard.
     '''
 
-    data = get_imagelist(imdb_id)
+    fanarts = get_fanartlist(imdb_id)
 
-    if len(data) == 0:
+    if len(fanarts) == 0:
         return
 
+    fanart = get_image(fanarts, min_height, min_width)
+
+    #fetch and write to disk
+    dest = os.path.join(dir, "fanart%s" % os.path.splitext(fanart['url'])[-1])
+    try:
+        f = open(dest, 'wb')
+    except:
+        raise IOError("Can't open for writing: %s" % dest)
+
+    response = urllib2.urlopen(fanart['url'])
+    f.write(response.read())
+
+    return True
+
+def get_poster(imdb_id, dir, min_height, min_width):
+    '''  Fetches the poster for the specified imdb_id and saves it to dir.
+    Arguments
+
+    min_height/width: Sets lowest acceptable resolution poster.  0 means
+    disregard.  If no poster available at specified resolution or greater, then
+    we disregard.
+    '''
+    posters = get_posterlist(imdb_id)
+    if len(posters) == 0:
+        return False
+
+    poster = get_image(posters, min_height, min_width)
+    dest = os.path.join(dir, "movie.tbn")
+    try:
+        f = open(dest, 'wb')
+    except:
+        raise IOError("Can't open for writing: %s" % dest)
+
+    response = urllib2.urlopen(poster['url'])
+    f.write(response.read())
+
+    return True
+
+def get_image(image_list, min_height, min_width):
     #Select image
     images = []
-    for image in data:
+    for image in image_list:
         if not min_height or min_width:
                 images.append(image)
                 break
@@ -160,19 +213,9 @@ def get_fanart(imdb_id, dir, min_height, min_width):
 
     #No image meets our resolution requirements, so disregard those requirements
     if len(images) == 0 and min_height or min_width:
-        images.append(data[0])
+        images.append(image_list[0])
 
-    #fetch and write to disk
-    dest = os.path.join(dir, "fanart%s" % os.path.splitext(images[0]['url'])[-1])
-    try:
-        f = open(dest, 'wb')
-    except:
-        raise IOError("Can't open for writing: %s" % dest)
-
-    response = urllib2.urlopen(images[0]['url'])
-    f.write(response.read())
-
-    return True
+    return images[0]
 
 
 def write_nfo(nfo, dir):
@@ -187,6 +230,16 @@ def write_nfo(nfo, dir):
         f.close()
     except:
         raise NfoError("Couldn't write nfo")
+
+def get_MPAA(movie_obj = None, imdb_id = None):
+
+    pass
+
+def get_imdbpy(imdbpy=False):
+    if not imdbpy:
+        return imdb.IMDb()
+    else:
+        return imdbpy
 
 if __name__ == "__main__":
     import sys
