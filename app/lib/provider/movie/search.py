@@ -42,7 +42,8 @@ class movieSearcher():
                 results = []
                 for r in result:
                     results.append(self.checkResult(r))
-                return results
+
+                return results if limit > 1 else results.pop(0)
 
         return []
 

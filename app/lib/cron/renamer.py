@@ -2,6 +2,7 @@ from app import latinToAscii
 from app.config.cplog import CPLog
 from app.config.db import Movie, RenameHistory, Session as Db, MovieQueue
 from app.lib.cron.base import cronBase
+from app.lib.library import Library
 from app.lib.qualities import Qualities
 import cherrypy
 import fnmatch
@@ -9,11 +10,10 @@ import os
 import re
 import shutil
 import time
-import traceback
 
 log = CPLog(__name__)
 
-class RenamerCron(cronBase):
+class RenamerCron(cronBase, Library):
 
     ''' Cronjob for renaming movies '''
 
@@ -21,16 +21,16 @@ class RenamerCron(cronBase):
     interval = 1 #minutes
     intervalSec = 10
     config = {}
-    trailer = {}
-    minimalFileSize = 1024 * 1024 * 10 # 10MB
-    ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '/._'] #unpacking, smb-crap
+    #trailer = {}
+    #minimalFileSize = 1024 * 1024 * 10 # 10MB
+    #ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '/._'] #unpacking, smb-crap
 
     # Filetypes
-    movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso', '*.img']
-    nfoExt = ['*.nfo']
-    audioCodecs = ['DTS', 'AC3', 'AC3D', 'MP3']
-    videoCodecs = ['x264', 'DivX', 'XViD']
-    subExt = ['*.sub', '*.srt', '*.idx', '*.ssa', '*.ass']
+    #movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso', '*.img']
+    #nfoExt = ['*.nfo']
+    #audioCodecs = ['DTS', 'AC3', 'AC3D', 'MP3']
+    #videoCodecs = ['x264', 'DivX', 'XViD']
+    #subExt = ['*.sub', '*.srt', '*.idx', '*.ssa', '*.ass']
 
     def conf(self, option):
         return self.config.get('Renamer', option)
@@ -72,46 +72,28 @@ class RenamerCron(cronBase):
         if self.isDisabled():
             return
 
-        allFiles = self.findFiles()
+        allMovies = self.getMovies(self.conf('download'))
 
-        if allFiles:
+        if allMovies:
             log.debug("Ready to rename some files.")
 
-        for files in allFiles:
+        for movie in allMovies:
 
-            # See if imdb link is in nfo file
-            nfo = files.get('nfo')
-            movie = {}
-            if nfo:
-                nfoFile = open(os.path.join(nfo.get('path'), nfo.get('filename')), 'r').read()
-                imdbId = self.getImdb(nfoFile)
-                if imdbId:
-                    log.info('Found movie via nfo file.')
-                    movie = {
-                        'movie': self.getMovie(imdbId),
-                        'queue': None
-                    }
-            # Try other methods
-            if not movie:
-                movie = self.determineMovie(files)
+            if movie.get('match'):
+                finalDestination = self.renameFiles(movie)
 
-            if movie and movie.get('movie'):
-                finalDestination = self.renameFiles(files, movie['movie'], movie['queue'])
-                if self.config.get('Trailer', 'quality'):
-                    self.trailerQueue.put({'movieId': movie['movie'].id, 'destination':finalDestination})
-
-                # Search for subtitles
+                # Search for trailer & subtitles
+                cherrypy.config['cron']['trailer'].forDirectory(finalDestination['directory'])
                 cherrypy.config['cron']['subtitle'].forDirectory(finalDestination['directory'])
             else:
                 try:
-                    file = files['files'][0]
-                    path = file['path'].split(os.sep)
+                    path = movie['path'].split(os.sep)
                     path.extend(['_UNKNOWN_' + path.pop()])
-                    shutil.move(file['path'], os.sep.join(path))
+                    shutil.move(movie['path'], os.sep.join(path))
                 except IOError:
                     pass
 
-                log.info('No Match found for: %s' % str(files['files']))
+                log.info('No Match found for: %s' % str(movie['info']['name']))
 
         # Cleanup
         if self.conf('cleanup'):
@@ -125,8 +107,9 @@ class RenamerCron(cronBase):
                 log.debug(subfiles)
 
                 # Stop if something is unpacking
-                if '_unpack' in root.lower() or '_failed_' in root.lower() or '_unknown_' in root.lower():
-                    break
+                for ignore in self.ignoredInPath:
+                    if ignore in root.lower():
+                        break
 
                 for filename in filenames:
                     fullFilePath = os.path.join(root, filename)
@@ -146,26 +129,13 @@ class RenamerCron(cronBase):
                     except OSError:
                         log.error('Tried to clean-up download folder, but "%s" isn\'t empty.' % root)
 
-    def getQueue(self, movie):
-
-        log.info('Finding quality for %s.' % movie.name)
-
-        try:
-            # Assuming quality is the top most, as that should be the last downloaded..
-            for queue in movie.queue:
-                if queue.name:
-                    return queue
-
-        except TypeError:
-            return None
-
-    def renameFiles(self, files, movie, queue = None):
+    def renameFiles(self, movie):
         '''
         rename files based on movie data & conf
         '''
 
         multiple = False
-        if len(files['files']) > 1:
+        if len(movie['files']) > 1:
             multiple = True
 
         destination = self.conf('destination')
@@ -173,23 +143,12 @@ class RenamerCron(cronBase):
         fileNaming = self.conf('filenaming')
 
         # Remove weird chars from moviename
-        moviename = re.sub(r"[\x00\/\\:\*\?\"<>\|]", '', movie.name)
+        moviename = re.sub(r"[\x00\/\\:\*\?\"<>\|]", '', movie['info'].get('name'))
 
         # Put 'The' at the end
         namethe = moviename
         if moviename[:3].lower() == 'the':
             namethe = moviename[3:] + ', The'
-
-        #quality
-        if not queue:
-            queue = self.getQueue(movie)
-
-        if not queue:
-            quality = Qualities().guess(files['files'])
-            queueId = 0
-        else:
-            quality = Qualities.types[queue.qualityType]['label']
-            queueId = queue.id
 
         replacements = {
              'cd': '',
@@ -197,29 +156,22 @@ class RenamerCron(cronBase):
              'ext': '.mkv',
              'namethe': namethe.strip(),
              'thename': moviename.strip(),
-             'year': movie.year,
+             'year': movie['info']['year'],
              'first': namethe[0].upper(),
-             'quality': quality,
+             'quality': movie['info']['quality'],
+             'video': movie['info']['codec']['video'],
+             'audio': movie['info']['codec']['audio'],
+             'group': movie['info']['group']
         }
+
         if multiple:
             cd = 1
 
         justAdded = []
-
-        totalSize = 0
-        for file in files['files']:
-            fullPath = os.path.join(file['path'], file['filename'])
-            totalSize += os.path.getsize(fullPath)
-
-            # Do something with ISO, as they should be between DVDRip and BRRIP
-            ext = os.path.splitext(file['filename'])[1].lower()[1:]
-            if ext == 'iso':
-                totalSize -= (os.path.getsize(fullPath) / 1.6)
-        log.info('Total size of new files is %s.' % int(totalSize / 1024 / 1024))
-
         finalDestination = None
         finalFilename = self.doReplace(fileNaming, replacements)
-        for file in sorted(files['files']):
+
+        for file in movie['files']:
             log.info('Trying to find a home for: %s' % latinToAscii(file['filename']))
 
             replacements['ext'] = file['ext']
@@ -228,34 +180,26 @@ class RenamerCron(cronBase):
                 replacements['cd'] = ' cd' + str(cd)
                 replacements['cdNr'] = ' ' + str(cd)
 
-            replacements['original'] = file['root']
-            replacements['video'] = self.getCodec(file['filename'], RenamerCron.videoCodecs)
-            replacements['audio'] = self.getCodec(file['filename'], RenamerCron.audioCodecs)
-            replacements['group'] = self.getGroup(file['root'])
+            replacements['original'] = file['filename']
 
             folder = self.doReplace(folderNaming, replacements)
             filename = self.doReplace(fileNaming, replacements)
 
-            old = os.path.join(file['path'], file['filename'])
+            old = os.path.join(movie['path'], file['filename'])
             dest = os.path.join(destination, folder, filename)
 
             finalDestination = os.path.dirname(dest)
             if not os.path.isdir(finalDestination):
 
-                # Use same permissions as conf('destination') folder
                 try:
-                    #mode = os.stat(destination)
-                    #chmod = mode[ST_MODE] & 07777
                     log.info('Creating directory %s' % finalDestination)
                     os.makedirs(finalDestination)
                     shutil.copymode(destination, finalDestination)
-                    #os.chmod(finalDestination, chmod)
                 except OSError:
-                    log.error('Failed setting permissions for %s' % finalDestination)
-                    os.makedirs(finalDestination)
+                    log.error('Failed changing permissions %s' % finalDestination)
 
             # Remove old if better quality
-            removed = self.removeOld(os.path.join(destination, folder), justAdded, totalSize)
+            removed = self.removeOld(os.path.join(destination, folder), justAdded, movie['info']['size'])
 
             if not os.path.isfile(dest) and removed:
                 log.info('Moving file "%s" to %s.' % (latinToAscii(old), dest))
@@ -272,20 +216,21 @@ class RenamerCron(cronBase):
                 break
 
             #get subtitle if any & move
-            if len(files['subtitles']) > 0:
-                log.info('Moving matching subtitle.')
+            for type in movie['subtitles']:
+                if len(movie['subtitles'][type]) > 0:
+                    log.info('Moving matching subtitle.')
 
-                subtitle = files['subtitles'].pop(0)
-                replacements['ext'] = subtitle['ext']
-                subDest = os.path.join(destination, folder, self.doReplace(fileNaming, replacements))
+                    subtitle = movies['subtitles'][type].pop(0)
+                    replacements['ext'] = subtitle['ext']
+                    subDest = os.path.join(destination, folder, self.doReplace(fileNaming, replacements))
 
-                shutil.move(os.path.join(subtitle['path'], subtitle['filename']), subDest)
-                justAdded.append(subDest) # Add to ignore list when removing stuff.
+                    shutil.move(os.path.join(movie['path'], subtitle['filename']), subDest)
+                    justAdded.append(subDest) # Add to ignore list when removing stuff.
 
             # Add to renaming history
             h = RenameHistory()
-            h.movieId = movie.id
-            h.movieQueue = queueId
+            h.movieId = movie['movie'].id
+            h.movieQueue = movie['history'].movieQueue if movie['history'] else 0
             h.old = unicode(old.decode('utf-8'))
             h.new = unicode(dest.decode('utf-8'))
             Db.add(h)
@@ -295,11 +240,11 @@ class RenamerCron(cronBase):
                 cd += 1
 
         # Mark movie downloaded
-        if queueId > 0:
-            if queue.markComplete:
+        if movie['queue'] and movie['queue'].id > 0:
+            if movie['queue'].markComplete:
                 movie.status = u'downloaded'
 
-            queue.completed = True
+            movie['queue'].completed = True
             Db.flush()
 
         return {
@@ -329,7 +274,7 @@ class RenamerCron(cronBase):
                     if ('*.' + ext in self.movieExt or '*.' + ext in self.subExt) and not '-trailer' in filename:
                         files.append(fullPath)
 
-        log.info('Quality Old: %s, New %s.' % (int(oldSize / 1024 / 1024), int(newSize / 1024 / 1024)))
+        log.info('Quality Old: %d, New %d.' % (int(oldSize) / 1024 / 1024, int(newSize) / 1024 / 1024))
         if oldSize < newSize:
             for file in files:
                 try:
@@ -359,159 +304,6 @@ class RenamerCron(cronBase):
 
     def replaceDoubles(self, string):
         return string.replace('  ', ' ').replace(' .', '.')
-
-    def getMovie(self, imdbId):
-        '''
-        Get movie based on IMDB id.
-        If not in local DB, go fetch it from theMovieDb
-        '''
-
-        movie = Db.query(Movie).filter_by(imdb = imdbId).first()
-
-        if not movie:
-            movie = self.searcher.get('movie').findByImdbId(imdbId)
-
-        return movie
-
-    def determineMovie(self, files):
-        '''
-        Try find movie based on folder names and MovieQueue table
-        '''
-
-        for file in files['files']:
-            dirnames = file['path'].split(os.path.sep)
-            dirnames.append(file['filename'])
-            dirnames.reverse()
-
-            for dir in dirnames:
-                dir = latinToAscii(dir)
-
-                # check and see if name is in queue
-                queue = Db.query(MovieQueue).filter_by(name = dir).first()
-                if queue:
-                    log.info('Found movie via MovieQueue.')
-                    return {
-                        'queue': queue,
-                        'movie': queue.Movie
-                    }
-
-                # last resort, match every word in path to db
-                lastResort = {}
-                dirSplit = re.split('\W+', dir.lower())
-                for s in dirSplit:
-                    if s:
-                        results = Db.query(Movie).filter(Movie.name.like('%' + s + '%')).all()
-                        for r in results:
-                            lastResort[r.id] = r
-
-                for l in lastResort.itervalues():
-                    wordCount = 0
-                    words = re.split('\W+', l.name.lower())
-                    for word in words:
-                        if word in dir.lower():
-                            wordCount += 1
-
-                    if wordCount == len(words) and len(words) > 0 and str(l.year) in dir:
-                        log.info('Found via last resort searching.')
-                        return {
-                            'queue': None,
-                            'movie': l
-                        }
-            # Try finding movie on theMovieDB
-            # more checking here..
-
-        return False
-
-    def getImdb(self, txt):
-
-        try:
-            m = re.search('imdb.com/title/(?P<id>tt[0-9]+)', txt)
-            id = m.group('id')
-            if id:
-                return id
-        except AttributeError:
-            return False
-
-        return False
-
-    def getCodec(self, filename, codecs):
-        codecs = map(re.escape, codecs)
-        try:
-            codec = re.search('[^A-Z0-9](?P<codec>' + '|'.join(codecs) + ')[^A-Z0-9]', filename, re.I)
-            return (codec and codec.group('codec')) or 'unknown'
-            return 'unknown'
-        except:
-            log.info('Renaming: ' + traceback.format_exc())
-            return 'Exception'
-
-    def getGroup(self, filename):
-        try:
-            group = re.search('-(?P<group>[A-Z0-9]+)$', filename, re.I)
-            return (group and group.group('group')) or 'unknown'
-        except:
-            log.info('Renaming: ' + traceback.format_exc())
-            return 'Exception'
-
-    def findFiles(self):
-
-        files = []
-
-        path = self.conf('download')
-        for dir in os.listdir(path):
-            fullDirPath = os.path.join(path, dir)
-
-            for root, subfiles, filenames in os.walk(fullDirPath):
-
-                subfiles = {'nfo':{}, 'files':[], 'subtitles':[]}
-
-                patterns = []
-                patterns.extend(self.movieExt)
-                patterns.extend(self.nfoExt)
-                patterns.extend(self.subExt)
-
-                for pattern in patterns:
-                    for filename in fnmatch.filter(filenames, pattern):
-                        new = {
-                           'path': root,
-                           'filename': filename,
-                           'root' : os.path.splitext(filename)[0],
-                           'ext': os.path.splitext(filename)[1].lower()[1:], #[1:]to remove . from extension
-                        }
-
-                        #nfo file
-                        if('*.' + new.get('ext') in self.nfoExt):
-                            subfiles['nfo'] = new
-                        #subtitle file
-                        elif('*.' + new.get('ext') in self.subExt):
-                            subfiles['subtitles'].append(new)
-                        else:
-                            #ignore movies files / or not
-                            if not self.ignoreFile(os.path.join(root, filename)):
-                                subfiles['files'].append(new)
-
-                if subfiles['files']:
-                    files.append(subfiles)
-
-        return files
-
-    def ignoreFile(self, file):
-
-        if re.search('(^|[\W_])sample\d*[\W_]', file.lower()):
-            return True
-
-        # minimal size
-        if os.path.getsize(file) < self.minimalFileSize:
-            log.info('File to small.')
-            return True
-
-        # ignoredpaths
-        for i in self.ignoredInPath:
-            if i in file.lower():
-                log.debug('File still unpacking.')
-                return True
-
-        # All is OK
-        return False
 
 
 def startRenamerCron(config, searcher, debug):
