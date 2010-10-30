@@ -3,9 +3,10 @@ from app.config.cplog import CPLog
 from app.config.db import Movie, RenameHistory, Session as Db, MovieQueue
 from app.lib.cron.base import cronBase
 from app.lib.qualities import Qualities
-
 from app.lib import xbmc
 from library.xmg import xmg
+from library.hachoir_metadata import extractMetadata
+from library.hachoir_parser import createParser
 import fnmatch
 import os
 import re
