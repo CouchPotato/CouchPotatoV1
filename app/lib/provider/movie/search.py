@@ -23,7 +23,7 @@ class movieSearcher():
 
         # Config imdbWrapper
         self.imdb = imdbWrapper(self.config)
-        self.sources.append(self.theMovieDb)
+        self.sources.append(self.imdb)
 
         # Update the cache
         movies = Db.query(Movie).order_by(Movie.name).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
