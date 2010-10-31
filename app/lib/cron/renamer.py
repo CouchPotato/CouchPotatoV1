@@ -197,23 +197,43 @@ class RenamerCron(cronBase):
         except TypeError:
             return None
 
-    def getSourceMedia(self, files):
+    def getSourceMedia(self, file):
         '''
         get source media from filename... durr
         '''
+        medias = []
         for media in self.sourceMedia:
             for mediaAlias in self.sourceMedia[media]:
-                for file in files['files']:
-                    if mediaAlias in file['filename'].lower() or mediaAlias in file['path'].lower():
-                        return media
+                if mediaAlias in file['filename'].lower() or mediaAlias in file['path'].lower():
+                    medias.append(media)
+
+        return medias[0]
+
+    def getVideoResolution(self, file):
+        '''
+        Using hachoir_metadata we look at the video file and get the horizontal resolution and return the appropriate
+        resolution string (1080p, 720p)
+
+        Currently we return None for less than 720p
+        '''
+        file = os.path.join(file['path'], file['filename'])
+        file = unicode(file)
+        parser = createParser(file)
+        metadata = extractMetadata(parser)
+
+        for md in metadata.iterGroups():
+            if md.has("height") and md.has("width"):
+                if md.get("width") == 1920:
+                    return "1080p"
+                if md.get("width") == 1280:
+                    return "720p"
+
         return None
 
     def renameFiles(self, files, movie, queue = None):
         '''
         rename files based on movie data & conf
         '''
-
-        movieSourceMedia = self.getSourceMedia(files)
         multiple = False
         if len(files['files']) > 1:
             multiple = True
@@ -249,8 +269,7 @@ class RenamerCron(cronBase):
              'thename': moviename.strip(),
              'year': movie.year,
              'first': namethe[0].upper(),
-             'quality': quality,
-             'sourcemedia': movieSourceMedia
+             'quality': quality
         }
         if multiple:
             cd = 1
@@ -284,6 +303,8 @@ class RenamerCron(cronBase):
             replacements['video'] = self.getCodec(file['filename'], RenamerCron.videoCodecs)
             replacements['audio'] = self.getCodec(file['filename'], RenamerCron.audioCodecs)
             replacements['group'] = self.getGroup(file['root'])
+            replacements['sourcemedia'] = self.getSourceMedia(file)
+            replacements['resolution'] = self.getVideoResolution(file)
 
             folder = self.doReplace(folderNaming, replacements)
             filename = self.doReplace(fileNaming, replacements)
@@ -401,6 +422,9 @@ class RenamerCron(cronBase):
         for x, r in replacements.iteritems():
             if r is not None:
                 replaced = replaced.replace('<' + x + '>', str(r))
+            else:
+                #If information is not available, we don't want the tag in the filename
+                replaced = replaced.replace('<' + x + '>', '')
 
         replaced = re.sub(r"[\x00:\*\?\"<>\|]", '', replaced)
 
