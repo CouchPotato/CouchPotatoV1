@@ -214,7 +214,7 @@ class Library:
             log.info('Searching for "%s".' % movieName)
             result = cherrypy.config['searchers']['movie'].find(movieName, limit = 1)
             if result:
-                movie = self.getMovieByIMDB(result.imdb.replace('tt', ''))
+                movie = self.getMovieByIMDB(result.imdb)
 
                 if not movie:
                     new = Movie()
@@ -236,7 +236,7 @@ class Library:
         return None
 
     def cleanName(self, text):
-        cleaned = ' '.join(re.split('\W+', text.lower()))
+        cleaned = ' '.join(re.split('\W+', latinToAscii(text).lower()))
         cleaned = re.sub(self.clean, ' ', cleaned)
         year = self.findYear(cleaned)
 
