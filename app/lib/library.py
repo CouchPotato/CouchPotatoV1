@@ -175,44 +175,45 @@ class Library:
 
     def determineMovie(self, movie):
 
+        movieName = self.cleanName(movie['folder'])
+        movieYear = self.findYear(movie['folder'])
+
+        # check and see if name is in queue
+        queue = Db.query(MovieQueue).filter_by(name = movieName).first()
+        if queue:
+            log.info('Found movie via MovieQueue.')
+            return queue.Movie
+
         for file in movie['files']:
             dirnames = movie['path'].split(os.path.sep)
             dirnames.append(file['filename'])
             dirnames.reverse()
 
             for dir in dirnames:
-                dir = latinToAscii(dir)
-
-                # check and see if name is in queue
-                queue = Db.query(MovieQueue).filter_by(name = dir).first()
-                if queue:
-                    log.info('Found movie via MovieQueue.')
-                    return queue.Movie
+                dir = self.cleanName(dir)
 
                 # last resort, match every word in path to db
                 lastResort = {}
                 dirSplit = re.split('\W+', dir.lower())
                 for s in dirSplit:
                     if s:
-                        results = Db.query(Movie).filter(Movie.name.like('%' + s + '%')).all()
+                        results = Db.query(Movie).filter(Movie.name.like('%' + s + '%')).filter_by(year = movieYear).all()
                         for r in results:
                             lastResort[r.id] = r
 
                 for l in lastResort.itervalues():
                     wordCount = 0
-                    words = re.split('\W+', l.name.lower())
-                    for word in words:
-                        if word in dir.lower():
+                    for word in dirSplit:
+                        if word in l.name.lower():
                             wordCount += 1
 
-                    if wordCount == len(words) and len(words) > 0 and str(l.year) in dir:
+                    if wordCount == len(dirSplit) and len(dirSplit) > 0:
                         return l
 
         # Search tMDB
-        movieName = self.cleanName(movie['folder'])
         if movieName:
             log.info('Searching for "%s".' % movie['folder'])
-            result = cherrypy.config['searchers']['movie'].find(movieName, limit = 1)
+            result = cherrypy.config['searchers']['movie'].find(movieName + ' ' + movieYear, limit = 1)
             if result:
                 movie = self.getMovieByIMDB(result.imdb)
 
@@ -232,6 +233,8 @@ class Library:
                         return new
                     except Exception, e:
                         log.error('Movie could not be added to database %s. %s' % (result, e))
+                else:
+                    return movie
 
         return None
 
@@ -243,7 +246,7 @@ class Library:
         if year: # Split name on year
             try:
                 movieName = cleaned.split(year).pop(0).strip()
-                return movieName + ' ' + year
+                return movieName
             except:
                 pass
         else: # Split name on multiple spaces
@@ -260,7 +263,7 @@ class Library:
         if matches:
             return matches.group('year')
 
-        return None
+        return ''
 
     def getImdb(self, txt):
         try:
