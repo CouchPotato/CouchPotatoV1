@@ -69,6 +69,11 @@
 
 				window.addEvent('domready', function(){
 
+					$('showConfig').addEvents({
+						'mouseover': function(){ this.setStyle('opacity', 0.5) },
+						'mouseout': function(){ this.setStyle('opacity', 1) }
+					});
+
 					var hasUpdate = $(document.body).getElement('.updateAvailable');
 					var updateNow = function(updateThis){
 						var us = new Spinner(updateThis).show()
