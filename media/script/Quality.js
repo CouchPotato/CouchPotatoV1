@@ -104,7 +104,7 @@ var Quality = new Class({
 					}
 				})
 			)
-		).inject(this.list)
+		).inject(this.list, 'top')
 		
 		if(properties.types)
 			Object.each(properties.types, function(type){

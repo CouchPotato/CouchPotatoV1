@@ -19,7 +19,7 @@ class nzbBase(rss):
         'unrated:1',
         'x264:1',
         'DTS:4', 'AC3:2',
-        '720p:2', '1080p:2', 'bluray:10', 'dvd:1', 'dvdrip:1', 'brrip:1', 'bdrip:1',
+        '720p:10', '1080p:10', 'bluray:10', 'dvd:1', 'dvdrip:1', 'brrip:1', 'bdrip:1',
         'metis:1', 'diamond:1', 'wiki:1', 'CBGB:1',
         'german:-10', 'french:-10', 'spanish:-10', 'swesub:-20', 'danish:-10'
     ]
@@ -78,6 +78,13 @@ class nzbBase(rss):
         #points if the year is correct
         if str(movie.year) in name:
             score = score + 1
+
+        # Contains preferred word
+        nzbWords = re.split('\W+', self.toSearchString(name).lower())
+        preferredWords = self.config.get('global', 'preferredWords').split(',')
+        for word in preferredWords:
+            if word.strip() and word.strip().lower() in nzbWords:
+                score = score + 100
 
         return score
 

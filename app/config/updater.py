@@ -5,6 +5,7 @@ from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
 from urllib2 import URLError
 import cherrypy
 import os
+import subprocess
 import tarfile
 import time
 import urllib2
@@ -33,6 +34,7 @@ class Updater(SimplePlugin):
         self.debug = cherrypy.config['debug']
         self.updatePath = os.path.join(self.cachePath, 'updates')
         self.historyFile = os.path.join(self.updatePath, 'history.txt')
+        self.tryGit = os.path.isdir(os.path.join(self.runPath, '.git'))
 
         if not os.path.isdir(self.updatePath):
             os.mkdir(self.updatePath)
@@ -56,7 +58,7 @@ class Updater(SimplePlugin):
             log.info("Updating")
             self.running = True
 
-            result = self.doUpdateUnix()
+            result = self.doUpdate()
 
             time.sleep(1)
             cherrypy.engine.restart()
@@ -70,31 +72,47 @@ class Updater(SimplePlugin):
             if self.isFrozen:
                 self.version = 'Windows build r%d' % version.windows
             else:
-                handle = open(self.historyFile, "r")
-                lineList = handle.readlines()
-                handle.close()
-                self.version = lineList[-1].replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
+                if self.tryGit:
+                    try:
+                        p = subprocess.Popen('git rev-parse HEAD', stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = True, cwd = os.getcwd())
+                        output, err = p.communicate()
+                        self.version = output[:7]
+                    except:
+                        log.error('Failed using GIT, falling back on normal version check.')
+                        self.tryGit = False
+                        return self.getVersion(force)
+                else:
+                    handle = open(self.historyFile, "r")
+                    lineList = handle.readlines()
+                    handle.close()
+                    self.version = lineList[-1].replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
 
         return self.version
 
     def checkForUpdate(self):
 
-        if self.debug:
-            return
+#        if self.debug:
+#            return
+
+        if not self.version:
+            self.getVersion()
 
         if self.isFrozen:
             self.updateAvailable = self.checkForUpdateWindows()
         else:
-            update = self.checkForUpdateUnix()
+            update = self.checkGitHubForUpdate()
             if update:
                 history = open(self.historyFile, 'r').read()
-                self.updateAvailable = update.get('name').replace('.tar.gz', '') not in history
+                if self.tryGit:
+                    self.updateAvailable = self.version not in update.get('name').replace('.tar.gz', '')
+                else:
+                    self.updateAvailable = update.get('name').replace('.tar.gz', '') not in history
 
         self.availableString = 'Update available' if self.updateAvailable else 'No update available'
         self.lastCheck = time.time()
         log.info(self.availableString)
 
-    def checkForUpdateUnix(self):
+    def checkGitHubForUpdate(self):
         try:
             data = urllib2.urlopen(self.url, timeout = self.timeout)
         except (IOError, URLError):
@@ -136,13 +154,33 @@ class Updater(SimplePlugin):
 
         return False
 
-    def doUpdateUnix(self):
-        update = self.checkForUpdateUnix()
+    def doUpdate(self):
+        update = self.checkGitHubForUpdate()
         if not update:
             return False
 
         name = update.get('name')
         data = update.get('data')
+
+        # Try git first
+        if self.tryGit:
+            try:
+                p = subprocess.Popen('git pull', stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = True, cwd = os.getcwd())
+                output, err = p.communicate()
+
+                if 'Aborting.' in output:
+                    log.error("Couldn't update via git.")
+                    self.tryGit = False
+                    return False
+                elif 'Already up-to-date.' in output:
+                    log.info('No need to update, already using latest version')
+                    return True
+
+                log.info('Update to %s successful, using GIT.' % name)
+                return True
+            except:
+                pass
+
         destination = os.path.join(self.updatePath, update.get('name'))
 
         if not os.path.isfile(destination):

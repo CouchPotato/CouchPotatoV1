@@ -1,3 +1,4 @@
+from app import latinToAscii
 from app.config.cplog import CPLog
 from app.lib import hashFile
 from app.lib.provider.subtitle.base import subtitleBase
@@ -85,7 +86,7 @@ class openSubtitles(subtitleBase):
         return data
 
     def getInfo(self, filePath):
-        key = md5(filePath).digest()
+        key = md5(latinToAscii(filePath)).digest()
         if not self.hashes.get(key):
             self.hashes[key] = {
                 'moviehash': hashFile(filePath),

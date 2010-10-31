@@ -34,7 +34,7 @@ class movieSearcher():
     def find(self, q, limit = 8, alternative = True):
         ''' Find movie by name '''
 
-        q = unicode(q).lower()
+        q = unicode(q).lower().strip()
 
         for source in self.sources:
             result = source.find(q, limit = limit, alternative = alternative)

@@ -43,7 +43,7 @@ class Library:
                     'hdtv': ['hdtv']}
 
     # From Plex/XBMC
-    clean = '(?i)[^\s]*(ac3|dts|custom|dc|divx|divx5|dsr|dsrip|dutch|dvd|dvdrip|dvdscr|dvdscreener|screener|dvdivx|cam|fragment|fs|hdtv|hdrip|hdtvrip|internal|limited|multisubs|ntsc|ogg|ogm|pal|pdtv|proper|repack|rerip|retail|r3|r5|bd5|se|svcd|swedish|german|read.nfo|nfofix|unrated|ws|telesync|ts|telecine|tc|brrip|bdrip|480p|480i|576p|576i|720p|720i|1080p|1080i|hrhd|hrhdtv|hddvd|bluray|x264|h264|xvid|xvidvd|xxx|www.www|cd[1-9]|\[.*\])[^\s]*'
+    clean = '(?i)[^\s](ac3|dts|custom|dc|divx|divx5|dsr|dsrip|dutch|dvd|dvdrip|dvdscr|dvdscreener|screener|dvdivx|cam|fragment|fs|hdtv|hdrip|hdtvrip|internal|limited|multisubs|ntsc|ogg|ogm|pal|pdtv|proper|repack|rerip|retail|r3|r5|bd5|se|svcd|swedish|german|read.nfo|nfofix|unrated|ws|telesync|ts|telecine|tc|brrip|bdrip|480p|480i|576p|576i|720p|720i|1080p|1080i|hrhd|hrhdtv|hddvd|bluray|x264|h264|xvid|xvidvd|xxx|www.www|cd[1-9]|\[.*\])[^\s]*'
     multipartRegEx = [
         '[ _\.-]+cd[ _\.-]*([0-9a-d]+)', #*cd1
         '[ _\.-]+dvd[ _\.-]*([0-9a-d]+)', #*dvd1
@@ -205,46 +205,47 @@ class Library:
 
     def determineMovie(self, movie):
 
+        movieName = self.cleanName(movie['folder'])
+        movieYear = self.findYear(movie['folder'])
+
+        # check and see if name is in queue
+        queue = Db.query(MovieQueue).filter_by(name = movieName).first()
+        if queue:
+            log.info('Found movie via MovieQueue.')
+            return queue.Movie
+
         for file in movie['files']:
             dirnames = movie['path'].split(os.path.sep)
             dirnames.append(file['filename'])
             dirnames.reverse()
 
             for dir in dirnames:
-                dir = latinToAscii(dir)
-
-                # check and see if name is in queue
-                queue = Db.query(MovieQueue).filter_by(name = dir).first()
-                if queue:
-                    log.info('Found movie via MovieQueue.')
-                    return queue.Movie
+                dir = self.cleanName(dir)
 
                 # last resort, match every word in path to db
                 lastResort = {}
                 dirSplit = re.split('\W+', dir.lower())
                 for s in dirSplit:
                     if s:
-                        results = Db.query(Movie).filter(Movie.name.like('%' + s + '%')).all()
+                        results = Db.query(Movie).filter(Movie.name.like('%' + s + '%')).filter_by(year = movieYear).all()
                         for r in results:
                             lastResort[r.id] = r
 
                 for l in lastResort.itervalues():
                     wordCount = 0
-                    words = re.split('\W+', l.name.lower())
-                    for word in words:
-                        if word in dir.lower():
+                    for word in dirSplit:
+                        if word in l.name.lower():
                             wordCount += 1
 
-                    if wordCount == len(words) and len(words) > 0 and str(l.year) in dir:
+                    if wordCount == len(dirSplit) and len(dirSplit) > 0:
                         return l
 
         # Search tMDB
-        movieName = self.cleanName(movie['folder'])
         if movieName:
-            log.info('Searching for "%s".' % movieName)
-            result = cherrypy.config['searchers']['movie'].find(movieName, limit = 1)
+            log.info('Searching for "%s".' % movie['folder'])
+            result = cherrypy.config['searchers']['movie'].find(movieName + ' ' + movieYear, limit = 1)
             if result:
-                movie = self.getMovieByIMDB(result.imdb.replace('tt', ''))
+                movie = self.getMovieByIMDB(result.imdb)
 
                 if not movie:
                     new = Movie()
@@ -262,18 +263,20 @@ class Library:
                         return new
                     except Exception, e:
                         log.error('Movie could not be added to database %s. %s' % (result, e))
+                else:
+                    return movie
 
         return None
 
     def cleanName(self, text):
-        cleaned = ' '.join(re.split('\W+', text.lower()))
+        cleaned = ' '.join(re.split('\W+', latinToAscii(text).lower()))
         cleaned = re.sub(self.clean, ' ', cleaned)
         year = self.findYear(cleaned)
 
         if year: # Split name on year
             try:
                 movieName = cleaned.split(year).pop(0).strip()
-                return movieName + ' ' + year
+                return movieName
             except:
                 pass
         else: # Split name on multiple spaces
@@ -290,7 +293,7 @@ class Library:
         if matches:
             return matches.group('year')
 
-        return None
+        return ''
 
     def getImdb(self, txt):
         try:

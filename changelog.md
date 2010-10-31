@@ -1,8 +1,14 @@
 CouchPotato
 =====
 
-Version 26 (not release):
+Version 26 (not released):
 
+* New: Preferred words for searching in "Settings >> General"
+* Enhancement: Better movie detection when renaming.
+* Enhancement: Settings page instead of popup.
+* Enhancement: R5 DVD-R is allowed
+* Fix: OpenSubtitle didn't always stay logged in.
+* Fix: Move .idx files along with .sub files.
 
 Version 25:
 
