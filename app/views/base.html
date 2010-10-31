@@ -38,15 +38,14 @@
 	]
 	miniJs = Minify.js(jsFiles) 
 %>
-	% if debug:
+% if debug:
 	% for jsFile in jsFiles:
 	<script src="media/script/${jsFile}" type="text/javascript"></script>
 	% endfor
-	% else:
+% else:
 	<script src="${miniJs}" type="text/javascript"></script>
-	% endif
+% endif
 
-	
 	<div id="header">
 	    <div class="navigation">
 	    	<% tabs = [
@@ -67,29 +66,9 @@
 			</div>
 			
 			<script type="text/javascript">
-				
+
 				window.addEvent('domready', function(){
 
-					var showConfigPopup = function(e){
-						(e).stop()
-
-						var popup = new Element('div', {
-							'class':'configPopup'
-						}).inject(document.body);
-						
-						new Request.HTML({
-							'url': $('showConfig').get('href'),
-							'update': popup,
-							'method': 'get'
-						}).send()
-						
-					}
-					$('showConfig').addEvents({
-						'click': showConfigPopup,
-						'mouseover': function(){ this.setStyle('opacity', 0.5) },
-						'mouseout': function(){ this.setStyle('opacity', 1) }
-					});
-					
 					var hasUpdate = $(document.body).getElement('.updateAvailable');
 					var updateNow = function(updateThis){
 						var us = new Spinner(updateThis).show()
@@ -102,7 +81,7 @@
 							}
 						}).send()
 					}
-					
+
 					if(hasUpdate){
 						var clone = hasUpdate.clone()
 							.addClass('noticeMe')
@@ -119,7 +98,7 @@
 							})
 						}
 					}
-					
+
 				})
 				
 			</script>

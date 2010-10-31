@@ -11,6 +11,7 @@ body {
 	margin: 0;
 	padding: 0;
 	background: #fff;
+	overflow-y: scroll;
 }
 	body.noscroll { overflow: hidden; }
 
@@ -662,73 +663,62 @@ h1 {
 			}
 
 /*** Settings ***/
-.configPopup {
-}
-.mask {
-	background: url('../../media/images/mask.png');
-	width: 100% !important;
-}
-
-	.configPopup ul {
-		float: left;
-		border-right: none;
-		width: 200px;
-		text-align: right;
-		font-size: 19px;
-		padding: 0;
-		margin: 10px 0 0;
-		position:absolute;
-		z-index:999;
-	}
-	
-	.configPopup ul li {
-		list-style: none;
-		border-bottom: 1px solid #fafafa;
-	}
-		.configPopup ul li:last-child { border: none; }
-	
-		.configPopup ul li a {
-			display: block;
-			padding: 10px 15px 10px 0;
-			color: #000;
-			outline: none;
-		}
-	
-		.configPopup ul li a.current {
-			font-weight: bold;
-			background: #fff;
-		}
-	
-
 #configForm {
 	display: block;
-	width: 700px;
-	margin: 30px auto;
-	background: #fff;
-	border: 6px solid rgba(0,0,0, 0.25);
-	-webkit-border-radius: 6px;
-	-moz-border-radius: 6px;
-	background: #f5f5f5;
-	position:fixed;
-	z-index:101;
-	-moz-box-shadow: 0 0 100px rgba(0,0,0,0.75);
-	-webkit-box-shadow: 0 0 100px rgba(0,0,0,0.75);
+	margin: 0 -10px;
 }
 
-	#configForm .formContent {
-		height: 510px;
-		overflow: auto;
-		background: #fff;
+	#configForm ul {
+		float: left;
+		border-right: none;
+		text-align: center;
+		font-size: 16px;
+		padding: 10px 0 0;
+		margin: 0;
+		width: 100%;
+	}
+	
+	#configForm ul li {
+		list-style: none;
+		float: left;
+	}
+		#configForm ul li:first-child { margin-left: 7px; }
+	
+		#configForm ul li a {
+			display: block;
+			padding: 10px 15px;
+			color: #000;
+			outline: none;
+			border-radius: 6px 6px 0 0;
+			-webkit-border-radius: 6px 6px 0 0;
+			-moz-border-radius: 6px 6px 0 0;
+		}
+	
+		#configForm ul li a.current {
+			background: #fafafa;
+		}
+
+	#configForm form {
 		display: block;
 		clear: both;
-		float: right;
-		width: 500px;
+		position: static;
 	}
+		#configForm .group {
+			background: #fafafa;
+			overflow: hidden;
+			padding: 30px 12px;
+			display: none;
+			border-radius: 6px;
+			-webkit-border-radius: 6px;
+			-moz-border-radius: 6px;
+		}
+		#configForm .group.current { display: block; }
 	
 		#configForm h3 {
 			font-size: 19px;
-			padding: 0;
-			margin: 0 10px 10px 10px;
+			padding: 0 20px 10px 10px;
+			margin: 0;
+			background: #fafafa;
 		}
 	
 		#configForm .infoMessage {
@@ -737,16 +727,30 @@ h1 {
 		}
 	
 		#configForm fieldset {
-			width: 460px;
-			padding: 20px 0 0 20px;
+			width: 458px;
+			float: left;
+			margin-bottom: 20px;
+			background: #fdfdfd;
+			border-radius: 3px;
+			-webkit-border-radius: 3px;
+			-moz-border-radius: 3px;
+		}
+		#configForm fieldset:nth-child(odd), #configForm fieldset.left {
+			float: left;
+		}
+		#configForm fieldset:nth-child(even), #configForm fieldset.right {
+			float: right;
 		}
 			
 		#configForm .buttonHolder {
-			margin-top: 0;
+			background: none;
+			margin: 0;
 		}
 		
 		#configForm .ctrlHolder {
 			line-height: 25px;
+			padding: 10px;
+			border-bottom: 1px solid #f3f3f3;
 		}
 		
 		#configForm .ctrlHolder:last-child {
@@ -769,15 +773,20 @@ h1 {
 				margin-right: 4px !important;
 			}
 			
-			#configForm .userscriptInstall {
-				padding: 20px 15px 10px;
+			#configForm .userscript fieldset {
 				text-align: center;
 				font-weight:bold;
 				font-size: 15px;
+				margin: 0 auto;
+				width: 100%;
+				background: transparent;
 			}
 			
-				#configForm fieldset p {
+				#configForm .userscriptInstall {
+					padding: 20px 15px 10px;
 					text-align: center;
+					font-weight:bold;
+					font-size: 15px;
 				}
 			
 			#configForm .formHint span {
@@ -789,12 +798,13 @@ h1 {
 			#configForm .formHint {
 				text-align: left;
 				padding-top: 0;
-				line-height: 20px;
+				line-height: 22px;
 			}
 			
 			#configForm fieldset > .formHint {
-				margin: 0 10px;
+				margin: 10px 30px;
 				font-size: 12px;
+				text-align: center;
 			}
 			
 			#configForm span.or {
@@ -804,13 +814,12 @@ h1 {
 		
 		#configForm .standardQualities {
 			float: left;
-			width: 275px;
+			width: 265px;
 		}
 			#configForm .standardQualities .item {
 				clear: both;
-				border-bottom: 1px solid #f3f3f3;
+				border-bottom: 1px solid #ececec;
 				overflow: hidden;
-				background: #fff;
 			}
 				#configForm .standardQualities .item:last-child { border: none; }
 			#configForm .standardQualities .item:hover {
@@ -827,7 +836,7 @@ h1 {
 				}
 				
 				#configForm .handle {
-					background: #fff url('../../media/images/handle.png') center no-repeat;
+					background: url('../../media/images/handle.png') center no-repeat;
 					display: block;
 					width: 24px;
 					height: 24px;
@@ -841,7 +850,7 @@ h1 {
 		}
 		
 		#configForm .qualityTemplates .template h4 {
-			margin: 0 0 0 160px;
+			margin: 0 0 0 173px;
 			font-size: 16px;
 			float: left;
 			display: block;
@@ -857,7 +866,6 @@ h1 {
 		
 		#configForm .qualityTemplates .types {
 			float: left;
-			width: 275px;
 		}
 		
 			#configForm .qualityTemplates .header {
@@ -873,16 +881,16 @@ h1 {
 			#configForm .qualityTemplates span.markComplete {
 				display: block;
 				float: left;
-				width: 40px;
+				width: 50px;
 				text-align: center;
 			}
 		
 			#configForm .qualityTemplates .item {
 				display: block;
 				clear: both;
-				border-bottom: 1px solid #f3f3f3;
+				border-bottom: 1px solid #ececec;
 				overflow: hidden;
-				background: #fff;
+				width: 285px;
 			}
 			#configForm .qualityTemplates .item:last-child { border: none; }
 				#configForm .qualityTemplates .item:hover {
@@ -890,7 +898,7 @@ h1 {
 				}
 				
 				#configForm .qualityTemplates select {
-					width: 90%;
+					width: 95%;
 					margin: 3px 0 0 0;
 				}
 				
@@ -922,13 +930,10 @@ h1 {
 			}
 
 		#configForm .qualitySizes {
-			overflow: hidden;
 		}
 			#configForm .qualitySizes label {
-				text-align: right;
 			}
 			#configForm .qualitySizes .ctrlHolder {
-				padding: 4px 10px 3px;
 			}
 
 			#configForm .qualitySizes .item {
@@ -941,7 +946,7 @@ h1 {
 
 			#configForm .qualitySizes .size {
 				float: right;
-				width: 275px;
+				width: 270px;
 			}
 
 				#configForm .qualitySizes .size span {
@@ -958,37 +963,42 @@ h1 {
 				font-weight: bold;
 			}
 
-		#configForm fieldset.about {
-			padding: 65px 20px 0;
+		#configForm .about {
+			padding: 65px 220px 20px;
 			text-align:center;
 		}
-
-		#configForm fieldset.about .submit {
-			background-color: #ff0000;
-		}
-
-		#configForm fieldset.about .submit.restart {
-			background-color: #f78a00;
-		}
-		
-		#configForm #versionInfo {
-			margin-top: 30px;
-		}
-		
-		#configForm #donate {
-			padding: 50px 30px 10px;
-			font-style: italic;
-			font-size: 15px;
-			color: #999;
-		}
-		
-			#configForm #donate div {
-				padding: 20px 0;
+			#configForm .about fieldset {
+				width: 100%; 
+				background: transparent;
 			}
-		#configForm .site {
-			font-size: 16px;
-			margin-top: 50px;
-		}
+
+			#configForm .about .submit {
+				background-color: #ff0000;
+			}
+	
+			#configForm .about .submit.restart {
+				background-color: #f78a00;
+			}
+		
+			#configForm #versionInfo {
+				margin-top: 30px;
+			}
+			
+			#configForm #donate {
+				padding: 50px 30px 10px;
+				font-style: italic;
+				font-size: 15px;
+				color: #999;
+			}
+			
+				#configForm #donate div {
+					padding: 20px 0;
+				}
+	
+			#configForm .site {
+				font-size: 16px;
+				margin: 20px;
+			}
 
 .question {
 	display: block;
