@@ -8,12 +8,20 @@ from mako.template import Template
 import cherrypy
 import os
 import traceback
+import urllib
 
 log = getLogger(__name__)
 
 ### TEMP
 def url(*args, **kwargs):
-    return ''
+    url = kwargs.get('controller') + '/' + kwargs.get('action') + '/'
+    for key in ['controller', 'action']:
+        if kwargs.get(key):
+            del kwargs[key]
+
+    params = urllib.urlencode(kwargs)
+
+    return url + '?'+params if params else ''
 
 def redirect(url):
     raise cherrypy.HTTPRedirect(url)
@@ -35,6 +43,7 @@ class PluginController(BasicController):
             , '_url': url
             , '_baseUrl': env_._baseUrl
             , '_core': '_plugins/core-1/static'
+            , '_plugin': self.plugin
             # /TEMP
         }
 
@@ -159,9 +168,9 @@ class About:
 
     def fromDict(self, dict):
         attrs = (
-                 'name', 'author',
-                 'description', 'version',
-                 'email', 'logo', 'www'
+            'name', 'author',
+            'description', 'version',
+            'email', 'logo', 'www'
         )
         for attr in attrs:
             if dict.has_key(attr):

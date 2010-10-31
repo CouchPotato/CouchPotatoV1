@@ -14,7 +14,8 @@ class imdb(PluginBones, Rss):
 
         self.p = IMDb()
 
-        self._listen('findMovieInfo', self.find)
+        self._listen('findMovie', self.find)
+        self._listen('getMovieInfo', self.findInfo)
 
 
     def find(self, e, config):
@@ -32,14 +33,8 @@ class imdb(PluginBones, Rss):
         log.info('Found %s.' % results)
         e.addResults(results)
 
-    def findById(self, id):
-        ''' Find movie by TheMovieDB ID '''
-
-        return []
-
-
-    def findByImdbId(self, id):
-        ''' Find movie by IMDB ID '''
+    def findInfo(self, id):
+        ''' Find movie info by IMDB ID '''
 
         log.info('IMDB - Searching for movie: %s', str(id))
 

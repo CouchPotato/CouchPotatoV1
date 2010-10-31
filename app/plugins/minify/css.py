@@ -3,7 +3,6 @@
 
 # `cssmin.py` - A Python port of the YUI CSS compressor.
 
-
 import re
 
 __version__ = '0.1.1'

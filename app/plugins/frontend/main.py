@@ -1,15 +1,12 @@
+from app.core import getLogger, env_
 from app.lib.bones import PluginBones
-import cherrypy
-from app.core import getLogger, decorate
-from app.core import env_
 
 log = getLogger(__name__)
 
 class Frontend(PluginBones):
     '''
-    Provides an interterface for plugins to register with the frontend
+    Provides an interface for plugins to register with the frontend
     '''
-
 
     def postConstruct(self):
         self.tabs = {}

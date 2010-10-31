@@ -1,14 +1,15 @@
 from app.core import env_
 from app.lib.bones import PluginBones
-from app.plugins.quality import _tables
+from app.plugins.queue import _tables
 
-class Qualities(PluginBones):
+class Queue(PluginBones):
     '''
-    This plugin provides the movie library for CouchPotato
+    This plugin provides the download queue
     '''
 
     def init(self):
         self._upgradeDatabase(_tables.latestVersion, _tables)
 
     def postConstruct(self):
-        _tables.bootstrap(env_.get('db'))
+        pass
+        #_tables.bootstrap(env_.get('db'))

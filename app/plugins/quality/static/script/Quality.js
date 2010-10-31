@@ -230,3 +230,30 @@ var Quality = new Class({
 	}
 
 })
+
+Quality.SearchFilter = new Class({
+	
+	Implements: [Options, FormBuilder],
+	
+	initialize: function(options){
+		this.setOptions(options);
+	},
+	
+	start: function(){
+		
+		this.items = this.options.qualities
+		
+		this.list()
+	},
+	
+	list: function(){
+		var select = this._select('result')
+		this.items.each(function(item, nr){
+			var option = new Element('option', {
+				'value': item.imdb,
+				'text': item.name
+			}).inject(self.select)
+		})
+		return select
+	}
+});
