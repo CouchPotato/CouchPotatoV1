@@ -17,6 +17,7 @@ class openSubtitles(subtitleBase):
     siteUrl = "http://www.opensubtitles.org/"
     searchUrl = "http://api.opensubtitles.org/xml-rpc"
     hashes = {}
+    token = None
 
     def __init__(self, config, extensions):
         self.config = config
@@ -28,20 +29,26 @@ class openSubtitles(subtitleBase):
         return self.config.get('Subtitles', value)
 
     def login(self):
-        self.wait()
-        self.server = xmlrpclib.Server(self.searchUrl)
-        self.lastUse = time.time()
 
-        try:
-            log_result = self.server.LogIn("", "", "eng", "CouchPotato")
-            self.token = log_result["token"]
-        except Exception:
-            log.error("Open subtitles could not be contacted for login")
-            self.token = None
+        if not self.token:
+            self.wait()
+            self.server = xmlrpclib.Server(self.searchUrl)
+            self.lastUse = time.time()
+
+            try:
+                log_result = self.server.LogIn("", "", "eng", "CouchPotato")
+                self.token = log_result["token"]
+                log.debug("Logged into OpenSubtitles %s." % self.token)
+            except Exception:
+                log.error("OpenSubtitles could not be contacted for login")
+                self.token = None
+                return False
+
+        return True;
 
     def find(self, movie):
 
-        if not self.isAvailable(self.siteUrl):
+        if not self.isAvailable(self.siteUrl) and self.login():
             return
 
         data = {

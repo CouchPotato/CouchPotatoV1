@@ -23,7 +23,7 @@ class movieSearcher():
 
         # Config imdbWrapper
         self.imdb = imdbWrapper(self.config)
-        self.sources.append(self.theMovieDb)
+        self.sources.append(self.imdb)
 
         # Update the cache
         movies = Db.query(Movie).order_by(Movie.name).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
@@ -42,7 +42,8 @@ class movieSearcher():
                 results = []
                 for r in result:
                     results.append(self.checkResult(r))
-                return results
+
+                return results if limit > 1 else results.pop(0)
 
         return []
 

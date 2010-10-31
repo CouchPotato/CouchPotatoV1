@@ -97,7 +97,7 @@ class SubtitleCron(rss, cronBase, Library):
         movies = self.getMovies(directory)
 
         for movie in movies:
-            if not movie.get('subtitles'):
+            if not movie['subtitles']['files']:
                 subtitleQueue.put(movie)
 
         log.info('Done adding movies to subtitle search.')

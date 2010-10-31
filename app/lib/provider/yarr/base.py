@@ -93,7 +93,7 @@ class nzbBase(rss):
         else:
             return 0
 
-    def isCorrectMovie(self, item, movie, qualityType, imdbResults = False):
+    def isCorrectMovie(self, item, movie, qualityType, imdbResults = False, singleCategory = False):
 
         # Ignore already added.
         if self.alreadyTried(item, movie.id):
@@ -112,7 +112,7 @@ class nzbBase(rss):
         type = q.types.get(qualityType)
 
         # Contains lower quality string
-        if self.containsOtherQuality(item.name, type):
+        if self.containsOtherQuality(item.name, type, singleCategory):
             log.info('Wrong: %s, looking for %s' % (item.name, type['label']))
             return False
 
@@ -148,7 +148,7 @@ class nzbBase(rss):
     def alreadyTried(self, nzb, movie):
         return Db.query(History).filter(and_(History.movie == movie, History.value == str(nzb.id) + '-' + str(nzb.size), History.status == u'ignore')).first()
 
-    def containsOtherQuality(self, name, preferedType):
+    def containsOtherQuality(self, name, preferedType, singleCategory = False):
 
         nzbWords = re.split('\W+', self.toSearchString(name).lower())
 
@@ -167,6 +167,9 @@ class nzbBase(rss):
         for allowed in preferedType['allow']:
             if found.get(allowed):
                 del found[allowed]
+
+        if (len(found) == 0 and singleCategory):
+            return False
 
         return not (found.get(preferedType['key']) and len(found) == 1)
 

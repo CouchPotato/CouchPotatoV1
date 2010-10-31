@@ -43,16 +43,18 @@ class nzbs(nzbBase):
         if not self.enabled() or not self.isAvailable(self.apiUrl + '?test' + self.getApiExt()):
             return results
 
+        catId = self.getCatId(type)
         arguments = urlencode({
             'action':'search',
             'q': self.toSearchString(movie.name),
-            'catid':self.getCatId(type),
-            'i':self.conf('id'),
-            'h':self.conf('key'),
+            'catid': catId,
+            'i': self.conf('id'),
+            'h': self.conf('key'),
             'age': self.config.get('NZB', 'retention')
         })
         url = "%s?%s" % (self.apiUrl, arguments)
-        cacheId = str(movie.imdb) + '-' + str(self.getCatId(type))
+        cacheId = str(movie.imdb) + '-' + str(catId)
+        singleCat = (len(self.catIds.get(catId)) == 1 and catId != self.catBackupId)
 
         try:
             cached = False
@@ -106,7 +108,7 @@ class nzbs(nzbBase):
                     new.content = self.gettextelement(nzb, "description")
                     new.score = self.calcScore(new, movie)
 
-                    if self.isCorrectMovie(new, movie, type):
+                    if self.isCorrectMovie(new, movie, type, singleCategory = singleCat):
                         results.append(new)
                         log.info('Found: %s' % new.name)
 

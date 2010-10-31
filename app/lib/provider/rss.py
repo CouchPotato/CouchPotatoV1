@@ -2,6 +2,7 @@ from app import latinToAscii
 from app.config.cplog import CPLog
 from string import ascii_letters, digits
 from urllib2 import URLError
+import cherrypy
 import math
 import re
 import time
@@ -74,6 +75,8 @@ class rss:
             time.sleep(self.lastUse - now + self.timeBetween)
 
     def isAvailable(self, testUrl):
+
+        if cherrypy.config.get('debug'): return True
 
         now = time.time()
 

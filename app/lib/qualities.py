@@ -15,7 +15,7 @@ class Qualities:
         'dvdr':     {'key': 'dvdr', 'size': (3000, 10000), 'order':4, 'label': 'DVD-R', 'alternative': [], 'allow': [], 'ext':['iso', 'img']},
         'dvdrip':   {'key': 'dvdrip', 'size': (600, 2400), 'order':5, 'label': 'DVD-Rip', 'alternative': [], 'allow': [], 'ext':['avi', 'mpg', 'mpeg']},
         'scr':      {'key': 'scr', 'size': (600, 1000), 'order':6, 'label': 'Screener', 'alternative': ['dvdscr'], 'allow': [], 'ext':['avi', 'mpg', 'mpeg']},
-        'r5':       {'key': 'r5', 'size': (600, 1000), 'order':7, 'label': 'R5', 'alternative': [], 'allow': [], 'ext':['avi', 'mpg', 'mpeg']},
+        'r5':       {'key': 'r5', 'size': (600, 1000), 'order':7, 'label': 'R5', 'alternative': [], 'allow': ['dvdr'], 'ext':['avi', 'mpg', 'mpeg']},
         'tc':       {'key': 'tc', 'size': (600, 1000), 'order':8, 'label': 'TeleCine', 'alternative': ['telecine'], 'allow': [], 'ext':['avi', 'mpg', 'mpeg']},
         'ts':       {'key': 'ts', 'size': (600, 1000), 'order':9, 'label': 'TeleSync', 'alternative': ['telesync'], 'allow': [], 'ext':['avi', 'mpg', 'mpeg']},
         'cam':      {'key': 'cam', 'size': (600, 1000), 'order':10, 'label': 'Cam', 'alternative': [], 'allow': [], 'ext':['avi', 'mpg', 'mpeg']}
@@ -168,19 +168,17 @@ class Qualities:
         found = False
 
         for file in files:
-            checkThis = os.path.join(file.get('path'), file.get('filename'))
-
             for type, quality in self.getTypes():
                 # Check tags
-                if type in checkThis.lower(): found = True
+                if type in file.lower(): found = True
                 for alt in quality.get('alternative'):
-                    if alt in checkThis.lower():
+                    if alt in file.lower():
                         found = True
 
                 # Check extension + filesize
                 for ext in quality.get('ext'):
-                    size = (os.path.getsize(checkThis) / 1024 / 1024)
-                    if ext in checkThis.lower() and size >= self.minimumSize(type) and size <= self.maximumSize(type):
+                    size = (os.path.getsize(file) / 1024 / 1024)
+                    if ext in file.lower() and size >= self.minimumSize(type) and size <= self.maximumSize(type):
                         found = True
 
                 if found:

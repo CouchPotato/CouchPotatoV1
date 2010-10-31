@@ -44,15 +44,17 @@ class nzbMatrix(nzbBase):
         if not self.enabled() or not self.isAvailable(self.searchUrl):
             return results
 
+        catId = self.getCatId(type)
         arguments = urlencode({
             'term': movie.imdb,
-            'subcat': self.getCatId(type),
+            'subcat': catId,
             'username': self.conf('username'),
             'apikey': self.conf('apikey'),
             'searchin': 'weblink'
         })
         url = "%s?%s" % (self.searchUrl, arguments)
-        cacheId = str(movie.imdb) + '-' + str(self.getCatId(type))
+        cacheId = str(movie.imdb) + '-' + str(catId)
+        singleCat = (len(self.catIds.get(catId)) == 1 and catId != self.catBackupId)
 
         try:
             cached = False
@@ -103,7 +105,7 @@ class nzbMatrix(nzbBase):
                     new.score = self.calcScore(new, movie)
                     new.checkNZB = True
 
-                    if new.date > time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60) and self.isCorrectMovie(new, movie, type, imdbResults = True):
+                    if new.date > time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60) and self.isCorrectMovie(new, movie, type, imdbResults = True, singleCategory = singleCat):
                         results.append(new)
                         log.info('Found: %s' % new.name)
 

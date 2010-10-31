@@ -69,7 +69,7 @@ class TrailerCron(rss, cronBase, Library):
         elif not self.isEnabled():
             return
 
-        log.info('Adding movies to trailer search.')
+        if not directory: log.info('Adding movies to trailer search.')
         self.searchingExisting = time.time()
         movies = self.getMovies(directory)
 
@@ -77,14 +77,7 @@ class TrailerCron(rss, cronBase, Library):
             if not movie.get('trailer') or force:
                 trailerQueue.put(movie)
 
-        log.info('Done adding movies to trailer search.')
-
-    def findYear(self, text):
-        matches = re.search('(?P<year>[0-9]{4})', text)
-        if matches:
-            return matches.group('year')
-
-        return None
+        if not directory: log.info('Done adding movies to trailer search.')
 
     def search(self, movie):
         log.info('Search for trailer for: %s' % movie['folder'])
