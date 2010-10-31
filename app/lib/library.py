@@ -162,10 +162,11 @@ class Library:
                     #check the video file for it's resolution
                     test_file = os.path.join(movie['path'], movie['files'][0]['filename'])
                     resolution = self.getVideoResolution(test_file)
+
                     if resolution:
-                        if (resolution[0] > 1900 or resolution[0] < 2000) and resolution[1] <= 1080:
+                        if resolution[0] > 1900 and resolution[0] < 2000 and resolution[1] <= 1080:
                             named_resolution = '1080p'
-                        elif (resolution[0] > 1200 or resolution[0] < 1300) and resolution[1] <= 720:
+                        elif resolution[0] > 1200 and resolution[0] < 1300 and resolution[1] <= 720:
                             named_resolution = '720p'
                         else:
                             named_resolution = None
@@ -197,9 +198,10 @@ class Library:
         return name
 
     def getHistory(self, movie):
-        for queue in movie.queue:
-            if queue.renamehistory and queue.renamehistory[0]:
-                return queue.renamehistory
+        if movie.queue:
+            for queue in movie.queue:
+                if queue.renamehistory and queue.renamehistory[0]:
+                    return queue.renamehistory
 
         return None
 
@@ -311,8 +313,12 @@ class Library:
         Get movie based on IMDB id.
         If not in local DB, go fetch it from theMovieDb
         '''
+        m = Db.query(Movie).filter_by(imdb = imdbId).first()
+        if m:
+            return m
 
-        return Db.query(Movie).filter_by(imdb = imdbId).first()
+        m = cherrypy.config['searchers']['movie'].findByImdbId(imdbId)
+        return m
 
     def getCodec(self, filename, codecs):
         codecs = map(re.escape, codecs)
@@ -399,7 +405,6 @@ class Library:
 
         p = subprocess.Popen(["python", script, filename], stdout=subprocess.PIPE, cwd = library_dir)
         z = p.communicate()[0]
-#        import pdb; pdb.set_trace()
         os.remove(dest_file)
 
         try:
