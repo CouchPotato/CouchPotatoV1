@@ -174,7 +174,7 @@ class Updater(SimplePlugin):
                     return False
                 elif 'Already up-to-date.' in output:
                     log.info('No need to update, already using latest version')
-                    return False
+                    return True
 
                 log.info('Update to %s successful, using GIT.' % name)
                 return True
