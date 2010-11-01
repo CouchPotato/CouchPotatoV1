@@ -126,6 +126,9 @@ class configApp():
         self.setDefault('XBMC', 'fanartMinWidth', 0)
         self.setDefault('XBMC', 'posterMinHeight', 0)
         self.setDefault('XBMC', 'posterMinWidth', 0)
+        self.setDefault('XBMC', 'fanartFileName', 'fanart.<orig_ext>')
+        self.setDefault('XBMC', 'posterFileName', 'movie.tbn')
+        self.setDefault('XBMC', 'nfoFileName', 'movie.nfo')
 
         self.save()
 

@@ -92,14 +92,41 @@ class RenamerCron(cronBase, Library):
 
                 #Generate XBMC metadata
                 if self.config.get('XBMC', 'metaEnabled'):
-                        xmg.metagen(finalDestination['directory'],
-                                    imdb_id = movie['movie'].imdb,
-                                    poster_min_height = self.config.get('XBMC', 'posterMinHeight'),
-                                    poster_min_width = self.config.get('XBMC', 'posterMinWidth'),
-                                    fanart_min_height = self.config.get('XBMC', 'fanartMinHeight'),
-                                    fanart_min_width = self.config.get('XBMC', 'fanartMinWidth'))
+                    nfo_location = os.path.join(finalDestination['directory'],
+                                                self.genMetaFileName(movie, self.config.get('XBMC', 'nfoFileName')))
+                    fanart_filename = self.genMetaFileName(movie, self.config.get('XBMC', 'fanartFileName'))
+                    poster_filename = self.genMetaFileName(movie, self.config.get('XBMC', 'posterFileName'))
 
-                        log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
+                    x = xmg.metagen(movie['movie'].imdb)
+
+                    x.write_nfo(nfo_location)
+
+                    if "orig_ext" in fanart_filename:
+                        fanart_filename = re.sub(".orig_ext", "", fanart_filename)
+                        orig_ext = True
+                    else:
+                        orig_ext = False
+
+                    x.write_fanart(fanart_filename,
+                                   finalDestination['directory'],
+                                   self.config.get('XBMC', 'fanartMinHeight'),
+                                   self.config.get('XBMC', 'fanartMinWidth'),
+                                   orig_ext = orig_ext
+                                   )
+
+                    if "orig_ext" in poster_filename:
+                        poster_filename = re.sub(".orig_ext", "", poster_filename)
+                        orig_ext = True
+                    else:
+                        orig_ext = False
+
+                    x.write_poster(poster_filename,
+                                   finalDestination['directory'],
+                                   self.config.get('XBMC', 'posterMinHeight'),
+                                   self.config.get('XBMC', 'posterMinWidth'),
+                                   orig_ext = orig_ext)
+
+                    log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
 
                 #Notify XBMC
                 if self.config.get('XBMC', 'notify'):
@@ -162,6 +189,32 @@ class RenamerCron(cronBase, Library):
                         log.info('Removing dir: %s in download dir.' % root)
                     except OSError:
                         log.error('Tried to clean-up download folder, but "%s" isn\'t empty.' % root)
+
+    def genMetaFileName(self, movie, pattern, add_tags = None):
+        moviename = movie['info'].get('name')
+
+        # Put 'The' at the end
+        namethe = moviename
+        if moviename[:3].lower() == 'the':
+            namethe = moviename[3:] + ', The'
+
+        replacements = {
+                        'namethe': namethe.strip(),
+                        'thename': moviename.strip(),
+                        'year': movie['info']['year'],
+                        'first': namethe[0].upper(),
+                        'quality': movie['info']['quality'],
+                        'video': movie['info']['codec']['video'],
+                        'audio': movie['info']['codec']['audio'],
+                        'group': movie['info']['group'],
+                        'resolution': movie['info']['resolution'],
+                        'sourcemedia': movie['info']['sourcemedia']
+                    }
+        if add_tags:
+            replacements.update(add_tags)
+
+        return self.doReplace(pattern, replacements)
+
 
     def renameFiles(self, movie):
         '''

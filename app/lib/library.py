@@ -375,6 +375,9 @@ class Library:
         '''
         A hacky way to keep hachoir from locking the file so that we can actually move it after
         getting metadata.  This is temporary.
+
+        Writes temp_file_contents, b64decoded, to a temp python file and runs that file as a subprocess to get the
+        file resolution.
         '''
         temp_file_contents = '''
         ZnJvbSBoYWNob2lyX3BhcnNlciBpbXBvcnQgY3JlYXRlUGFyc2VyCmZyb20gaGFjaG9pcl9tZXRhZGF0
