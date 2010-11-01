@@ -73,14 +73,20 @@ class Updater(SimplePlugin):
                 self.version = 'Windows build r%d' % version.windows
             else:
                 if self.tryGit:
+                    error = False
                     try:
                         p = subprocess.Popen('git rev-parse HEAD', stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = True, cwd = os.getcwd())
                         output, err = p.communicate()
+                        log.info('Git version output: %s, error: %s' % (output, err))
                         self.version = output[:7]
-                    except:
-                        log.error('Failed using GIT, falling back on normal version check.')
+                    except Exception, e:
+                        log.error('Failed using GIT, falling back on normal version check. %s' % e)
+                        error = True
+
+                    if not self.version or 'fatal' in str(self.version).lower() or error:
                         self.tryGit = False
                         return self.getVersion(force)
+
                 else:
                     handle = open(self.historyFile, "r")
                     lineList = handle.readlines()
