@@ -210,6 +210,15 @@ class Library:
         movieName = self.cleanName(movie['folder'])
         movieYear = self.findYear(movie['folder'])
 
+        if movie['nfo']:
+            for nfo in movie['nfo']:
+                nfoFile = open(os.path.join(movie['path'], nfo), 'r').read()
+                imdbId = self.getImdb(nfoFile)
+                if imdbId:
+                    m = cherrypy.config['searchers']['movie'].findByImdbId(imdbId)
+                    if m:
+                        return m
+
         # check and see if name is in queue
         queue = Db.query(MovieQueue).filter_by(name = movieName).first()
         if queue:
@@ -316,9 +325,6 @@ class Library:
         m = Db.query(Movie).filter_by(imdb = imdbId).first()
         if m:
             return m
-
-        m = cherrypy.config['searchers']['movie'].findByImdbId(imdbId)
-        return m
 
     def getCodec(self, filename, codecs):
         codecs = map(re.escape, codecs)
