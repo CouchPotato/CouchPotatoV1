@@ -3,10 +3,17 @@ from app.config.cplog import CPLog
 from app.config.db import Movie, Session as Db, MovieQueue
 from app.lib import hashFile
 from app.lib.qualities import Qualities
+
+
+
 import cherrypy
 import fnmatch
 import os
 import re
+
+#temporary imports until figure out hachoir file locking
+import base64
+import subprocess
 
 log = CPLog(__name__)
 
@@ -28,6 +35,11 @@ class Library:
         'audio': ['dts', 'ac3', 'ac3d', 'mp3'],
         'video': ['x264', 'divx', 'xvid']
     }
+
+    sourceMedia = { 'bluray': ['bluray', 'blu-ray', 'brrip', 'br-rip'],
+                    'hddvd': ['hddvd', 'hd-dvd'],
+                    'dvd': ['dvd'],
+                    'hdtv': ['hdtv']}
 
     # From Plex/XBMC
     clean = '(?i)[^\s](ac3|dts|custom|dc|divx|divx5|dsr|dsrip|dutch|dvd|dvdrip|dvdscr|dvdscreener|screener|dvdivx|cam|fragment|fs|hdtv|hdrip|hdtvrip|internal|limited|multisubs|ntsc|ogg|ogm|pal|pdtv|proper|repack|rerip|retail|r3|r5|bd5|se|svcd|swedish|german|read.nfo|nfofix|unrated|ws|telesync|ts|telecine|tc|brrip|bdrip|480p|480i|576p|576i|720p|720i|1080p|1080i|hrhd|hrhdtv|hddvd|bluray|x264|h264|xvid|xvidvd|xxx|www.www|cd[1-9]|\[.*\])[^\s]*'
@@ -63,6 +75,8 @@ class Library:
                     'name': None,
                     'year': None,
                     'quality': '',
+                    'resolution': None,
+                    'sourcemedia': '',
                     'size': 0,
                     'codec': {
                         'video': '',
@@ -144,6 +158,22 @@ class Library:
                     movie['info']['codec']['video'] = self.getCodec(movie['folder'], self.codecs['video'])
                     movie['info']['codec']['audio'] = self.getCodec(movie['folder'], self.codecs['audio'])
 
+                    #check the video file for it's resolution
+                    test_file = os.path.join(movie['path'], movie['files'][0]['filename'])
+                    resolution = self.getVideoResolution(test_file)
+
+                    if resolution:
+                        if resolution[0] > 1900 and resolution[0] < 2000 and resolution[1] <= 1080:
+                            named_resolution = '1080p'
+                        elif resolution[0] > 1200 and resolution[0] < 1300 and resolution[1] <= 720:
+                            named_resolution = '720p'
+                        else:
+                            named_resolution = None
+                    else:
+                        named_resolution = None
+                    movie['info']['resolution'] = named_resolution
+                    movie['info']['sourcemedia'] = self.getSourceMedia(test_file)
+
                 # Create filename without cd1/cd2 etc
                 movie['filename'] = self.removeMultipart(os.path.splitext(movie['files'][0]['filename'])[0])
 
@@ -167,9 +197,10 @@ class Library:
         return name
 
     def getHistory(self, movie):
-        for queue in movie.queue:
-            if queue.renamehistory and queue.renamehistory[0]:
-                return queue.renamehistory
+        if movie.queue:
+            for queue in movie.queue:
+                if queue.renamehistory and queue.renamehistory[0]:
+                    return queue.renamehistory
 
         return None
 
@@ -177,6 +208,15 @@ class Library:
 
         movieName = self.cleanName(movie['folder'])
         movieYear = self.findYear(movie['folder'])
+
+        if movie['nfo']:
+            for nfo in movie['nfo']:
+                nfoFile = open(os.path.join(movie['path'], nfo), 'r').read()
+                imdbId = self.getImdb(nfoFile)
+                if imdbId:
+                    m = cherrypy.config['searchers']['movie'].findByImdbId(imdbId)
+                    if m:
+                        return m
 
         # check and see if name is in queue
         queue = Db.query(MovieQueue).filter_by(name = movieName).first()
@@ -281,8 +321,9 @@ class Library:
         Get movie based on IMDB id.
         If not in local DB, go fetch it from theMovieDb
         '''
-
-        return Db.query(Movie).filter_by(imdb = imdbId).first()
+        m = Db.query(Movie).filter_by(imdb = imdbId).first()
+        if m:
+            return m
 
     def getCodec(self, filename, codecs):
         codecs = map(re.escape, codecs)
@@ -298,6 +339,92 @@ class Library:
             return (group and group.group('group')) or ''
         except:
             return ''
+
+    def getSourceMedia(self, file):
+        '''
+        get source media from filename... durr
+        '''
+
+        #TODO: handle filenames that have multiple source medias in them
+        medias = []
+        for media in self.sourceMedia:
+            for mediaAlias in self.sourceMedia[media]:
+                if mediaAlias in file.lower() or mediaAlias in file.lower():
+                    medias.append(media)
+
+        try:
+            return medias[0]
+        except:
+            return None
+
+    def getVideoResolution(self, file):
+        '''
+        Using hachoir_metadata we look at the video file and get the horizontal resolution and return the appropriate
+        resolution string (1080p, 720p)
+
+        Currently we return None for less than 720p
+        '''
+#        file = unicode(file)
+#        parser = hachoir_parser.createParser(file)
+#        metadata = hachoir_metadata.extractMetadata(parser)
+#
+#        for md in metadata.iterGroups():
+#            if md.has("height") and md.has("width"):
+#                return md.get("width"), md.get("height")
+#
+#        return None
+
+        return self._get_res(file)
+
+    def _get_res(self, filename):
+        '''
+        A hacky way to keep hachoir from locking the file so that we can actually move it after
+        getting metadata.  This is temporary.
+
+        Writes temp_file_contents, b64decoded, to a temp python file and runs that file as a subprocess to get the
+        file resolution.
+        '''
+
+        #import hachoir_metadata
+        import hachoir_parser
+
+        temp_file_contents = '''
+        ZnJvbSBoYWNob2lyX3BhcnNlciBpbXBvcnQgY3JlYXRlUGFyc2VyCmZyb20gaGFjaG9pcl9tZXRhZGF0
+        YSBpbXBvcnQgZXh0cmFjdE1ldGFkYXRhCmltcG9ydCBzeXMKCmRlZiBnZXRWaWRlb1Jlc29sdXRpb24o
+        ZmlsZSk6CiAgICAgICAgJycnCiAgICAgICAgVXNpbmcgaGFjaG9pcl9tZXRhZGF0YSB3ZSBsb29rIGF0
+        IHRoZSB2aWRlbyBmaWxlIGFuZCBnZXQgdGhlIGhvcml6b250YWwgcmVzb2x1dGlvbiBhbmQgcmV0dXJu
+        IHRoZSBhcHByb3ByaWF0ZQogICAgICAgIHJlc29sdXRpb24gc3RyaW5nICgxMDgwcCwgNzIwcCkKCiAg
+        ICAgICAgQ3VycmVudGx5IHdlIHJldHVybiBOb25lIGZvciBsZXNzIHRoYW4gNzIwcAogICAgICAgICcn
+        JwogICAgICAgIGZpbGUgPSB1bmljb2RlKGZpbGUpCiAgICAgICAgcGFyc2VyID0gY3JlYXRlUGFyc2Vy
+        KGZpbGUpCiAgICAgICAgbWV0YWRhdGEgPSBleHRyYWN0TWV0YWRhdGEocGFyc2VyKQoKICAgICAgICB0
+        cnk6CiAgICAgICAgICAgIGlmIG1ldGFkYXRhOgogICAgICAgICAgICAgICAgZm9yIG1kIGluIG1ldGFk
+        YXRhLml0ZXJHcm91cHMoKToKICAgICAgICAgICAgICAgICAgICBpZiBtZC5oYXMoImhlaWdodCIpIGFu
+        ZCBtZC5oYXMoIndpZHRoIik6CiAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiBtZC5nZXQoIndp
+        ZHRoIiksIG1kLmdldCgiaGVpZ2h0IikKICAgICAgICBleGNlcHQ6CiAgICAgICAgICAgIHBhc3MKCgpy
+        ZXMgPSBnZXRWaWRlb1Jlc29sdXRpb24oc3lzLmFyZ3ZbMV0pCmlmIHJlczoKICAgIHByaW50IHJlc1sw
+        XQogICAgcHJpbnQgcmVzWzFdCmVsc2U6CiAgICBwcmludCAnZXJyb3In
+        '''
+
+        library_dir = os.path.abspath(os.path.split(os.path.dirname(hachoir_parser.__file__))[0])
+        dest_file = os.path.join(library_dir, 'tempresgetter.py')
+        f = open(dest_file, 'w')
+        f.write(base64.b64decode(temp_file_contents))
+        f.close()
+
+        script = os.path.abspath(dest_file)
+
+        library_dir = os.path.abspath(os.path.split(os.path.dirname(hachoir_parser.__file__))[0])
+
+        p = subprocess.Popen(["python", script, filename], stdout = subprocess.PIPE, cwd = library_dir)
+        z = p.communicate()[0]
+        os.remove(dest_file)
+
+        try:
+            z = [int(x.strip()) for x in z.split("\n") if x.strip() is not '']
+        except:
+            return None
+
+        return z
 
     def filesizeBetween(self, file, min = 0, max = 100000):
         try:

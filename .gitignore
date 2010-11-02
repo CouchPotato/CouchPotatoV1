@@ -18,3 +18,5 @@ warnWindowsUpdater.txt
 WindowsStart.py
 WindowsUpdater.py
 /data/
+*.wpr
+/.idea/

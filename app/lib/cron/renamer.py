@@ -4,12 +4,16 @@ from app.config.db import Movie, RenameHistory, Session as Db, MovieQueue
 from app.lib.cron.base import cronBase
 from app.lib.library import Library
 from app.lib.qualities import Qualities
-import cherrypy
+from app.lib import xbmc
+from library.xmg import xmg
+
 import fnmatch
 import os
 import re
 import shutil
 import time
+import traceback
+import cherrypy
 
 log = CPLog(__name__)
 
@@ -85,11 +89,68 @@ class RenamerCron(cronBase, Library):
                 # Search for trailer & subtitles
                 cherrypy.config['cron']['trailer'].forDirectory(finalDestination['directory'])
                 cherrypy.config['cron']['subtitle'].forDirectory(finalDestination['directory'])
+
+                #Generate XBMC metadata
+                if self.config.get('XBMC', 'metaEnabled'):
+                    nfoFileName = self.config.get('XBMC', 'nfoFileName')
+                    fanartFileNaming = self.config.get('XBMC', 'fanartFileName')
+                    fanartMinHeight = self.config.get('XBMC', 'fanartMinHeight')
+                    fanartMinWidth = self.config.get('XBMC', 'fanartMinWidth')
+                    posterFileNaming = self.config.get('XBMC', 'posterFileName')
+                    posterMinHeight = self.config.get('XBMC', 'posterMinHeight')
+                    posterMinWidth = self.config.get('XBMC', 'posterMinWidth')
+
+                    x = xmg.metagen(movie['movie'].imdb)
+
+                    fanartOrigExt = os.path.splitext(x.get_fanart_url(fanartMinHeight, fanartMinWidth))[-1][1:]
+                    posterOrigExt = os.path.splitext(x.get_poster_url(posterMinHeight, posterMinWidth))[-1][1:]
+
+                    nfo_location = os.path.join(finalDestination['directory'],
+                                                self.genMetaFileName(movie, nfoFileName))
+                    fanart_filename = self.genMetaFileName(movie,
+                                                           fanartFileNaming,
+                                                           add_tags = {'orig_ext': fanartOrigExt})
+                    poster_filename = self.genMetaFileName(movie,
+                                                           posterFileNaming,
+                                                           add_tags = {'orig_ext': posterOrigExt})
+
+                    x.write_nfo(nfo_location)
+
+                    x.write_fanart(fanart_filename,
+                                   finalDestination['directory'],
+                                   fanartMinHeight,
+                                   fanartMinWidth)
+
+                    x.write_poster(poster_filename,
+                                   finalDestination['directory'],
+                                   posterMinHeight,
+                                   posterMinWidth)
+
+                    log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
+
+                #Notify XBMC
+                if self.config.get('XBMC', 'notify'):
+                    xbmc.notifyXBMC('CouchPotato',
+                                    'Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year),
+                                    self.config.get('XBMC', 'host'),
+                                    self.config.get('XBMC', 'username'),
+                                    self.config.get('XBMC', 'password'))
+                    log.info('XBMC notification sent to %s' % self.config.get('XBMC', 'host'))
+
+
+                #Update XBMC Library
+                if self.config.get('XBMC', 'updatelibrary'):
+                    xbmc.updateLibrary(self.config.get('XBMC', 'host'),
+                                       self.config.get('XBMC', 'username'),
+                                       self.config.get('XBMC', 'password'))
+                    log.info('XBMC library update initiated')
+
             else:
                 try:
                     path = movie['path'].split(os.sep)
                     path.extend(['_UNKNOWN_' + path.pop()])
                     shutil.move(movie['path'], os.sep.join(path))
+
                 except IOError:
                     pass
 
@@ -129,6 +190,32 @@ class RenamerCron(cronBase, Library):
                     except OSError:
                         log.error('Tried to clean-up download folder, but "%s" isn\'t empty.' % root)
 
+    def genMetaFileName(self, movie, pattern, add_tags = None):
+        moviename = movie['info'].get('name')
+
+        # Put 'The' at the end
+        namethe = moviename
+        if moviename[:3].lower() == 'the':
+            namethe = moviename[3:] + ', The'
+
+        replacements = {
+                        'namethe': namethe.strip(),
+                        'thename': moviename.strip(),
+                        'year': movie['info']['year'],
+                        'first': namethe[0].upper(),
+                        'quality': movie['info']['quality'],
+                        'video': movie['info']['codec']['video'],
+                        'audio': movie['info']['codec']['audio'],
+                        'group': movie['info']['group'],
+                        'resolution': movie['info']['resolution'],
+                        'sourcemedia': movie['info']['sourcemedia']
+                    }
+        if add_tags:
+            replacements.update(add_tags)
+
+        return self.doReplace(pattern, replacements)
+
+
     def renameFiles(self, movie):
         '''
         rename files based on movie data & conf
@@ -161,7 +248,9 @@ class RenamerCron(cronBase, Library):
              'quality': movie['info']['quality'],
              'video': movie['info']['codec']['video'],
              'audio': movie['info']['codec']['audio'],
-             'group': movie['info']['group']
+             'group': movie['info']['group'],
+             'resolution': movie['info']['resolution'],
+             'sourcemedia': movie['info']['sourcemedia']
         }
 
         if multiple:
@@ -271,7 +360,7 @@ class RenamerCron(cronBase, Library):
                 if not fullPath in dontDelete:
 
                     # Only delete media files and subtitles
-                    if ('*.' + ext in self.movieExt or '*.' + ext in self.subExt) and not '-trailer' in filename:
+                    if ('*.' + ext in self.extensions['movie'] or '*.' + ext in self.extensions['subtitle']) and not '-trailer' in filename:
                         files.append(fullPath)
 
         log.info('Quality Old: %d, New %d.' % (int(oldSize) / 1024 / 1024, int(newSize) / 1024 / 1024))
@@ -295,7 +384,11 @@ class RenamerCron(cronBase, Library):
 
         replaced = string
         for x, r in replacements.iteritems():
-            replaced = replaced.replace('<' + x + '>', str(r))
+            if r is not None:
+                replaced = replaced.replace('<' + x + '>', str(r))
+            else:
+                #If information is not available, we don't want the tag in the filename
+                replaced = replaced.replace('<' + x + '>', '')
 
         replaced = re.sub(r"[\x00:\*\?\"<>\|]", '', replaced)
 
