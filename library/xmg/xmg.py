@@ -55,9 +55,6 @@ class metagen():
         your instance of imdb.IMDb() to metagen, so we can use it.
 
         *  These arguments are not yet supported.
-
-        PS:  pairofdime knows that I'm the awesomest person he's ever met on IRC
-
         '''
 
         #first we'll evaluate our arguments for error conditions
