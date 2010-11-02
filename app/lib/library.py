@@ -4,8 +4,7 @@ from app.config.db import Movie, Session as Db, MovieQueue
 from app.lib import hashFile
 from app.lib.qualities import Qualities
 
-import hachoir_metadata
-import hachoir_parser
+
 
 import cherrypy
 import fnmatch
@@ -385,6 +384,10 @@ class Library:
         Writes temp_file_contents, b64decoded, to a temp python file and runs that file as a subprocess to get the
         file resolution.
         '''
+
+        #import hachoir_metadata
+        import hachoir_parser
+
         temp_file_contents = '''
         ZnJvbSBoYWNob2lyX3BhcnNlciBpbXBvcnQgY3JlYXRlUGFyc2VyCmZyb20gaGFjaG9pcl9tZXRhZGF0
         YSBpbXBvcnQgZXh0cmFjdE1ldGFkYXRhCmltcG9ydCBzeXMKCmRlZiBnZXRWaWRlb1Jlc29sdXRpb24o
@@ -404,7 +407,7 @@ class Library:
 
         library_dir = os.path.abspath(os.path.split(os.path.dirname(hachoir_parser.__file__))[0])
         dest_file = os.path.join(library_dir, 'tempresgetter.py')
-        f=open(dest_file, 'w')
+        f = open(dest_file, 'w')
         f.write(base64.b64decode(temp_file_contents))
         f.close()
 
@@ -412,7 +415,7 @@ class Library:
 
         library_dir = os.path.abspath(os.path.split(os.path.dirname(hachoir_parser.__file__))[0])
 
-        p = subprocess.Popen(["python", script, filename], stdout=subprocess.PIPE, cwd = library_dir)
+        p = subprocess.Popen(["python", script, filename], stdout = subprocess.PIPE, cwd = library_dir)
         z = p.communicate()[0]
         os.remove(dest_file)
 
