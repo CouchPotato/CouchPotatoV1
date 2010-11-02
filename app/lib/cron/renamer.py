@@ -92,39 +92,39 @@ class RenamerCron(cronBase, Library):
 
                 #Generate XBMC metadata
                 if self.config.get('XBMC', 'metaEnabled'):
-                    nfo_location = os.path.join(finalDestination['directory'],
-                                                self.genMetaFileName(movie, self.config.get('XBMC', 'nfoFileName')))
-                    fanart_filename = self.genMetaFileName(movie, self.config.get('XBMC', 'fanartFileName'))
-                    poster_filename = self.genMetaFileName(movie, self.config.get('XBMC', 'posterFileName'))
+                    nfoFileName = self.config.get('XBMC', 'nfoFileName')
+                    fanartFileNaming = self.config.get('XBMC', 'fanartFileName')
+                    fanartMinHeight = self.config.get('XBMC', 'fanartMinHeight')
+                    fanartMinWidth = self.config.get('XBMC', 'fanartMinWidth')
+                    posterFileNaming = self.config.get('XBMC', 'posterFileName')
+                    posterMinHeight = self.config.get('XBMC', 'posterMinHeight')
+                    posterMinWidth = self.config.get('XBMC', 'posterMinWidth')
 
                     x = xmg.metagen(movie['movie'].imdb)
 
-                    x.write_nfo(nfo_location)
+                    fanartOrigExt = os.path.splitext(x.get_fanart_url(fanartMinHeight, fanartMinWidth))[-1][1:]
+                    posterOrigExt = os.path.splitext(x.get_poster_url(posterMinHeight, posterMinWidth))[-1][1:]
 
-                    if "orig_ext" in fanart_filename:
-                        fanart_filename = re.sub(".orig_ext", "", fanart_filename)
-                        orig_ext = True
-                    else:
-                        orig_ext = False
+                    nfo_location = os.path.join(finalDestination['directory'],
+                                                self.genMetaFileName(movie, nfoFileName))
+                    fanart_filename = self.genMetaFileName(movie,
+                                                           fanartFileNaming,
+                                                           add_tags = {'orig_ext': fanartOrigExt})
+                    poster_filename = self.genMetaFileName(movie,
+                                                           posterFileNaming,
+                                                           add_tags = {'orig_ext': posterOrigExt})
+
+                    x.write_nfo(nfo_location)
 
                     x.write_fanart(fanart_filename,
                                    finalDestination['directory'],
-                                   self.config.get('XBMC', 'fanartMinHeight'),
-                                   self.config.get('XBMC', 'fanartMinWidth'),
-                                   orig_ext = orig_ext
-                                   )
-
-                    if "orig_ext" in poster_filename:
-                        poster_filename = re.sub(".orig_ext", "", poster_filename)
-                        orig_ext = True
-                    else:
-                        orig_ext = False
+                                   fanartMinHeight,
+                                   fanartMinWidth)
 
                     x.write_poster(poster_filename,
                                    finalDestination['directory'],
-                                   self.config.get('XBMC', 'posterMinHeight'),
-                                   self.config.get('XBMC', 'posterMinWidth'),
-                                   orig_ext = orig_ext)
+                                   posterMinHeight,
+                                   posterMinWidth)
 
                     log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
 

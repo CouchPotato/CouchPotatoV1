@@ -68,7 +68,8 @@ class metagen():
         if imdbpy:
             self.imdbpy = imdbpy
         else:
-            self.imdbpy = imdb.IMDb()
+            self.imdbpy = imdb.IMDb('http', useModule='beautifulsoup')
+
 
         self.imdbpy_movie = self._get_movie()
         self.nfo_string = self._nfo_gen()
@@ -119,13 +120,13 @@ class metagen():
 
         return self._get_image(images, min_height, min_width)
 
-    def write_fanart(self, filename_root, path, min_height, min_width, orig_ext=True):
-        fanart_url = self._get_fanart(min_height, min_width)['url']
+    def get_fanart_url(self, min_height, min_width):
+        return self._get_fanart(min_height, min_width)['url']
+
+    def write_fanart(self, filename_root, path, min_height, min_width):
+        fanart_url = self.get_fanart_url(min_height, min_width)
         #fetch and write to disk
-        if orig_ext:
-            dest = os.path.join(path, filename_root + os.path.splitext(fanart_url)[-1])
-        else:
-            dest = os.path.join(path, filename_root)
+        dest = os.path.join(path, filename_root)
         try:
             f = open(dest, 'wb')
         except:
@@ -151,12 +152,12 @@ class metagen():
 
         return self._get_image(images, min_height, min_width)
 
-    def write_poster(self, filename_root, path, min_height, min_width, orig_ext=True):
-        poster_url = self._get_poster(min_height, min_width)['url']
-        if orig_ext:
-            dest = os.path.join(path, filename_root + os.path.splitext(poster_url)[-1])
-        else:
-            dest = os.path.join(path, filename_root)
+    def get_poster_url(self, min_height, min_width):
+        return self._get_poster(min_height, min_width)['url']
+
+    def write_poster(self, filename_root, path, min_height, min_width):
+        poster_url = self.get_poster_url(min_height, min_width)
+        dest = os.path.join(path, filename_root)
 
         try:
             f = open(dest, 'wb')
@@ -207,10 +208,9 @@ if __name__ == "__main__":
     try:
         id = sys.argv[1]
     except:
-        print "Type '%s _IMDBID_' to generate metadata." % sys.argv[0]
-        sys.exit()
+        id = 'tt0111161'
 
     x = metagen(id)
-    x.write_nfo(".")
+    x.write_nfo(".\movie.nfo")
     x.write_fanart("fanart", ".", 0, 0)
-    x.write_poster("movie", ".", 0, 0, ext=".tbn")
+    x.write_poster("movie", ".", 0, 0)
