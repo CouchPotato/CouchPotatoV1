@@ -75,9 +75,11 @@ class Updater(SimplePlugin):
                 if self.tryGit:
                     error = False
                     try:
-                        p = subprocess.Popen('git rev-parse HEAD', stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = True, cwd = os.getcwd())
+                        p = subprocess.Popen('git rev-parse HEAD', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True, cwd = os.getcwd())
                         output, err = p.communicate()
-                        log.info('Git version output: %s, error: %s' % (output, err))
+                        if err:
+                            raise RuntimeError(err)
+                        log.info('Git version output: %s' % output)
                         self.version = output[:7]
                     except Exception, e:
                         log.error('Failed using GIT, falling back on normal version check. %s' % e)
