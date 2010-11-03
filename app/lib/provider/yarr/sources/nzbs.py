@@ -1,5 +1,6 @@
 from app.config.cplog import CPLog
 from app.lib.provider.yarr.base import nzbBase
+from dateutil.parser import parse
 from urllib import urlencode
 from urllib2 import URLError
 import time
@@ -101,7 +102,7 @@ class nzbs(nzbBase):
                     new.id = id
                     new.type = 'nzb'
                     new.name = self.gettextelement(nzb, "title")
-                    new.date = time.mktime(time.strptime(str(self.gettextelement(nzb, "pubDate")), '%a, %d %b %Y %H:%M:%S +0000'))
+                    new.date = int(time.mktime(parse(self.gettextelement(nzb, "pubDate")).timetuple()))
                     new.size = self.parseSize(size)
                     new.url = self.downloadLink(id)
                     new.detailUrl = self.detailLink(id)
