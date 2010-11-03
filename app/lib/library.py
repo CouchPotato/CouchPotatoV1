@@ -416,13 +416,14 @@ class Library:
         #import hachoir_metadata
         import hachoir_parser
 
-        library_dir = os.path.abspath(os.path.split(os.path.dirname(hachoir_parser.__file__))[0])
-        shutil.copy("getmeta.py", library_dir)
-        script = os.path.abspath(os.path.join(library_dir, "getmeta.py"))
+        libraryDir = os.path.join(cherrypy.config.get('basePath'), 'library')
 
-        p = subprocess.Popen(["python", script, filename], stdout = subprocess.PIPE, cwd = library_dir)
+        script = os.path.join(libraryDir, 'getmeta.py')
+        #shutil.copy(os.path.join(libraryDir, 'getmeta.py'), script)
+
+        p = subprocess.Popen(["python", script, filename], stdout = subprocess.PIPE, cwd = libraryDir)
         z = p.communicate()[0]
-        os.remove(script)
+        #os.remove(script)
 
         try:
             return json.loads(z)
