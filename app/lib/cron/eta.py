@@ -8,6 +8,7 @@ from urllib2 import URLError
 import Queue
 import cherrypy
 import re
+from dateutil.parser import parse
 import time
 import urllib
 import urllib2
@@ -120,18 +121,30 @@ class etaCron(rss, cronBase):
         try:
             theaterLink = SoupStrainer('a', href = re.compile('/month_theaters.html\?'))
             theater = BeautifulSoup(data, parseOnlyThese = theaterLink)
-            theaterDate = self.parseDate(theater.a.contents[0])
+            theaterDate = int(time.mktime(parse(theater.a.contents[0]).timetuple()))
         except AttributeError:
-            log.info('No Theater release info found.')
+            log.debug('No Theater release info found.')
 
         # Search for dvd release date
         dvdDate = 0
         try:
-            dvdLink = SoupStrainer('a', href = re.compile('/month_video.html\?'))
-            dvd = BeautifulSoup(data, parseOnlyThese = dvdLink)
-            dvdDate = self.parseDate(dvd.a.contents[0])
+            try:
+                dvdLink = SoupStrainer('a', href = re.compile('/month_video.html\?'))
+                dvd = BeautifulSoup(data, parseOnlyThese = dvdLink)
+                dvdDate = int(time.mktime(parse(dvd.a.contents[0]).timetuple()))
+            except:
+                pass
+
+            # Try left column
+            if not dvdDate:
+                dvdReleases = SoupStrainer('p', text = re.compile('Released'))
+                dvd = BeautifulSoup(data, parseOnlyThese = dvdReleases)
+                for date in dvd:
+                    foundDate = int(time.mktime(parse(date.replace('Released', '')).timetuple()))
+                    dvdDate = foundDate if foundDate > dvdDate else dvdDate
+
         except AttributeError:
-            log.info('No DVD release info found.')
+            log.debug('No DVD release info found.')
 
         # Does it have blu-ray release?
         bluray = []
@@ -150,15 +163,6 @@ class etaCron(rss, cronBase):
         }
         log.debug('Found: %s' % dates)
         return dates
-
-    def parseDate(self, text, format = "%B %d, %Y"):
-
-        try:
-            date = int(time.mktime(time.strptime(text, "%B %d, %Y")))
-        except ValueError:
-            date = int(time.mktime(time.strptime(text, "%B %Y")))
-
-        return date
 
     def getItems(self, data):
 
