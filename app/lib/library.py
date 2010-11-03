@@ -14,6 +14,8 @@ import re
 #temporary imports until figure out hachoir file locking
 import base64
 import subprocess
+import shutil
+import json
 
 log = CPLog(__name__)
 
@@ -71,6 +73,7 @@ class Library:
                 'movie': None,
                 'queue': 0,
                 'match': False,
+                'meta': {},
                 'info': {
                     'name': None,
                     'year': None,
@@ -159,20 +162,28 @@ class Library:
                     movie['info']['codec']['audio'] = self.getCodec(movie['folder'], self.codecs['audio'])
 
                     #check the video file for it's resolution
-                    test_file = os.path.join(movie['path'], movie['files'][0]['filename'])
-                    resolution = self.getVideoResolution(test_file)
+                    testFile = os.path.join(movie['path'], movie['files'][0]['filename'])
+                    try:
+                        movie['meta'].update(self.getMeta(testFile))
+                    except:
+                        pass
+                    if movie['meta'].has_key('Video stream'):
+                        width = int(movie['meta']['Video stream'][0]['Image width'].split()[0])
+                        height = int(movie['meta']['Video stream'][0]['Image height'].split()[0])
 
-                    if resolution:
-                        if resolution[0] > 1900 and resolution[0] < 2000 and resolution[1] <= 1080:
-                            named_resolution = '1080p'
-                        elif resolution[0] > 1200 and resolution[0] < 1300 and resolution[1] <= 720:
-                            named_resolution = '720p'
-                        else:
-                            named_resolution = None
+                        if width and height:
+                            if width > 1900 and width < 2000 and height <= 1080:
+                                namedResolution = '1080p'
+                            elif width > 1200 and width < 1300 and height <= 720:
+                                namedResolution = '720p'
+                            else:
+                                namedResolution = None
                     else:
-                        named_resolution = None
-                    movie['info']['resolution'] = named_resolution
-                    movie['info']['sourcemedia'] = self.getSourceMedia(test_file)
+                        log.info("Unable to fetch audio/video details for %s" % testFile)
+                        namedResolution = None
+
+                    movie['info']['resolution'] = namedResolution
+                    movie['info']['sourcemedia'] = self.getSourceMedia(testFile)
 
                 # Create filename without cd1/cd2 etc
                 movie['filename'] = self.removeMultipart(os.path.splitext(movie['files'][0]['filename'])[0])
@@ -183,6 +194,9 @@ class Library:
                     movie['movie'] = movie['movie'].id if movie['movie'] else movie['movie']
 
                 movies.append(movie)
+
+                import pprint
+                pprint.pprint(movie['meta'])
 
         return movies
 
@@ -375,7 +389,7 @@ class Library:
 
         return self._get_res(file)
 
-    def _get_res(self, filename):
+    def getMeta(self, filename):
         '''
         A hacky way to keep hachoir from locking the file so that we can actually move it after
         getting metadata.  This is temporary.
@@ -387,43 +401,18 @@ class Library:
         #import hachoir_metadata
         import hachoir_parser
 
-        temp_file_contents = '''
-        ZnJvbSBoYWNob2lyX3BhcnNlciBpbXBvcnQgY3JlYXRlUGFyc2VyCmZyb20gaGFjaG9pcl9tZXRhZGF0
-        YSBpbXBvcnQgZXh0cmFjdE1ldGFkYXRhCmltcG9ydCBzeXMKCmRlZiBnZXRWaWRlb1Jlc29sdXRpb24o
-        ZmlsZSk6CiAgICAgICAgJycnCiAgICAgICAgVXNpbmcgaGFjaG9pcl9tZXRhZGF0YSB3ZSBsb29rIGF0
-        IHRoZSB2aWRlbyBmaWxlIGFuZCBnZXQgdGhlIGhvcml6b250YWwgcmVzb2x1dGlvbiBhbmQgcmV0dXJu
-        IHRoZSBhcHByb3ByaWF0ZQogICAgICAgIHJlc29sdXRpb24gc3RyaW5nICgxMDgwcCwgNzIwcCkKCiAg
-        ICAgICAgQ3VycmVudGx5IHdlIHJldHVybiBOb25lIGZvciBsZXNzIHRoYW4gNzIwcAogICAgICAgICcn
-        JwogICAgICAgIGZpbGUgPSB1bmljb2RlKGZpbGUpCiAgICAgICAgcGFyc2VyID0gY3JlYXRlUGFyc2Vy
-        KGZpbGUpCiAgICAgICAgbWV0YWRhdGEgPSBleHRyYWN0TWV0YWRhdGEocGFyc2VyKQoKICAgICAgICB0
-        cnk6CiAgICAgICAgICAgIGlmIG1ldGFkYXRhOgogICAgICAgICAgICAgICAgZm9yIG1kIGluIG1ldGFk
-        YXRhLml0ZXJHcm91cHMoKToKICAgICAgICAgICAgICAgICAgICBpZiBtZC5oYXMoImhlaWdodCIpIGFu
-        ZCBtZC5oYXMoIndpZHRoIik6CiAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiBtZC5nZXQoIndp
-        ZHRoIiksIG1kLmdldCgiaGVpZ2h0IikKICAgICAgICBleGNlcHQ6CiAgICAgICAgICAgIHBhc3MKCgpy
-        ZXMgPSBnZXRWaWRlb1Jlc29sdXRpb24oc3lzLmFyZ3ZbMV0pCmlmIHJlczoKICAgIHByaW50IHJlc1sw
-        XQogICAgcHJpbnQgcmVzWzFdCmVsc2U6CiAgICBwcmludCAnZXJyb3In
-        '''
-
         library_dir = os.path.abspath(os.path.split(os.path.dirname(hachoir_parser.__file__))[0])
-        dest_file = os.path.join(library_dir, 'tempresgetter.py')
-        f = open(dest_file, 'w')
-        f.write(base64.b64decode(temp_file_contents))
-        f.close()
-
-        script = os.path.abspath(dest_file)
-
-        library_dir = os.path.abspath(os.path.split(os.path.dirname(hachoir_parser.__file__))[0])
+        shutil.copy("getmeta.py", library_dir)
+        script = os.path.abspath(os.path.join(library_dir, "getmeta.py"))
 
         p = subprocess.Popen(["python", script, filename], stdout = subprocess.PIPE, cwd = library_dir)
         z = p.communicate()[0]
-        os.remove(dest_file)
+        os.remove(script)
 
         try:
-            z = [int(x.strip()) for x in z.split("\n") if x.strip() is not '']
+            return json.loads(z)
         except:
             return None
-
-        return z
 
     def filesizeBetween(self, file, min = 0, max = 100000):
         try:
