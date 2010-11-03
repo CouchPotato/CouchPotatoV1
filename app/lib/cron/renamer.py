@@ -100,7 +100,7 @@ class RenamerCron(cronBase, Library):
                     posterMinHeight = self.config.get('XBMC', 'posterMinHeight')
                     posterMinWidth = self.config.get('XBMC', 'posterMinWidth')
 
-                    x = xmg.metagen(movie['movie'].imdb)
+                    x = xmg.MetaGen(movie['movie'].imdb)
 
                     fanartOrigExt = os.path.splitext(x.get_fanart_url(fanartMinHeight, fanartMinWidth))[-1][1:]
                     posterOrigExt = os.path.splitext(x.get_poster_url(posterMinHeight, posterMinWidth))[-1][1:]

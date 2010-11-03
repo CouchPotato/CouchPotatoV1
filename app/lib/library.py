@@ -361,9 +361,8 @@ class Library:
         '''
         Using hachoir_metadata we look at the video file and get the horizontal resolution and return the appropriate
         resolution string (1080p, 720p)
-
-        Currently we return None for less than 720p
         '''
+
 #        file = unicode(file)
 #        parser = hachoir_parser.createParser(file)
 #        metadata = hachoir_metadata.extractMetadata(parser)

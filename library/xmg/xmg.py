@@ -25,7 +25,7 @@ class IdError(XmgException):
 class NfoError(XmgException):
     pass
 
-class metagen():
+class MetaGen():
     def __init__(self, imdbid, imdbpy = None):
         ''' metagen is used to download metadata for a movie or tv show and then create
         the necessary files for the media to be imported into XBMC.
@@ -55,6 +55,7 @@ class metagen():
         your instance of imdb.IMDb() to metagen, so we can use it.
 
         *  These arguments are not yet supported.
+
         '''
 
         #first we'll evaluate our arguments for error conditions
@@ -209,7 +210,7 @@ if __name__ == "__main__":
     except:
         id = 'tt0111161'
 
-    x = metagen(id)
+    x = MetaGen(id)
     x.write_nfo(".\movie.nfo")
     x.write_fanart("fanart", ".", 0, 0)
     x.write_poster("movie", ".", 0, 0)
