@@ -1,6 +1,4 @@
 from app.config.cplog import CPLog
-from app.config.db import Session as Db, Movie
-from app.lib import library
 from app.lib.cron.base import cronBase
 from app.lib.library import Library
 from app.lib.provider.rss import rss
@@ -10,7 +8,6 @@ import Queue
 import cherrypy
 import hashlib
 import os
-import re
 import shutil
 import time
 import urllib2

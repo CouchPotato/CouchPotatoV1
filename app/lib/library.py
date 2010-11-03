@@ -3,19 +3,12 @@ from app.config.cplog import CPLog
 from app.config.db import Movie, Session as Db, MovieQueue
 from app.lib import hashFile
 from app.lib.qualities import Qualities
-
-
-
 import cherrypy
 import fnmatch
+import json
 import os
 import re
-
-#temporary imports until figure out hachoir file locking
-import base64
 import subprocess
-import shutil
-import json
 
 log = CPLog(__name__)
 

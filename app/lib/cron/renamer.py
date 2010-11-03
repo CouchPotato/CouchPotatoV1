@@ -1,19 +1,16 @@
 from app import latinToAscii
 from app.config.cplog import CPLog
-from app.config.db import Movie, RenameHistory, Session as Db, MovieQueue
+from app.config.db import RenameHistory, Session as Db
+from app.lib import xbmc
 from app.lib.cron.base import cronBase
 from app.lib.library import Library
-from app.lib.qualities import Qualities
-from app.lib import xbmc
-from library.xmg import xmg
-
-import fnmatch
+from xmg import xmg
+import cherrypy
 import os
 import re
 import shutil
 import time
-import traceback
-import cherrypy
+
 
 log = CPLog(__name__)
 
