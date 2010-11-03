@@ -39,17 +39,16 @@ class etaCron(rss, cronBase):
                     result = self.search(movie)
                     if result:
                         self.save(movie, result)
+                    self.running = False
 
                 etaQueue.task_done()
                 time.sleep(timeout)
-                self.running = False
             except Queue.Empty:
                 pass
 
         log.info('MovieETA thread shutting down.')
 
     def all(self):
-        self.running = True
         activeMovies = Db.query(Movie).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
         for movie in activeMovies:
             etaQueue.put({'movie':movie})
