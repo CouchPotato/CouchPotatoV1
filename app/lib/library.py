@@ -78,6 +78,7 @@ class Library:
                 'meta': {},
                 'info': {
                     'name': None,
+                    'imdb': None,
                     'year': None,
                     'quality': '',
                     'resolution': None,
@@ -136,13 +137,10 @@ class Library:
                 if movie['nfo']:
                     for nfo in movie['nfo']:
                         nfoFile = open(os.path.join(movie['path'], nfo), 'r').read()
-                        imdbId = self.getImdb(nfoFile)
-                        if imdbId:
-                            movie['movie'] = self.getMovieByIMDB(imdbId)
+                        movie['info']['imdb'] = self.getImdb(nfoFile)
 
                 # Find movie via files
-                if not movie['movie']:
-                    movie['movie'] = self.determineMovie(movie)
+                movie['movie'] = self.determineMovie(movie)
 
                 if movie['movie']:
                     movie['history'] = self.getHistory(movie['movie'])
@@ -221,76 +219,91 @@ class Library:
         return None
 
     def determineMovie(self, movie):
+        result = False
 
         movieName = self.cleanName(movie['folder'])
         movieYear = self.findYear(movie['folder'])
 
-        if movie['nfo']:
-            for nfo in movie['nfo']:
-                nfoFile = open(os.path.join(movie['path'], nfo), 'r').read()
-                imdbId = self.getImdb(nfoFile)
-                if imdbId:
-                    m = cherrypy.config['searchers']['movie'].findByImdbId(imdbId)
-                    if m:
-                        return m
+        if movie['info']['imdb']:
+            byImdb = self.getMovieByIMDB(movie['info']['imdb'])
+            if byImdb:
+                return byImdb
+            else:
+                result = cherrypy.config['searchers']['movie'].findByImdbId(movie['info']['imdb'])
 
-        # check and see if name is in queue
-        queue = Db.query(MovieQueue).filter_by(name = movieName).first()
-        if queue:
-            log.info('Found movie via MovieQueue.')
-            return queue.Movie
+        if not result:
 
-        for file in movie['files']:
-            dirnames = movie['path'].split(os.path.sep)
-            dirnames.append(file['filename'])
-            dirnames.reverse()
+            # Check and see if name is in queue
+            try:
+                queue = Db.query(MovieQueue).filter_by(name = movie['folder']).first()
+                if queue:
+                    log.info('Found movie via MovieQueue.')
+                    return queue.Movie
+            except:
+                pass
 
-            for dir in dirnames:
-                dir = self.cleanName(dir)
+            # Find movie via movie name
+            try:
+                m = Db.query(Movie).filter_by(name = movieName).first()
+                if m:
+                    log.info('Found movie via moviename.')
+                    return m
+            except:
+                pass
 
-                # last resort, match every word in path to db
-                lastResort = {}
-                dirSplit = re.split('\W+', dir.lower())
-                for s in dirSplit:
-                    if s:
-                        results = Db.query(Movie).filter(Movie.name.like('%' + s + '%')).filter_by(year = movieYear).all()
-                        for r in results:
-                            lastResort[r.id] = r
+            # Try and match the movies via filenaming
+            for file in movie['files']:
+                dirnames = movie['path'].split(os.path.sep)
+                dirnames.append(file['filename'])
+                dirnames.reverse()
 
-                for l in lastResort.itervalues():
-                    wordCount = 0
-                    for word in dirSplit:
-                        if word in l.name.lower():
-                            wordCount += 1
+                for dir in dirnames:
+                    dir = self.cleanName(dir)
 
-                    if wordCount == len(dirSplit) and len(dirSplit) > 0:
-                        return l
+                    # last resort, match every word in path to db
+                    lastResort = {}
+                    dirSplit = re.split('\W+', dir.lower())
+                    for s in dirSplit:
+                        if s:
+                            results = Db.query(Movie).filter(Movie.name.like('%' + s + '%')).filter_by(year = movieYear).all()
+                            for r in results:
+                                lastResort[r.id] = r
 
-        # Search tMDB
-        if movieName:
-            log.info('Searching for "%s".' % movie['folder'])
-            result = cherrypy.config['searchers']['movie'].find(movieName + ' ' + movieYear, limit = 1)
-            if result:
-                movie = self.getMovieByIMDB(result.imdb)
+                    for l in lastResort.itervalues():
+                        wordCount = 0
+                        for word in dirSplit:
+                            if word in l.name.lower():
+                                wordCount += 1
 
-                if not movie:
-                    new = Movie()
-                    Db.add(new)
+                        if wordCount == len(dirSplit) and len(dirSplit) > 0:
+                            return l
 
-                    try:
-                        # Add found movie as downloaded
-                        new.status = u'downloaded'
-                        new.name = result.name
-                        new.imdb = result.imdb
-                        new.movieDb = result.id
-                        new.year = result.year
-                        Db.flush()
+            # Search tMDB
+            if movieName:
+                log.info('Searching for "%s".' % movie['folder'])
+                result = cherrypy.config['searchers']['movie'].find(movieName + ' ' + movieYear, limit = 1)
 
-                        return new
-                    except Exception, e:
-                        log.error('Movie could not be added to database %s. %s' % (result, e))
-                else:
-                    return movie
+        if result:
+            movie = self.getMovieByIMDB(result.imdb)
+
+            if not movie:
+                new = Movie()
+                Db.add(new)
+
+                try:
+                    # Add found movie as downloaded
+                    new.status = u'downloaded'
+                    new.name = result.name
+                    new.imdb = result.imdb
+                    new.movieDb = result.id
+                    new.year = result.year
+                    Db.flush()
+
+                    return new
+                except Exception, e:
+                    log.error('Movie could not be added to database %s. %s' % (result, e))
+            else:
+                return movie
 
         return None
 
