@@ -3,6 +3,7 @@ from app.config.db import QualityTemplate, QualityTemplateType, Session as Db
 from sqlalchemy.sql.expression import or_
 import cherrypy
 import os
+import re
 
 log = CPLog(__name__)
 
@@ -12,7 +13,7 @@ class Qualities:
         '1080p':    {'key': '1080p', 'size': (5000, 20000), 'order':1, 'label': '1080P', 'alternative': [], 'allow': [], 'ext':['mkv', 'm2ts']},
         '720p':     {'key': '720p', 'size': (3500, 10000), 'order':2, 'label': '720P', 'alternative': [], 'allow': [], 'ext':['mkv', 'm2ts']},
         'brrip':    {'key': 'brrip', 'size': (700, 7000), 'order':3, 'label': 'BR-Rip', 'alternative': ['bdrip'], 'allow': ['720p'], 'ext':['mkv', 'avi']},
-        'dvdr':     {'key': 'dvdr', 'size': (3000, 10000), 'order':4, 'label': 'DVD-R', 'alternative': [], 'allow': [], 'ext':['iso', 'img']},
+        'dvdr':     {'key': 'dvdr', 'size': (3000, 10000), 'order':4, 'label': 'DVD-R', 'alternative': [], 'tags': ['pal', 'ntsc'], 'allow': [], 'ext':['iso', 'img']},
         'dvdrip':   {'key': 'dvdrip', 'size': (600, 2400), 'order':5, 'label': 'DVD-Rip', 'alternative': [], 'allow': [], 'ext':['avi', 'mpg', 'mpeg']},
         'scr':      {'key': 'scr', 'size': (600, 1000), 'order':6, 'label': 'Screener', 'alternative': ['dvdscr'], 'allow': [], 'ext':['avi', 'mpg', 'mpeg']},
         'r5':       {'key': 'r5', 'size': (600, 1000), 'order':7, 'label': 'R5', 'alternative': [], 'allow': ['dvdr'], 'ext':['avi', 'mpg', 'mpeg']},
@@ -168,17 +169,29 @@ class Qualities:
         found = False
 
         for file in files:
+            size = (os.path.getsize(file) / 1024 / 1024)
+            words = re.split('\W+', file.lower())
             for type, quality in self.getTypes():
+                correctSize = False
+
+                if size >= self.minimumSize(type) and size <= self.maximumSize(type):
+                    correctSize = True
+
                 # Check tags
-                if type in file.lower(): found = True
+                if type in words:
+                    found = True
+
                 for alt in quality.get('alternative'):
-                    if alt in file.lower():
+                    if alt in words:
+                        found = True
+
+                for tag in quality.get('tags', []):
+                    if tag in words:
                         found = True
 
                 # Check extension + filesize
                 for ext in quality.get('ext'):
-                    size = (os.path.getsize(file) / 1024 / 1024)
-                    if ext in file.lower() and size >= self.minimumSize(type) and size <= self.maximumSize(type):
+                    if ext in words and correctSize:
                         found = True
 
                 if found:
