@@ -171,7 +171,7 @@ class RenamerCron(cronBase, Library):
                             os.remove(fullFilePath)
                             log.info('Removing file %s.' % fullFilePath)
                         except OSError:
-                            log.error('Couldn\'t remove file' % fullFilePath)
+                            log.error('Couldn\'t remove file %s.' % fullFilePath)
 
                 if not root in path:
                     try:
