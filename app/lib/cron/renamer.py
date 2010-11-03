@@ -25,16 +25,6 @@ class RenamerCron(cronBase, Library):
     interval = 1 #minutes
     intervalSec = 10
     config = {}
-    #trailer = {}
-    #minimalFileSize = 1024 * 1024 * 10 # 10MB
-    #ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '/._'] #unpacking, smb-crap
-
-    # Filetypes
-    #movieExt = ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso', '*.img']
-    #nfoExt = ['*.nfo']
-    #audioCodecs = ['DTS', 'AC3', 'AC3D', 'MP3']
-    #videoCodecs = ['x264', 'DivX', 'XViD']
-    #subExt = ['*.sub', '*.srt', '*.idx', '*.ssa', '*.ass']
 
     def conf(self, option):
         return self.config.get('Renamer', option)
@@ -292,7 +282,9 @@ class RenamerCron(cronBase, Library):
 
             if not os.path.isfile(dest) and removed:
                 log.info('Moving file "%s" to %s.' % (latinToAscii(old), dest))
-                shutil.move(old, dest)
+
+                if not self.debug:
+                    shutil.move(old, dest)
                 justAdded.append(dest)
             else:
                 try:
