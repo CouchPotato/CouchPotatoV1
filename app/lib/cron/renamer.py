@@ -331,7 +331,7 @@ class RenamerCron(cronBase, Library):
         # Mark movie downloaded
         if movie['queue'] and movie['queue'].id > 0:
             if movie['queue'].markComplete:
-                movie.status = u'downloaded'
+                movie['movie'].status = u'downloaded'
 
             movie['queue'].completed = True
             Db.flush()

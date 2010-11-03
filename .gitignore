@@ -1,6 +1,7 @@
 *.db
 *.ini
 .pydevproject
+.project
 *.pyc
 .DS_Store
 .tmp*
