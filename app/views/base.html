@@ -2,8 +2,7 @@
 <html>
 <head>
     <title>CouchPotato</title>
-	<base href="${baseUrl}">
-	<link href="media/images/favicon.ico" rel="icon" type="image/x-icon" />
+	<link href="${baseUrl}media/images/favicon.ico" rel="icon" type="image/x-icon" />
 <% 
 	cssFiles = [
 		'Base.css',
@@ -13,12 +12,12 @@
 	]
 	miniCss = Minify.css(cssFiles) 
 %>
-	% if debug:
+	% if not debug:
 	% for cssFile in cssFiles:
-	<link href="media/style/${cssFile}" media="screen" rel="stylesheet" type="text/css" />
+	<link href="${baseUrl}media/style/${cssFile}" media="screen" rel="stylesheet" type="text/css" />
 	% endfor
 	% else:
-	<link href="${miniCss}" media="screen" rel="stylesheet" type="text/css" />
+	<link href="${baseUrl}${miniCss}" media="screen" rel="stylesheet" type="text/css" />
 	% endif
 </head>
 <body>
@@ -38,12 +37,12 @@
 	]
 	miniJs = Minify.js(jsFiles) 
 %>
-% if debug:
+% if not debug:
 	% for jsFile in jsFiles:
-	<script src="media/script/${jsFile}" type="text/javascript"></script>
+	<script src="${baseUrl}media/script/${jsFile}" type="text/javascript"></script>
 	% endfor
 % else:
-	<script src="${miniJs}" type="text/javascript"></script>
+	<script src="${baseUrl}${miniJs}" type="text/javascript"></script>
 % endif
 
 	<div id="header">
@@ -124,7 +123,7 @@
 		<div class="footer">
 			<div class="check">
 			% if yarr.isChecking() and not yarr.stop:
-				<img src="media/images/spinner.gif" alt="refresh" style="width:10px" /> Now checking. ( <a href="${url(controller='cron', action='stop')}">Stop</a> )
+				<img src="${baseUrl}media/images/spinner.gif" alt="refresh" style="width:10px" /> Now checking. ( <a href="${url(controller='cron', action='stop')}">Stop</a> )
 			% else:
 				Next check in ${yarr.nextCheck().get('string')} ( <a href="${url(controller='cron', action='force')}">Force check</a> )
 			% endif

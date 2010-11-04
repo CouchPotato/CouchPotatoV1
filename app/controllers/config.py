@@ -113,10 +113,10 @@ class ConfigController(BaseController):
 
     @cherrypy.expose
     @cherrypy.tools.mako(filename = "config/userscript.js")
-    def userscript(self):
+    def userscript(self, **data):
         '''
         imdb UserScript, for easy movie adding
         '''
-        host = self.globals['baseUrl']
-        return self.render({'host':host})
+
+        return self.render({'host':data.get('host')})
 

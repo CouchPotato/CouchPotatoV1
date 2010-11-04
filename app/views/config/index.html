@@ -281,7 +281,7 @@
 
 		<div class="group userscript">
 			<fieldset class="inlineLabels">
-				<a href="CouchPotato.user.js" class="submit userscriptInstall"><img src="media/images/userscriptPreview.png" /><br />Install UserScript</a>
+				<a href="${baseUrl}CouchPotato.user.js" class="submit userscriptInstall"><img src="${baseUrl}media/images/userscriptPreview.png" /><br />Install UserScript</a>
 				<p style="font-size:11px">
 					Need a recent version of <a href="http://www.google.com/chrome/" target="_blank">Chrome</a> or when using Firefox, the <a href="https://addons.mozilla.org/en-US/firefox/addon/748/" target="_blank">Greasemonkey addon</a>.
 				</p>
@@ -301,7 +301,7 @@
 				<div id="donate">
 					<div>I'm building CouchPotato in my spare time, so if you want to buy me a coke while I'm coding, that would be awesome!</div>
 					<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=GFWSRM6L43T2S&lc=US&item_name=A%20more%20awesome%20CouchPotato&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted" target="_blank">
-						<img src="media/images/donate.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+						<img src="${baseUrl}media/images/donate.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 					</a>
 				</div>
 				<div class="site">
@@ -498,6 +498,10 @@
 			form.getElement('fieldset.userscript a').setStyle('display', 'none')
 			form.getElement('fieldset.userscript p').setStyles({'height':'300px', 'display':'block'})
 		}
+		
+		// Get host and post with Userscript
+		var usButton = $('configForm').getElement('.userscriptInstall')
+		usButton.set('href', usButton.get('href')+'?host='+location.href.replace('config/', ''))
 		
 		// Match label to input, cause i'm lazy
 		form.getElements('label').each(function(el, nr){

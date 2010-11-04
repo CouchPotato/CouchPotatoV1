@@ -4,11 +4,10 @@ import cherrypy
 import routes
 
 def base():
-    host = 'http://' + cherrypy.request.headers.get('host')
-    base = cherrypy.config.get('config').get('global', 'urlbase')
-    base = host + '/' + base if base else host
-
-    return base
+    b = cherrypy.config.get('config').get('global', 'urlbase')
+    if b:
+        return '/' + b.strip('/')
+    return ''
 
 def url(*args, **kwargs):
     return cherrypy.url(routes.url_for(*args, **kwargs), base = base())
@@ -36,10 +35,8 @@ class BaseController:
         self.globals['config'] = cherrypy.config.get('config')
 
     def updateGlobals(self):
-        base = cherrypy.config.get('config').get('global', 'urlbase')
-        host = 'http://' + cherrypy.request.headers.get('host') + '/'
 
-        self.globals['baseUrl'] = host + base + '/' if base else host
+        self.globals['baseUrl'] = base() + '/'
         self.globals['yarr'] = self.cron.get('yarr')
 
     def render(self, list):

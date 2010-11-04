@@ -1,16 +1,12 @@
 <%
 	totalMovies = len(movies)
 	totalSnatched = len(snatched)
-	totalDownloaded = len(downloaded)
 %>
 % if totalMovies > 0:
 <div id="filterDetails">
-	<a href="movie/#" class="counter"><strong>${totalMovies}</strong> wanted</a>
+	<a href="${baseUrl}movie/#" class="counter"><strong>${totalMovies}</strong> wanted</a>
 	% if totalSnatched > 0:
-	<a href="movie/#sn" class="counter"><strong>${totalSnatched}</strong> snatched</a>
-	% endif
-	% if totalDownloaded > 0:
-	<a href="movie/#dl" class="counter"><strong>${totalDownloaded}</strong> downloaded</a>
+	<a href="${baseUrl}movie/#sn" class="counter"><strong>${totalSnatched}</strong> snatched</a>
 	% endif
 	<a href="#" class="toggle">Show details</a>
 </div>
