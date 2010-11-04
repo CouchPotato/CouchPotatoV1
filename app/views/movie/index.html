@@ -66,7 +66,7 @@
 			</div>
 		% for queue in movie.queue:
 			<div class="item ${'active' if queue.active else 'inactive'} ${'completed' if queue.completed else ''}" data-id="queu-${queue.id}">
-				${'<a target="_blank" href="%s" class="found">%s</a>' % (queue.link, queue.name) if queue.name else '<span class="found">Nothing yet</span>'}
+				${'<a target="_blank" href="%s" class="found">%s</a>' % (queue.link if queue.link else '', queue.name) if queue.name else '<span class="found">Nothing yet</span>'}
 				<span class="qualityType">${Qualities.types[queue.qualityType]['label']}</span>
 				<span class="markComplete${' active' if queue.markComplete else ''}"></span>
 			</div>

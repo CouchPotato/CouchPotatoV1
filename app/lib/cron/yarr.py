@@ -140,6 +140,7 @@ class YarrCron(cronBase, rss):
                     #update what I found
                     queue.name = latinToAscii(highest.name)
                     queue.link = highest.detailUrl
+                    Db.flush()
 
                     waitFor = queue.waitFor * (60 * 60 * 24)
 
