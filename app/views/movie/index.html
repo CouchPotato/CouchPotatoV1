@@ -36,7 +36,7 @@
 	<div class="item ${movie.status}" data-id="${movie.id}">
 		<span class="title">
 			% if extra.get('poster_thumb'):
-			<img class="thumbnail" src="${extra.get('poster_thumb')}" alt="Thumbnail" />
+			<img class="thumbnail" src="${baseUrl}${extra.get('poster_thumb')}" alt="Thumbnail" />
 			% else:
 			<span class="thumbnail empty"></span>
 			% endif

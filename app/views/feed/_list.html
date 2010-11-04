@@ -36,7 +36,7 @@
 	<div class="item ${movie.status}" data-id="${movie.id}">
 		<span class="thumbnail">
 			% if extra.get('poster_thumb'):
-			<img src="${extra.get('poster_cover')}" alt="thumbnail" class="img" />
+			<img src="${baseUrl}${extra.get('poster_cover')}" alt="thumbnail" class="img" />
 			% endif
 			<span class="info">
 				<span class="notice ${'' if not eta.bluray and hdQueue and not otherQueue else 'disabled'}" title="${'Only searching for HD qualities, but no original HD source available.' if not eta.bluray and hdQueue and not otherQueue else ''}" /></span>
