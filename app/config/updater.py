@@ -34,7 +34,6 @@ class Updater(SimplePlugin):
         self.debug = cherrypy.config['debug']
         self.updatePath = os.path.join(self.cachePath, 'updates')
         self.historyFile = os.path.join(self.updatePath, 'history.txt')
-        self.tryGit = os.path.isdir(os.path.join(self.runPath, '.git'))
 
         if not os.path.isdir(self.updatePath):
             os.mkdir(self.updatePath)
@@ -42,10 +41,10 @@ class Updater(SimplePlugin):
         if not os.path.isfile(self.historyFile):
             self.history('UNKNOWN Build.')
 
-        #self.checkForUpdate()
-        #self.getVersion()
-
     start.priority = 70
+
+    def useUpdater(self):
+        return cherrypy.config['config'].get('global', 'updater') and not self.hasGit()
 
     def isRunning(self):
         return self.running
@@ -66,41 +65,26 @@ class Updater(SimplePlugin):
             self.running = False
             return result
 
+    def hasGit(self):
+        return os.path.isdir(os.path.join(self.runPath, '.git'))
+
     def getVersion(self, force = False):
 
         if not self.version or force:
             if self.isFrozen:
                 self.version = 'Windows build r%d' % version.windows
             else:
-                if self.tryGit:
-                    error = False
-                    try:
-                        p = subprocess.Popen('git rev-parse HEAD', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True, cwd = os.getcwd())
-                        output, err = p.communicate()
-                        if err:
-                            raise RuntimeError(err)
-                        log.info('Git version output: %s' % output)
-                        self.version = output[:7]
-                    except Exception, e:
-                        log.error('Failed using GIT, falling back on normal version check. %s' % e)
-                        error = True
-
-                    if not self.version or 'fatal' in str(self.version).lower() or error:
-                        self.tryGit = False
-                        return self.getVersion(force)
-
-                else:
-                    handle = open(self.historyFile, "r")
-                    lineList = handle.readlines()
-                    handle.close()
-                    self.version = lineList[-1].replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
+                handle = open(self.historyFile, "r")
+                lineList = handle.readlines()
+                handle.close()
+                self.version = lineList[-1].replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
 
         return self.version
 
     def checkForUpdate(self):
 
-#        if self.debug:
-#            return
+        if not self.useUpdater():
+            return
 
         if not self.version:
             self.getVersion()
@@ -111,10 +95,7 @@ class Updater(SimplePlugin):
             update = self.checkGitHubForUpdate()
             if update:
                 history = open(self.historyFile, 'r').read()
-                if self.tryGit:
-                    self.updateAvailable = self.version not in update.get('name').replace('.tar.gz', '')
-                else:
-                    self.updateAvailable = update.get('name').replace('.tar.gz', '') not in history
+                self.updateAvailable = update.get('name').replace('.tar.gz', '') not in history
 
         self.availableString = 'Update available' if self.updateAvailable else 'No update available'
         self.lastCheck = time.time()
@@ -169,25 +150,6 @@ class Updater(SimplePlugin):
 
         name = update.get('name')
         data = update.get('data')
-
-        # Try git first
-        if self.tryGit:
-            try:
-                p = subprocess.Popen('git pull', stdout = subprocess.PIPE, stderr = subprocess.STDOUT, shell = True, cwd = os.getcwd())
-                output, err = p.communicate()
-
-                if 'Aborting.' in output:
-                    log.error("Couldn't update via git.")
-                    self.tryGit = False
-                    return False
-                elif 'Already up-to-date.' in output:
-                    log.info('No need to update, already using latest version')
-                    return True
-
-                log.info('Update to %s successful, using GIT.' % name)
-                return True
-            except:
-                pass
 
         destination = os.path.join(self.updatePath, update.get('name'))
 

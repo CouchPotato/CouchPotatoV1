@@ -50,7 +50,7 @@ class ConfigController(BaseController):
         # catch checkboxes
         for bool in [
                     'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
-                     'global.launchbrowser',
+                     'global.launchbrowser', 'global.updater',
                      'Torrents.enabled',
                      'NZB.enabled',
                      'NZBMatrix.enabled', 'NZBsorg.enabled', 'newznab.enabled',
