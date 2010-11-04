@@ -16,7 +16,7 @@ class MovieController(BaseController):
         '''
 
         if cherrypy.request.path_info == '/':
-            return redirect(url(controller = 'movie', action = 'index'))
+            return redirect('movie/')
 
         qMovie = Db.query(Movie)
         movies = qMovie.order_by(Movie.name).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
