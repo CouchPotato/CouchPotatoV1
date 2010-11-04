@@ -246,7 +246,7 @@ class Library:
 
             # Try and match the movies via filenaming
             for file in movie['files']:
-                dirnames = movie['path'].split(os.path.sep)
+                dirnames = movie['path'].replace(unicode(self.config.get('Renamer', 'download')), '').split(os.path.sep)
                 dirnames.append(file['filename'])
                 dirnames.reverse()
 
