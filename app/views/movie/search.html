@@ -17,11 +17,6 @@ yearError
 
 	<div class="row">
 		<input type="text" name="year" title="year" id="yearInput" value="" />
-		<script type="text/javascript">
-			window.addEvent('domready', function(){
-				new OverText('yearInput').show()
-			});
-		</script>
 	</div>
 	
 	<div class="row">
@@ -38,33 +33,25 @@ yearError
 </form>
 
 <script type="text/javascript">
-	
 	var form = $('movieResults');
 	window.addEvent('domready', function(){
-		form.getElement('.submit').addEvent('click', function(e){
-			(e).stop();
-			req()
-		})
-		
-		var selectBox = form.getElement('.movieselect')
-		selectBox.addEvent('change', function(){
-			checkYear()
-		});
+		new OverText('yearInput')
 		var checkYear = function(){
 			var full = selectBox.getElements('option')[selectBox.get('value')].get('text')
+			var yearInput = $('yearInput')
+			var yearRow = $('yearInput').getParent('.row')
 			if(full.test('(None)', 'i')){
-				$('yearInput').getParent().setStyle('display', 'block');
-				$('yearInput').set('disabled', false);
+				yearRow.setStyle('display', 'block');
+				yearInput.set('disabled', false);
 				return false
 			}
 			else {
-				$('yearInput').getParent().setStyle('display', 'none');
-				$('yearInput').set('disabled', true);
+				yearRow.setStyle('display', 'none');
+				yearInput.set('disabled', true);
 				return true
 			}
 		}
-		var hasYear = checkYear()
-		
+
 		var req = function(){
 			var s = new Spinner(form)
 				s.show();
@@ -75,16 +62,16 @@ yearError
 					s.hide();
 				},
 				'onComplete': function(response){
-					if(response.test('yearError')){
+					if(response.test('yearError'))
 						alert('Couldn\'t find the year on TheMovieDB, so you have to fill it in yourself.\nTo make other people happy, you could go to TheMovieDB and fill in the year.')
-					}
-					else {
+					else
 						window.location.reload()
-					}
 				}
 			}).send()
+			
+			return false
 		}
-		
+
 		// Undo button
 		form.getElement('.undo').addEvent('click', function(e){
 			(e).stop()
@@ -92,18 +79,17 @@ yearError
 				'url': '${url(controller='movie',action='add')}',
 				'update': 'addForm'
 			}).send()
-			
 		});
-		
-		
-	% if len(results) == 1:
-		if (hasYear){
-			var s = new Spinner(form).show();
-			form.submit()
-		}
-	% endif
+
+		form.getElement('.submit').addEvent('click', req)
+
+		var selectBox = form.getElement('.movieselect')
+		selectBox.addEvent('change', function(){
+			checkYear()
+		});
+
+		checkYear()
 
 	});
-	
 </script>
 % endif
