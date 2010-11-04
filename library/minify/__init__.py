@@ -7,7 +7,7 @@ import os
 log = logging.getLogger(__name__)
 
 class Minify():
-    
+
     comment = {
        'style': '/*** %s:%d ***/\n',
        'script': '// %s:%d\n'
@@ -18,13 +18,13 @@ class Minify():
 
     def js(self, files = [], out = '_Minified.js'):
         return self.minify('script', files, out)
-    
+
     def minify(self, type, files, out):
         base = os.path.join(cherrypy.config.get('basePath'), 'media', type)
         url = 'cache/minify/' + out
         cache = os.path.join(cherrypy.config.get('runPath'), 'cache', 'minify')
         out = os.path.join(cache, out)
-        
+
         # Check for dates, minify only on newer files
         goMinify = True
         if os.path.isfile(out):
@@ -37,7 +37,7 @@ class Minify():
 
         if goMinify:
             log.debug('Minifying JS.')
-        
+
             # Create dir
             self.makeDirs(cache)
 
@@ -45,14 +45,14 @@ class Minify():
             for file in files:
                 fullPath = os.path.join(base, file)
                 f = open(fullPath, 'r').read()
-                
+
                 if type == 'script':
                     data = jsmin(f)
                 else:
                     data = cssmin(f)
-                
+
                 raw.append({'file': file, 'date': int(os.path.getmtime(fullPath)), 'data': data})
-            
+
             # Combine all files together with some comments
             data = ''
             for r in raw:
@@ -63,8 +63,8 @@ class Minify():
             self.write(data, out)
 
         outTimestamp = int(os.path.getmtime(out))
-        return url+'?'+str(outTimestamp)
-    
+        return url + '?' + str(outTimestamp)
+
     def makeDirs(self, dir):
         try:
             os.makedirs(dir)
