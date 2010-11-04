@@ -74,10 +74,22 @@ class Updater(SimplePlugin):
             if self.isFrozen:
                 self.version = 'Windows build r%d' % version.windows
             else:
-                handle = open(self.historyFile, "r")
-                lineList = handle.readlines()
-                handle.close()
-                self.version = lineList[-1].replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
+                if self.hasGit() and not force:
+                    try:
+                        gitPath = cherrypy.config['config'].get('global', 'git')
+                        p = subprocess.Popen(gitPath + ' rev-parse HEAD', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True, cwd = os.getcwd())
+                        output, err = p.communicate()
+                        if err or 'fatal' in output.lower(): raise RuntimeError(err)
+                        log.debug('Git version output: %s' % output.strip())
+                        self.version = 'git-' + output[:7]
+                    except Exception, e:
+                        log.error('Failed using GIT, falling back on normal version check. %s' % e)
+                        return self.getVersion(force)
+                else:
+                    handle = open(self.historyFile, "r")
+                    lineList = handle.readlines()
+                    handle.close()
+                    self.version = lineList[-1].replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
 
         return self.version
 

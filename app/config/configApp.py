@@ -44,6 +44,7 @@ class configApp():
         self.setDefault('global', 'password', '')
         self.setDefault('global', 'launchbrowser', True)
         self.setDefault('global', 'updater', True)
+        self.setDefault('global', 'git', 'git')
         self.setDefault('global', 'urlBase', '')
         self.setDefault('global', 'ignoreWords', '')
         self.setDefault('global', 'preferredWords', '')
