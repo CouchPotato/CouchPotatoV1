@@ -18,7 +18,7 @@
 		var toggleThem = function(){
 			$('movies').toggleClass('list')
 			filterDetails.set('text', !$('movies').hasClass('list') ? 'Hide details' : 'Show details')
-			Cookie.write('showDetails', !$('movies').hasClass('list'), {duration: 365});
+			Cookie.write('showDetails', !$('movies').hasClass('list'), {'duration': 365, 'path': '${baseUrl}movie/'});
 		}
 		filterDetails.addEvent('click', function(e){
 			(e).stop()
