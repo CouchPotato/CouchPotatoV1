@@ -35,7 +35,7 @@ class Environment:
     @staticmethod
     def detectExeBuild():
         try:
-            Environment.frozen = sys.frozen
+            Environment.frozen = sys.frozen #@UndefinedVariable
         except AttributeError:
             Environment.frozen = False
 
