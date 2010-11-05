@@ -1,12 +1,11 @@
 import sqlalchemy as sql_
 import sqlalchemy.orm as sql_orm_
 import sqlalchemy.types as sql_t_
-from app.core import getLogger
+from app.core import getLogger, util
 import _tables
 import os
 from sqlalchemy.schema import ForeignKey
 import shutil
-from imaplib import Time2Internaldate
 import time
 from app.core.environment import Environment as env_
 import traceback
@@ -14,19 +13,18 @@ import traceback
 
 log = getLogger(__name__)
 class Database(object):
+    """Provides a database abstraction"""
     typeLookup = {
          'i' :   sql_t_.Integer,
          's' :   sql_t_.Unicode,
          'b' :   sql_t_.Boolean,
-         't' :   sql_t_.UnicodeText
+         't' :   sql_t_.UnicodeText,
+         'x' :   sql_t_.Binary,
     }
-    '''
-    Provides a database abstraction
-    '''
+    """string identifiers to sqlalchemy column type translation dict"""
+
     def __init__(self, file):
-        '''
-        Constructor
-        '''
+        """Load sqlite database from file."""
         self.file = file
         self.engine = sql_.create_engine('sqlite:///%s' % file)
         self.metadata = sql_.schema.MetaData(self.engine)
@@ -35,7 +33,7 @@ class Database(object):
         )
 
         env_._db = self
-        log.info('Loading Database...')
+        log.info("Loading Database...")
         doUpgrade = os.path.isfile(self.file)
         _tables.bootstrap(self)
         session = self.createSession()
@@ -46,26 +44,9 @@ class Database(object):
             type = _tables.PluginTypesTable('core')
             session.add(type)
             session.flush()
-            type_id = type.id
-            session.add(_tables.PluginsTable('core', type_id, _tables.latestVersion))
-            session.flush()
-
-        """
-        
-
-        metadata.create_all()
-
-        if doUpgrade:
-            #upgradeDb()
-            pass
-        else:
-            for nr in range(1, latestDatabaseVersion + 1):
-                Session.add(DbVersion(nr))
-                Session.flush()
-        log.info('Database loaded')
-        """
 
     def createSession(self):
+        """Create a new database session."""
         return self.session()
 
     def getTable(self, name, columns, constraints = None):
@@ -86,9 +67,56 @@ class Database(object):
         )
 
     def getColumn(self, *args, **kwargs):
-        args = [arg for arg in args]
-        if Database.typeLookup.has_key(args[1]):
-            args[1] = Database.typeLookup[args[1]]
+        """Construct a new `sqlalchema.schema.Column` based on list"""
+        """
+        Wrap Column class identifier and preprocess the
+        input to add a few shorthand possibilities.
+        
+        1: column name
+        
+        2: column type
+            can be of the following types:
+            string:
+                Translate a string identifier to valid sqlalchemy type
+                    i: Integer
+                    s: Unicode
+                    b: Boolean
+                    t: UnicodeText
+                    x: Binary
+            list:
+                [type, args, kwargs} 
+                Pass additional constructor arguments to the type.
+                
+                Type can also be a string which will be translated
+                according to the aforementioned procedure.
+            class:
+                A valid sqlalchemy type
+            instance:
+                A valid sqlalchemy type instance
+        
+        3: Undocumented ForeignKey functionality.
+        @todo: Explain the 3rd parameter
+        """
+        assert len(args) >= 2
+        args = list(args) #copy to break link with original object
+
+        #Perform described 2nd paramter magic
+        type_list_default = [None, [], {}]
+
+        #force list
+        type_list = args[1] if isinstance(args[1], list) else [args[1]]
+
+        #guarantee existence of *args and **kwargs
+        type_list = util.list_apply_defaults(type_list, type_list_default)
+
+        #string to type translation
+        if isinstance(type_list[0], str):
+            try:
+                type_list[0] = Database.typeLookup[type_list[0]]
+            except KeyError:
+                log.error("Unsupported type identifier: %s" % type_list[0])
+
+        args[1] = type_list[0](*type_list[1], **type_list[2])
 
         #foreign key handling
         if len(args) == 3:
@@ -114,7 +142,7 @@ class Database(object):
         current_version = info.version
         session = self.createSession()
         if current_version < latest_version:
-            log.info('Upgrading database for ' + info.name)
+            log.info("Upgrading database for " + info.name)
             shutil.copy(self.file, self.file + '_' + time.strftime("%Y-%m-%d_%H-%M-%S") + '.db')
             for tempVersion in range(current_version + 1, latest_version + 1):
                 methodName = 'migrateToVersion' + str(tempVersion)
@@ -126,16 +154,12 @@ class Database(object):
                         session.add(info)
                         session.flush()
                     except:
-                        log.info('Error while updating ' + str(info.name) + ":\n" + traceback.format_exc())
+                        log.info("Error while updating " + str(info.name) + ":\n" + traceback.format_exc())
                         return
                 else:
-                    log.info('Error while updating ' + str(info.name)
-                             + ': method ' + methodName
-                             + ' not found.')
+                    log.info("Error while updating " + str(info.name)
+                             + ": method " + methodName
+                             + " not found.")
                     return
-            #for end
+            #endfor
             log.info('Updated ' + str(info.name) + ', is now at version ' + str(info.version))
-
-
-
-
