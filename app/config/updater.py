@@ -68,13 +68,13 @@ class Updater(SimplePlugin):
     def hasGit(self):
         return os.path.isdir(os.path.join(self.runPath, '.git'))
 
-    def getVersion(self, force = False):
+    def getVersion(self, force = False, tryGit = True):
 
         if not self.version or force:
             if self.isFrozen:
                 self.version = 'Windows build r%d' % version.windows
             else:
-                if self.hasGit() and not force:
+                if self.hasGit() and tryGit:
                     try:
                         gitPath = cherrypy.config['config'].get('global', 'git')
                         p = subprocess.Popen(gitPath + ' rev-parse HEAD', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True, cwd = os.getcwd())
@@ -84,7 +84,7 @@ class Updater(SimplePlugin):
                         self.version = 'git-' + output[:7]
                     except Exception, e:
                         log.error('Failed using GIT, falling back on normal version check. %s' % e)
-                        return self.getVersion(force)
+                        return self.getVersion(force, False)
                 else:
                     handle = open(self.historyFile, "r")
                     lineList = handle.readlines()
