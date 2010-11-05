@@ -8,8 +8,7 @@ import sys
 import os
 import logging
 import app
-from app.CouchPotato import Environment as _env
-from app.config.configApp import Global
+from app.core.environment import Environment as _env
 
 def create_dir(dir):
     if not os.path.isdir(dir):
