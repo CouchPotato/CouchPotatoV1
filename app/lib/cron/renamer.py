@@ -50,9 +50,17 @@ class RenamerCron(cronBase, Library):
         log.info('Renamer has shutdown.')
 
     def isDisabled(self):
+
         if (self.conf('enabled') and os.path.isdir(self.conf('download')) and self.conf('download') and self.conf('destination') and self.conf('foldernaming') and self.conf('filenaming')):
+            download = self.conf('download')
+            destination = self.conf('destination')
+            if destination == download or download in destination:
+                log.error("Download folder and movie destination shouldn't be the same. Change it in Settings >> Renaming.")
+                return True
+
             return False
         else:
+
             return True
 
     def doRename(self):
@@ -143,10 +151,6 @@ class RenamerCron(cronBase, Library):
             # Cleanup
             if self.conf('cleanup'):
                 path = movie['path']
-
-                if self.conf('destination') == path:
-                    log.error('Download folder and movie destination shouldn\'t be the same. Change it in Settings >> Renaming.')
-                    return
 
                 for root, subfiles, filenames in os.walk(path):
                     log.debug(subfiles)
