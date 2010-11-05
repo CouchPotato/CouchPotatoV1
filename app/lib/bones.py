@@ -4,15 +4,15 @@ Created on 31.07.2010
 @author: Christian
 '''
 from app.config.wrapper import Wrapper
-from app.core.environment import Environment as env_
-import os
 from app.core import getLogger
-import traceback
+from app.core.controller import BasicController
+from app.core.environment import Environment as env_
 from app.lib.event import Event
+from copy import copy
 from mako.lookup import TemplateLookup
 from mako.template import Template
-from app.core.controller import BasicController
-from copy import copy
+import os
+import traceback
 
 log = getLogger(__name__)
 
@@ -64,13 +64,15 @@ class PluginBones(object):
         '''
         Constructor
         '''
-        self.name = name
-        self._info = None
-        self._pluginPath = path
-        self._pluginMgr = pluginMgr
-        self._configPath = os.path.join('plugins', name)
-        self._configFiles = dict()
         self._about = About(self._getAbout())
+        self._configFiles = dict()
+        self._configPath = os.path.join('plugins', name)
+        self._env = env_
+        self._info = None
+        self._pluginMgr = pluginMgr
+        self._pluginPath = path
+        self._uuid = self._identify()
+        self.name = name
         self.postConstruct()
         if self._pluginPath:
             self.makoLookup = TemplateLookup(directories = [os.path.join(self._pluginPath, 'views')])
@@ -80,6 +82,9 @@ class PluginBones(object):
         pass
     def init(self):
         pass
+
+    def _identify(self):
+        raise RuntimeError("Plugin must provide UUID")
 
     def _loadConfig(self, name):
         cf = self._configFiles

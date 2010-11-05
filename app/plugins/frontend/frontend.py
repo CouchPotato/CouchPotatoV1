@@ -1,7 +1,7 @@
 from app.lib.bones import PluginBones
-import cherrypy
-from app.core import getLogger, decorate
+from app.core import getLogger
 from app.core import env_
+import uuid
 
 log = getLogger(__name__)
 
@@ -9,6 +9,9 @@ class Frontend(PluginBones):
     '''
     Provides an interterface for plugins to register with the frontend
     '''
+
+    def _identify(self):
+        return uuid.UUID('87aece57-2948-4cab-aad1-8b2190e71873')
 
 
     def postConstruct(self):

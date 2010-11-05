@@ -2,11 +2,15 @@ from app.core import getLogger
 from app.lib.bones import PluginBones
 from app.lib.rss import Rss
 from library.imdb import IMDb
+import uuid
 
 log = getLogger(__name__)
 
 class imdb(PluginBones, Rss):
-    """Api for IMDB"""
+    """API wrapper for IMDB"""
+
+    def _identify(self):
+        return uuid.UUID('56d34817-cd5f-473b-a7c4-d835e191a5ce')
 
     def postConstruct(self):
         #MovieBase.__init__(self, config)
