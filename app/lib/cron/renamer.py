@@ -143,37 +143,36 @@ class RenamerCron(cronBase, Library):
 
                 log.info('No Match found for: %s' % str(movie['info']['name']))
 
-        # Cleanup
-        if self.conf('cleanup'):
-            path = self.conf('download')
+            # Cleanup
+            if self.conf('cleanup'):
+                path = movie['path']
 
-            if self.conf('destination') == path:
-                log.error('Download folder and movie destination shouldn\'t be the same. Change it in Settings >> Renaming.')
-                return
+                if self.conf('destination') == path:
+                    log.error('Download folder and movie destination shouldn\'t be the same. Change it in Settings >> Renaming.')
+                    return
 
-            for root, subfiles, filenames in os.walk(path):
-                log.debug(subfiles)
+                for root, subfiles, filenames in os.walk(path):
+                    log.debug(subfiles)
 
-                # Stop if something is unpacking
-                for ignore in self.ignoredInPath:
-                    if ignore in root.lower():
-                        break
+                    # Stop if something is unpacking
+                    for ignore in self.ignoredInPath:
+                        if ignore in root.lower():
+                            break
 
-                for filename in filenames:
-                    fullFilePath = os.path.join(root, filename)
-                    fileSize = os.path.getsize(fullFilePath)
+                    for filename in filenames:
+                        fullFilePath = os.path.join(root, filename)
+                        fileSize = os.path.getsize(fullFilePath)
 
-                    if fileSize < 157286400:
-                        try:
-                            os.remove(fullFilePath)
-                            log.info('Removing file %s.' % fullFilePath)
-                        except OSError:
-                            log.error('Couldn\'t remove file %s.' % fullFilePath)
+                        if fileSize < 157286400:
+                            try:
+                                os.remove(fullFilePath)
+                                log.info('Removing file %s.' % fullFilePath)
+                            except OSError:
+                                log.error('Couldn\'t remove file %s.' % fullFilePath)
 
-                if not root in path:
                     try:
-                        os.rmdir(root)
-                        log.info('Removing dir: %s in download dir.' % root)
+                        os.rmdir(path)
+                        log.info('Removing dir: %s in download dir.' % path)
                     except OSError:
                         log.error('Tried to clean-up download folder, but "%s" isn\'t empty.' % root)
 

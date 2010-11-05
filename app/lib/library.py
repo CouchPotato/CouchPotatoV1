@@ -154,15 +154,17 @@ class Library:
                     movie['info']['codec']['video'] = self.getCodec(movie['folder'], self.codecs['video'])
                     movie['info']['codec']['audio'] = self.getCodec(movie['folder'], self.codecs['audio'])
 
-                    #check the video file for it's resolution
+                    #get metainfo about file
                     testFile = os.path.join(movie['path'], movie['files'][0]['filename'])
                     try:
                         movie['meta'].update(self.getMeta(testFile))
                     except:
                         pass
-                    if movie['meta'].has_key('Video stream'):
-                        width = int(movie['meta']['Video stream'][0]['Image width'].split()[0])
-                        height = int(movie['meta']['Video stream'][0]['Image height'].split()[0])
+
+                    #check the video file for its resolution
+                    if movie['meta'].has_key('video stream'):
+                        width = movie['meta']['video stream'][0]['image width']
+                        height = movie['meta']['video stream'][0]['image height']
 
                         if width and height:
                             if width > 1900 and width < 2000 and height <= 1080:
@@ -379,24 +381,6 @@ class Library:
         except:
             return None
 
-    def getVideoResolution(self, file):
-        '''
-        Using hachoir_metadata we look at the video file and get the horizontal resolution and return the appropriate
-        resolution string (1080p, 720p)
-        '''
-
-#        file = unicode(file)
-#        parser = hachoir_parser.createParser(file)
-#        metadata = hachoir_metadata.extractMetadata(parser)
-#
-#        for md in metadata.iterGroups():
-#            if md.has("height") and md.has("width"):
-#                return md.get("width"), md.get("height")
-#
-#        return None
-
-        return self._get_res(file)
-
     def getMeta(self, filename):
         '''
         A hacky way to keep hachoir from locking the file so that we can actually move it after
@@ -406,28 +390,24 @@ class Library:
         file resolution.
         '''
 
-        #import hachoir_metadata
-        import hachoir_parser
-
         libraryDir = os.path.join(cherrypy.config.get('basePath'), 'library')
-
         script = os.path.join(libraryDir, 'getmeta.py')
-        #shutil.copy(os.path.join(libraryDir, 'getmeta.py'), script)
 
-        p = subprocess.Popen(["python", script, filename], stdout = subprocess.PIPE, cwd = libraryDir)
+        p = subprocess.Popen(["python", script, filename], stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = libraryDir)
         z = p.communicate()[0]
-        #os.remove(script)
 
         try:
-            return json.loads(z)
+            meta = json.loads(z)
+            log.info('Retrieved metainfo: %s' % meta)
+            return meta
         except:
-            return None
+            log.error('Couldn\'t get metadata from file')
 
     def filesizeBetween(self, file, min = 0, max = 100000):
         try:
             return (min * 1048576) < os.path.getsize(file) < (max * 1048576)
         except:
-            log.error('Couln\'t get filesize of %s.' % file)
+            log.error('Couldn\'t get filesize of %s.' % file)
 
         return False
 

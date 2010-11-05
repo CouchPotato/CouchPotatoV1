@@ -4,7 +4,6 @@ from hachoir_core.cmd_line import unicodeFilename
 
 import datetime
 import json
-import os
 import sys
 import re
 
@@ -206,4 +205,3 @@ def _parseBitRate(value):
     return bitrate * multi
 
 print json.dumps(parseMetadata(getMetadata(sys.argv[1])))
-
