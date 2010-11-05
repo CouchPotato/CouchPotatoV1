@@ -802,6 +802,11 @@ h1 {
 				padding-top: 0;
 				line-height: 22px;
 			}
+			#configForm .checkbox .formHint {
+				margin-top: -24px;
+				float: right;
+				width: 60%;
+			}
 			
 			#configForm fieldset > .formHint {
 				margin: 10px 30px;
