@@ -34,13 +34,13 @@
 					<label for="">Launch browser</label>
 					<input type="checkbox" name="global.launchbrowser" value="True" ${' checked="checked"' if config.get('global', 'launchbrowser') else ''} />
 				</div>
-				<div class="ctrlHolder">
+				<div class="ctrlHolder checkbox">
 					<label for="">Use updater</label>
 					<% hasGit = updater.hasGit() %>
 					<input type="checkbox" name="global.updater" value="True" ${' checked="checked"' if config.get('global', 'updater') and not hasGit else ''} ${' disabled="disabled"' if hasGit else ''} />
 					% if hasGit:
 					<p class="formHint">
-						To enable the CouchPotato Updater, remove the ".git" folder. <br/>
+						To enable the CouchPotato Updater, remove the ".git" folder.
 						Otherwise use "git pull".
 					</p>
 					% endif
@@ -451,7 +451,7 @@
 						&quot;There Will Be Blood.srt&quot; or &quot;Subtitle.srt&quot;
 					</p>
 				</div>
-				<div class="ctrlHolder">
+				<div class="ctrlHolder checkbox">
 					<label for="">Add language to name</label>
 					<input type="checkbox" name="Subtitles.addLanguage" value="True" ${' checked="checked"' if config.get('Subtitles', 'addLanguage') else ''} />
 					<p class="formHint">
