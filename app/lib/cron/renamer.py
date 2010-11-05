@@ -78,14 +78,14 @@ class RenamerCron(cronBase, Library):
                 cherrypy.config['cron']['subtitle'].forDirectory(finalDestination['directory'])
 
                 #Generate XBMC metadata
-                if self.config.get('XBMC', 'metaEnabled'):
-                    nfoFileName = self.config.get('XBMC', 'nfoFileName')
-                    fanartFileNaming = self.config.get('XBMC', 'fanartFileName')
-                    fanartMinHeight = self.config.get('XBMC', 'fanartMinHeight')
-                    fanartMinWidth = self.config.get('XBMC', 'fanartMinWidth')
-                    posterFileNaming = self.config.get('XBMC', 'posterFileName')
-                    posterMinHeight = self.config.get('XBMC', 'posterMinHeight')
-                    posterMinWidth = self.config.get('XBMC', 'posterMinWidth')
+                if self.config.get('Meta', 'enabled'):
+                    nfoFileName = self.config.get('Meta', 'nfoFileName')
+                    fanartFileNaming = self.config.get('Meta', 'fanartFileName')
+                    fanartMinHeight = self.config.get('Meta', 'fanartMinHeight')
+                    fanartMinWidth = self.config.get('Meta', 'fanartMinWidth')
+                    posterFileNaming = self.config.get('Meta', 'posterFileName')
+                    posterMinHeight = self.config.get('Meta', 'posterMinHeight')
+                    posterMinWidth = self.config.get('Meta', 'posterMinWidth')
 
                     x = xmg.MetaGen(movie['movie'].imdb)
 
@@ -116,7 +116,7 @@ class RenamerCron(cronBase, Library):
                     log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
 
                 #Notify XBMC
-                if self.config.get('XBMC', 'notify'):
+                if self.config.get('XBMC', 'enabled'):
                     xbmc.notifyXBMC('CouchPotato',
                                     'Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year),
                                     self.config.get('XBMC', 'host'),
@@ -124,9 +124,6 @@ class RenamerCron(cronBase, Library):
                                     self.config.get('XBMC', 'password'))
                     log.info('XBMC notification sent to %s' % self.config.get('XBMC', 'host'))
 
-
-                #Update XBMC Library
-                if self.config.get('XBMC', 'updatelibrary'):
                     xbmc.updateLibrary(self.config.get('XBMC', 'host'),
                                        self.config.get('XBMC', 'username'),
                                        self.config.get('XBMC', 'password'))

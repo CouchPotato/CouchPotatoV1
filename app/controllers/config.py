@@ -49,6 +49,7 @@ class ConfigController(BaseController):
 
         # catch checkboxes
         for bool in [
+                    'XBMC.enabled', 'Meta.enabled',
                     'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
                      'global.launchbrowser', 'global.updater',
                      'Torrents.enabled',

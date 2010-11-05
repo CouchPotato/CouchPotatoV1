@@ -13,7 +13,7 @@
 	]
 	miniCss = Minify.css(cssFiles) 
 %>
-	% if not debug:
+	% if debug:
 	% for cssFile in cssFiles:
 	<link href="${baseUrl}media/style/${cssFile}" media="screen" rel="stylesheet" type="text/css" />
 	% endfor
@@ -38,7 +38,7 @@
 	]
 	miniJs = Minify.js(jsFiles) 
 %>
-% if not debug:
+% if debug:
 	% for jsFile in jsFiles:
 	<script src="${baseUrl}media/script/${jsFile}" type="text/javascript"></script>
 	% endfor

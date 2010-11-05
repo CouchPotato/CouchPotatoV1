@@ -5,7 +5,7 @@
 		<li><a href="#providers">Providers</a></li>
 		<li><a href="#quality">Quality</a></li>
 		<li><a href="#renaming">Renaming</a></li>
-		<li><a href="#extra">Trailers / Subtitles</a></li>
+		<li><a href="#extra">Extras</a></li>
 		<li><a href="#userscript">Userscript</a></li>
 		<li><a href="#about">About</a></li>
 	</ul>
@@ -383,7 +383,29 @@
 		</div>
 
 		<div class="group extra">
-			<fieldset class="inlineLabels">
+			<fieldset class="inlineLabels" id="xbmcFieldset">
+				<h3>XBMC</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Update library</label>
+					<input type="checkbox" name="XBMC.enabled" value="True" ${' checked="checked"' if config.get('XBMC', 'enabled') else ''} />
+					<p class="formHint">
+						Sends a notification and updates your XBMC library.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Host</label>
+					<input type="text" name="XBMC.host" value="${config.get('XBMC', 'host')}" class="textInput large"/>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Username</label>
+					<input type="text" name="XBMC.username" value="${config.get('XBMC', 'username')}" class="textInput large"/>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Password</label>
+					<input type="text" name="XBMC.password" value="${config.get('XBMC', 'password')}" class="textInput large"/>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels right">
 				<h3>Trailers</h3>
 				<div class="ctrlHolder">
 					<label for="">Download trailer</label>
@@ -405,7 +427,7 @@
 					</select>
 				</div>
 			</fieldset>
-			<fieldset class="inlineLabels" id="subtitleFieldset">
+			<fieldset class="inlineLabels right" id="subtitleFieldset">
 				<h3>Subtitles</h3>
 				<div class="ctrlHolder checkbox">
 					<label for="">Enable</label>
@@ -437,8 +459,17 @@
 					</p>
 				</div>
 			</fieldset>
+			<fieldset class="inlineLabels left">
+				<h3>Metadata</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Save metadata</label>
+					<input type="checkbox" name="Meta.enabled" value="True" ${' checked="checked"' if config.get('Meta', 'enabled') else ''} />
+					<p class="formHint">
+						Thumbnail, poster and .nfo file.
+					</p>
+				</div>
+			</fieldset>
 		</div>
-			
 		<div class="buttonHolder">
 			<span class="cancel"><a href="#cancel">Cancel</a> or</span> 
 			<button type="submit" class="primaryAction">
@@ -554,7 +585,7 @@
 	            fieldset.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
 	    }
 		
-		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset'],function(item){
+		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset'],function(item){
 		    var fieldset = $(item)
 		    var checkbox = fieldset.getElement('[type=checkbox]')
 		    isEnabled(checkbox, fieldset)

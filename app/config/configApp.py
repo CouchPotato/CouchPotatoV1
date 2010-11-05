@@ -118,19 +118,20 @@ class configApp():
         self.setDefault('Subtitles', 'name', 'filename') #filename, subtitle
 
         self.addSection('XBMC')
-        self.setDefault('XBMC', 'metaEnabled', False)
-        self.setDefault('XBMC', 'notify', False)
-        self.setDefault('XBMC', 'updateLibrary', False)
+        self.setDefault('XBMC', 'enabled', False)
         self.setDefault('XBMC', 'host', 'localhost')
         self.setDefault('XBMC', 'username', 'xbmc')
         self.setDefault('XBMC', 'password', 'xbmc')
-        self.setDefault('XBMC', 'fanartMinHeight', 0)
-        self.setDefault('XBMC', 'fanartMinWidth', 0)
-        self.setDefault('XBMC', 'posterMinHeight', 0)
-        self.setDefault('XBMC', 'posterMinWidth', 0)
-        self.setDefault('XBMC', 'fanartFileName', 'fanart.<orig_ext>')
-        self.setDefault('XBMC', 'posterFileName', 'movie.tbn')
-        self.setDefault('XBMC', 'nfoFileName', 'movie.nfo')
+
+        self.addSection('Meta')
+        self.setDefault('Meta', 'enabled', False)
+        self.setDefault('Meta', 'fanartMinHeight', 0)
+        self.setDefault('Meta', 'fanartMinWidth', 0)
+        self.setDefault('Meta', 'posterMinHeight', 0)
+        self.setDefault('Meta', 'posterMinWidth', 0)
+        self.setDefault('Meta', 'fanartFileName', 'fanart.<orig_ext>')
+        self.setDefault('Meta', 'posterFileName', 'movie.tbn')
+        self.setDefault('Meta', 'nfoFileName', 'movie.nfo')
 
         self.save()
 

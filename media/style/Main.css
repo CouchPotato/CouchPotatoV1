@@ -735,11 +735,13 @@ h1 {
 			-webkit-border-radius: 3px;
 			-moz-border-radius: 3px;
 		}
-		#configForm fieldset:nth-child(odd), #configForm fieldset.left {
-			float: left;
+		#configForm .group fieldset:nth-child(odd) { float: left; }
+		#configForm .group fieldset.left {
+			float: left !important;
 		}
-		#configForm fieldset:nth-child(even), #configForm fieldset.right {
-			float: right;
+		#configForm .group fieldset:nth-child(even) { float: right; }
+		#configForm .group fieldset.right {
+			float: right !important;
 		}
 			
 		#configForm .buttonHolder {
