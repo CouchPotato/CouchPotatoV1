@@ -14,3 +14,7 @@ class Queue(PluginBones):
     def postConstruct(self):
         pass
         #_tables.bootstrap(env_.get('db'))
+
+    def _getDependencies(self):
+        #@todo: implement dependencies
+        return {}

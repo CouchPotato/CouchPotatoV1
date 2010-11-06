@@ -33,6 +33,11 @@ class Minify(PluginBones):
         self._listen('getStyle', self.style)
         self._listen('getScripts', self.scripts)
 
+    def _getDependencies(self):
+        return {
+            'frontend' : '87aece57-2948-4cab-aad1-8b2190e71873'
+        }
+
     @event.extract
     def style(self, as_html = False, _event = None, location = 'head', **kwargs):
         url = self.minify('style', location)

@@ -18,13 +18,21 @@ class Frontend(PluginBones):
     def postConstruct(self):
         self.tabs = {}
         self._widgets = widgets.WidgetManager(self)
-        self._listen('frontend.route.register', self.registerRoute)
         self.frontend = env_.get('frontend')
+        self._listen('core.init.listeners', self.initListeners)
+
+    def initListeners(self, core, config):
+        self._listen('frontend.route.register', self.registerRoute)
+        self._listen('frontend.widgets.requestExporter', self._widgets.getWidgetExporter)
+        self._listen('frontend.widgets.new', self._widgets._registerWidget)
 
     def registerRoute(self, event, config):
         route = event._args[0]
         self.frontend.addRoute(route)
 
+    def _getDependencies(self):
+        #@todo: implement dependencies
+        return {}
 
     def export(self):
         return {

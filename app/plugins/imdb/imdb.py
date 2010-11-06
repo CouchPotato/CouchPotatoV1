@@ -21,6 +21,10 @@ class imdb(PluginBones, Rss):
         self._listen('findMovie', self.find)
         self._listen('getMovieInfo', self.findInfo)
 
+    def _getDependencies(self):
+        #@todo: implement dependencies
+        return {}
+
 
     def find(self, e, config):
         ''' Find movie by name '''

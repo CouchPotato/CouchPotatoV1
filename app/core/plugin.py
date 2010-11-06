@@ -13,7 +13,8 @@ class PluginLoader:
     def __init__(self):
         env_._pluginMgr = self
         self.pluginChains = {}
-        self.plugins = {}
+        self.pluginsByName = {}
+        self.pluginsByUuid = {}
         self.paths = {
                       'core' : ('app.plugins.', os.path.join(env_.get('appDir'), 'app', 'plugins')),
                       'user' : ('plugins.', os.path.join(env_.get('dataDir'), 'plugins'))
@@ -21,11 +22,11 @@ class PluginLoader:
         for type, tuple in self.paths.iteritems():
             self.loadFromDir(type, tuple[0], tuple[1])
 
-        if len(self.plugins):
-            log.info('Plugins loaded: ' + str(len(self.plugins)))
+        if len(self.pluginsByName):
+            log.info('Plugins loaded: ' + str(len(self.pluginsByName)))
             self.initPlugins()
         else:
-            log.info('No plugins have been loaded.')
+            log.info('No pluginsByName have been loaded.')
 
     def loadFromDir(self, type, module, dir):
         """Load each directory as plugin."""
@@ -62,7 +63,7 @@ class PluginLoader:
 
     def registerPlugin(self, type_name, name, plugin):
         """
-        Register plugin in the plugins dict.
+        Register plugin in the pluginsByName dict.
         
         Plugin will be installed if not already done.
         """
@@ -72,12 +73,21 @@ class PluginLoader:
         info = self.getPluginInfo(plugin._uuid)
 
         plugin._info = info
-        self.plugins[name] = plugin
+        self.pluginsByUuid[plugin._uuid.bytes] = plugin
+        self.pluginsByName[name] = plugin
 
     def initPlugins(self):
         log.info('Initializing Plugins')
-        for name, plugin in self.plugins.iteritems():
+        for name, plugin in self.pluginsByName.iteritems():
             self.initPlugin(plugin)
+
+        try:
+            for name, plugin in self.pluginsByName.iteritems():
+                plugin.checkDependencies()
+        except:
+            exc_class, val, tb = sys.exc_info()
+            new_exc = Exception("Checking dependecies failed on: %s : %s" % (name, val or exc_class))
+            raise new_exc.__class__, new_exc, tb
 
         events = [
                   'core.init',
@@ -119,6 +129,7 @@ class PluginLoader:
         plugin.init()
 
     def getPluginInfo(self, uuid):
+        #@todo: cache this info
         session = env_.get('db').createSession()
         info = session.query(_tables.PluginsTable).filter_by(uuid = uuid.bytes).one()
         info._release()

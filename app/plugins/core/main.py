@@ -28,6 +28,12 @@ class CouchCore(PluginBones):
     def _identify(self):
         return uuid.UUID('34e50abc-bbdd-477c-b1e2-bb28c7fcdb7d')
 
+    def _getDependencies(self):
+        return {
+            'frontend' : '87aece57-2948-4cab-aad1-8b2190e71873',
+            'minify' : '87aece57-2948-4cab-aad1-8b2190e71873',
+        }
+
     def threadedEvent(self, event, wait):
         """
         Call all listeners to a given event name

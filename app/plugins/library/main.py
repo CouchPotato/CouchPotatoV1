@@ -6,3 +6,6 @@ class Library(PluginBones):
         return uuid.UUID('0becb208-3ec4-4301-b57a-e114c574d989')
     def postConstruct(self):
         pass
+
+    def _getDependencies(self):
+        return {}

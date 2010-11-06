@@ -8,6 +8,9 @@ from mako.lookup import TemplateLookup
 from mako.template import Template
 import os
 import urllib
+import cherrypy
+from app.lib import dependencies
+import traceback
 
 log = getLogger(__name__)
 
@@ -49,17 +52,12 @@ class PluginBones(object):
     '''
 
     def __init__(self, name, pluginMgr, path = None, *args, **kwargs):
-        '''
-        Constructor
-        '''
         self.name = name
         self._info = None
         self._about = About(self._getAbout())
         self._configFiles = dict()
         self._configPath = os.path.join('plugins', name)
         self._env = env_
-
-
         self._pluginMgr = pluginMgr
         self._pluginPath = path
         self._uuid = self._identify()
@@ -74,6 +72,12 @@ class PluginBones(object):
                 # /TEMP
             ])
         self._applyStaticDirs()
+
+    def _getDependencies(self):
+        raise RuntimeError("Plugin does not specify dependencies")
+
+    def checkDependencies(self):
+        self._dep = dependencies.Dependencies(self._getDependencies())
 
     def postConstruct(self):
         """Stub that is invoked after constructor."""

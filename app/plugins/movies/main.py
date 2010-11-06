@@ -27,7 +27,9 @@ class Movies(PluginBones):
         _tables.bootstrap(env_.get('db'))
 
     def registerHead(self):
-
         self._fire('registerScript', file = 'movie.js')
         self._fire('registerStyle', file = 'search.css')
 
+    def _getDependencies(self):
+        #@todo: implement dependencies
+        return {}
