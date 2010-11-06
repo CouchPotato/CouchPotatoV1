@@ -4,12 +4,12 @@ from app.lib.bones import PluginController
 from app.plugins.movies._tables import MovieTable
 from sqlalchemy.sql.expression import or_, desc
 import json
+import cherrypy
 
 Db = env_.get('db').createSession()
 log = getLogger(__name__)
 
 class MovieController(PluginController):
-
     def index(self):
 
         qMovie = Db.query(MovieTable)

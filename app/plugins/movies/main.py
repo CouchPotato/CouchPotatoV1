@@ -18,7 +18,7 @@ class Movies(PluginBones):
 
         # Add controller to route
         controller = self._createController((), MovieController)
-        route = Route(controller = controller, route = '/movie/:action/', action = 'index')
+        route = Route(controller = controller, route = '/movie/:action', action = 'index')
         self._fire('frontend.route.register', route)
 
         self.registerHead()

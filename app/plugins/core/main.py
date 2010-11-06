@@ -11,7 +11,7 @@ class CoreController(PluginController):
     @cherrypy.expose
     def index(self):
         vars = {'baseUrl' : env_.get('baseUrl')}
-        return self.render('index.html', vars)
+        return self.render('base.html', vars)
 
 
 class CouchCore(PluginBones):
