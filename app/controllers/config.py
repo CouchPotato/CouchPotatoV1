@@ -2,6 +2,7 @@ from app.config.cplog import CPLog
 from app.config.db import QualityTemplate, Session as Db
 from app.controllers import BaseController, redirect
 from app.lib.qualities import Qualities
+from app.lib.xbmc import XBMC
 import cherrypy
 import json
 import sys
@@ -84,6 +85,13 @@ class ConfigController(BaseController):
         self.cron.get('yarr').setInterval(config.get('Intervals', 'search'))
 
         config.save()
+
+    def testXBMC(self, **data):
+
+        xbmc = XBMC()
+        xbmc.test(data.get('XBMC.host'), data.get('XBMC.username'), data.get('XBMC.password'))
+
+        return ''
 
     @cherrypy.expose
     def exit(self):

@@ -969,6 +969,12 @@ h1 {
 			#configForm .qualitySizes .header {
 				font-weight: bold;
 			}
+		
+		#xbmcFieldset a {
+			margin-left: 34%;
+			display: block;
+			text-align: center;
+		}
 
 		#configForm .about {
 			padding: 65px 220px 20px;

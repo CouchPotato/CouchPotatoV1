@@ -395,6 +395,9 @@
 				<div class="ctrlHolder">
 					<label for="">Host</label>
 					<input type="text" name="XBMC.host" value="${config.get('XBMC', 'host')}" class="textInput large"/>
+					<p class="formHint">
+						Including port. Example: 192.168.1.20:8080
+					</p>
 				</div>
 				<div class="ctrlHolder">
 					<label for="">Username</label>
@@ -402,7 +405,10 @@
 				</div>
 				<div class="ctrlHolder">
 					<label for="">Password</label>
-					<input type="text" name="XBMC.password" value="${config.get('XBMC', 'password')}" class="textInput large"/>
+					<input type="password" name="XBMC.password" value="${config.get('XBMC', 'password')}" class="textInput large"/>
+				</div>
+				<div class="ctrlHolder">
+					<a href="#xbmcTest" id="xbmcTest">Send a message to XBMC, see if it works.</a>
 				</div>
 			</fieldset>
 			<fieldset class="inlineLabels right">
@@ -644,6 +650,15 @@
 		}
 		var firstItem = $('configForm').getElement('ul li:last-child a');
 		showForm(firstItem, firstItem.get('href').substr(1));
+		
+		$('xbmcTest').addEvent('click', function(){
+			
+			new Request({
+				'url': './testXBMC/',
+				'data': $('xbmcFieldset')
+			}).send()
+			
+		})
 
 	});
 

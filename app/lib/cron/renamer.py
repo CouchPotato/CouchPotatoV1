@@ -4,6 +4,7 @@ from app.config.db import RenameHistory, Session as Db
 from app.lib import xbmc
 from app.lib.cron.base import cronBase
 from app.lib.library import Library
+from app.lib.xbmc import XBMC
 from xmg import xmg
 import cherrypy
 import os
@@ -85,7 +86,12 @@ class RenamerCron(cronBase, Library):
                 cherrypy.config['cron']['trailer'].forDirectory(finalDestination['directory'])
                 cherrypy.config['cron']['subtitle'].forDirectory(finalDestination['directory'])
 
-                #Generate XBMC metadata
+                # Notify XBMC
+                xbmc = XBMC()
+                xbmc.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
+                xbmc.updateLibrary()
+
+                # Update Metadata
                 if self.config.get('Meta', 'enabled'):
                     nfoFileName = self.config.get('Meta', 'nfoFileName')
                     fanartFileNaming = self.config.get('Meta', 'fanartFileName')
@@ -122,20 +128,6 @@ class RenamerCron(cronBase, Library):
                                    posterMinWidth)
 
                     log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
-
-                #Notify XBMC
-                if self.config.get('XBMC', 'enabled'):
-                    xbmc.notifyXBMC('CouchPotato',
-                                    'Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year),
-                                    self.config.get('XBMC', 'host'),
-                                    self.config.get('XBMC', 'username'),
-                                    self.config.get('XBMC', 'password'))
-                    log.info('XBMC notification sent to %s' % self.config.get('XBMC', 'host'))
-
-                    xbmc.updateLibrary(self.config.get('XBMC', 'host'),
-                                       self.config.get('XBMC', 'username'),
-                                       self.config.get('XBMC', 'password'))
-                    log.info('XBMC library update initiated')
 
             else:
                 try:
