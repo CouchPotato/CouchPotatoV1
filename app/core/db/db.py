@@ -34,16 +34,10 @@ class Database(object):
 
         env_._db = self
         log.info("Loading Database...")
-        doUpgrade = os.path.isfile(self.file)
+        firstRun = not os.path.isfile(self.file)
         _tables.bootstrap(self)
-        session = self.createSession()
-        if doUpgrade:
-            info = session.query(_tables.PluginsTable).filter_by(name = u'core', type_id = 1).one()
-            self.upgradeDatabase(info, _tables.latestVersion, _tables)
-        else:
-            type = _tables.PluginTypesTable('core')
-            session.add(type)
-            session.flush()
+        if firstRun:
+            pass
 
     def createSession(self):
         """Create a new database session."""
