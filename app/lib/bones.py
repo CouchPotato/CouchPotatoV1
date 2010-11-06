@@ -7,8 +7,6 @@ from copy import copy
 from mako.lookup import TemplateLookup
 from mako.template import Template
 import os
-import traceback
-import traceback
 import urllib
 
 log = getLogger(__name__)
