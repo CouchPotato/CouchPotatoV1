@@ -60,6 +60,7 @@ class Bootstrapper(object):
         if env_.get('options').daemonize:
             env_._daemonize = True
         if env_.get('options').debug:
+            print 'Debugging'
             env_._debug = True
 
 
@@ -99,3 +100,4 @@ class Bootstrapper(object):
             sh.setLevel(logging.DEBUG)
             sh.setFormatter(formatter)
             logger.addHandler(sh)
+            env_._loghandler = sh

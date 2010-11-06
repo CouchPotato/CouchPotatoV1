@@ -86,9 +86,10 @@ class PluginBones(object):
             ])
 
     def postConstruct(self):
-        '''stub that is invoked after constructor'''
+        """Stub that is invoked after constructor."""
         pass
     def init(self):
+        """Stub that is invoked once all plugins have been loaded."""
         pass
 
     def _identify(self):

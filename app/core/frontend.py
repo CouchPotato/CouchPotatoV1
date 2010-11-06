@@ -85,7 +85,7 @@ class Frontend(object):
                 'tools.staticdir.root': root,
                 'tools.staticdir.dir': subfolder,
                 'tools.expires.on': expire_on,
-                'tools.expires.secs': expire_secs
+                'tools.expires.secs': expire_secs,
             }
         })
     # end registerStaticDir
