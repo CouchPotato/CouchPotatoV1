@@ -1,7 +1,5 @@
-from app.core import env_
 from app.plugins.minify.css import cssmin
 from app.plugins.minify.js import jsmin
-import cherrypy
 import logging
 import os
 from app.lib.bones import PluginBones
@@ -72,8 +70,7 @@ class Minify(PluginBones):
 
         files = self.files[type][location] if location in self.files[type] else []
         extension = 'js' if type == 'script' else 'css'
-        url = 'cache/minify/%s.%s' % (location, extension)
-        cache = os.path.join(env_._appDir, 'cache', 'minify')
+        cache = self._getCachePath()
         out = os.path.join(cache, location + "." + extension)
 
         # Check for dates, minify only on newer files
@@ -87,9 +84,6 @@ class Minify(PluginBones):
 
         if doMinify:
             log.debug('Minifying JS.')
-
-            # Create dir
-            self.makeDirectories(cache)
 
             raw = []
             for file in files:
@@ -107,15 +101,16 @@ class Minify(PluginBones):
             self.write(data, out)
 
         outTimestamp = int(os.path.getmtime(out))
-        return url + '?' + str(outTimestamp)
-
-    def makeDirectories(self, dir):
-        try:
-            os.makedirs(dir)
-        except OSError:
-            pass
+        return self._url(
+            'cache'
+            , '%s.%s' % (location, extension)
+            , timestamp = str(outTimestamp)
+        )
 
     def write(self, data, file):
         log.debug('Writing %s' % file)
         with open(file, 'w') as f:
             f.write(data)
+
+    def _getCachePath(self):
+        return self._getCacheDir()

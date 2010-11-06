@@ -22,15 +22,10 @@ class PluginController(BasicController):
         self.makoLookup = mako_lookup
         self.views = views
         self.util = TemplateUtil(self)
-        if os.path.isdir(self.plugin._getStaticDir()):
-            env_.get('frontend').registerStaticDir(
-                            '/' + self._getVirtual(['static']), # /virtualPathNoLeadingSlash
-                            self.plugin._getStaticDir()
-        )#register static
         self.const = {
-            '_static' : self._getVirtual(['static'])
+            '_static' : self.plugin._getVirtual(['static'])
             # TEMP @todo: hack by Ruud
-            , '_url': Url(self.plugin)
+            , '_url': self.plugin._url
             , '_baseUrl': env_._baseUrl
             , '_core': '_plugins/core-34e50abc-bbdd-477c-b1e2-bb28c7fcdb7d'
             , '_plugin': self.plugin
@@ -45,14 +40,6 @@ class PluginController(BasicController):
         template = Template(filename = name, lookup = self.makoLookup)
         return template.render_unicode(*args, **vars)
 
-    def _getVirtual(self, subdirectories = None):
-        subdirectories = subdirectories or []
-        return '/'.join([
-            '_plugins',
-            self.plugin._info.name + '-' + str(self.plugin._uuid),
-            ] + subdirectories
-        )
-
     def _getPlugin(self, name):
         return env_.get('_pluginMgr').getPlugin(name)
 
@@ -65,15 +52,19 @@ class PluginBones(object):
         '''
         Constructor
         '''
+        self.name = name
+        self._info = None
         self._about = About(self._getAbout())
         self._configFiles = dict()
         self._configPath = os.path.join('plugins', name)
         self._env = env_
-        self._info = None
+
+
         self._pluginMgr = pluginMgr
         self._pluginPath = path
         self._uuid = self._identify()
-        self.name = name
+
+        self._url = Url(self)
         self.postConstruct()
         if self._pluginPath:
             self.makoLookup = TemplateLookup(directories = [
@@ -82,6 +73,7 @@ class PluginBones(object):
                 os.path.join(os.path.dirname(self._pluginPath), 'core', 'views')
                 # /TEMP
             ])
+        self._applyStaticDirs()
 
     def postConstruct(self):
         """Stub that is invoked after constructor."""
@@ -144,15 +136,52 @@ class PluginBones(object):
         '''Call this to automatically upgrade your tables'''
         env_.get('db').upgradeDatabase(self._info, latest_version, scope)
 
+    def _applyStaticDirs(self):
+        if os.path.isdir(self._getStaticDir()):
+            env_.get('frontend').registerStaticDir(
+                            '/' + self._getVirtual(['static']), # /virtualPathNoLeadingSlash
+                            self._getStaticDir()
+        )
+        self._env.get('frontend').registerStaticDir(
+            '/' + self._getVirtual(['cache'])
+            , self._getCacheDir()
+        )
+
     def _getStaticDir(self, subdirectories = ()):
-        return os.path.join(
+        dir = os.path.join(
             self._pluginPath,
             'static',
             *subdirectories
         )
+        try:
+            os.makedirs(dir)
+        except Exception:
+            pass
+        return dir
+
+    def _getCacheDir(self, subdirectories = ()):
+        dir = os.path.join(
+            self._env._dataDir,
+            'cache',
+            str(self._uuid),
+            *subdirectories
+        )
+        try:
+            os.makedirs(dir)
+        except Exception:
+            pass
+        return dir
+
+    def _getVirtual(self, subdirectories = None):
+        subdirectories = subdirectories or []
+        return '/'.join([
+            '_plugins',
+            self.name + '-' + str(self._uuid),
+            ] + subdirectories
+        )
 
     def _generateUrl(self):
-        return '_plugins/' + self.name + '-' + str(self._uuid) + '/'
+        return '_plugins/' + self.name + '-' + str(self._uuid)
 
 class About(object):
     def __init__(self, info_dict):
@@ -197,10 +226,21 @@ class Url(object):
         self._baseUrl = plugin._generateUrl()
 
     def __call__(self, *args, **kwargs):
+        """
+        Generate a plugin specific URL and adding custom
+        parameters to it automatically.
+        
+        Explicitely use a trailing slash by setting
+        _trailing to True
+        """
+        _trailing = kwargs.get('_trailing', False)
         result = self._baseUrl
-        result += '/'.join(args) + '/' if args else ""
+        result += '/' + '/'.join(args) if args else ""
+        result += '/' if _trailing else ""
         params = urllib.urlencode(kwargs)
         result += '?' + params if params else ""
+
+        return result
 
     def __str__(self):
         return self()

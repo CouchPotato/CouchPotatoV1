@@ -2,6 +2,7 @@ from app.lib.bones import PluginBones
 from app.core import getLogger
 from app.core import env_
 import uuid
+from app.plugins.frontend import widgets
 
 log = getLogger(__name__)
 
@@ -16,6 +17,7 @@ class Frontend(PluginBones):
 
     def postConstruct(self):
         self.tabs = {}
+        self._widgets = widgets.WidgetManager(self)
         self._listen('frontend.route.register', self.registerRoute)
         self.frontend = env_.get('frontend')
 
