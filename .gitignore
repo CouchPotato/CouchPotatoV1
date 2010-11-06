@@ -1,5 +1,6 @@
 .pydevproject
 *.pyc
+*.pyo
 .DS_Store
 *.bak
 .tmp*
