@@ -1,3 +1,6 @@
+from app.core import getLogger
+log = getLogger(__name__)
+
 class Chain(object):
     '''
     classdocs
@@ -19,7 +22,8 @@ class Chain(object):
         configuration and the event 
         """
         for callback, config in zip(self.callbacks.itervalues(), self.configurations.itervalues()):
-            self._fire(event, callback, config)
+            if self._fire(event, callback, config):
+                log.warn("Ignoring event return value.")
 
     def _fire(self, event, callback, config):
         """

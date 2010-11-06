@@ -1,8 +1,3 @@
-'''
-Created on 31.07.2010
-
-@author: Christian
-'''
 from app.config.wrapper import Wrapper
 from app.core import getLogger
 from app.core.controller import BasicController
@@ -13,21 +8,36 @@ from mako.lookup import TemplateLookup
 from mako.template import Template
 import os
 import traceback
+import traceback
+import urllib
 
 log = getLogger(__name__)
+
+### TEMP @todo: Integrate with classes.
+def redirect(url):
+    raise cherrypy.HTTPRedirect(url)
+### /TEMP
 
 class PluginController(BasicController):
     def __init__(self, plugin, views, mako_lookup):
         self.plugin = plugin
         self.makoLookup = mako_lookup
         self.views = views
-        if os.path.isdir(self._getStaticDir()):
+        self.util = TemplateUtil(self)
+        if os.path.isdir(self.plugin._getStaticDir()):
             env_.get('frontend').registerStaticDir(
                             '/' + self._getVirtual(['static']), # /virtualPathNoLeadingSlash
-                            self._getStaticDir()
+                            self.plugin._getStaticDir()
         )#register static
         self.const = {
-            'static' : self._getVirtual(['static'])
+            '_static' : self._getVirtual(['static'])
+            # TEMP @todo: hack by Ruud
+            , '_url': Url(self.plugin)
+            , '_baseUrl': env_._baseUrl
+            , '_core': '_plugins/core-34e50abc-bbdd-477c-b1e2-bb28c7fcdb7d'
+            , '_plugin': self.plugin
+            , '_util': self.util
+            # /TEMP
         }
 
     def render(self, name, vars = None, *args):
@@ -41,15 +51,8 @@ class PluginController(BasicController):
         subdirectories = subdirectories or []
         return '/'.join([
             '_plugins',
-            self.plugin._info.name + '-' + str(self.plugin._info.version),
+            self.plugin._info.name + '-' + str(self.plugin._uuid),
             ] + subdirectories
-        )
-
-    def _getStaticDir(self, subdirectories = ()):
-        return os.path.join(
-            self.plugin._pluginPath,
-            'static',
-            *subdirectories
         )
 
     def _getPlugin(self, name):
@@ -75,7 +78,12 @@ class PluginBones(object):
         self.name = name
         self.postConstruct()
         if self._pluginPath:
-            self.makoLookup = TemplateLookup(directories = [os.path.join(self._pluginPath, 'views')])
+            self.makoLookup = TemplateLookup(directories = [
+                os.path.join(self._pluginPath, 'views'),
+                # TEMP @todo: hack by Ruud
+                os.path.join(os.path.dirname(self._pluginPath), 'core', 'views')
+                # /TEMP
+            ])
 
     def postConstruct(self):
         '''stub that is invoked after constructor'''
@@ -137,8 +145,17 @@ class PluginBones(object):
         '''Call this to automatically upgrade your tables'''
         env_.get('db').upgradeDatabase(self._info, latest_version, scope)
 
+    def _getStaticDir(self, subdirectories = ()):
+        return os.path.join(
+            self._pluginPath,
+            'static',
+            *subdirectories
+        )
 
-class About:
+    def _generateUrl(self):
+        return '_plugins/' + self.name + '-' + str(self._uuid) + '/'
+
+class About(object):
     def __init__(self, info_dict):
         self.name = None
         self.author = None
@@ -151,10 +168,40 @@ class About:
 
     def fromDict(self, dict):
         attrs = (
-                 'name', 'author',
-                 'description', 'version',
-                 'email', 'logo', 'www'
+            'name', 'author',
+            'description', 'version',
+            'email', 'logo', 'www'
         )
         for attr in attrs:
             if dict.has_key(attr):
                 setattr(self, attr, dict[attr])
+
+class TemplateUtil(object):
+    def __init__(self, controller):
+        self._controller = controller
+
+    def eventString(self, *args, **kwargs):
+        event = self._controller.plugin._fire(*args, **kwargs)
+        result = event.getResultSet()
+        if result:
+            return str(result[0])
+        return ""
+
+    def wrap(self, prefix, suffix, contains):
+        if contains:
+            return prefix + contains + suffix
+        return ""
+
+class Url(object):
+    def __init__(self, plugin):
+        self._plugin = plugin
+        self._baseUrl = plugin._generateUrl()
+
+    def __call__(self, *args, **kwargs):
+        result = self._baseUrl
+        result += '/'.join(args) + '/' if args else ""
+        params = urllib.urlencode(kwargs)
+        result += '?' + params if params else ""
+
+    def __str__(self):
+        return self()

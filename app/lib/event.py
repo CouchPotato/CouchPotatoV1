@@ -1,3 +1,5 @@
+from app.core import getLogger
+
 class Event(object):
     def __init__(self, sender, name, *args, **kwargs):
         self._sender = sender
@@ -7,7 +9,10 @@ class Event(object):
         self._resultSets = [[]]
 
     def addResult(self, result):
-        '''append results to the Event'''
+        """Append results to the Event"""
+        if not self._resultSets:
+            self._resultSets = [[]]
+
         self._resultSets[0].append(result)
 
     def addResults(self, results):
@@ -40,3 +45,13 @@ class Event(object):
         self._resultSets = [[]]
 
 
+def extract(func):
+    """Extract event parameters and pass as parameters."""
+    def extractor(self, event, config, *args, **kwargs):
+        if kwargs:
+            getLogger(__name__).warn("kwargs present while extracting parameters.")
+
+        kwargs.update({'_event' : event, '_config' : config})
+        kwargs.update(event._kwargs)
+        return func(self, *(event._args + args), **kwargs)
+    return extractor

@@ -23,7 +23,6 @@ class EventThread(threading.Thread):
 
     def run(self):
         log = getLogger(__name__)
-        getLogger(__name__).info('SIMULATING: ' + self._event._name)
+        getLogger(__name__).debug('SIMULATING: ' + self._event._name)
         self._callback(self._event, self._config)
         log.info('Worker terminated.')
-        pass

@@ -1,0 +1,54 @@
+<%page args="movies, title"/>
+
+% if len(movies) > 0:
+
+<div class="list" id="movies${title}">
+
+	<h2>${title}</h2>
+
+% for movie in movies:
+	<%
+		extra = {}
+		#for e in movie.extra:
+		#	extra[e.name] = e.value
+	%>
+	<div class="item ${movie.status}" data-id="${movie.id}">
+		<span class="title">
+			<span class="thumbnail">
+				% if extra.get('poster_thumb'):
+				<img src="${extra.get('poster_thumb')}" alt="thumbnail" />
+				% endif
+			</span>
+			<span class="extra">
+				<h2>${movie.name}</h2>
+				% if extra.get('overview'):
+				<span class="overview">${extra.get('overview')}</span>
+				% endif
+				% if extra.get('rating') and extra.get('rating') != '0.0':
+				<span class="rating">Rating: ${extra.get('rating')}</span>
+				% endif
+			</span>
+		</span>
+		<span class="year">${movie.year}</span>
+<!--
+		<span class="quality">
+			<a href="#"></a>
+		</span>
+--->
+		<span class="info">
+			<span class="imdb"><a href="http://www.imdb.com/title/${movie.imdb}/" target="_blank"><img src="${_static}/images/imdb.png" alt="IMDB" /></a></span>
+			<span class="moviedb ${'disabled' if not movie.movieDb else ''}"><a ${'href="http://www.themoviedb.org/movie/%s"' % str(movie.movieDb) if movie.movieDb else ''} target="_blank"><img src="${_static}/images/moviedb.png" alt="TheMovieDB" /></a></span>
+			<a class="forceCheck" href="${_url(controller='movie', action='reload', id=movie.id)}" title="Force search/refresh info"><img src="${_static}/images/reload.png" alt="Reload" /></a>
+			<a class="delete" href="${_url(controller='movie', action='delete', id=movie.id)}" title="Delete this movie"><img src="${_static}/images/delete.png" alt="Delete" /></a>
+		</span>
+<!--		<div class="queue">
+			<div class="header">
+				<span class="found">Found</span>
+				<span class="qualityType">Quality</span>
+				<span class="markComplete"><acronym title="Won't download anything else if it has found this quality.">Finish</acronym></span>
+			</div>
+		</div> --->
+	</div>
+% endfor
+</div>
+% endif
