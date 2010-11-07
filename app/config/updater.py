@@ -1,10 +1,11 @@
 from app import version
 from app.config.cplog import CPLog
 from cherrypy.process.plugins import SimplePlugin
-from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
+from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup
 from urllib2 import URLError
 import cherrypy
 import os
+import re
 import subprocess
 import tarfile
 import time
@@ -40,6 +41,8 @@ class Updater(SimplePlugin):
 
         if not os.path.isfile(self.historyFile):
             self.history('UNKNOWN Build.')
+
+        self.checkForUpdateWindows()
 
     start.priority = 70
 
@@ -132,11 +135,14 @@ class Updater(SimplePlugin):
             return False
 
         try:
-            tables = SoupStrainer('table')
-            html = BeautifulSoup(data, parseOnlyThese = tables)
-            resultTable = html.find('table', attrs = {'id':'s3_downloads'})
+            html = BeautifulSoup(data)
+            results = html.findAll('a', attrs = {'href':re.compile('/downloads/')})
 
-            latestUrl = 'http://github.com' + resultTable.find('a')['href'].replace(' ', '%20')
+            for link in results:
+                if 'windows' in str(link.parent).lower():
+                    latestUrl = 'http://github.com' + link.get('href').replace(' ', '%20')
+                    break
+
             try:
                 latest = urllib2.urlopen(latestUrl, timeout = self.timeout)
             except (IOError, URLError):
