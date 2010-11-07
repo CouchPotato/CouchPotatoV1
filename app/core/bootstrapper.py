@@ -2,7 +2,6 @@ from .environment import Environment as env_
 from optparse import OptionParser
 import sys, os
 from app.config.main import Main as Config
-from ConfigParser import ConfigParser
 import logging
 from logging.config import _create_formatters, _install_handlers, \
     _install_loggers
