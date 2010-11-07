@@ -1,3 +1,3 @@
-from app.plugins.library.main import Library
+from . import main
 def start(*args, **kwargs):
-    return Library(*args, **kwargs)
+    return main.Library(*args, **kwargs)

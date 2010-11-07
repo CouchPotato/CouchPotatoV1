@@ -1,4 +1,4 @@
-from app.plugins.quality.main import Quality
+from . import main
 
 def start(*args, **kwargs):
-    return Quality(*args, **kwargs)
+    return main.Quality(*args, **kwargs)

@@ -1,7 +1,7 @@
 from app.core import getLogger
 from app.core import env_
 from app.lib.bones import PluginController
-from app.plugins.movies._tables import MovieTable
+from ._tables import MovieTable
 from sqlalchemy.sql.expression import or_, desc
 import json
 

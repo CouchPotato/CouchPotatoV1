@@ -1,4 +1,4 @@
-from app.plugins.minify.main import Minify
+from . import main
 
 def start(*args, **kwargs):
-    return Minify(*args, **kwargs)
+    return main.Minify(*args, **kwargs)

@@ -1,6 +1,6 @@
 from app.core import env_
 from app.lib.bones import PluginBones
-from app.plugins.quality import _tables
+from . import _tables
 import uuid
 
 class Quality(PluginBones):

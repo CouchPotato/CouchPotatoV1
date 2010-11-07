@@ -1,5 +1,5 @@
 from app.lib.bones import PluginBones
-from app.plugins.queue import _tables
+from . import _tables
 import uuid
 
 class Queue(PluginBones):

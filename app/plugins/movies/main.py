@@ -1,8 +1,8 @@
 from app.core import env_
 from app.core.frontend import Route
 from app.lib.bones import PluginBones
-from app.plugins.movies import _tables
-from app.plugins.movies.controller import MovieController
+from . import _tables
+from .controller import MovieController
 import uuid
 
 class Movies(PluginBones):

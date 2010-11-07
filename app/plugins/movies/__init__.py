@@ -1,4 +1,4 @@
-from app.plugins.movies.main import Movies
+from . import main
 
 def start(*args, **kwargs):
-    return Movies(*args, **kwargs)
+    return main.Movies(*args, **kwargs)
