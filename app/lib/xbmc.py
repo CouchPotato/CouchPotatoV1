@@ -13,6 +13,7 @@ class XBMC:
     password = ''
 
     def __init__(self):
+        self.enabled = self.conf('enabled');
         self.hosts = [x.strip() for x in self.conf('host').split(",")]
         self.username = self.conf('username')
         self.password = self.conf('password')
@@ -41,7 +42,7 @@ class XBMC:
         return response
 
     def notify(self, message):
-        if not self.conf('enabled'):
+        if not self.enabled:
             return
 
         for curHost in self.hosts:
@@ -49,7 +50,7 @@ class XBMC:
             self.send(command, curHost)
 
     def updateLibrary(self):
-        if not self.conf('enabled'):
+        if not self.enabled:
             return
 
         updateCommand = {'command': 'ExecBuiltIn', 'parameter': 'XBMC.updatelibrary(video)'}
@@ -65,6 +66,7 @@ class XBMC:
 
     def test(self, hosts, username, password):
 
+        self.enabled = True
         self.hosts = [x.strip() for x in hosts.split(",")]
         self.username = username
         self.password = password
