@@ -651,13 +651,12 @@
 		var firstItem = $('configForm').getElement('ul li:last-child a');
 		showForm(firstItem, firstItem.get('href').substr(1));
 		
-		$('xbmcTest').addEvent('click', function(){
-			
+		$('xbmcTest').addEvent('click', function(e){
+			(e).stop()
 			new Request({
 				'url': './testXBMC/',
 				'data': $('xbmcFieldset')
 			}).send()
-			
 		})
 
 	});
