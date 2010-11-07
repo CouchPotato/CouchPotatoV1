@@ -34,13 +34,6 @@ class Frontend(PluginBones):
         #@todo: implement dependencies
         return {}
 
-    def export(self):
-        return {
-            'frontend' : (
-                          'discoverTabs'
-                          )
-                }
-
     def addTab(self, name, title, controller):
         pass
 
