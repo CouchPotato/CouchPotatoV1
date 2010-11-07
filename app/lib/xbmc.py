@@ -41,11 +41,17 @@ class XBMC:
         return response
 
     def notify(self, message):
+        if not self.conf('enabled'):
+            return
+
         for curHost in self.hosts:
             command = {'command': 'ExecBuiltIn', 'parameter': 'Notification(CouchPotato, %s)' % message}
             self.send(command, curHost)
 
     def updateLibrary(self):
+        if not self.conf('enabled'):
+            return
+
         updateCommand = {'command': 'ExecBuiltIn', 'parameter': 'XBMC.updatelibrary(video)'}
 
         for host in self.hosts:
