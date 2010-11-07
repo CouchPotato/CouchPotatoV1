@@ -108,9 +108,6 @@ class movieSearcher():
             with open(xmlFile, 'wb') as f:
                 f.write(xml.read())
 
-    def findReleaseDate(self, movieId):
-        pass
-
     def getExtraInfo(self, movie, overwrite = False):
 
         if(type(movie) in [int, str, unicode]):
