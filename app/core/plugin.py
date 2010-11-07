@@ -7,6 +7,7 @@ import os
 import glob
 import sys
 import traceback
+import uuid
 log = getLogger(__name__)
 
 class PluginLoader:
@@ -14,7 +15,12 @@ class PluginLoader:
         env_._pluginMgr = self
         self.pluginChains = {}
         self.pluginsByName = {}
+        self.pluginsByModule = {}
+        """Plugins by module names"""
         self.pluginsByUuid = {}
+        self.pluginModules = {}
+        self.pluginModuleNames = {}
+        """Holds the plugin modules by UUID"""
         self.paths = {
                       'core' : ('app.plugins.', os.path.join(env_.get('appDir'), 'app', 'plugins')),
                       'user' : ('plugins.', os.path.join(env_.get('dataDir'), 'plugins'))
@@ -38,10 +44,11 @@ class PluginLoader:
 
     def loadPlugin(self, type, module, name, path):
         """Load individual directory as plugin."""
+        module_name = module + name
         log.info('Loading plugin: ' + module + name)
         try:
-            m = self.loadModule(module + name)
-            self.registerPlugin(type, name, getattr(m, name).start(name, self, path))
+            m = getattr(self.loadModule(module + name), name)
+            self.registerPlugin(type, name, m, module_name, m.start(name, self, path, m))
         except:
             log.error("Failed loading plugin: " + name + "\n" + traceback.format_exc())
 
@@ -61,7 +68,7 @@ class PluginLoader:
             log.error("Failed loading module: " + name + "\n" + traceback.format_exc())
             raise
 
-    def registerPlugin(self, type_name, name, plugin):
+    def registerPlugin(self, type_name, name, module, module_name, plugin):
         """
         Register plugin in the pluginsByName dict.
         
@@ -75,6 +82,8 @@ class PluginLoader:
         plugin._info = info
         self.pluginsByUuid[plugin._uuid.bytes] = plugin
         self.pluginsByName[name] = plugin
+        self.pluginModules[plugin._uuid.bytes] = module
+        self.pluginsByModule[module_name] = plugin
 
     def initPlugins(self):
         log.info('Initializing Plugins')
@@ -183,3 +192,21 @@ class PluginLoader:
             session.add(type)
             session.flush()
         return type.id
+
+    def getPluginModule(self, a_uuid):
+        try:
+            return self.pluginModules[a_uuid]
+        except:
+            exc_class, val, tb = sys.exc_info()
+            new_exc = Exception("No module found for UUID: %s : %s" % (uuid.UUID(a_uuid), val or exc_class))
+            raise new_exc.__class__, new_exc, tb
+
+    def getPluginByModule(self, module):
+        """Get the instance of the plugin at that path"""
+        return self.pluginsByModule[module]
+
+    def getMyPlugin(self, module, subcount = 0):
+        splitted = module.split(".")
+        shortened = ".".join(splitted[:-(subcount + 1)])
+        return self.getPluginByModule(shortened)
+

@@ -1,5 +1,6 @@
 from app.lib.bones import PluginBones
 import uuid
+from . import widgets
 
 class Couchpotato(PluginBones):
     '''
@@ -15,6 +16,7 @@ class Couchpotato(PluginBones):
         self._listen('core.init.foreign', self.initForeign)
 
     def initForeign(self, event, config):
+        widgets.load(self)
         event = self._fire('frontend.widgets.requestExporter')
         exporter = event.getResultSet()[0]
         exporter.newWidget = ['test', 'testing']

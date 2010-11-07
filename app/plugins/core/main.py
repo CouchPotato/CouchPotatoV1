@@ -30,8 +30,8 @@ class CouchCore(PluginBones):
 
     def _getDependencies(self):
         return {
-            'frontend' : '87aece57-2948-4cab-aad1-8b2190e71873',
-            'minify' : '87aece57-2948-4cab-aad1-8b2190e71873',
+            'frontend'  : '87aece57-2948-4cab-aad1-8b2190e71873',
+            'minify'    : '95f1d3b9-0c27-423a-b1ed-fe25c2c4798b',
         }
 
     def threadedEvent(self, event, wait):

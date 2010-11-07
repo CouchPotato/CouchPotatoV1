@@ -50,10 +50,10 @@ class PluginBones(object):
     '''
     This class handles the loading of plugin-defined configuration files.
     '''
-
-    def __init__(self, name, pluginMgr, path = None, *args, **kwargs):
+    def __init__(self, name, pluginMgr, path, package, *args, **kwargs):
         self.name = name
         self._info = None
+        self._package = package
         self._about = About(self._getAbout())
         self._configFiles = dict()
         self._configPath = os.path.join('plugins', name)
@@ -61,6 +61,9 @@ class PluginBones(object):
         self._pluginMgr = pluginMgr
         self._pluginPath = path
         self._uuid = self._identify()
+        self._exports = {}
+        self._import = ImportLookup(self)
+        """Holds the types that this plugin exports"""
 
         self._url = Url(self)
         self.postConstruct()
@@ -77,7 +80,20 @@ class PluginBones(object):
         raise RuntimeError("Plugin does not specify dependencies")
 
     def checkDependencies(self):
-        self._dep = dependencies.Dependencies(self._getDependencies())
+        self._deps = dependencies.Dependencies(self._getDependencies()).asObject()
+
+    def _export(self, *args, **kwargs):
+        """Export types for other plugins"""
+        if args: log.info("Ignored wargs in _import: %s" % self.name)
+
+        for type_name, a_type in kwargs.iteritems():
+            if isinstance(a_type, type):
+                if type_name not in self._exports:
+                    self._exports[type_name] = a_type
+                else:
+                    raise RuntimeError("Already exporting a type with name: %s" % type_name)
+            else:
+                raise RuntimeError("Not a type: %s" % a_type)
 
     def postConstruct(self):
         """Stub that is invoked after constructor."""
@@ -248,3 +264,19 @@ class Url(object):
 
     def __str__(self):
         return self()
+
+class ImportLookup():
+    def __init__(self, owner):
+        self._owner = owner
+        self._wrappers = {}
+    def __getattr__(self, name):
+        if not name in self._wrappers:
+            self._wrappers[name] = DependencyImportWrapper(getattr(self._owner._deps, name))
+        return self._wrappers[name]
+
+class DependencyImportWrapper(object):
+    def __init__(self, plugin):
+        self._plugin = plugin
+
+    def __getattr__(self, name):
+        return self._plugin._exports[name]
