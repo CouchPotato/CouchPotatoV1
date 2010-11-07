@@ -561,24 +561,6 @@
 				el.getNext().set('id', id)
 			}
 		});
-		
-		// Nice button, submit
-	    form.getElement('button[type=submit]').addEvent('click', function(e){
-	        (e).stop();
-			
-	        new Spinner(form).show();
-			new Request({
-				'url': form.get('action'),
-				'data': form,
-				'useSpinner': true,
-				'spinnerOptions': {
-					'target': form
-				},
-				'onComplete': function(){
-					history.back()
-				}
-			}).send()
-	    });
 	
 		// Form highlight
 	    new Uniform();

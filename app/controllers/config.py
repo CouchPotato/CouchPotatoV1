@@ -86,6 +86,9 @@ class ConfigController(BaseController):
 
         config.save()
 
+        self.flash.add('config', 'Settings successfully saved.')
+        return redirect(cherrypy.request.headers.get('referer'))
+
     def testXBMC(self, **data):
 
         xbmc = XBMC()
