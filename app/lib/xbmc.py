@@ -17,6 +17,7 @@ class XBMC:
         self.hosts = [x.strip() for x in self.conf('host').split(",")]
         self.username = self.conf('username')
         self.password = self.conf('password')
+        self.singleupdate = self.conf('updateOneOnly')
         pass
 
     def conf(self, options):
@@ -55,7 +56,12 @@ class XBMC:
 
         updateCommand = {'command': 'ExecBuiltIn', 'parameter': 'XBMC.updatelibrary(video)'}
 
-        for host in self.hosts:
+        if self.singleupdate:
+            hosts = [self.hosts[0]]
+        else:
+            hosts = self.hosts
+
+        for host in hosts:
             request = self.send(updateCommand, host)
 
             if not request:
