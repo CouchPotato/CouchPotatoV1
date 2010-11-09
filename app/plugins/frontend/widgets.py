@@ -71,6 +71,9 @@ class WidgetManager(object):
         #@todo: Implement Widget adding
         pass
 
+    def printPlugin(self, plugin, *args, **kwargs):
+        print plugin, args
+
 class WidgetContext(object):
     def __init__(self, owner, areas):
         self._registeredWidgets = {}
