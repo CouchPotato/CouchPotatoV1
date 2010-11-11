@@ -190,9 +190,6 @@ class Library:
 
                 movies.append(movie)
 
-                import pprint
-                pprint.pprint(movie['meta'])
-
         return movies
 
     def removeMultipart(self, name):
