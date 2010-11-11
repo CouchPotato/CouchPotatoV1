@@ -5,7 +5,6 @@ from app.core.environment import Environment as env_
 from app.lib.event import Event
 from copy import copy
 from mako.lookup import TemplateLookup
-from mako.template import Template
 import os
 import urllib
 import cherrypy
@@ -20,28 +19,8 @@ def redirect(url):
 ### /TEMP
 
 class PluginController(BasicController):
-    def __init__(self, plugin, views, mako_lookup):
+    def __init__(self, plugin):
         self.plugin = plugin
-        self.makoLookup = mako_lookup
-        self.views = views
-        self.util = TemplateUtil(self)
-        self.const = {
-            '_static' : self.plugin._getVirtual(['static'])
-            # TEMP @todo: hack by Ruud
-            , '_url': self.plugin._url
-            , '_baseUrl': env_._baseUrl
-            , '_core': '_plugins/core-34e50abc-bbdd-477c-b1e2-bb28c7fcdb7d'
-            , '_plugin': self.plugin
-            , '_util': self.util
-            # /TEMP
-        }
-
-    def render(self, name, vars = None, *args):
-        vars = copy(vars) if vars else {}
-        vars.update(self.const)
-        name = os.path.join(self.views, name)
-        template = Template(filename = name, lookup = self.makoLookup)
-        return template.render_unicode(*args, **vars)
 
     def _getPlugin(self, name):
         return env_.get('_pluginMgr').getPlugin(name)
@@ -67,13 +46,6 @@ class PluginBones(object):
 
         self._url = Url(self)
         self.postConstruct()
-        if self._pluginPath:
-            self.makoLookup = TemplateLookup(directories = [
-                os.path.join(self._pluginPath, 'views'),
-                # TEMP @todo: hack by Ruud
-                os.path.join(os.path.dirname(self._pluginPath), 'core', 'views')
-                # /TEMP
-            ])
         self._applyStaticDirs()
 
     def _getDependencies(self):
@@ -145,12 +117,8 @@ class PluginBones(object):
     def _listen(self, to, callback, config = None, position = -1):
         self._pluginMgr.listen(to, callback, config, position)
 
-    def _createController(self, view_subfolders = (), ControllerType = PluginController):
-        #DEFAULT: I assume that () as default is acceptable because () is an immutable object
-        views_path = [self._pluginPath, 'views']
-        views_path.extend(view_subfolders)
-        views_path = os.path.join(*views_path)
-        return ControllerType(self, views_path, self.makoLookup)
+    def _createController(self, ControllerType = PluginController):
+        return ControllerType(self)
 
     def _upgradeDatabase(self, latest_version, scope):
         '''Call this to automatically upgrade your tables'''
@@ -223,22 +191,6 @@ class About(object):
         for attr in attrs:
             if dict.has_key(attr):
                 setattr(self, attr, dict[attr])
-
-class TemplateUtil(object):
-    def __init__(self, controller):
-        self._controller = controller
-
-    def eventString(self, *args, **kwargs):
-        event = self._controller.plugin._fire(*args, **kwargs)
-        result = event.getResultSet()
-        if result:
-            return str(result[0])
-        return ""
-
-    def wrap(self, prefix, suffix, contains):
-        if contains:
-            return prefix + contains + suffix
-        return ""
 
 class Url(object):
     def __init__(self, plugin):
