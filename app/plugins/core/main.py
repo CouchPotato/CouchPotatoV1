@@ -1,29 +1,15 @@
-from app.lib.bones import PluginBones, PluginController
+from app.lib.bones import PluginBones
 from app.lib.event import Event
-import cherrypy
 from app.core.frontend import Route
-from app.core.environment import Environment as env_
 from app.plugins.core.threaded import EventThread
 from app.core import getLogger
 import uuid
-
-class CoreController(PluginController):
-    @cherrypy.expose
-    def index(self):
-        vars = {'baseUrl' : env_.get('baseUrl')}
-        return self.render('base.html', vars)
-
 
 class CouchCore(PluginBones):
     def postConstruct(self):
         pass
         self._listen('threaded.event.wait', self.threadedEvent, True)
         self._listen('threaded.event', self.threadedEvent, False)
-
-    def init(self):
-        controller = self._createController((), CoreController)
-        route = Route(controller = controller, route = '/')
-        self._fire('threaded.event.wait', 'frontend.route.register', route)
 
     def _identify(self):
         return uuid.UUID('34e50abc-bbdd-477c-b1e2-bb28c7fcdb7d')

@@ -3,8 +3,11 @@ from app.core import env_
 def load(plugin):
     owner = env_._pluginMgr.getMyPlugin(__name__) #@UndefinedVariable
     class Base(owner._import.frontend.widget):
-        def __init__(self):
-            self._owner = plugin
-            super(Base, self).__init__('Base', plugin)
+        def render(self):
+            pass
 
-    Base()
+    class Tab(owner._import.frontend.widget):
+        pass
+
+    Base('base', owner)
+    Tab('tab', owner)

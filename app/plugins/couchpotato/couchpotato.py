@@ -1,6 +1,24 @@
-from app.lib.bones import PluginBones
+from app.core.environment import Environment as env_
+from app.lib.bones import PluginBones, PluginController
 import uuid
 from . import widgets
+from app.core.frontend import Route
+import cherrypy
+
+
+class CoreController(PluginController):
+    @cherrypy.expose
+    def index(self):
+        vars = {'baseUrl' : env_.get('baseUrl')}
+        with self.plugin._widgets('base') as base:
+            with base['menu'] as menu:
+                with menu.creating('tab') as tabs:
+                    tabs.create(1)
+                    tabs.create(2)
+
+            pass
+
+        return self.render('base.html', vars)
 
 class Couchpotato(PluginBones):
     '''
@@ -17,9 +35,10 @@ class Couchpotato(PluginBones):
 
     def initForeign(self, event, config):
         widgets.load(self)
-        event = self._fire('frontend.widgets.requestExporter')
-        exporter = event.getResultSet()[0]
-        exporter.newWidget = ['test', 'testing']
+
+        controller = self._createController((), CoreController)
+        route = Route(controller = controller, route = '/')
+        self._fire('threaded.event.wait', 'frontend.route.register', route)
 
     def _identify(self):
         return uuid.UUID('911ab777-2840-47c5-8692-ed120b6a5c65')
