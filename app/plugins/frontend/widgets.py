@@ -75,7 +75,7 @@ def load():
             if uuid.bytes in self._widgets:
                 if name in self._widgets[uuid.bytes]:
                     config = self._widgets[uuid.bytes][name]
-                    return WidgetContext(None, plugin, config)
+                    return WidgetContext(None, plugin, args, kwargs, config)
                 raise AttributeError("No widgets registered for this name.")
             raise AttributeError("No widgets registered for this uuid: %s" % uuid)
 
@@ -85,15 +85,17 @@ def load():
             self._args = args
             self._kwargs = kwargs
 
-        def __call__(self, *args, **kwargs):
-            return self._callback(args, kwargs, self._args, self._kwargs)
+        def __call__(self, context, *args, **kwargs):
+            return self._callback(context, args, kwargs, self._args, self._kwargs)
 
     class WidgetContext(object):
-        def __init__(self, parent_context, plugin, widget_config = None):
+        def __init__(self, parent_context, plugin, args, kwargs, widget_config = None):
             self._parentContext = parent_context
             self._widgetMgr = owner._widgetMgr
             self._widgetConfig = widget_config
             self._plugin = plugin
+            self._args = args
+            self._kwargs = kwargs
             self._containers = defaultdict(self._createContainer)
 
         def _createContainer(self, plugin_ = None):
@@ -108,6 +110,9 @@ def load():
 
         def __exit__(self, *args):
             pass
+
+        def __call__(self):
+            return self._widgetConfig(self, *self._args, **self._kwargs)
 
     class CreatingHelper(object):
         def __init__(self, owning_container, plugin, name):
@@ -128,6 +133,7 @@ def load():
         def __init__(self, context):
             self._context = context
             self._widgets = []
+            self._str = None
 
         def creating(self, name, plugin = None):
             """Create multiple WidgetContexts of the same type."""
@@ -136,9 +142,10 @@ def load():
 
         def create(self, name, *args, **kwargs):
             """Create new WidgetContext."""
-            return self.createAt(name, -1, *args, **kwargs)
+            return self.createAt(name, None, *args, **kwargs)
 
-        def createAt(self, name, position, *args, **kwargs):
+        def createAt(self, name, position = None, *args, **kwargs):
+            position = position or len(self._widgets)
             context = owner._widgetMgr(
                 self._context._plugin,
                 name,
@@ -152,9 +159,16 @@ def load():
             return self
 
         def __exit__(self, *args):
+            self()
             pass
 
+        def __call__(self):
+            return "".join([x() for x in self._widgets])
 
+        def __str__(self):
+            if not self._str:
+                self._str = self()
+            return self._str
 
     owner._widgetMgr = WidgetManager(owner)
     owner.frontend = env_.get('frontend')

@@ -13,12 +13,10 @@ class CoreController(PluginController):
         with self.plugin._widgets('base') as base:
             with base['menu'] as menu:
                 with menu.creating('tab') as tabs:
-                    tabs.create(1)
-                    tabs.create(2)
+                    tabs.create('Movies', '/')
+                    tabs.create('Soon', '/')
 
-            pass
-
-        return self.render('base.html', vars)
+        return base()
 
 class Couchpotato(PluginBones):
     '''
@@ -36,7 +34,7 @@ class Couchpotato(PluginBones):
     def initForeign(self, event, config):
         widgets.load(self)
 
-        controller = self._createController((), CoreController)
+        controller = self._createController(CoreController)
         route = Route(controller = controller, route = '/')
         self._fire('threaded.event.wait', 'frontend.route.register', route)
 
@@ -48,4 +46,5 @@ class Couchpotato(PluginBones):
             'core' : '34e50abc-bbdd-477c-b1e2-bb28c7fcdb7d',
             'frontend' : '87aece57-2948-4cab-aad1-8b2190e71873',
             'minify' : '87aece57-2948-4cab-aad1-8b2190e71873',
+            'mako' : '3ea20b9e-41d0-4199-b9d6-8acc0bc8a0c1',
         }
