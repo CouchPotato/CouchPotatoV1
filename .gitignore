@@ -15,6 +15,7 @@
 /build/
 /data/
 /cache/
+.idea/
 
 debug.conf
 warnCouchPotato.txt
