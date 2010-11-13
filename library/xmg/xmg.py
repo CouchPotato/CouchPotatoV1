@@ -1,17 +1,9 @@
 import json
 import os
-import shutil
 import urllib2
-
 
 __author__ = 'Therms'
 __tmdb_apikey__ = '6d96a9efb4752ed0d126d94e12e52036'
-
-try:
-    import imdb
-    __imdb__ = True
-except:
-    __imdb__ = False
 
 class XmgException(Exception):
     pass
@@ -59,20 +51,19 @@ class MetaGen():
         '''
 
         #first we'll evaluate our arguments for error conditions
-        if not imdbpy and not __imdb__:
-            raise ApiError("Can't import imdb and wasn't provided with an imdbpy instance")
+#        if not imdbpy and not __imdb__:
+#            raise ApiError("Can't import imdb and wasn't provided with an imdbpy instance")
 
         if imdbid[:2].lower() == 'tt':
             self.imdbid = imdbid[2:]
 
-        if imdbpy:
-            self.imdbpy = imdbpy
-        else:
-            self.imdbpy = imdb.IMDb('http', useModule='beautifulsoup')
+#        if imdbpy:
+#            self.imdbpy = imdbpy
+#        else:
+#            self.imdbpy = imdb.IMDb('http', useModule = 'beautifulsoup')
 
-
-        self.imdbpy_movie = self._get_movie()
-        self.nfo_string = self._nfo_gen()
+#        self.imdbpy_movie = self._get_movie()
+        self.nfo_string = 'http://www.imdb.com/title/' + imdbid + '/'
         self.tmdb_data = self._get_tmdb_imdb()
 
         #TODO: Search by movie name
@@ -80,23 +71,23 @@ class MetaGen():
         #TODO: Search by movie hash
 
 
-    def _get_movie(self):
-        try:
-            imdbpy_movie = self.imdbpy.get_movie(self.imdbid)
-        except imdb._exceptions.IMDbParserError:
-            raise IdError("%s is not a valid imdb id" % self.imdbid)
-
-        if len(imdbpy_movie.keys()) == 0:
-            raise IdError("%s is not a valid imdb id" % self.imdbid)
-
-        return imdbpy_movie
-
-    def _nfo_gen(self):
-        ''' Get the imdb url for the specified movie object
-        '''
-        nfo_string = self.imdbpy.get_imdbURL(self.imdbpy_movie)
-        #TODO: Generate full nfo XML
-        return nfo_string
+#    def _get_movie(self):
+#        try:
+#            imdbpy_movie = self.imdbpy.get_movie(self.imdbid)
+#        except imdb._exceptions.IMDbParserError:
+#            raise IdError("%s is not a valid imdb id" % self.imdbid)
+#
+#        if len(imdbpy_movie.keys()) == 0:
+#            raise IdError("%s is not a valid imdb id" % self.imdbid)
+#
+#        return imdbpy_movie
+#
+#    def _nfo_gen(self):
+#        ''' Get the imdb url for the specified movie object
+#        '''
+#        nfo_string = self.imdbpy.get_imdbURL(self.imdbpy_movie)
+#        #TODO: Generate full nfo XML
+#        return nfo_string
 
     def write_nfo(self, path):
         try:
