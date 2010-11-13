@@ -856,6 +856,10 @@ h1 {
 			margin-bottom: 30px;
 		}
 		
+		#configForm .qualityTemplates .formHint img {
+			margin: 30px 0;
+		}
+		
 		#configForm .qualityTemplates .template h4 {
 			margin: 0 0 0 173px;
 			font-size: 16px;

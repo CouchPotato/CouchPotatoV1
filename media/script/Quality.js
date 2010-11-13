@@ -192,8 +192,9 @@ var Quality = new Class({
 	saveQualityTemplate: function(){
 		var self = this
 		var templateJson = []
+		var templates = this.container.getElements('.template')
 		
-		this.container.getElements('.template').each(function(template){
+		templates.each(function(template){
 			
 			var temp = {
 				'id': template.get('data-id'),
@@ -214,6 +215,8 @@ var Quality = new Class({
 		});
 
 		this.json.set('value', JSON.encode(templateJson))
+
+		self.container.getElement('.formHint')[templates.length > 0 ? 'hide' : 'show']()
 		
 	},
 	

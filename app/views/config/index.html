@@ -325,10 +325,16 @@
 
 		<div class="group quality">
 			<fieldset class="inlineLabels qualityTemplates">
-				<h3>Custom Qualities</h3>
+				<h3>Quality Profile</h3>
 				<div>
-					<a href="#" id="newTemplate">Create a new custom quality.</a>
+					<a href="#" id="newTemplate">Create a new quality profile.</a>
 				</div>
+				<p class="formHint">
+					Create a list of qualities CouchPotato should go through when searching for a movie.
+					It will try and download from top to bottom. Using the finish-checkbox will mark the movie as "completed" when this quality is found.
+					<img src="${baseUrl}media/images/qualityProfileExample.png"><br />
+					When adding a movie, you have to select this profile inside the quality list, so give it a nice name.
+				</p>
 				<div class="customList"></div>
 			</fieldset>
 			
