@@ -136,9 +136,11 @@ class Library:
                 movie['movie'] = self.determineMovie(movie)
 
                 if movie['movie']:
-                    movie['history'] = self.getHistory(movie['movie'])
-
                     movie['match'] = True
+
+                    movie['history'] = self.getHistory(movie['movie'])
+                    movie['queue'] = self.getQueue(movie['movie'])
+
                     movie['info']['name'] = movie['movie'].name
                     movie['info']['year'] = movie['movie'].year
                     try:
@@ -207,6 +209,16 @@ class Library:
             for queue in movie.queue:
                 if queue.renamehistory and queue.renamehistory[0]:
                     return queue.renamehistory
+
+        return None
+
+    def getQueue(self, movie):
+        try:
+            for queue in movie.queue:
+                if queue.name:
+                    return queue
+        except TypeError:
+            return None
 
         return None
 
