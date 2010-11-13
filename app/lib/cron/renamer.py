@@ -140,36 +140,40 @@ class RenamerCron(cronBase, Library):
 
                 log.info('No Match found for: %s' % str(movie['info']['name']))
 
-            # Cleanup
-            if self.conf('cleanup'):
-                path = movie['path']
+        # Cleanup
+        if self.conf('cleanup'):
+            path = self.conf('download')
 
-                for root, subfiles, filenames in os.walk(path):
-                    skip = False
+            if self.conf('destination') == path:
+                log.error('Download folder and movie destination shouldn\'t be the same. Change it in Settings >> Renaming.')
+                return
 
-                    # Stop if something is in ignored list
-                    for ignore in self.ignoredInPath:
-                        if ignore in root.lower():
-                            log.debug('Skipping %s' % root)
-                            skip = True
-                    if skip: continue
+            for root, subfiles, filenames in os.walk(path):
+                skip = False
 
-                    for filename in filenames:
-                        fullFilePath = os.path.join(root, filename)
-                        fileSize = os.path.getsize(fullFilePath)
+                # Stop if something is in ignored list
+                for ignore in self.ignoredInPath:
+                    if ignore in root.lower():
+                        skip = True
+                if skip: continue
 
-                        if fileSize < 157286400:
-                            try:
-                                os.remove(fullFilePath)
-                                log.info('Removing file %s.' % fullFilePath)
-                            except OSError:
-                                log.error('Couldn\'t remove file %s.' % fullFilePath)
+                for filename in filenames:
+                    fullFilePath = os.path.join(root, filename)
+                    fileSize = os.path.getsize(fullFilePath)
 
+                    if fileSize < 157286400:
+                        try:
+                            os.remove(fullFilePath)
+                            log.info('Removing file %s.' % fullFilePath)
+                        except OSError:
+                            log.error('Couldn\'t remove file %s.' % fullFilePath)
+
+                if not root in path:
                     try:
-                        os.rmdir(path)
+                        os.rmdir(root)
                         log.info('Removing dir: %s in download dir.' % path)
                     except OSError:
-                        log.error('Tried to clean-up download folder, but "%s" isn\'t empty.' % root)
+                        log.error("Tried to clean-up download folder, but '%s' isn't empty." % root)
 
     def genMetaFileName(self, movie, pattern, add_tags = None):
         moviename = movie['info'].get('name')
