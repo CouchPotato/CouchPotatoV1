@@ -551,7 +551,7 @@
 		
 		// Get host and post with Userscript
 		var usButton = $('configForm').getElement('.userscriptInstall')
-		usButton.set('href', usButton.get('href')+'?host='+location.href.replace('config/', ''))
+		usButton.set('href', usButton.get('href')+'?host='+location.href.replace('config/', '')+'&type=CouchPotato.user.js')
 		
 		// Match label to input, cause i'm lazy
 		form.getElements('label').each(function(el, nr){

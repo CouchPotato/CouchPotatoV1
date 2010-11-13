@@ -129,6 +129,6 @@ class ConfigController(BaseController):
         '''
         imdb UserScript, for easy movie adding
         '''
-
+        cherrypy.response.headers['Content-Type'] = 'text/javascript'
         return self.render({'host':data.get('host')})
 
