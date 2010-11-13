@@ -95,6 +95,7 @@ Ubuntu (init.d script):
 * If you want, change "RUN_AS=root" to another user.
 * If your CP installation isn't in "/usr/local/sbin/couchpotato/", make sure to change the path in the initd script.
 * Make executable "sudo chmod a+x /etc/init.d/couchpotato"
+* Add it to the startup items: "sudo update-rc.d couchpotato defaults"
 * Start "sudo /etc/init.d/couchpotato start"
 
 Other:
