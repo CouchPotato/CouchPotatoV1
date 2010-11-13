@@ -145,12 +145,14 @@ class RenamerCron(cronBase, Library):
                 path = movie['path']
 
                 for root, subfiles, filenames in os.walk(path):
-                    log.debug(subfiles)
+                    skip = False
 
-                    # Stop if something is unpacking
+                    # Stop if something is in ignored list
                     for ignore in self.ignoredInPath:
                         if ignore in root.lower():
-                            break
+                            log.debug('Skipping %s' % root)
+                            skip = True
+                    if skip: continue
 
                     for filename in filenames:
                         fullFilePath = os.path.join(root, filename)
