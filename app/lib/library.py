@@ -51,7 +51,7 @@ class Library:
     ]
     noTables = False
 
-    def getMovies(self, folder = None):
+    def getMovies(self, folder = None, withMeta = True):
 
         movies = []
         qualities = Qualities()
@@ -157,30 +157,31 @@ class Library:
                     movie['info']['codec']['audio'] = self.getCodec(movie['folder'], self.codecs['audio'])
 
                     #get metainfo about file
-                    testFile = os.path.join(movie['path'], movie['files'][0]['filename'])
-                    try:
-                        movie['meta'].update(self.getMeta(testFile))
-                    except:
-                        pass
+                    if withMeta:
+                        testFile = os.path.join(movie['path'], movie['files'][0]['filename'])
+                        try:
+                            movie['meta'].update(self.getMeta(testFile))
+                        except:
+                            pass
 
-                    #check the video file for its resolution
-                    if movie['meta'].has_key('video stream'):
-                        width = movie['meta']['video stream'][0]['image width']
-                        height = movie['meta']['video stream'][0]['image height']
+                        #check the video file for its resolution
+                        if movie['meta'].has_key('video stream'):
+                            width = movie['meta']['video stream'][0]['image width']
+                            height = movie['meta']['video stream'][0]['image height']
 
-                        if width and height:
-                            if width > 1900 and width < 2000 and height <= 1080:
-                                namedResolution = '1080p'
-                            elif width > 1200 and width < 1300 and height <= 720:
-                                namedResolution = '720p'
-                            else:
-                                namedResolution = None
-                    else:
-                        log.info("Unable to fetch audio/video details for %s" % testFile)
-                        namedResolution = None
+                            if width and height:
+                                if width > 1900 and width < 2000 and height <= 1080:
+                                    namedResolution = '1080p'
+                                elif width > 1200 and width < 1300 and height <= 720:
+                                    namedResolution = '720p'
+                                else:
+                                    namedResolution = None
+                        else:
+                            log.info("Unable to fetch audio/video details for %s" % testFile)
+                            namedResolution = None
 
-                    movie['info']['resolution'] = namedResolution
-                    movie['info']['sourcemedia'] = self.getSourceMedia(testFile)
+                        movie['info']['resolution'] = namedResolution
+                        movie['info']['sourcemedia'] = self.getSourceMedia(testFile)
 
                 # Create filename without cd1/cd2 etc
                 movie['filename'] = self.removeMultipart(os.path.splitext(movie['files'][0]['filename'])[0])

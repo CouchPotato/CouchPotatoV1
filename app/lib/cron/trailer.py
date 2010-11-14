@@ -68,7 +68,7 @@ class TrailerCron(rss, cronBase, Library):
 
         if not directory: log.info('Adding movies to trailer search.')
         self.searchingExisting = time.time()
-        movies = self.getMovies(directory)
+        movies = self.getMovies(directory, withMeta = False)
 
         for movie in movies:
             if not movie.get('trailer') or force:
