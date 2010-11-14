@@ -171,7 +171,7 @@ class RenamerCron(cronBase, Library):
                 if not root in path:
                     try:
                         os.rmdir(root)
-                        log.info('Removing dir: %s in download dir.' % path)
+                        log.info('Removing dir: %s in download dir.' % root)
                     except OSError:
                         log.error("Tried to clean-up download folder, but '%s' isn't empty." % root)
 
