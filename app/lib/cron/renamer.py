@@ -219,8 +219,8 @@ class RenamerCron(cronBase, Library):
 
         # Put 'The' at the end
         namethe = moviename
-        if moviename[:3].lower() == 'the':
-            namethe = moviename[3:] + ', The'
+        if moviename[:4].lower() == 'the ':
+            namethe = moviename[4:] + ', The'
 
         replacements = {
              'cd': '',
