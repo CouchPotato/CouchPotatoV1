@@ -5,6 +5,7 @@ from library.imdb import IMDb
 
 import re
 import uuid
+import datetime
 
 log = getLogger(__name__)
 
@@ -76,22 +77,26 @@ class imdb(PluginBones, Rss):
 
 class ImdbInfo():
     def __init__(self):
-        self.imdbpy = IMDb('http', useModule='beautifulsoup') #this suppresses warnings about missing lxml
+        self.imdbpy = self.getImdbpy()
 
     def _getMovie(self, imdbid):
         movie = self.imdbpy.get_movie(imdbid.replace('tt', ''))
         self.imdbpy.update(movie)
-        self.imdbpy.update(movie, info='release dates')
-        self.imdbpy.update(movie, info='taglines')
+        self.imdbpy.update(movie, info=('release dates', 'taglines', 'dvd'))
         return movie
 
     def _strList(self, objList):
         return [str(x) for x in objList]
 
+    def getImdbpy(self, access = 'http', module = 'beautifulsoup'):
+        return IMDb(access, useModule =  module)
+
     def getInfo(self, imdbid):
         imdbid = str(imdbid)
         movie = self._getMovie(imdbid)
         movieInfo = {   'title': self.title(movie),
+                        'titles': self.titles(movie),
+                        'alternateTitles': self.alternateTitles(movie),
                         'mpaa': self.mpaa(movie),
                         'cast': self.cast(movie),
                         'director': self.director(movie),
@@ -105,10 +110,69 @@ class ImdbInfo():
                         'top250': self.top250(movie),
                         'imdbVotes': self.imdbVotes(movie),
                         'writers': self.writers(movie),
-                        'year': self.year(movie)}
+                        'year': self.year(movie),
+                        'taglines': self.taglines(movie),
+                        'releaseDates': self.releaseDates(movie),
+                        'dvdReleases': self.dvdReleases(movie)}
         return movieInfo
 
+    def titles(self, movie):
+        ''' Return all titles that imdb knows about for this movie.
+        '''
+        titleKeys = [x for x in movie.keys() if 'title' in x.lower()]
+        titles = []
+        for key in titleKeys:
+            titles.append(movie[key])
+
+        return titles
+
+    def alternateTitles(self, movie):
+        ''' Title translations for releases in other countries.
+        '''
+        if movie.has_key('akas'):
+            titles = {}
+            for aka in movie['akas']:
+                splitted = [x for x in aka.split("::") if x != '']
+                if len(splitted) > 1:
+                    titles[splitted[0]] = splitted[1]
+                else:
+                    titles[splitted[0]] = None
+
+            return titles
+
+    def dvdReleases(self, movie):
+        if movie.has_key('dvd'):
+            dvds = []
+            for dvd in movie['dvd']:
+                dvd['release date'] = datetime.datetime.strptime(dvd['release date'], '%Y-%m-%d')
+                dvds.append(dvd)
+            return dvds
+
+    def taglines(self, movie):
+        return movie.get('taglines')
+
+    def releaseDates(self, movie):
+        months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        if movie.has_key('runtimes'):
+            rDates = {}
+            for releaseDate in movie['release dates']:
+                search = re.search(r"(?P<country>\w+)::(?P<date>\d{1,2} \w+ \d\d\d\d)( (?P<note>\(.*\)))?", releaseDate)
+                if search:
+                    country, date, note = search.group('country', 'date', 'note')
+                    day, month, year = date.split()
+                    month = months.index(month) + 1
+                    date = datetime.date(int(year), int(month), int(day))
+                    dn = {'date': date, 'note': note}
+                    if country not in rDates:
+                        rDates[country] = [dn]
+                    else:
+                        if dn not in rDates[country]:
+                            rDates[country].append(dn)
+            return rDates
+
     def title(self, movie):
+        ''' Return the main title for this movie according to IMDb
+        '''
         return movie.get('title')
 
     def mpaa(self, movie):
@@ -209,6 +273,7 @@ class ImdbInfo():
         """
         if movie.has_key('runtimes'):
            times = []
+#           import pdb; pdb.set_trace()
            for runtime in movie['runtimes']:
                try:
                    #imdbpy usually returns a runtime with no country or notes, so we'll catch that instance
