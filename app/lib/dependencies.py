@@ -39,5 +39,5 @@ class Dependencies(object):
         self._lookup[alias] = plugin
 
     def asObject(self):
-        plugins = {name : self.resolve(name) for name in self._dependencies}
+        plugins = dict([(name, self.resolve(name)) for name in self._dependencies])
         return util.ValueObject(plugins)

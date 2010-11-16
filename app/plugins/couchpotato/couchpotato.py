@@ -9,7 +9,6 @@ import cherrypy
 class CoreController(PluginController):
     @cherrypy.expose
     def index(self):
-        vars = {'baseUrl' : env_.get('baseUrl')}
         with self.plugin._widgets('base') as base:
             with base['menu'] as menu:
                 with menu.creating('tab') as tabs:
