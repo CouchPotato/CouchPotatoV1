@@ -6,6 +6,8 @@ from library.imdb import IMDb
 import re
 import uuid
 import datetime
+import shelve
+import time
 
 log = getLogger(__name__)
 
@@ -78,6 +80,30 @@ class imdb(PluginBones, Rss):
 class ImdbInfo():
     def __init__(self):
         self.imdbpy = self.getImdbpy()
+        self.cachefile = "imdb_cache.db"
+        self.expirationTime = datetime.timedelta(days=30)
+        self._ = time.clock()
+
+    def fetchCache(self, imdbid):
+        #TODO: Implement plugin-based caching mechanism
+        self.fcopenstartclock = time.clock()
+        cache = shelve.open(self.cachefile)
+
+        if cache.has_key(imdbid):
+            movie = cache[imdbid]
+            if movie['cachedTime'] > datetime.datetime.now() - self.expirationTime:
+                cache.close()
+                return movie
+
+        cache.close()
+
+    def putCache(self, movie):
+        cacheTime = datetime.datetime.now()
+        movie['cachedTime'] = cacheTime
+
+        cache = shelve.open(self.cachefile)
+        cache[movie['imdbid']] = movie
+        cache.close()
 
     def _getMovie(self, imdbid):
         movie = self.imdbpy.get_movie(imdbid.replace('tt', ''))
@@ -92,8 +118,14 @@ class ImdbInfo():
         return IMDb(access, useModule =  module)
 
     def getInfo(self, imdbid):
-        imdbid = str(imdbid)
-        movie = self._getMovie(imdbid)
+        imdbid = str(imdbid).replace('tt', '')
+        isCached = self.fetchCache(imdbid)
+
+        if not isCached:
+            movie = self._getMovie(imdbid)
+        else:
+            return isCached
+
         movieInfo = {   'title': self.title(movie),
                         'titles': self.titles(movie),
                         'alternateTitles': self.alternateTitles(movie),
@@ -113,7 +145,9 @@ class ImdbInfo():
                         'year': self.year(movie),
                         'taglines': self.taglines(movie),
                         'releaseDates': self.releaseDates(movie),
-                        'dvdReleases': self.dvdReleases(movie)}
+                        'dvdReleases': self.dvdReleases(movie),
+                        'imdbid': imdbid}
+        self.putCache(movieInfo)
         return movieInfo
 
     def titles(self, movie):
@@ -313,4 +347,5 @@ class ImdbInfo():
 
     def year(self, movie):
        return movie.get('year')
+
 
