@@ -7,7 +7,7 @@ import re
 import uuid
 import datetime
 import shelve
-import time
+import operator
 
 log = getLogger(__name__)
 
@@ -82,11 +82,9 @@ class ImdbInfo():
         self.imdbpy = self.getImdbpy()
         self.cachefile = "imdb_cache.db"
         self.expirationTime = datetime.timedelta(days=30)
-        self._ = time.clock()
 
     def fetchCache(self, imdbid):
         #TODO: Implement plugin-based caching mechanism
-        self.fcopenstartclock = time.clock()
         cache = shelve.open(self.cachefile)
 
         if cache.has_key(imdbid):
@@ -99,7 +97,7 @@ class ImdbInfo():
 
     def putCache(self, movie):
         cacheTime = datetime.datetime.now()
-        movie['cachedTime'] = cacheTime
+        imdbMovie['cachedTime'] = cacheTime
 
         cache = shelve.open(self.cachefile)
         cache[movie['imdbid']] = movie
@@ -126,46 +124,70 @@ class ImdbInfo():
         else:
             return isCached
 
-        movieInfo = {   'title': self.title(movie),
-                        'titles': self.titles(movie),
-                        'alternateTitles': self.alternateTitles(movie),
-                        'mpaa': self.mpaa(movie),
-                        'cast': self.cast(movie),
-                        'director': self.director(movie),
-                        'genres': self.genres(movie),
-                        'kind': self.kind(movie),
-                        'plot': self.plot(movie),
-                        'plotOutline': self.plotOutline(movie),
-                        'producer': self.producer(movie),
-                        'imdbRating': self.imdbRating(movie),
-                        'runtimes': self.runtimes(movie),
-                        'top250': self.top250(movie),
-                        'imdbVotes': self.imdbVotes(movie),
-                        'writers': self.writers(movie),
-                        'year': self.year(movie),
-                        'taglines': self.taglines(movie),
-                        'releaseDates': self.releaseDates(movie),
-                        'dvdReleases': self.dvdReleases(movie),
-                        'imdbid': imdbid}
+        movieInfo = self._buildInfo(movie)
+
         self.putCache(movieInfo)
         return movieInfo
 
-    def titles(self, movie):
+    def _buildInfo(self, imdbMovie):
+        movieInfo = {   'title': self.title(imdbMovie),
+                        'titles': self.titles(imdbMovie),
+                        'alternateTitles': self.alternateTitles(imdbMovie),
+                        'mpaa': self.mpaa(imdbMovie),
+                        'cast': self.cast(imdbMovie),
+                        'director': self.director(imdbMovie),
+                        'genres': self.genres(imdbMovie),
+                        'kind': self.kind(imdbMovie),
+                        'plot': self.plot(imdbMovie),
+                        'plotOutline': self.plotOutline(imdbMovie),
+                        'producer': self.producer(imdbMovie),
+                        'imdbRating': self.imdbRating(imdbMovie),
+                        'runtimes': self.runtimes(imdbMovie),
+                        'top250': self.top250(imdbMovie),
+                        'imdbVotes': self.imdbVotes(imdbMovie),
+                        'writers': self.writers(imdbMovie),
+                        'year': self.year(imdbMovie),
+                        'taglines': self.taglines(imdbMovie),
+                        'releaseDates': self.releaseDates(imdbMovie),
+                        'dvdReleases': self.dvdReleases(imdbMovie),
+                        'imdbid': self.imdbpy.get_imdbID(imdbMovie)}
+
+        return movieInfo
+
+
+
+    def getAllTitles(self, imdbMovie):
+        ''' Return a list of every possible thing this movie could be called.
+        This includes the official title,
+        '''
+        titles = [imdbMovie['title']]
+
+        titles.extend(self.titles(imdbMovie))
+        akas = self.alternateTitles(imdbMovie)
+        if akas:
+            titles.extend(akas.keys())
+
+        try:
+            return list(dict.fromkeys(titles))
+        except:
+            import pdb; pdb.set_trace()
+
+    def titles(self, imdbMovie):
         ''' Return all titles that imdb knows about for this movie.
         '''
-        titleKeys = [x for x in movie.keys() if 'title' in x.lower()]
+        titleKeys = [x for x in imdbMovie.keys() if 'title' in x.lower()]
         titles = []
         for key in titleKeys:
-            titles.append(movie[key])
+            titles.append(imdbMovie[key])
 
-        return titles
+        return list(dict.fromkeys(titles))
 
-    def alternateTitles(self, movie):
+    def alternateTitles(self, imdbMovie):
         ''' Title translations for releases in other countries.
         '''
-        if movie.has_key('akas'):
+        if imdbMovie.has_key('akas'):
             titles = {}
-            for aka in movie['akas']:
+            for aka in imdbMovie['akas']:
                 splitted = [x for x in aka.split("::") if x != '']
                 if len(splitted) > 1:
                     titles[splitted[0]] = splitted[1]
@@ -174,22 +196,22 @@ class ImdbInfo():
 
             return titles
 
-    def dvdReleases(self, movie):
-        if movie.has_key('dvd'):
+    def dvdReleases(self, imdbMovie):
+        if imdbMovie.has_key('dvd'):
             dvds = []
-            for dvd in movie['dvd']:
+            for dvd in imdbMovie['dvd']:
                 dvd['release date'] = datetime.datetime.strptime(dvd['release date'], '%Y-%m-%d')
                 dvds.append(dvd)
             return dvds
 
-    def taglines(self, movie):
-        return movie.get('taglines')
+    def taglines(self, imdbMovie):
+        return imdbMovie.get('taglines')
 
-    def releaseDates(self, movie):
+    def releaseDates(self, imdbMovie):
         months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-        if movie.has_key('runtimes'):
+        if imdbMovie.has_key('runtimes'):
             rDates = {}
-            for releaseDate in movie['release dates']:
+            for releaseDate in imdbMovie['release dates']:
                 search = re.search(r"(?P<country>\w+)::(?P<date>\d{1,2} \w+ \d\d\d\d)( (?P<note>\(.*\)))?", releaseDate)
                 if search:
                     country, date, note = search.group('country', 'date', 'note')
@@ -204,20 +226,20 @@ class ImdbInfo():
                             rDates[country].append(dn)
             return rDates
 
-    def title(self, movie):
+    def title(self, imdbMovie):
         ''' Return the main title for this movie according to IMDb
         '''
-        return movie.get('title')
+        return imdbMovie.get('title')
 
-    def mpaa(self, movie):
-        if movie.has_key('mpaa'):
+    def mpaa(self, imdbMovie):
+        if imdbMovie.has_key('mpaa'):
             #If it exists, this key from imdbpy is the best way to get MPAA movie rating
-            rating_match = re.search(r"Rated (?P<rating>[a-zA-Z0-9-]+)", movie['mpaa'])
+            rating_match = re.search(r"Rated (?P<rating>[a-zA-Z0-9-]+)", imdbMovie['mpaa'])
             if rating_match:
                 rating = rating_match.group('rating')
                 return rating
 
-        if movie.has_key('certificates'):
+        if imdbMovie.has_key('certificates'):
             #IMDB lists all the certifications a movie has gotten the world over.
             #Each movie often has multiple certifications per country since it
             #will often get re-rated for different releases (theater and
@@ -238,7 +260,7 @@ class ImdbInfo():
                                 'Not Rated': 'Unrated'
                                 }
 
-            certs = movie['certificates']
+            certs = imdbMovie['certificates']
             good_ratings = []
             for cert in certs:
                 if 'usa' in cert.lower():
@@ -258,44 +280,44 @@ class ImdbInfo():
                 best_rating = ratings_list_ordered[min(good_ratings)]
                 return best_rating
 
-    def cast(self, movie):
+    def cast(self, imdbMovie):
         '''Returns a list of people names or None
        '''
-        if movie.has_key('cast'):
-            return self._strList(movie['cast'])
+        if imdbMovie.has_key('cast'):
+            return self._strList(imdbMovie['cast'])
 
-    def director(self, movie):
+    def director(self, imdbMovie):
         '''Returns a list of people names or None
        '''
-        if movie.has_key('director'):
-            return self._strList(movie['director'])
+        if imdbMovie.has_key('director'):
+            return self._strList(imdbMovie['director'])
 
-    def genres(self, movie):
+    def genres(self, imdbMovie):
         '''Returns a list of genres or None
        '''
-        return movie.get('genres')
+        return imdbMovie.get('genres')
 
-    def kind(self, movie):
-        return movie.get('kind')
+    def kind(self, imdbMovie):
+        return imdbMovie.get('kind')
 
-    def plot(self, movie):
-        if movie.has_key('plot'):
-            plot = movie['plot'][0]
+    def plot(self, imdbMovie):
+        if imdbMovie.has_key('plot'):
+            plot = imdbMovie['plot'][0]
             return plot.split("::")[0]
 
-    def plotOutline(self, movie):
-        return movie.get('plot outline')
+    def plotOutline(self, imdbMovie):
+        return imdbMovie.get('plot outline')
 
-    def producer(self, movie):
+    def producer(self, imdbMovie):
         '''Returns a list of people names or None
        '''
-        if movie.has_key('producer'):
-            return self._strList(movie['producer'])
+        if imdbMovie.has_key('producer'):
+            return self._strList(imdbMovie['producer'])
 
-    def imdbRating(self, movie):
-        return movie.get('rating')
+    def imdbRating(self, imdbMovie):
+        return imdbMovie.get('rating')
 
-    def runtimes(self, movie):
+    def runtimes(self, imdbMovie):
         """Returns a list of tuples like this:
 
         [(105, {'country': u'Canada', 'notes': u'Toronto International Film Festival'}),
@@ -305,10 +327,10 @@ class ImdbInfo():
         (100, {'country': u'Spain', 'notes': u'DVD edition'})]
 
         """
-        if movie.has_key('runtimes'):
+        if imdbMovie.has_key('runtimes'):
            times = []
 #           import pdb; pdb.set_trace()
-           for runtime in movie['runtimes']:
+           for runtime in imdbMovie['runtimes']:
                try:
                    #imdbpy usually returns a runtime with no country or notes, so we'll catch that instance
                    time = int(runtime)
@@ -331,21 +353,58 @@ class ImdbInfo():
 
            return times
 
-    def top250(self, movie):
+    def top250(self, imdbMovie):
        ''' Returns the movies rank in the IMDB top250 if it is ranked
        '''
-       return movie.get('top 250 rank')
+       return imdbMovie.get('top 250 rank')
 
-    def imdbVotes(self, movie):
+    def imdbVotes(self, imdbMovie):
        '''Returns the number of votes the movie has received on imdb
        '''
-       return movie.get('votes')
+       return imdbMovie.get('votes')
 
-    def writers(self, movie):
-       if movie.has_key('writer'):
-           return self._strList(movie['writer'])
+    def writers(self, imdbMovie):
+       if imdbMovie.has_key('writer'):
+           return self._strList(imdbMovie['writer'])
 
-    def year(self, movie):
-       return movie.get('year')
+    def year(self, imdbMovie):
+       return imdbMovie.get('year')
+
+class ImdbWonders(ImdbInfo):
+    def searchMovie(self, text):
+        searchResults = self.imdbpy.search_movie(text)
+        imdbpyMatches = []
+        for result in searchResults:
+            if 'movie' in result['kind']:
+                titles = self.getAllTitles(result)
+                for title in titles:
+                    if title.lower() == text.lower():
+                        imdbpyMatches.append(result)
+
+        exactMatch = []
+        subMatch = []
+        superMatch = []
+        otherMatch = []
+        for match in imdbpyMatches:
+            if match['title'].lower() == text.lower():
+                exactMatch.append(match)
+            elif match['title'].lower() in text.lower():
+                subMatch.append(match)
+            elif text.lower() in match['title'].lower():
+                superMatch.append(match)
+            else:
+                otherMatch.append(match)
+
+        exactMatch.sort(key = operator.itemgetter("title", "year"), reverse=True)
+        subMatch.sort(key = operator.itemgetter("title", "year"), reverse=True)
+        superMatch.sort(key = operator.itemgetter("title", "year"), reverse=True)
+        otherMatch.sort(key = operator.itemgetter("title", "year"), reverse=True)
+
+        sortedMatches = exactMatch
+        sortedMatches.extend(subMatch)
+        sortedMatches.extend(superMatch)
+        sortedMatches.extend(otherMatch)
+
+        return sortedMatches
 
 
