@@ -131,7 +131,7 @@ class theMovieDb(movieBase):
 
     def saveImage(self, url, destination):
 
-        if url[:6] != 'http://':
+        if url[:7] != 'http://':
             url = self.imageUrl + url
 
         # Make dir
