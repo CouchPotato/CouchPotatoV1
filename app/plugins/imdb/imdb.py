@@ -84,6 +84,9 @@ class ImdbInfo():
         self.expirationTime = datetime.timedelta(days=30)
 
     def fetchCache(self, imdbid):
+        ''' Return cached movie in the self.getInfo() format or
+            None if it's not cached or expired
+        '''
         #TODO: Implement plugin-based caching mechanism
         cache = shelve.open(self.cachefile)
 
@@ -96,6 +99,8 @@ class ImdbInfo():
         cache.close()
 
     def putCache(self, movie):
+        ''' Puts movie into the cache
+        '''
         cacheTime = datetime.datetime.now()
         imdbMovie['cachedTime'] = cacheTime
 
@@ -104,32 +109,45 @@ class ImdbInfo():
         cache.close()
 
     def _getMovie(self, imdbid):
+        ''' Returns an imdbpy Movie() object for imdbid that has been updated with the info required
+            for self.getInfo()
+        '''
         movie = self.imdbpy.get_movie(imdbid.replace('tt', ''))
         self.imdbpy.update(movie)
         self.imdbpy.update(movie, info=('release dates', 'taglines', 'dvd'))
         return movie
 
     def _strList(self, objList):
+        ''' Stringifies every object in objList and returns the list of strings
+        '''
         return [str(x) for x in objList]
 
     def getImdbpy(self, access = 'http', module = 'beautifulsoup'):
+        ''' Returns an IMDb() object
+        '''
         return IMDb(access, useModule =  module)
 
     def getInfo(self, imdbid):
+        ''' Returns movie information via self._buildInfo() or via a cached version if available.
+        '''
         imdbid = str(imdbid).replace('tt', '')
         isCached = self.fetchCache(imdbid)
 
         if not isCached:
+            #movie isn't cached so go get it from IMDb
             movie = self._getMovie(imdbid)
         else:
             return isCached
 
         movieInfo = self._buildInfo(movie)
 
+        #Since movie isn't cached, cache it
         self.putCache(movieInfo)
         return movieInfo
 
     def _buildInfo(self, imdbMovie):
+        ''' Build a sanitized and useful dict of information about the IMDb.Movie() object
+        '''
         movieInfo = {   'title': self.title(imdbMovie),
                         'titles': self.titles(imdbMovie),
                         'alternateTitles': self.alternateTitles(imdbMovie),
@@ -167,13 +185,12 @@ class ImdbInfo():
         if akas:
             titles.extend(akas.keys())
 
-        try:
-            return list(dict.fromkeys(titles))
-        except:
-            import pdb; pdb.set_trace()
+        #return a de-duplicated list of titles
+        return list(dict.fromkeys(titles))
 
     def titles(self, imdbMovie):
         ''' Return all titles that imdb knows about for this movie.
+        Specifically, this is usually just the various titles that IMDb uses, like "The Matrix" and "The Matrix (1999)"
         '''
         titleKeys = [x for x in imdbMovie.keys() if 'title' in x.lower()]
         titles = []
@@ -197,6 +214,8 @@ class ImdbInfo():
             return titles
 
     def dvdReleases(self, imdbMovie):
+        ''' Returns a dict of various dvd releases for the movie with their release dates
+        '''
         if imdbMovie.has_key('dvd'):
             dvds = []
             for dvd in imdbMovie['dvd']:
@@ -205,9 +224,15 @@ class ImdbInfo():
             return dvds
 
     def taglines(self, imdbMovie):
+        ''' Returns the movies taglines.  Here's some taglines for The Matrix:
+        http://www.imdb.com/title/tt0133093/taglines
+        '''
         return imdbMovie.get('taglines')
 
     def releaseDates(self, imdbMovie):
+        ''' Returns a dict of release dates.  Each key is a country and each value is a list of the various dates the
+        movie was released in that country.
+        '''
         months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         if imdbMovie.has_key('runtimes'):
             rDates = {}
@@ -232,6 +257,9 @@ class ImdbInfo():
         return imdbMovie.get('title')
 
     def mpaa(self, imdbMovie):
+        ''' Returns the MPAA rating for the movie, if available.
+        '''
+        #TODO: This should probably be a method that takes a country and returns the rating for that country
         if imdbMovie.has_key('mpaa'):
             #If it exists, this key from imdbpy is the best way to get MPAA movie rating
             rating_match = re.search(r"Rated (?P<rating>[a-zA-Z0-9-]+)", imdbMovie['mpaa'])
@@ -354,7 +382,7 @@ class ImdbInfo():
            return times
 
     def top250(self, imdbMovie):
-       ''' Returns the movies rank in the IMDB top250 if it is ranked
+       ''' Returns the movies rank in the IMDB top250 if it is ranked, else None
        '''
        return imdbMovie.get('top 250 rank')
 
@@ -364,8 +392,10 @@ class ImdbInfo():
        return imdbMovie.get('votes')
 
     def writers(self, imdbMovie):
-       if imdbMovie.has_key('writer'):
-           return self._strList(imdbMovie['writer'])
+        ''' Returns a list of people names
+        '''
+        if imdbMovie.has_key('writer'):
+            return self._strList(imdbMovie['writer'])
 
     def year(self, imdbMovie):
        return imdbMovie.get('year')
