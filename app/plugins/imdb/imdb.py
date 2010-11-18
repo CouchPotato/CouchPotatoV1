@@ -77,102 +77,13 @@ class imdb(PluginBones, Rss):
             'version' : '0.1'
         }
 
-class ImdbInfo():
-    def __init__(self):
-        self.imdbpy = self.getImdbpy()
-        self.cachefile = "imdb_cache.db"
-        self.expirationTime = datetime.timedelta(days=30)
-
-    def fetchCache(self, imdbid):
-        ''' Return cached movie in the self.getInfo() format or
-            None if it's not cached or expired
-        '''
-        #TODO: Implement plugin-based caching mechanism
-        cache = shelve.open(self.cachefile)
-
-        if cache.has_key(imdbid):
-            movie = cache[imdbid]
-            if movie['cachedTime'] > datetime.datetime.now() - self.expirationTime:
-                cache.close()
-                return movie
-
-        cache.close()
-
-    def putCache(self, movie):
-        ''' Puts movie into the cache
-        '''
-        cacheTime = datetime.datetime.now()
-        imdbMovie['cachedTime'] = cacheTime
-
-        cache = shelve.open(self.cachefile)
-        cache[movie['imdbid']] = movie
-        cache.close()
-
-    def _getMovie(self, imdbid):
-        ''' Returns an imdbpy Movie() object for imdbid that has been updated with the info required
-            for self.getInfo()
-        '''
-        movie = self.imdbpy.get_movie(imdbid.replace('tt', ''))
-        self.imdbpy.update(movie)
-        self.imdbpy.update(movie, info=('release dates', 'taglines', 'dvd'))
-        return movie
-
+class ImdbParser():
+    ''' Parses Movie() objects from IMDBpy
+    '''
     def _strList(self, objList):
         ''' Stringifies every object in objList and returns the list of strings
         '''
         return [str(x) for x in objList]
-
-    def getImdbpy(self, access = 'http', module = 'beautifulsoup'):
-        ''' Returns an IMDb() object
-        '''
-        return IMDb(access, useModule =  module)
-
-    def getInfo(self, imdbid):
-        ''' Returns movie information via self._buildInfo() or via a cached version if available.
-        '''
-        imdbid = str(imdbid).replace('tt', '')
-        isCached = self.fetchCache(imdbid)
-
-        if not isCached:
-            #movie isn't cached so go get it from IMDb
-            movie = self._getMovie(imdbid)
-        else:
-            return isCached
-
-        movieInfo = self._buildInfo(movie)
-
-        #Since movie isn't cached, cache it
-        self.putCache(movieInfo)
-        return movieInfo
-
-    def _buildInfo(self, imdbMovie):
-        ''' Build a sanitized and useful dict of information about the IMDb.Movie() object
-        '''
-        movieInfo = {   'title': self.title(imdbMovie),
-                        'titles': self.titles(imdbMovie),
-                        'alternateTitles': self.alternateTitles(imdbMovie),
-                        'mpaa': self.mpaa(imdbMovie),
-                        'cast': self.cast(imdbMovie),
-                        'director': self.director(imdbMovie),
-                        'genres': self.genres(imdbMovie),
-                        'kind': self.kind(imdbMovie),
-                        'plot': self.plot(imdbMovie),
-                        'plotOutline': self.plotOutline(imdbMovie),
-                        'producer': self.producer(imdbMovie),
-                        'imdbRating': self.imdbRating(imdbMovie),
-                        'runtimes': self.runtimes(imdbMovie),
-                        'top250': self.top250(imdbMovie),
-                        'imdbVotes': self.imdbVotes(imdbMovie),
-                        'writers': self.writers(imdbMovie),
-                        'year': self.year(imdbMovie),
-                        'taglines': self.taglines(imdbMovie),
-                        'releaseDates': self.releaseDates(imdbMovie),
-                        'dvdReleases': self.dvdReleases(imdbMovie),
-                        'imdbid': self.imdbpy.get_imdbID(imdbMovie)}
-
-        return movieInfo
-
-
 
     def getAllTitles(self, imdbMovie):
         ''' Return a list of every possible thing this movie could be called.
@@ -400,8 +311,30 @@ class ImdbInfo():
     def year(self, imdbMovie):
        return imdbMovie.get('year')
 
-class ImdbWonders(ImdbInfo):
+class ImdbWonders(ImdbParser):
+    ''' General front-end to IMDBpy.
+    '''
+    def __init__(self):
+        self.imdbpy = self.getImdbpy()
+        self.cachefile = "imdb_cache.db"
+        self.defaultExpTime= datetime.timedelta(days=30)
+        self.imdbpyRequiredInfo = ['main', 'plot', 'release dates', 'akas', 'taglines', 'dvd']
+
+    def getImdbpy(self, access = 'http', module = 'beautifulsoup'):
+        ''' Returns an IMDb() object
+        '''
+        return IMDb(access, useModule =  module)
+
     def searchMovie(self, text):
+        ''' Returns a list of movie dicts as returned by self.buildInfo().  These are sparsely populated dicts with
+        just a minimum amount of info mainly including titles and year.
+
+        After selecting a result, pass it to self.expandInfo() to get the rest of the information.
+        '''
+        results = self.fetchCache(text.lower())
+        if results:
+            return results
+
         searchResults = self.imdbpy.search_movie(text)
         imdbpyMatches = []
         for result in searchResults:
@@ -435,6 +368,111 @@ class ImdbWonders(ImdbInfo):
         sortedMatches.extend(superMatch)
         sortedMatches.extend(otherMatch)
 
-        return sortedMatches
+        resultset = [self.buildInfo(movie) for movie in sortedMatches]
+        self.putCache(resultset, text.lower(), datetime.timedelta(days=1))
 
+        return resultset
 
+    def fetchCache(self, key):
+        ''' Return cached info or None if it's not cached or expired
+        '''
+        #TODO: Implement plugin-based caching mechanism
+        cache = shelve.open(self.cachefile)
+
+        if cache.has_key(key):
+            cachedObj = cache[key]
+            if cachedObj['_cachedTime'] > datetime.datetime.now() - cachedObj['_expiration']:
+                cache.close()
+                return cachedObj['data']
+
+        cache.close()
+
+    def putCache(self, obj, key, expiration = None):
+        ''' Puts item into the cache.
+
+        'key' will be the key to access the item from the cache
+        'expiration' should be a datetime.timedelta, which defaults to self.defaultExpTime
+        '''
+        if not expiration:
+            expiration = self.defaultExpTime
+
+        cacheMe = {'_cachedTime': datetime.datetime.now(), '_expiration': expiration, 'data': obj}
+
+        cache = shelve.open(self.cachefile)
+        cache[key] = cacheMe
+        cache.close()
+
+    def _getMovie(self, imdbid):
+        ''' Returns an imdbpy Movie() object for imdbid that has been updated with the info required
+            for self.getInfo()
+        '''
+        movie = self.imdbpy.get_movie(imdbid.replace('tt', ''))
+        self._updateMovie(movie)
+        return movie
+
+    def _updateMovie(self, imdbMovie):
+        needToGet = []
+        for info in self.imdbpyRequiredInfo:
+            if info not in imdbMovie.current_info:
+                needToGet.append(info)
+        if needToGet:
+            self.imdbpy.update(imdbMovie, info=needToGet)
+
+        return imdbMovie
+
+    def getInfo(self, imdbid):
+        ''' Returns movie information via self.buildInfo() or via a cached version if available.
+        '''
+        imdbid = str(imdbid).replace('tt', '')
+        isCached = self.fetchCache(imdbid)
+
+        if not isCached:
+            #movie isn't cached so go get it from IMDb
+            movie = self._getMovie(imdbid)
+        else:
+            return isCached
+
+        movieInfo = self.buildInfo(movie)
+
+        #Since movie isn't cached, cache it
+        self.putCache(movieInfo, imdbid)
+        return movieInfo
+
+    def buildInfo(self, imdbMovie):
+        ''' Build a sanitized and useful dict of information about the IMDb.Movie() object
+        '''
+        movieInfo = {   'title': self.title(imdbMovie),
+                        'titles': self.titles(imdbMovie),
+                        'alternateTitles': self.alternateTitles(imdbMovie),
+                        'mpaa': self.mpaa(imdbMovie),
+                        'cast': self.cast(imdbMovie),
+                        'director': self.director(imdbMovie),
+                        'genres': self.genres(imdbMovie),
+                        'kind': self.kind(imdbMovie),
+                        'plot': self.plot(imdbMovie),
+                        'plotOutline': self.plotOutline(imdbMovie),
+                        'producer': self.producer(imdbMovie),
+                        'imdbRating': self.imdbRating(imdbMovie),
+                        'runtimes': self.runtimes(imdbMovie),
+                        'top250': self.top250(imdbMovie),
+                        'imdbVotes': self.imdbVotes(imdbMovie),
+                        'writers': self.writers(imdbMovie),
+                        'year': self.year(imdbMovie),
+                        'taglines': self.taglines(imdbMovie),
+                        'releaseDates': self.releaseDates(imdbMovie),
+                        'dvdReleases': self.dvdReleases(imdbMovie),
+                        'imdbid': self.imdbpy.get_imdbID(imdbMovie),
+                        '_infosets': imdbMovie.current_info
+                        }
+
+        return movieInfo
+
+    def expandInfo(self, imdbInfo):
+        ''' Takes an info dict as built by self.buildInfo and adds additional infosets to it if it was built
+        with a movie object not containg all necessary imdbpy infosets.
+        '''
+        for info in self.imdbpyRequiredInfo:
+            if info not in imdbInfo['_infosets']:
+                return self.getInfo(imdbInfo['imdbid'])
+
+        return imdbInfo
