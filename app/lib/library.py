@@ -19,6 +19,7 @@ class Library:
 
     minimalFileSize = 1024 * 1024 * 200 # 10MB
     ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '.appledb', '.appledesktop', '/._'] #unpacking, smb-crap, hidden files
+    ignoreNames = ['extract', 'extracting']
     extensions = {
         'movie': ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso'],
         'nfo': ['*.nfo'],
@@ -300,7 +301,7 @@ class Library:
                             return l
 
             # Search tMDB
-            if movieName:
+            if movieName and not movieName in ['movie']:
                 log.info('Searching for "%s".' % movie['folder'])
                 result = cherrypy.config['searchers']['movie'].find(movieName + ' ' + movieYear, limit = 1)
 

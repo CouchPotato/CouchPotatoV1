@@ -160,6 +160,12 @@ class RenamerCron(cronBase, Library):
                 for ignore in self.ignoredInPath:
                     if ignore in root.lower():
                         skip = True
+
+                # Ignore full directory names
+                for dir in os.path.split(root):
+                    if dir in self.ignoreNames:
+                        skip = True
+
                 if skip: continue
 
                 for filename in filenames:
