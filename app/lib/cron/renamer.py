@@ -20,7 +20,7 @@ class RenamerCron(cronBase, Library):
     ''' Cronjob for renaming movies '''
 
     lastChecked = 0
-    intervalSec = 20
+    intervalSec = 60
     config = {}
 
     def conf(self, option):
@@ -66,10 +66,14 @@ class RenamerCron(cronBase, Library):
         Go find files and rename them!
         '''
 
+        log.debug('RENAMINGFIX: Starting renaming')
+
         if self.isDisabled():
+            log.debug('RENAMINGFIX: Renaming is disabled')
             return
 
         allMovies = self.getMovies(self.conf('download'))
+        log.debug('RENAMINGFIX: Movies: %s' % allMovies)
 
         if allMovies:
             log.debug("Ready to rename some files.")
@@ -77,19 +81,23 @@ class RenamerCron(cronBase, Library):
         for movie in allMovies:
 
             if movie.get('match'):
+                log.debug('RENAMINGFIX: self.renameFiles(movie)')
                 finalDestination = self.renameFiles(movie)
 
                 # Search for trailer & subtitles
+                log.debug('RENAMINGFIX: crons')
                 cherrypy.config['cron']['trailer'].forDirectory(finalDestination['directory'])
                 cherrypy.config['cron']['subtitle'].forDirectory(finalDestination['directory'])
 
                 # Notify XBMC
+                log.debug('RENAMINGFIX: XBMC')
                 xbmc = XBMC()
                 xbmc.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
                 xbmc.updateLibrary()
 
                 # Update Metadata
                 if self.config.get('Meta', 'enabled'):
+                    log.debug('RENAMINGFIX: metadata')
                     nfoFileName = self.config.get('Meta', 'nfoFileName')
                     fanartFileNaming = self.config.get('Meta', 'fanartFileName')
                     fanartMinHeight = self.config.get('Meta', 'fanartMinHeight')
@@ -138,6 +146,7 @@ class RenamerCron(cronBase, Library):
 
         # Cleanup
         if self.conf('cleanup'):
+            log.debug('RENAMINGFIX: cleanup')
             path = self.conf('download')
 
             if self.conf('destination') == path:
