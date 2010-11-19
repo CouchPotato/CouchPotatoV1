@@ -369,7 +369,8 @@ class ImdbWonders(ImdbParser):
         sortedMatches.extend(otherMatch)
 
         resultset = [self.buildInfo(movie) for movie in sortedMatches]
-        self.putCache(resultset, text.lower(), datetime.timedelta(days=1))
+
+        self.putCache(resultset, text.lower(), datetime.timedelta(days=10))
 
         return resultset
 
