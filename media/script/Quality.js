@@ -39,7 +39,7 @@ var Quality = new Class({
 			new Element('h4', {'text': properties.name}),
 			new Element('span', {
 				'class':'delete',
-				'html': '<img src="/media/images/delete.png" alt="Delete" />',
+				'html': '<img src="../media/images/delete.png" alt="Delete" />',
 				'events': {
 					'click': function(e){
 						(e).stop()
@@ -165,7 +165,7 @@ var Quality = new Class({
 			),
 			new Element('span', {
 				'class':'delete',
-				'html': '<img src="/media/images/delete.png" alt="Delete" />',
+				'html': '<img src="../media/images/delete.png" alt="Delete" />',
 				'events': {
 					'click': function(e){
 						(e).stop()
