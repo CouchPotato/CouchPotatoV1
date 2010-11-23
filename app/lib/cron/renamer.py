@@ -314,6 +314,7 @@ class RenamerCron(cronBase, Library):
                     justAdded.append(subDest) # Add to ignore list when removing stuff.
 
             # Add to renaming history
+            log.debug('RENAMINGFIX: renamehistory start')
             h = RenameHistory()
             Db.add(h)
 
@@ -321,17 +322,20 @@ class RenamerCron(cronBase, Library):
             h.old = unicode(old.decode('utf-8'))
             h.new = unicode(dest.decode('utf-8'))
             Db.flush()
+            log.debug('RENAMINGFIX: renamehistory end')
 
             if multiple:
                 cd += 1
 
         # Mark movie downloaded
+        log.debug('RENAMINGFIX: queue downloaded start')
         if movie['queue'] and movie['queue'].id > 0:
             if movie['queue'].markComplete:
                 movie['movie'].status = u'downloaded'
 
             movie['queue'].completed = True
             Db.flush()
+        log.debug('RENAMINGFIX: queue downloaded end')
 
         return {
             'directory': finalDestination,
