@@ -15,7 +15,7 @@ Version 26 (not released):
 * Fix: Images from TheMovieDB couldn't be downloaded.
 * Fix: OpenSubtitle didn't always stay logged in.
 * Fix: Move .idx files along with .sub files.
-* ![And a lot more fixed here](https://github.com/RuudBurger/CouchPotato/compare/f60d448ad0...dfefbbc9c60aba77171c329406b6050313ce1823)
+* [And a lot more fixed here](https://github.com/RuudBurger/CouchPotato/compare/f60d448ad0...dfefbbc9c60aba77171c329406b6050313ce1823)
 
 Version 25:
 
