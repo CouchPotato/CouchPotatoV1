@@ -1,7 +1,10 @@
 CouchPotato
 =====
 
-Version 26 (not released):
+Version 27 (not released):
+
+
+Version 26:
 
 * New: Preferred words for searching in "Settings >> General".
 * New: Download meta-data. Poster, fanart, .nfo file.
@@ -11,11 +14,12 @@ Version 26 (not released):
 * Enhancement: Settings page instead of popup.
 * Enhancement: R5 DVD-R is allowed
 * Enhancement: Added <resolution> and <sourcemedia> to renaming filenames.
+* Fix: Don't autofill usernames and passwords.
 * Fix: Updated updater for new GitHub download page layout.
 * Fix: Images from TheMovieDB couldn't be downloaded.
 * Fix: OpenSubtitle didn't always stay logged in.
 * Fix: Move .idx files along with .sub files.
-* [And a lot more fixed here](https://github.com/RuudBurger/CouchPotato/compare/f60d448ad0...dfefbbc9c60aba77171c329406b6050313ce1823)
+* [And a lot more fixed here](https://github.com/RuudBurger/CouchPotato/compare/f60d448ad0...9041f8d5ff2998f8b6207311281835872b381d7f)
 
 Version 25:
 
