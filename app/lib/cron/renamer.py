@@ -318,7 +318,11 @@ class RenamerCron(cronBase, Library):
             h = RenameHistory()
             Db.add(h)
 
-            h.movieQueue = movie['queue'].id if movie['queue'] else 0
+            try:
+                h.movieQueue = movie['queue'].id
+            except:
+                h.movieQueue = 0
+
             h.old = unicode(old.decode('utf-8'))
             h.new = unicode(dest.decode('utf-8'))
             Db.flush()
