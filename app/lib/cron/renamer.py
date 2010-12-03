@@ -66,14 +66,14 @@ class RenamerCron(cronBase, Library):
         Go find files and rename them!
         '''
 
-        log.debug('RENAMINGFIX: Starting renaming')
+        log.debug('Starting renaming')
 
         if self.isDisabled():
-            log.debug('RENAMINGFIX: Renaming is disabled')
+            log.debug('Renaming is disabled')
             return
 
         allMovies = self.getMovies(self.conf('download'))
-        log.debug('RENAMINGFIX: Movies: %s' % allMovies)
+        log.debug('Movies: %s' % allMovies)
 
         if allMovies:
             log.debug("Ready to rename some files.")
@@ -81,23 +81,23 @@ class RenamerCron(cronBase, Library):
         for movie in allMovies:
 
             if movie.get('match'):
-                log.debug('RENAMINGFIX: self.renameFiles(movie)')
+                log.debug('self.renameFiles(movie)')
                 finalDestination = self.renameFiles(movie)
 
                 # Search for trailer & subtitles
-                log.debug('RENAMINGFIX: crons')
+                log.debug('crons')
                 cherrypy.config['cron']['trailer'].forDirectory(finalDestination['directory'])
                 cherrypy.config['cron']['subtitle'].forDirectory(finalDestination['directory'])
 
                 # Notify XBMC
-                log.debug('RENAMINGFIX: XBMC')
+                log.debug('XBMC')
                 xbmc = XBMC()
                 xbmc.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
                 xbmc.updateLibrary()
 
                 # Update Metadata
                 if self.config.get('Meta', 'enabled'):
-                    log.debug('RENAMINGFIX: metadata')
+                    log.debug('metadata')
                     nfoFileName = self.config.get('Meta', 'nfoFileName')
                     fanartFileNaming = self.config.get('Meta', 'fanartFileName')
                     fanartMinHeight = self.config.get('Meta', 'fanartMinHeight')
@@ -146,7 +146,7 @@ class RenamerCron(cronBase, Library):
 
         # Cleanup
         if self.conf('cleanup'):
-            log.debug('RENAMINGFIX: cleanup')
+            log.debug('cleanup')
             path = self.conf('download')
 
             if self.conf('destination') == path:
@@ -314,7 +314,7 @@ class RenamerCron(cronBase, Library):
                     justAdded.append(subDest) # Add to ignore list when removing stuff.
 
             # Add to renaming history
-            log.debug('RENAMINGFIX: renamehistory start')
+            log.debug('renamehistory start')
             h = RenameHistory()
             Db.add(h)
 
@@ -326,20 +326,20 @@ class RenamerCron(cronBase, Library):
             h.old = unicode(old.decode('utf-8'))
             h.new = unicode(dest.decode('utf-8'))
             Db.flush()
-            log.debug('RENAMINGFIX: renamehistory end')
+            log.debug('renamehistory end')
 
             if multiple:
                 cd += 1
 
         # Mark movie downloaded
-        log.debug('RENAMINGFIX: queue downloaded start')
+        log.debug('queue downloaded start')
         if movie['queue'] and movie['queue'].id > 0:
             if movie['queue'].markComplete:
                 movie['movie'].status = u'downloaded'
 
             movie['queue'].completed = True
             Db.flush()
-        log.debug('RENAMINGFIX: queue downloaded end')
+        log.debug('queue downloaded end')
 
         return {
             'directory': finalDestination,

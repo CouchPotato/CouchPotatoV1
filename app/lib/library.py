@@ -53,7 +53,7 @@ class Library:
     noTables = False
 
     def getMovies(self, folder = None, withMeta = True):
-        log.debug('RENAMINGFIX: getMoviesStart')
+        log.debug('getMoviesStart')
 
         movies = []
         qualities = Qualities()
@@ -63,10 +63,10 @@ class Library:
             log.error('Can\'t find directory: %s' % movieFolder)
             return movies
 
-        log.debug('RENAMINGFIX: os.walk(movieFolder) %s' % movieFolder)
+        log.debug('os.walk(movieFolder) %s' % movieFolder)
         for root, subfiles, filenames in os.walk(movieFolder):
             if self.abort:
-                log.debug('RENAMINGFIX: Aborting moviescan')
+                log.debug('Aborting moviescan')
                 return movies
 
             movie = {
@@ -105,7 +105,7 @@ class Library:
             for pattern in patterns:
                 for filename in fnmatch.filter(sorted(filenames), pattern):
                     fullFilePath = os.path.join(root, filename)
-                    log.debug('RENAMINGFIX: Processing file: %s' % fullFilePath)
+                    log.debug('Processing file: %s' % fullFilePath)
 
                     new = {
                        'filename': filename,
@@ -127,29 +127,29 @@ class Library:
                     else:
                         #ignore movies files / or not
                         if self.keepFile(fullFilePath):
-                            log.debug('RENAMINGFIX: self.keepFile(fullFilePath)')
+                            log.debug('self.keepFile(fullFilePath)')
                             new['hash'] = hashFile(fullFilePath) # Add movie hash
                             new['size'] = os.path.getsize(fullFilePath) # File size
                             movie['files'].append(new)
 
             if movie['files']:
-                log.debug('RENAMINGFIX: Files found')
+                log.debug('Files found')
 
                 # Find movie by nfo
                 if movie['nfo']:
-                    log.debug('RENAMINGFIX: Scanning nfo')
+                    log.debug('Scanning nfo')
                     for nfo in movie['nfo']:
                         nfoFile = open(os.path.join(movie['path'], nfo), 'r').read()
                         movie['info']['imdb'] = self.getImdb(nfoFile)
 
                 # Find movie via files
-                log.debug('RENAMINGFIX: self.determineMovie(movie)')
+                log.debug('self.determineMovie(movie)')
                 movie['movie'] = self.determineMovie(movie)
 
                 if movie['movie']:
                     movie['match'] = True
 
-                    log.debug('RENAMINGFIX: self.getHistory(movie[movie])')
+                    log.debug('self.getHistory(movie[movie])')
                     movie['history'] = self.getHistory(movie['movie'])
                     movie['queue'] = self.getQueue(movie['movie'])
 
@@ -170,7 +170,7 @@ class Library:
 
                     #get metainfo about file
                     if withMeta:
-                        log.debug('RENAMINGFIX: self.getHistory(movie[movie])')
+                        log.debug('self.getHistory(movie[movie])')
                         testFile = os.path.join(movie['path'], movie['files'][0]['filename'])
                         try:
                             movie['meta'].update(self.getMeta(testFile))
@@ -197,19 +197,19 @@ class Library:
                         movie['info']['sourcemedia'] = self.getSourceMedia(testFile)
 
                 # Create filename without cd1/cd2 etc
-                log.debug('RENAMINGFIX: removeMultipart')
+                log.debug('removeMultipart')
                 movie['filename'] = self.removeMultipart(os.path.splitext(movie['files'][0]['filename'])[0])
 
                 # Give back ids, not table rows
                 if self.noTables:
-                    log.debug('RENAMINGFIX: self.noTables')
+                    log.debug('self.noTables')
                     movie['history'] = [h.id for h in movie['history']] if movie['history'] else movie['history']
                     movie['movie'] = movie['movie'].id if movie['movie'] else movie['movie']
 
-                log.debug('RENAMINGFIX: movies.append(movie)')
+                log.debug('movies.append(movie)')
                 movies.append(movie)
 
-        log.debug('RENAMINGFIX: getMoviesEnd')
+        log.debug('getMoviesEnd')
         return movies
 
     def removeMultipart(self, name):
