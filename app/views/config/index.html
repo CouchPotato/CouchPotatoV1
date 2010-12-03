@@ -294,7 +294,7 @@
 			<fieldset class="inlineLabels">
 				<a href="${baseUrl}CouchPotato.user.js" class="submit userscriptInstall"><img src="${baseUrl}media/images/userscriptPreview.png" /><br />Install UserScript</a>
 				<p style="font-size:11px">
-					Need a recent version of <a href="http://www.google.com/chrome/" target="_blank">Chrome</a> or when using Firefox, the <a href="https://addons.mozilla.org/en-US/firefox/addon/748/" target="_blank">Greasemonkey addon</a>.
+					To use this UserScript, you need <a href="http://www.google.com/chrome/" target="_blank">Google Chrome</a> or the <a href="https://addons.mozilla.org/en-US/firefox/addon/748/" target="_blank">Greasemonkey addon</a> when using Firefox.
 				</p>
 			</fieldset>
 		</div>
@@ -551,8 +551,7 @@
 
 		// Replace Userscript IE
 		if (Browser.ie){
-			form.getElement('fieldset.userscript a').setStyle('display', 'none')
-			form.getElement('fieldset.userscript p').setStyles({'height':'300px', 'display':'block'})
+			form.getElement('.userscript fieldset a').setStyle('display', 'none')
 		}
 		
 		// Get host and post with Userscript
