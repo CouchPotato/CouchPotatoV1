@@ -3,6 +3,9 @@ CouchPotato
 
 Version 27 (not released):
 
+* Fix: Quality in naming options not working correctly.
+* Fix: Config not working in IE.
+* Fix: No more "page not found"-errors in log.
 
 Version 26:
 
