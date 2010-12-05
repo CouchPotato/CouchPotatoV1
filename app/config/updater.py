@@ -140,16 +140,8 @@ class Updater(SimplePlugin):
 
             for link in results:
                 if 'windows' in str(link.parent).lower():
-                    latestUrl = 'http://github.com' + link.get('href').replace(' ', '%20')
+                    downloadUrl = 'http://github.com' + link.get('href').replace(' ', '%20')
                     break
-
-            try:
-                latest = urllib2.urlopen(latestUrl, timeout = self.timeout)
-            except (IOError, URLError):
-                log.error('Failed to open %s.' % latestUrl)
-                return False
-
-            downloadUrl = latest.geturl()
 
             if 'r' + str(version.windows) in downloadUrl:
                 return False
