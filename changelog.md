@@ -1,12 +1,15 @@
 CouchPotato
 =====
 
-Version 27 (not released):
+Version 28 (not released):
+* [More](https://github.com/RuudBurger/CouchPotato/compare/59212f6d9b29d7b4db00fe615838f00aa7071264...master)
+
+Version 27:
 
 * Fix: Quality in naming options not working correctly.
 * Fix: Config not working in IE.
 * Fix: No more "page not found"-errors in log.
-* [More](https://github.com/RuudBurger/CouchPotato/compare/9041f8d5ff2998f8b6207311281835872b381d7f...master)
+* [More](https://github.com/RuudBurger/CouchPotato/compare/9041f8d5ff2998f8b6207311281835872b381d7f...59212f6d9b29d7b4db00fe615838f00aa7071264)
 
 Version 26:
 
