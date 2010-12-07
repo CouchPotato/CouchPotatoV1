@@ -58,7 +58,7 @@ class Library:
         movies = []
         qualities = Qualities()
 
-        movieFolder = unicode(folder if folder else self.config.get('Renamer', 'destination'))
+        movieFolder = unicode(folder) if folder else self.config.get('Renamer', 'destination')
         if not os.path.isdir(movieFolder):
             log.error('Can\'t find directory: %s' % movieFolder)
             return movies
