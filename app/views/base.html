@@ -93,7 +93,7 @@
 							.inject($(document.body).getElement('.page .content'), 'top')
 							
 						if (clone.hasClass('git')){
-							clone.getElement('a').addEvent('click', function(e){
+							clone.getElement('a#updateLink').addEvent('click', function(e){
 								(e).stop()
 								updateNow(clone)
 							})
@@ -135,7 +135,7 @@
 					% if updater.updateAvailable and updater.isFrozen:
 						, <span class="updateAvailable windows">Update available: <a href="${updater.updateAvailable}">download update</a> (<a href="http://github.com/RuudBurger/CouchPotato/blob/master/changelog.md#readme">changelog</a>)</span>
 					% elif updater.updateAvailable:
-						, <span class="updateAvailable git">Update available: <a href="${url(controller='config', action='update')}">update now</a></span>
+						, <span class="updateAvailable git">Update (<a href="https://github.com/RuudBurger/CouchPotato/compare/${updater.getVersion()}...${updater.updateVersion}">diff</a>) available: <a id="updateLink" href="${url(controller='config', action='update')}">update now</a></span>
 					% endif
 					% if updater.lastCheck < time.time()-60:
 						, <a href="${url(controller='config', action='checkForUpdate')}">Check for new version</a>
