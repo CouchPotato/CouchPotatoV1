@@ -20,3 +20,4 @@ WindowsUpdater.py
 /data/
 *.wpr
 /.idea/
+*.komodoproject

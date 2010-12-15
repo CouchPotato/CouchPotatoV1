@@ -105,34 +105,39 @@ class RenamerCron(cronBase, Library):
                     posterFileNaming = self.config.get('Meta', 'posterFileName')
                     posterMinHeight = self.config.get('Meta', 'posterMinHeight')
                     posterMinWidth = self.config.get('Meta', 'posterMinWidth')
-
-                    x = xmg.MetaGen(movie['movie'].imdb)
-
-                    fanartOrigExt = os.path.splitext(x.get_fanart_url(fanartMinHeight, fanartMinWidth))[-1][1:]
-                    posterOrigExt = os.path.splitext(x.get_poster_url(posterMinHeight, posterMinWidth))[-1][1:]
-
-                    nfo_location = os.path.join(finalDestination['directory'],
-                                                self.genMetaFileName(movie, nfoFileName))
-                    fanart_filename = self.genMetaFileName(movie,
-                                                           fanartFileNaming,
-                                                           add_tags = {'orig_ext': fanartOrigExt})
-                    poster_filename = self.genMetaFileName(movie,
-                                                           posterFileNaming,
-                                                           add_tags = {'orig_ext': posterOrigExt})
-
-                    x.write_nfo(nfo_location)
-
-                    x.write_fanart(fanart_filename,
-                                   finalDestination['directory'],
-                                   fanartMinHeight,
-                                   fanartMinWidth)
-
-                    x.write_poster(poster_filename,
-                                   finalDestination['directory'],
-                                   posterMinHeight,
-                                   posterMinWidth)
-
-                    log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
+                    
+                    try:
+                        x = xmg.MetaGen(movie['movie'].imdb)
+                        fail = False
+                    except xmg.ApiError, e:
+                        log.info('XMG TMDB API failure.  Please report to developers. API returned: %s' % e)
+                        fail = True
+                    if not fail:
+                        fanartOrigExt = os.path.splitext(x.get_fanart_url(fanartMinHeight, fanartMinWidth))[-1][1:]
+                        posterOrigExt = os.path.splitext(x.get_poster_url(posterMinHeight, posterMinWidth))[-1][1:]
+    
+                        nfo_location = os.path.join(finalDestination['directory'],
+                                                    self.genMetaFileName(movie, nfoFileName))
+                        fanart_filename = self.genMetaFileName(movie,
+                                                               fanartFileNaming,
+                                                               add_tags = {'orig_ext': fanartOrigExt})
+                        poster_filename = self.genMetaFileName(movie,
+                                                               posterFileNaming,
+                                                               add_tags = {'orig_ext': posterOrigExt})
+    
+                        x.write_nfo(nfo_location)
+    
+                        x.write_fanart(fanart_filename,
+                                       finalDestination['directory'],
+                                       fanartMinHeight,
+                                       fanartMinWidth)
+    
+                        x.write_poster(poster_filename,
+                                       finalDestination['directory'],
+                                       posterMinHeight,
+                                       posterMinWidth)
+    
+                        log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
 
             else:
                 try:
