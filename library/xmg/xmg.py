@@ -53,27 +53,27 @@ class MetaGen():
 
         if imdbid[:2].lower() == 'tt':
             self.imdbid = imdbid[2:]
+        else:
+            self.imdbid = imdbid
 
         self.nfo_string = 'http://www.imdb.com/title/' + imdbid + '/'
         self.tmdb_data = self._get_tmdb_imdb()
+        self._validate_tmdb_json()
         
-        #quick fix till I figure out what the actual problem is...try 3 times to
-        #get valid data...
-        count = 0
-        while 1:
-            count += 1
-            try:
-                _ = self._get_fanart(0,0)
-                break
-            except TypeError:
-                self.tmdb_data = self._get_tmdb_imdb()
-            if count > 3:
-                raise ApiError("Can't get valid tmdb data, received: %s" % self.tmdb_data)
-
         #TODO: Search by movie name
         #TODO: Search by tmdb_id
         #TODO: Search by movie hash
-
+        
+    
+    def _validate_tmdb_json(self):
+        try:
+            _ = self._get_fanart(0,0)
+        except:
+            try:
+                _ = self._get_poster(0,0)
+            except:
+                raise ApiError("Unknown TMDB data format: %s" % self.tmdb_data)
+                
     def write_nfo(self, path):
         try:
             f = open(path, 'w')
@@ -148,9 +148,23 @@ class MetaGen():
 
     def _get_tmdb_imdb(self):
         url = "http://api.themoviedb.org/2.1/Movie.imdbLookup/en/json/%s/%s" % (__tmdb_apikey__, "tt" + self.imdbid)
-        response = urllib2.urlopen(url)
-        tmdb_data = json.loads(response.read())[0]
-        return tmdb_data
+        
+        count = 0
+        while 1:
+            count += 1
+            response = urllib2.urlopen(url)
+            json_string = response.read()
+            try:
+                tmdb_data = json.loads(json_string)[0]
+                return tmdb_data
+            except ValueError, e:
+                if count < 3:
+                    continue
+                else:
+                    raise ApiError("Invalid JSON: %s: %s" % (e, json_string))
+            except:
+                ApiError("JSON error with: %s" % json_string)
+
 
     def _get_image(self, image_list, min_height, min_width):
         #Select image
@@ -185,7 +199,7 @@ if __name__ == "__main__":
         id = sys.argv[1]
     except:
         id = 'tt0111161'
-
+    
     x = MetaGen(id)
     x.write_nfo(".\movie.nfo")
     x.write_fanart("fanart", ".", 0, 0)
