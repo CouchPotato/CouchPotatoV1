@@ -28,16 +28,15 @@ class sabNzbd():
             return False
         
         if self.conf('ppDir'):
-            ppScriptFn = self.buildPp(imdbId, self.getPpFile())
-            pp = True
-            #
-            #try:
-            #    
-            #except:
-            #    pp = False
-            #    log.info("Unable to create post-processing script for sabnzbd")
-            #    import pdb; pdb.set_trace()
-            #    pass
+            try:
+                ppScriptFn = self.buildPp(imdbId, self.getPpFile())
+            except:
+                log.info("Failed to create post-processing script.")
+                ppScriptFn = False
+            if not ppScriptFn:
+                pp = False
+            else:
+                pp = True
         else:
             pp = False
 
@@ -95,43 +94,41 @@ class sabNzbd():
     def getPpFile(self):
         ppScriptHandle, ppScriptPath = mkstemp(suffix='.py', dir=self.conf('ppDir'))
         ppsh = os.fdopen(ppScriptHandle)
-        try:
-            ppsh.close()
-        except:
-            import pdb; pdb.set_trace()
+
+        ppsh.close()
         
-        os.chmod(ppScriptPath, 0o777)
-        #try:
-        #    
-        #except:
-        #    log.info("Unable to set post-processing script to 777: %s" % ppScriptPath)
+        try:
+            os.chmod(ppScriptPath, 0o777)
+        except:
+            log.info("Unable to set post-processing script permissions to 777 (may still work correctly): %s" % ppScriptPath)
         
         return ppScriptPath
         
     def buildPp(self, imdbId, ppScriptPath):
-        scriptB64 = '''IyEvdXNyL2Jpbi9weXRob24KaW1wb3J0IG9zCmltcG9ydCBzeXMKCnByaW50ICJDcmVhdGluZyBDUC5u
-Zm8gZm9yICVzIiAlIHN5cy5hcmd2WzFdCgppbWRiSWQgPSB7W0lNREJJREhFUkVdfQoKcGF0aCA9IG9z
-LnBhdGguam9pbihzeXMuYXJndlsxXSwgIkNQLm5mbyIpCnRyeToKICAgIGYgPSBvcGVuKHBhdGgsICd3
-JykKZXhjZXB0IElPRXJyb3I6CiAgICBwcmludCAiVW5hYmxlIHRvIG9wZW4gJXMgZm9yIHdyaXRpbmci
-ICUgcGF0aAogICAgc3lzLmV4aXQoMSkKCnRyeToKICAgIGYud3JpdGUoJ3R0MDkxNDc5OCcpCmV4Y2Vw
-dDoKICAgIHByaW50ICJVbmFibGUgdG8gd3JpdGUgdG8gZmlsZTogJXMiICUgcGF0aAogICAgc3lzLmV4
-aXQoMikKICAgIApmLmNsb3NlKCkKcHJpbnQgIldyb3RlIGltZGIgaWQsICVzLCB0byBmaWxlOiAlcyIg
-JSAoaW1kYklkLCBwYXRoKQo='''
+        scriptB64 = '''IyEvdXNyL2Jpbi9weXRob24KaW1wb3J0IG9zCmltcG9ydCBzeXMKcHJpbnQgIkNyZWF0aW5nIENQLm5m
+byBmb3IgJXMiICUgc3lzLmFyZ3ZbMV0KaW1kYklkID0ge1tJTURCSURIRVJFXX0KcGF0aCA9IG9zLnBh
+dGguam9pbihzeXMuYXJndlsxXSwgIkNQLm5mbyIpCnRyeToKIGYgPSBvcGVuKHBhdGgsICd3JykKZXhj
+ZXB0IElPRXJyb3I6CiBwcmludCAiVW5hYmxlIHRvIG9wZW4gJXMgZm9yIHdyaXRpbmciICUgcGF0aAog
+c3lzLmV4aXQoMSkKdHJ5OgogZi53cml0ZShvcy5wYXRoLmJhc2VuYW1lKHN5cy5hcmd2WzBdKSsiXG4i
+K2ltZGJJZCkKZXhjZXB0OgogcHJpbnQgIlVuYWJsZSB0byB3cml0ZSB0byBmaWxlOiAlcyIgJSBwYXRo
+CiBzeXMuZXhpdCgyKQpmLmNsb3NlKCkKcHJpbnQgIldyb3RlIGltZGIgaWQsICVzLCB0byBmaWxlOiAl
+cyIgJSAoaW1kYklkLCBwYXRoKQo='''
         
         script = re.sub(r"\{\[IMDBIDHERE\]\}", "'%s'" % imdbId, base64.b64decode(scriptB64))
         
-        f = open(ppScriptPath, 'wb')
-        f.write(script)
-        f.close()
+        try:
+            f = open(ppScriptPath, 'wb')
+        except:
+            log.info("Unable to open post-processing script for writing.  Check permissions: %s" % ppScriptPath)
+            return False
         
+        try:
+            f.write(script)
+            f.close()
+        except:
+            log.info("Unable to write to post-processing script. Check permissions: %s" % ppScriptPath)
+            return False
         
-        #try:
-        #    fileHandle.write(script)
-        #    f.close()
-        #except:
-        #    log.info("Unable to write to post-processing script, check permisisons: %s" % ppScriptPath)
-        #    return False
-        
-        
+        log.info("Wrote post-processing script to: %s" % ppScriptPath)
         
         return os.path.basename(ppScriptPath)
