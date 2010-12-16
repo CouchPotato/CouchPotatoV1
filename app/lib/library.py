@@ -18,14 +18,15 @@ class Library:
         self.config = cherrypy.config.get('config')
 
     minimalFileSize = 1024 * 1024 * 200 # 10MB
-    ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '.appledb', '.appledesktop', '/._'] #unpacking, smb-crap, hidden files
+    ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '.appledb', '.appledesktop', '/._', 'cp.cpnfo'] #unpacking, smb-crap, hidden files
     ignoreNames = ['extract', 'extracting']
     extensions = {
         'movie': ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso'],
         'nfo': ['*.nfo'],
         'subtitle': ['*.sub', '*.srt', '*.ssa', '*.ass'],
         'subtitleExtras': ['*.idx'],
-        'trailer': ['*.mov', '*.mp4', '*.flv']
+        'trailer': ['*.mov', '*.mp4', '*.flv'],
+        'cpnfo': ['cp.cpnfo']
     }
     codecs = {
         'audio': ['dts', 'ac3', 'ac3d', 'mp3'],
@@ -76,6 +77,8 @@ class Library:
                 'meta': {},
                 'info': {
                     'name': None,
+                    'cpnfoImdb': None,
+                    'ppScriptName': None,
                     'imdb': None,
                     'year': None,
                     'quality': '',
@@ -91,7 +94,7 @@ class Library:
                 'history': None,
                 'path': root,
                 'folder': root.split(os.path.sep)[-1:].pop(),
-                'nfo':[], 'files':[], 'trailer':[],
+                'nfo':[], 'files':[], 'trailer':[], 'cpnfo':None,
                 'subtitles':{
                     'files': [],
                     'extras': []
@@ -111,7 +114,10 @@ class Library:
                        'filename': filename,
                        'ext': os.path.splitext(filename)[1].lower()[1:], #[1:]to remove . from extension
                     }
-
+                    
+                    #cpnfo
+                    if new.get('filename') in self.extensions['cpnfo']:
+                        movie['cpnfo'] = new.get('filename')
                     #nfo file
                     if('*.' + new.get('ext') in self.extensions['nfo']):
                         movie['nfo'].append(filename)
@@ -134,6 +140,13 @@ class Library:
 
             if movie['files']:
                 log.debug('Files found')
+                #Find movie by cpnfo
+                if movie['cpnfo']:
+                    log.debug('Scanning cpnfo')
+                    cpnfoFile = open(os.path.join(movie['path'], movie['cpnfo']), 'r').readlines()
+                    cpnfoFile = [x.strip() for x in cpnfoFile]
+                    movie['info']['ppScriptName'] = cpnfoFile[0]
+                    movie['info']['cpnfoImdb'] = cpnfoFile[1]
 
                 # Find movie by nfo
                 if movie['nfo']:
@@ -245,6 +258,18 @@ class Library:
 
         movieName = self.cleanName(movie['folder'])
         movieYear = self.findYear(movie['folder'])
+        
+        #check to see if the downloaded movie nfo file agrees with what we thought we were downloading
+        if movie['info']['cpnfoImdb'] and movie['info']['imdb']:
+            cpnfoimdb = movie['info']['cpnfoImdb'].replace("tt", "")
+            nfoimdb = movie['info']['imdb'].replace("tt", "")
+            if cpnfoimdb != nfoimdb:
+                log.info("Downloaded movie's nfo has imdb id that doesn't match what we though we downloaded")
+                #Would be nice to develop some sort of 'holding area' for "iffy" movies like this
+                #For now, assume the movie's nfo is wrong...
+                movie['info']['imdb'] = cpnfoimdb
+            else:
+                movie['info']['imdb'] = cpnfoimdb
 
         if movie['info']['imdb']:
             byImdb = self.getMovieByIMDB(movie['info']['imdb'])

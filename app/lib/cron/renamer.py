@@ -148,8 +148,8 @@ class RenamerCron(cronBase, Library):
                     pass
 
                 log.info('No Match found for: %s' % str(movie['info']['name']))
-
-        # Cleanup
+        
+        #Cleanup
         if self.conf('cleanup'):
             log.debug('cleanup')
             path = self.conf('download')
@@ -260,7 +260,21 @@ class RenamerCron(cronBase, Library):
         justAdded = []
         finalDestination = None
         finalFilename = self.doReplace(fileNaming, replacements)
-
+        
+        #clean up post-processing script
+        ppScriptName = movie['info'].get('ppScriptName')
+        ppDirName = self.config.get('Sabnzbd', 'ppDir')
+        if ppScriptName:
+            if ppDirName:
+                ppPath = os.path.join(ppDirName, ppScriptName)
+                try:
+                    os.remove(ppPath)
+                    log.info("Removed post-processing script: %s" % ppPath)
+                except:
+                    log.info("Couldn't remove post-processing script: %s" % ppPath)
+            else:
+                log.info("Don't know where the post processing script is located, not removing %s" % ppScriptName)
+        
         for file in movie['files']:
             log.info('Trying to find a home for: %s' % latinToAscii(file['filename']))
 
