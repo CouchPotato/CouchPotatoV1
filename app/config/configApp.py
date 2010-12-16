@@ -92,6 +92,7 @@ class configApp():
         self.setDefault('Sabnzbd', 'username', '')
         self.setDefault('Sabnzbd', 'password', '')
         self.setDefault('Sabnzbd', 'category', '')
+        self.setDefault('Sabnzbd', 'ppDir', '')
 
         self.addSection('TheMovieDB')
         self.setDefault('TheMovieDB', 'key', '9b939aee0aaafc12a65bf448e4af9543')

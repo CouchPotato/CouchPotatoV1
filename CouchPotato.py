@@ -74,26 +74,26 @@ def server_start():
     # User config, use own stuff to prevent unexpected results
     cherrypy.config.update({
         'global': {
-            'server.thread_pool':               10,
-            'server.socket_port':           int(ca.get('global', 'port')),
-            'server.socket_host':               ca.get('global', 'host'),
-            'server.environment':               ca.get('global', 'server.environment'),
-            'engine.autoreload_on':             ca.get('global', 'server.environment') == 'development',
-            'tools.mako.collection_size':       500,
-            'tools.mako.directories':           os.path.join(path_base, 'app', 'views'),
+            'server.thread_pool': 10,
+            'server.socket_port': int(ca.get('global', 'port')),
+            'server.socket_host': ca.get('global', 'host'),
+            'server.environment': ca.get('global', 'server.environment'),
+            'engine.autoreload_on': ca.get('global', 'server.environment') == 'development',
+            'tools.mako.collection_size': 500,
+            'tools.mako.directories': os.path.join(path_base, 'app', 'views'),
 
-            'basePath':                         path_base,
-            'runPath':                          rundir,
-            'cachePath':                        cachedir,
-            'debug':                            debug,
-            'frozen':                           frozen,
+            'basePath': path_base,
+            'runPath': rundir,
+            'cachePath': cachedir,
+            'debug': debug,
+            'frozen': frozen,
 
             # Global workers
-            'config':                           ca,
-            'updater':                          myUpdater,
-            'cron':                             myCrons.threads,
-            'searchers':                        myCrons.searchers,
-            'flash':                            app.flash()
+            'config': ca,
+            'updater': myUpdater,
+            'cron': myCrons.threads,
+            'searchers': myCrons.searchers,
+            'flash': app.flash()
         }
     })
 
@@ -101,7 +101,7 @@ def server_start():
     conf = {
         '/': {
             'request.dispatch': Routes(),
-            'tools.sessions.on':  True,
+            'tools.sessions.on': True,
             'tools.sessions.timeout': 240,
 
             'tools.gzip.on': True,
@@ -177,3 +177,4 @@ def server_start():
 
 if __name__ == '__main__':
     server_start()
+
