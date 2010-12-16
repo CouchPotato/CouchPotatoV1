@@ -105,14 +105,14 @@ class sabNzbd():
         return ppScriptPath
         
     def buildPp(self, imdbId, ppScriptPath):
-        scriptB64 = '''IyEvdXNyL2Jpbi9weXRob24KaW1wb3J0IG9zCmltcG9ydCBzeXMKcHJpbnQgIkNyZWF0aW5nIENQLm5m
-byBmb3IgJXMiICUgc3lzLmFyZ3ZbMV0KaW1kYklkID0ge1tJTURCSURIRVJFXX0KcGF0aCA9IG9zLnBh
-dGguam9pbihzeXMuYXJndlsxXSwgIkNQLm5mbyIpCnRyeToKIGYgPSBvcGVuKHBhdGgsICd3JykKZXhj
-ZXB0IElPRXJyb3I6CiBwcmludCAiVW5hYmxlIHRvIG9wZW4gJXMgZm9yIHdyaXRpbmciICUgcGF0aAog
-c3lzLmV4aXQoMSkKdHJ5OgogZi53cml0ZShvcy5wYXRoLmJhc2VuYW1lKHN5cy5hcmd2WzBdKSsiXG4i
-K2ltZGJJZCkKZXhjZXB0OgogcHJpbnQgIlVuYWJsZSB0byB3cml0ZSB0byBmaWxlOiAlcyIgJSBwYXRo
-CiBzeXMuZXhpdCgyKQpmLmNsb3NlKCkKcHJpbnQgIldyb3RlIGltZGIgaWQsICVzLCB0byBmaWxlOiAl
-cyIgJSAoaW1kYklkLCBwYXRoKQo='''
+        scriptB64 = '''IyEvdXNyL2Jpbi9weXRob24KaW1wb3J0IG9zCmltcG9ydCBzeXMKcHJpbnQgIkNyZWF0aW5nIGNwLmNw
+bmZvIGZvciAlcyIgJSBzeXMuYXJndlsxXQppbWRiSWQgPSB7W0lNREJJREhFUkVdfQpwYXRoID0gb3Mu
+cGF0aC5qb2luKHN5cy5hcmd2WzFdLCAiY3AuY3BuZm8iKQp0cnk6CiBmID0gb3BlbihwYXRoLCAndycp
+CmV4Y2VwdCBJT0Vycm9yOgogcHJpbnQgIlVuYWJsZSB0byBvcGVuICVzIGZvciB3cml0aW5nIiAlIHBh
+dGgKIHN5cy5leGl0KDEpCnRyeToKIGYud3JpdGUob3MucGF0aC5iYXNlbmFtZShzeXMuYXJndlswXSkr
+IlxuIitpbWRiSWQpCmV4Y2VwdDoKIHByaW50ICJVbmFibGUgdG8gd3JpdGUgdG8gZmlsZTogJXMiICUg
+cGF0aAogc3lzLmV4aXQoMikKZi5jbG9zZSgpCnByaW50ICJXcm90ZSBpbWRiIGlkLCAlcywgdG8gZmls
+ZTogJXMiICUgKGltZGJJZCwgcGF0aCkK'''
         
         script = re.sub(r"\{\[IMDBIDHERE\]\}", "'%s'" % imdbId, base64.b64decode(scriptB64))
         
