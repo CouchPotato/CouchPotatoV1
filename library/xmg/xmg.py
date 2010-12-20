@@ -92,7 +92,7 @@ class MetaGen():
         '''
         images = [image['image'] for image in self.tmdb_data['backdrops'] if image['image'].get('size') == 'original']
         if len(images) == 0:
-            return
+            raise ApiError("No fanart")
 
         return self._get_image(images, min_height, min_width)
 
@@ -124,7 +124,7 @@ class MetaGen():
         '''
         images = [image['image'] for image in self.tmdb_data['posters'] if image['image'].get('size') == 'original']
         if len(images) == 0:
-            return
+            raise ApiError("No posters")
 
         return self._get_image(images, min_height, min_width)
 
