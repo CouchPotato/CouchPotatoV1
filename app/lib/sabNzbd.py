@@ -20,14 +20,14 @@ class sabNzbd():
     def conf(self, option):
         return self.config.get('Sabnzbd', option)
 
-    def send(self, nzb, imdbId):
+    def send(self, nzb, imdbId=None):
         log.info("Sending '%s' to SABnzbd." % nzb.name)
 
         if self.isDisabled():
             log.error("Config properties are not filled in correctly.")
             return False
         
-        if self.conf('ppDir'):
+        if self.conf('ppDir') and imdbId:
             try:
                 ppScriptFn = self.buildPp(imdbId, self.getPpFile())
             except:
