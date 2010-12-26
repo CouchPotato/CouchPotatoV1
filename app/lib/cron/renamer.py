@@ -19,10 +19,10 @@ class RenamerCron(cronBase, Library):
 
     ''' Cronjob for renaming movies '''
     
-    rules = {   'MPAA': ['G', 'PG', 'PG-13', 'R', 'NC-17', 'Unrated'],
+    sortRules= {   'MPAA': ['G', 'PG', 'PG-13', 'R', 'NC-17', 'Unrated'],
                     'REZ': ['SD', '720p', '1080p']
             }
-    operators = ['=', '>', '<']
+    sortOperators = ['=', '>', '<']
 
     lastChecked = 0
     intervalSec = 60
@@ -223,7 +223,7 @@ class RenamerCron(cronBase, Library):
     
     def _validateRule(self, rule):        
         ruleOp = None
-        for operat in self.operators:
+        for operat in self.sortOperators:
                 if operat in rule:
                     ruleOp = operat
                     break
@@ -232,9 +232,9 @@ class RenamerCron(cronBase, Library):
             return False
         
         ruleName, ruleValue = rule.split(ruleOp)
-        if ruleName not in self.rules:
+        if ruleName not in self.sortRules:
             return False
-        if ruleValue not in self.rules[ruleName]:
+        if ruleValue not in self.sortRules[ruleName]:
             return False
         
         return ruleName, ruleOp, ruleValue        
@@ -279,18 +279,6 @@ class RenamerCron(cronBase, Library):
                 except:
                     log.info("Unable to get MPAA rating")
                     continue
-                
-                #mpaa = movie['info']['imdb_data']['mpaa']
-                #try:
-                #    movieMpaaIndex = self.rules['MPAA'].index(mpaa)
-                #except:
-                #    return None
-                #ruleMpaaIndex = self.rules['MPAA'].index(ruleSet[3])
-                #
-                #isRulePassed = self._evaluateRule(movieMpaaIndex, ruleMpaaIndex, ruleSet[2])
-                #if isRulePassed:
-                #    log.info("Matched rule: %s" % ruleSet)
-                #    return ruleSet[0]
             
             if ruleSet[1] == 'REZ':
                 movieValue = movie['info']['resolution']
@@ -299,10 +287,10 @@ class RenamerCron(cronBase, Library):
             
             if movieValue:
                 try:
-                    movieValueIndex = self.rules[ruleSet[1]].index(movieValue)
+                    movieValueIndex = self.sortRules[ruleSet[1]].index(movieValue)
                 except:
                     return None
-                ruleValueIndex = self.rules[ruleSet[1]].index(ruleSet[3])
+                ruleValueIndex = self.sortRules[ruleSet[1]].index(ruleSet[3])
                 
                 isRulePassed = self._evaluateRule(movieValueIndex, ruleValueIndex, ruleSet[2])
                 if isRulePassed:
