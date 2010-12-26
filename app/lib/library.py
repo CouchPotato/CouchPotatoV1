@@ -9,6 +9,7 @@ import json
 import os
 import re
 import subprocess
+from app.lib.imdbParse import ImdbWonders
 
 log = CPLog(__name__)
 
@@ -80,6 +81,7 @@ class Library:
                     'cpnfoImdb': None,
                     'ppScriptName': None,
                     'imdb': None,
+                    'imdb_data': None,
                     'year': None,
                     'quality': '',
                     'resolution': None,
@@ -180,6 +182,16 @@ class Library:
                     movie['info']['group'] = self.getGroup(movie['folder'])
                     movie['info']['codec']['video'] = self.getCodec(movie['folder'], self.codecs['video'])
                     movie['info']['codec']['audio'] = self.getCodec(movie['folder'], self.codecs['audio'])
+                    
+                    #get boat load of awesome IMDb information
+                    log.info("Fetching info from imdb")
+                    
+                    imdb_fetcher = ImdbWonders()
+                    if movie['info']['imdb']:
+                        movie['info']['imdb_data'] = imdb_fetcher.getInfo(movie['info']['imdb'])
+                        if movie['info']['imdb_data'] is None:
+                            log.info("Unable to get imdb data for %s" % movie['info']['imdb'])
+                 
 
                     #get metainfo about file
                     if withMeta:

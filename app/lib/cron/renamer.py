@@ -11,8 +11,6 @@ import os
 import re
 import shutil
 import time
-from imdb import IMDb
-from app.lib.imdbParse import ImdbParser
 
 
 log = CPLog(__name__)
@@ -274,11 +272,50 @@ class RenamerCron(cronBase, Library):
             return None
         
         for ruleSet in ruleSets:
+            movieValue = ""
             if ruleSet[1] == 'MPAA':
-                i = IMDb()
-                parser = ImdbParser()
-                import pdb; pdb.set_trace()
-
+                try:
+                    movieValue = movie['info']['imdb_data']['mpaa']
+                except:
+                    log.info("Unable to get MPAA rating")
+                    continue
+                
+                #mpaa = movie['info']['imdb_data']['mpaa']
+                #try:
+                #    movieMpaaIndex = self.rules['MPAA'].index(mpaa)
+                #except:
+                #    return None
+                #ruleMpaaIndex = self.rules['MPAA'].index(ruleSet[3])
+                #
+                #isRulePassed = self._evaluateRule(movieMpaaIndex, ruleMpaaIndex, ruleSet[2])
+                #if isRulePassed:
+                #    log.info("Matched rule: %s" % ruleSet)
+                #    return ruleSet[0]
+            
+            if ruleSet[1] == 'REZ':
+                movieValue = movie['info']['resolution']
+                if movieValue is None:
+                    movieValue = 'SD'
+            
+            if movieValue:
+                try:
+                    movieValueIndex = self.rules[ruleSet[1]].index(movieValue)
+                except:
+                    return None
+                ruleValueIndex = self.rules[ruleSet[1]].index(ruleSet[3])
+                
+                isRulePassed = self._evaluateRule(movieValueIndex, ruleValueIndex, ruleSet[2])
+                if isRulePassed:
+                    log.info("Matched rule: %s" % ruleSet)
+                    return ruleSet[0]
+                
+    def _evaluateRule(self, movieIndex, ruleIndex, ruleOperator):
+        if ruleOperator == "=":
+            return movieIndex == ruleIndex
+        if ruleOperator == ">":
+            return movieIndex > ruleIndex
+        if ruleOperator == "<":
+            return movieIndex < ruleIndex
 
     def renameFiles(self, movie):
         '''
@@ -290,8 +327,12 @@ class RenamerCron(cronBase, Library):
             multiple = True
         
         self.chooseSortDir(movie)
-
-        destination = self.conf('destination')
+        
+        sortDir = self.chooseSortDir(movie)
+        if sortDir:
+            destination = os.path.join(self.conf('destination'), sortDir)
+        else:
+            destination = os.path.join(self.conf('destination'))
         folderNaming = self.conf('foldernaming')
         fileNaming = self.conf('filenaming')
 
