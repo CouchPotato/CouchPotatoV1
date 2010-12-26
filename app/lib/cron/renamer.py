@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import time
+from imdb import IMDb
 
 
 log = CPLog(__name__)
@@ -18,6 +19,11 @@ log = CPLog(__name__)
 class RenamerCron(cronBase, Library):
 
     ''' Cronjob for renaming movies '''
+    
+    rules = {   'MPAA': ['G', 'PG', 'PG-13', 'R', 'NC-17', 'Unrated'],
+                    'REZ': ['SD', '720p', '1080p']
+            }
+    operators = ['=', '>', '<']
 
     lastChecked = 0
     intervalSec = 60
@@ -215,6 +221,61 @@ class RenamerCron(cronBase, Library):
             replacements.update(add_tags)
 
         return self.doReplace(pattern, replacements)
+    
+    def _validateRule(self, rule):        
+        ruleOp = None
+        for operat in self.operators:
+                if operat in rule:
+                    ruleOp = operat
+                    break
+        
+        if not ruleOp:
+            return False
+        
+        ruleName, ruleValue = rule.split(ruleOp)
+        if ruleName not in self.rules:
+            return False
+        if ruleValue not in self.rules[ruleName]:
+            return False
+        
+        return ruleName, ruleOp, ruleValue        
+    
+    def chooseSortDir(self, movie):
+        ''' Each rule is a string starting with a rule name, followed by an
+        operator (=, >, <), followed by a value.
+        
+        Valid rule names and ordered values:
+            MPAA: G, PG, PG-13, R, NC-17, Unrated
+            REZ: SD, 720p, 1080p
+        '''        
+        count = 0
+        ruleSets = []
+        
+        #Get all defined folder/rule pairs
+        while 1:
+            count += 1
+
+            folder = self.conf('subdir%s' % count)
+            rule = self.conf('rule%s' % count)
+            if not folder or not rule:
+                break
+            
+            folder = [os.path.join(self.conf('destination'), folder)]
+            parsedRule = self._validateRule(rule)
+            if parsedRule:
+                folder.extend(parsedRule)
+                ruleSets.append(folder)
+            else:
+                log.info('%s is not a valid rule.' % rule)
+                break
+        
+        if not ruleSets:
+            return None
+        
+        for ruleSet in ruleSets:
+            if ruleSet[1] == 'MPAA':
+                i = IMDb()
+                import pdb; pdb.set_trace()
 
 
     def renameFiles(self, movie):
@@ -225,6 +286,8 @@ class RenamerCron(cronBase, Library):
         multiple = False
         if len(movie['files']) > 1:
             multiple = True
+        
+        self.chooseSortDir(movie)
 
         destination = self.conf('destination')
         folderNaming = self.conf('foldernaming')
