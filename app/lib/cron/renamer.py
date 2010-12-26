@@ -12,7 +12,7 @@ import re
 import shutil
 import time
 from imdb import IMDb
-from app.lib.provider.imdbParse import ImdbParser
+from app.lib.imdbParse import ImdbParser
 
 
 log = CPLog(__name__)
@@ -276,6 +276,7 @@ class RenamerCron(cronBase, Library):
         for ruleSet in ruleSets:
             if ruleSet[1] == 'MPAA':
                 i = IMDb()
+                parser = ImdbParser()
                 import pdb; pdb.set_trace()
 
 
