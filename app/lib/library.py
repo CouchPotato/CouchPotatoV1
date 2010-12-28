@@ -163,6 +163,12 @@ class Library:
 
                 if movie['movie']:
                     movie['match'] = True
+                    
+                    if not movie['info']['imdb']:
+                        try:
+                            movie['info']['imdb'] = movie['movie'].imdb
+                        except:
+                            pass
 
                     log.debug('self.getHistory(movie[movie])')
                     movie['history'] = self.getHistory(movie['movie'])
