@@ -20,7 +20,8 @@ class RenamerCron(cronBase, Library):
     ''' Cronjob for renaming movies '''
     
     sortRules= {   'MPAA': ['G', 'PG', 'PG-13', 'R', 'NC-17', 'Unrated'],
-                    'REZ': ['SD', '720p', '1080p']
+                    'REZ': ['SD', '720p', '1080p'],
+                    'UNK': ['UNK']
             }
     sortOperators = ['=', '>', '<']
 
@@ -246,6 +247,7 @@ class RenamerCron(cronBase, Library):
         Valid rule names and ordered values:
             MPAA: G, PG, PG-13, R, NC-17, Unrated
             REZ: SD, 720p, 1080p
+            UNK: UNK (used to catch movies that don't match other rules)
         '''        
         count = 0
         ruleSets = []
@@ -284,6 +286,9 @@ class RenamerCron(cronBase, Library):
                 movieValue = movie['info']['resolution']
                 if movieValue is None:
                     movieValue = 'SD'
+                    
+            if ruleSet[1] == 'UNK':
+                movieValue = 'UNK'
             
             if movieValue:
                 try:
