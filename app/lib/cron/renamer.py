@@ -95,12 +95,6 @@ class RenamerCron(cronBase, Library):
                 cherrypy.config['cron']['trailer'].forDirectory(finalDestination['directory'])
                 cherrypy.config['cron']['subtitle'].forDirectory(finalDestination['directory'])
 
-                # Notify XBMC
-                log.debug('XBMC')
-                xbmc = XBMC()
-                xbmc.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
-                xbmc.updateLibrary()
-
                 # Update Metadata
                 if self.config.get('Meta', 'enabled'):
                     log.debug('metadata')
@@ -144,6 +138,12 @@ class RenamerCron(cronBase, Library):
                                        posterMinWidth)
     
                         log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
+                        
+                # Notify XBMC
+                log.debug('XBMC')
+                xbmc = XBMC()
+                xbmc.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
+                xbmc.updateLibrary()
 
             else:
                 try:
