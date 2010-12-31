@@ -4,11 +4,14 @@
 // @include     http*://*.imdb.com/title/tt*
 // @include     http*://imdb.com/title/tt*
 // @include     ${host}*
-// @include   http://*.sharethe.tv/movies/*
-// @include   http://sharethe.tv/movies/*
+// @include     http://*.sharethe.tv/movies/*
+// @include     http://sharethe.tv/movies/*
+// @include     http://*.moviemeter.nl/film/*
+// @include     http://moviemeter.nl/film/*
+// @include     http://whiwa.net/stats/movie/*
 // ==/UserScript==
 
-var version = 2;
+var version = 3;
 
 function create() {
     switch (arguments.length) {
@@ -168,11 +171,79 @@ sharethetv = (function(){
     return constructor;
 })();
 
+moviemeter = (function(){
+    
+    function isMovie(){
+        var pattern = /[^/]+\/?$/;
+        var html = document.getElementsByTagName('h1')[0].innerHTML
+	matched = location.href.match(pattern);
+        return null != matched;
+    }
+    
+    function getId(){
+        var pattern = /imdb\.com\/title\/tt(\d+)/;
+        var html = document.getElementsByTagName('html')[0].innerHTML;
+        var imdb_id = html.match(pattern)[1];
+        return imdb_id;
+        
+    }
+    
+    function getYear(){
+        var pattern = /(\d+)[^\d]*$/;
+        var html = document.getElementsByTagName('h1')[0].innerHTML;
+        var year = html.match(pattern)[1];
+        return year;
+        
+    }
+    
+    function constructor(){
+        if(isMovie()){
+            lib.osd(getId(), getYear());    
+        }
+    }
+    return constructor;
+})();
+
+whiwa = (function(){
+    
+    function isMovie(){
+        var pattern = /[^/]+\/?$/;
+        var html = document.getElementsByTagName('h3')[0].innerHTML
+	matched = location.href.match(pattern);
+        return null != matched;
+    }
+    
+    function getId(){
+        var pattern = /imdb\.com\/title\/tt(\d+)/;
+        var html = document.getElementsByTagName('html')[0].innerHTML;
+        var imdb_id = html.match(pattern)[1];
+        return imdb_id;
+        
+    }
+    
+    function getYear(){
+        var pattern = /(\d+)[^\d]*$/;
+        var html = document.getElementsByTagName('h3')[0].innerHTML;
+        var year = html.match(pattern)[1];
+        return year;
+        
+    }
+    
+    function constructor(){
+        if(isMovie()){
+            lib.osd(getId(), getYear());    
+        }
+    }
+    return constructor;
+})();
+
 // Start
 (function(){
     factory = {
         "imdb.com" : imdb,
-        "sharethe.tv" : sharethetv
+        "sharethe.tv" : sharethetv,
+        "moviemeter.nl" : moviemeter,
+        "whiwa.net" : whiwa
     };
     for (var i in factory){
         GM_log(i);
