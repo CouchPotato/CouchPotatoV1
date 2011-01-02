@@ -127,7 +127,12 @@ imdb = (function(){
     }
     
     function getYear(){
-        return document.getElementsByTagName('h1')[0].getElementsByTagName('a')[0].text;
+        try {
+            return document.getElementsByTagName('h1')[0].getElementsByTagName('a')[0].text;
+        } catch (e) {
+            var tvYear = document.getElementsByClassName('tv-series-smaller')[0].innerHTML;
+            return tvYear.match(/^\(TV ([0-9]+)\)$/)[1];
+        }
     }
     
     var constructor = function(){
