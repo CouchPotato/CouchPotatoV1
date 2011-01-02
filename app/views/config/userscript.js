@@ -130,8 +130,13 @@ imdb = (function(){
         try {
             return document.getElementsByTagName('h1')[0].getElementsByTagName('a')[0].text;
         } catch (e) {
-            var tvYear = document.getElementsByClassName('tv-series-smaller')[0].innerHTML;
-            return tvYear.match(/^\(TV ([0-9]+)\)$/)[1];
+            var spans = document.getElementsByTagName('h1')[0].getElementsByTagName('span');
+            var pattern = /^\((TV|Video) ([0-9]+)\)$/;
+            for (var i = 0; i < spans.length; i++) {
+                if (spans[i].innerHTML.search(pattern)) {
+                    return spans[i].innerHTML.match(pattern)[1];
+                }
+            }
         }
     }
     
