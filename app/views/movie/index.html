@@ -210,6 +210,9 @@
 % if totalDownloaded > 0:
 <a name="dl"></a>
 <h1>Downloaded</h1>
+<div id="clear_downloaded">
+<a href="${url(controller='movie', action='clear_downloaded')}" class="clear_downloaded">Clear</a>
+</div>
 <div id="downloaded" class="smallList">
 	% for movie in downloaded:
 	<span>
