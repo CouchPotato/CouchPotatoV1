@@ -9,9 +9,13 @@
 // @include     http://*.moviemeter.nl/film/*
 // @include     http://moviemeter.nl/film/*
 // @include     http://whiwa.net/stats/movie/*
+// @include     http://trakt.tv/movie/*
+// @include     http://*.trak.tv/movie/*
+// @exclude     http://trak.tv/movie/*/*
+// @exclude     http://*.trak.tv/movie/*/*
 // ==/UserScript==
 
-var version = 3;
+var version = 4;
 
 function create() {
     switch (arguments.length) {
@@ -186,7 +190,7 @@ moviemeter = (function(){
     function isMovie(){
         var pattern = /[^/]+\/?$/;
         var html = document.getElementsByTagName('h1')[0].innerHTML
-	matched = location.href.match(pattern);
+    matched = location.href.match(pattern);
         return null != matched;
     }
     
@@ -219,7 +223,7 @@ whiwa = (function(){
     function isMovie(){
         var pattern = /[^/]+\/?$/;
         var html = document.getElementsByTagName('h3')[0].innerHTML
-	matched = location.href.match(pattern);
+    matched = location.href.match(pattern);
         return null != matched;
     }
     
@@ -247,13 +251,40 @@ whiwa = (function(){
     return constructor;
 })();
 
+trakt = (function(){
+    var imdb_input = null;
+    var year_input = null;
+
+    function isMovie(){
+        imdb_input = document.getElementById("meta-imdb-id");
+        year_input = document.getElementById("meta-year");
+        return (null != imdb_input) && (null != year_input);
+    }
+    
+    function getId(){
+        return imdb_input.value.substr(2);
+    }
+    
+    function getYear(){
+        return year_input.value;
+        
+    }
+    
+    function constructor(){
+        if(isMovie()){
+            lib.osd(getId(), getYear());    
+        }
+    }
+    return constructor;
+})();
 // Start
 (function(){
     factory = {
         "imdb.com" : imdb,
         "sharethe.tv" : sharethetv,
         "moviemeter.nl" : moviemeter,
-        "whiwa.net" : whiwa
+        "whiwa.net" : whiwa,
+        "trakt.tv" : trakt
     };
     for (var i in factory){
         GM_log(i);
