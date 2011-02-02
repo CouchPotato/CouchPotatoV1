@@ -319,13 +319,17 @@ class RenamerCron(cronBase, Library):
                     break
                 justAdded.append(dest)
             else:
-                try:
-                    path = file['path'].split(os.sep)
-                    path.extend(['_EXISTS_' + path.pop()])
-                    shutil.move(file['path'], os.sep.join(path))
-                except IOError:
-                    pass
                 log.error('File %s already exists or not better.' % latinToAscii(filename))
+                path = file['path'].split(os.sep)
+                path.extend(['_EXISTS_' + path.pop()])
+                old = file['path']
+                dest = os.sep.join(path)
+                try:
+                    shutil.move(old, dest)
+                except shutil.Error as exc:
+                    log.error("Couldn't move file '%s' to '%s'." % (old, dest))
+                    log.error(str(exc))
+                # Break in any case, why did you do that Ruud?
                 break
 
             #get subtitle if any & move
