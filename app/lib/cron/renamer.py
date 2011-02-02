@@ -143,9 +143,12 @@ class RenamerCron(cronBase, Library):
                 try:
                     path = movie['path'].split(os.sep)
                     path.extend(['_UNKNOWN_' + path.pop()])
-                    shutil.move(movie['path'], os.sep.join(path))
-                except IOError:
-                    pass
+                    target = os.sep.join(path)
+                    shutil.move(movie['path'], target)
+                except shutil.Error as err:
+                    log.error("Error while moving '%s' to '%'" %
+                            (movie['path'], target))
+                    log.error(str(err))
 
                 log.info('No Match found for: %s' % str(movie['info']['name']))
         
