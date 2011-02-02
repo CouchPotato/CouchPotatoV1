@@ -38,11 +38,15 @@ class RenamerCron(cronBase, Library):
         while True and not self.abort:
             now = time.time()
             if (self.lastChecked + self.intervalSec) < now:
-                self.running = True
-                self.lastChecked = now
-                self.doRename()
-                self.running = False
-
+                try:
+                    self.running = True
+                    self.lastChecked = now
+                    self.doRename()
+                    self.running = False
+                except Exception as exc:
+                    log.error("!!Uncought exception in renamer thread.")
+                    log.error(str(exc))
+                    raise
             time.sleep(wait)
 
         log.info('Renamer has shutdown.')
