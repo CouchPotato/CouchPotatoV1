@@ -340,8 +340,9 @@ class RenamerCron(cronBase, Library):
                     subtitle = movie['subtitles'][type].pop(0)
                     replacements['ext'] = subtitle['ext']
                     subDest = os.path.join(destination, folder, self.doReplace(fileNaming, replacements))
-
-                    shutil.move(os.path.join(movie['path'], subtitle['filename']), subDest)
+                    old = os.path.join(movie['path'], subtitle['filename'])
+                    if not _move(old, subDest):
+                        break
                     justAdded.append(subDest) # Add to ignore list when removing stuff.
 
             # Add to renaming history
