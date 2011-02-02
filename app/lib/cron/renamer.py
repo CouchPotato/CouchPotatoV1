@@ -311,7 +311,12 @@ class RenamerCron(cronBase, Library):
             if not os.path.isfile(dest) and removed:
                 log.info('Moving file "%s" to %s.' % (latinToAscii(old), dest))
 
-                shutil.move(old, dest)
+                try:
+                    shutil.move(old, dest)
+                except shutil.Error as exc:
+                    log.error("Couldn't move file '%s' to '%s'." % (old, dest))
+                    log.error(str(exc))
+                    break
                 justAdded.append(dest)
             else:
                 try:
