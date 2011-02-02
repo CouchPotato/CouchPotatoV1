@@ -434,6 +434,14 @@ class RenamerCron(cronBase, Library):
     def replaceDoubles(self, string):
         return string.replace('  ', ' ').replace(' .', '.')
 
+def _move(old, dest, suppress=True):
+    try:
+        shutil.move(old, dest)
+    except shutil.Error as exc:
+        log.error("Couldn't move file '%s' to '%s'." % (old, dest))
+        log.error(str(exc))
+        if not suppress:
+            raise exc
 
 def startRenamerCron(config, searcher, debug):
     cron = RenamerCron()
