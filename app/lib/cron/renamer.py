@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import time
+import traceback
 
 
 log = CPLog(__name__)
@@ -45,7 +46,7 @@ class RenamerCron(cronBase, Library):
                     self.running = False
                 except Exception as exc:
                     log.error("!!Uncought exception in renamer thread.")
-                    log.error(str(exc))
+                    log.error(traceback.format_exc())
                     raise
             time.sleep(wait)
 
@@ -144,15 +145,10 @@ class RenamerCron(cronBase, Library):
                 xbmc.updateLibrary()
 
             else:
-                try:
-                    path = movie['path'].split(os.sep)
-                    path.extend(['_UNKNOWN_' + path.pop()])
-                    target = os.sep.join(path)
-                    shutil.move(movie['path'], target)
-                except shutil.Error as err:
-                    log.error("Error while moving '%s' to '%'" %
-                            (movie['path'], target))
-                    log.error(str(err))
+                path = movie['path'].split(os.sep)
+                path.extend(['_UNKNOWN_' + path.pop()])
+                target = os.sep.join(path)
+                _move(movie['path'], target)
 
                 log.info('No Match found for: %s' % str(movie['info']['name']))
         
@@ -315,11 +311,7 @@ class RenamerCron(cronBase, Library):
             if not os.path.isfile(dest) and removed:
                 log.info('Moving file "%s" to %s.' % (latinToAscii(old), dest))
 
-                try:
-                    shutil.move(old, dest)
-                except shutil.Error as exc:
-                    log.error("Couldn't move file '%s' to '%s'." % (old, dest))
-                    log.error(str(exc))
+                if not _move(old, dest):
                     break
                 justAdded.append(dest)
             else:
@@ -328,11 +320,7 @@ class RenamerCron(cronBase, Library):
                 path.extend(['_EXISTS_' + path.pop()])
                 old = file['path']
                 dest = os.sep.join(path)
-                try:
-                    shutil.move(old, dest)
-                except shutil.Error as exc:
-                    log.error("Couldn't move file '%s' to '%s'." % (old, dest))
-                    log.error(str(exc))
+                _move(old, dest)
                 # Break in any case, why did you do that Ruud?
                 break
 
@@ -444,7 +432,7 @@ def _move(old, dest, suppress=True):
         shutil.move(old, dest)
     except shutil.Error as exc:
         log.error("Couldn't move file '%s' to '%s'." % (old, dest))
-        log.error(str(exc))
+        log.error(traceback.format_exc())
         if not suppress:
             raise exc
 
