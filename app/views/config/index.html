@@ -242,6 +242,13 @@
 						You have to be VIP to get an API Key (Hey, that rhymes!).
 					</p>
 				</div>
+				<div class="ctrlHolder">
+					<label for="">English only</label>
+					<input type="checkbox" name="NZBMatrix.english" value="True" ${' checked="checked"' if config.get('NZBMatrix', 'english') else ''} />
+					<p class="formHint">
+						Grab only NZBs in English NZBs where possible
+					</p>
+				</div>
 			</fieldset>
 			<fieldset class="inlineLabels" id="newznabFieldset">
 				<h3>Newznab</h3>
