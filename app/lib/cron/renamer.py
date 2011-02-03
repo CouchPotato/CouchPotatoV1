@@ -107,11 +107,6 @@ class RenamerCron(cronBase, Library):
                     
                     try:
                         x = xmg.MetaGen(movie['movie'].imdb)
-                        fail = False
-                    except xmg.ApiError, e:
-                        log.info('XMG TMDB API failure.  Please report to developers. API returned: %s' % e)
-                        fail = True
-                    if not fail:
                         fanartOrigExt = os.path.splitext(x.get_fanart_url(fanartMinHeight, fanartMinWidth))[-1][1:]
                         posterOrigExt = os.path.splitext(x.get_poster_url(posterMinHeight, posterMinWidth))[-1][1:]
     
@@ -137,6 +132,9 @@ class RenamerCron(cronBase, Library):
                                        posterMinWidth)
     
                         log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
+                    except xmg.ApiError, e:
+                        log.error('XMG TMDB API failure.  Please report to developers. API returned: %s' % e)
+                        log.error(traceback.format_exc())
                         
                 # Notify XBMC
                 log.debug('XBMC')
