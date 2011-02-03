@@ -236,7 +236,7 @@ form {
 		}
 		
 /*** Movie list ***/
-#filterDetails {
+#filterDetails, #clear_downloaded {
 	text-align: right;
 	margin: 5px 10px 10px;
 	font-size: 15px;
@@ -244,7 +244,7 @@ form {
 	float: right;
 	width: 650px;
 }
-	#filterDetails a, #filterDetails span {
+	#filterDetails a, #filterDetails span, #clear_downloaded a {
 		margin: 0 0 0 20px;
 		background: #f3f3f3;
 		border-radius: 5px; 
@@ -256,7 +256,7 @@ form {
 			color:  #666;
 		}
 	
-	#filterDetails .toggle {
+	#filterDetails .toggle, #clear_downloaded .clear_downloaded {
 		margin-left: 10px;
 	}
 	

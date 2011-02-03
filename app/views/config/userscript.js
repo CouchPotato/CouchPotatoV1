@@ -4,11 +4,18 @@
 // @include     http*://*.imdb.com/title/tt*
 // @include     http*://imdb.com/title/tt*
 // @include     ${host}*
-// @include   http://*.sharethe.tv/movies/*
-// @include   http://sharethe.tv/movies/*
+// @include     http://*.sharethe.tv/movies/*
+// @include     http://sharethe.tv/movies/*
+// @include     http://*.moviemeter.nl/film/*
+// @include     http://moviemeter.nl/film/*
+// @include     http://whiwa.net/stats/movie/*
+// @include     http://trakt.tv/movie/*
+// @include     http://*.trak.tv/movie/*
+// @exclude     http://trak.tv/movie/*/*
+// @exclude     http://*.trak.tv/movie/*/*
 // ==/UserScript==
 
-var version = 2;
+var version = 4;
 
 function create() {
     switch (arguments.length) {
@@ -124,7 +131,17 @@ imdb = (function(){
     }
     
     function getYear(){
-        return document.getElementsByTagName('h1')[0].getElementsByTagName('a')[0].text;
+        try {
+            return document.getElementsByTagName('h1')[0].getElementsByTagName('a')[0].text;
+        } catch (e) {
+            var spans = document.getElementsByTagName('h1')[0].getElementsByTagName('span');
+            var pattern = /^\((TV|Video) ([0-9]+)\)$/;
+            for (var i = 0; i < spans.length; i++) {
+                if (spans[i].innerHTML.search(pattern)) {
+                    return spans[i].innerHTML.match(pattern)[1];
+                }
+            }
+        }
     }
     
     var constructor = function(){
@@ -168,11 +185,106 @@ sharethetv = (function(){
     return constructor;
 })();
 
+moviemeter = (function(){
+    
+    function isMovie(){
+        var pattern = /[^/]+\/?$/;
+        var html = document.getElementsByTagName('h1')[0].innerHTML
+    matched = location.href.match(pattern);
+        return null != matched;
+    }
+    
+    function getId(){
+        var pattern = /imdb\.com\/title\/tt(\d+)/;
+        var html = document.getElementsByTagName('html')[0].innerHTML;
+        var imdb_id = html.match(pattern)[1];
+        return imdb_id;
+        
+    }
+    
+    function getYear(){
+        var pattern = /(\d+)[^\d]*$/;
+        var html = document.getElementsByTagName('h1')[0].innerHTML;
+        var year = html.match(pattern)[1];
+        return year;
+        
+    }
+    
+    function constructor(){
+        if(isMovie()){
+            lib.osd(getId(), getYear());    
+        }
+    }
+    return constructor;
+})();
+
+whiwa = (function(){
+    
+    function isMovie(){
+        var pattern = /[^/]+\/?$/;
+        var html = document.getElementsByTagName('h3')[0].innerHTML
+    matched = location.href.match(pattern);
+        return null != matched;
+    }
+    
+    function getId(){
+        var pattern = /imdb\.com\/title\/tt(\d+)/;
+        var html = document.getElementsByTagName('html')[0].innerHTML;
+        var imdb_id = html.match(pattern)[1];
+        return imdb_id;
+        
+    }
+    
+    function getYear(){
+        var pattern = /(\d+)[^\d]*$/;
+        var html = document.getElementsByTagName('h3')[0].innerHTML;
+        var year = html.match(pattern)[1];
+        return year;
+        
+    }
+    
+    function constructor(){
+        if(isMovie()){
+            lib.osd(getId(), getYear());    
+        }
+    }
+    return constructor;
+})();
+
+trakt = (function(){
+    var imdb_input = null;
+    var year_input = null;
+
+    function isMovie(){
+        imdb_input = document.getElementById("meta-imdb-id");
+        year_input = document.getElementById("meta-year");
+        return (null != imdb_input) && (null != year_input);
+    }
+    
+    function getId(){
+        return imdb_input.value.substr(2);
+    }
+    
+    function getYear(){
+        return year_input.value;
+        
+    }
+    
+    function constructor(){
+        if(isMovie()){
+            lib.osd(getId(), getYear());    
+        }
+    }
+    return constructor;
+})();
 // Start
 (function(){
     factory = {
         "imdb.com" : imdb,
-        "sharethe.tv" : sharethetv
+        "sharethe.tv" : sharethetv,
+        "moviemeter.nl" : moviemeter,
+        "whiwa.net" : whiwa,
+        "trakt.tv" : trakt
     };
     for (var i in factory){
         GM_log(i);

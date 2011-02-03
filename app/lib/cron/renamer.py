@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import time
+import traceback
 
 
 log = CPLog(__name__)
@@ -44,11 +45,15 @@ class RenamerCron(cronBase, Library):
         while True and not self.abort:
             now = time.time()
             if (self.lastChecked + self.intervalSec) < now:
-                self.running = True
-                self.lastChecked = now
-                self.doRename()
-                self.running = False
-
+                try:
+                    self.running = True
+                    self.lastChecked = now
+                    self.doRename()
+                    self.running = False
+                except Exception as exc:
+                    log.error("!!Uncought exception in renamer thread.")
+                    log.error(traceback.format_exc())
+                    raise
             time.sleep(wait)
 
         log.info('Renamer has shutdown.')
@@ -108,11 +113,6 @@ class RenamerCron(cronBase, Library):
                     
                     try:
                         x = xmg.MetaGen(movie['movie'].imdb)
-                        fail = False
-                    except xmg.ApiError, e:
-                        log.info('XMG TMDB API failure.  Please report to developers. API returned: %s' % e)
-                        fail = True
-                    if not fail:
                         fanartOrigExt = os.path.splitext(x.get_fanart_url(fanartMinHeight, fanartMinWidth))[-1][1:]
                         posterOrigExt = os.path.splitext(x.get_poster_url(posterMinHeight, posterMinWidth))[-1][1:]
     
@@ -138,6 +138,9 @@ class RenamerCron(cronBase, Library):
                                        posterMinWidth)
     
                         log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
+                    except xmg.ApiError, e:
+                        log.error('XMG TMDB API failure.  Please report to developers. API returned: %s' % e)
+                        log.error(traceback.format_exc())
                         
                 # Notify XBMC
                 log.debug('XBMC')
@@ -146,12 +149,10 @@ class RenamerCron(cronBase, Library):
                 xbmc.updateLibrary()
 
             else:
-                try:
-                    path = movie['path'].split(os.sep)
-                    path.extend(['_UNKNOWN_' + path.pop()])
-                    shutil.move(movie['path'], os.sep.join(path))
-                except IOError:
-                    pass
+                path = movie['path'].split(os.sep)
+                path.extend(['_UNKNOWN_' + path.pop()])
+                target = os.sep.join(path)
+                _move(movie['path'], target)
 
                 log.info('No Match found for: %s' % str(movie['info']['name']))
         
@@ -407,16 +408,17 @@ class RenamerCron(cronBase, Library):
             if not os.path.isfile(dest) and removed:
                 log.info('Moving file "%s" to %s.' % (latinToAscii(old), dest))
 
-                shutil.move(old, dest)
+                if not _move(old, dest):
+                    break
                 justAdded.append(dest)
             else:
-                try:
-                    path = file['path'].split(os.sep)
-                    path.extend(['_EXISTS_' + path.pop()])
-                    shutil.move(file['path'], os.sep.join(path))
-                except IOError:
-                    pass
                 log.error('File %s already exists or not better.' % latinToAscii(filename))
+                path = file['path'].split(os.sep)
+                path.extend(['_EXISTS_' + path.pop()])
+                old = file['path']
+                dest = os.sep.join(path)
+                _move(old, dest)
+                # Break in any case, why did you do that Ruud?
                 break
 
             #get subtitle if any & move
@@ -427,8 +429,9 @@ class RenamerCron(cronBase, Library):
                     subtitle = movie['subtitles'][type].pop(0)
                     replacements['ext'] = subtitle['ext']
                     subDest = os.path.join(destination, folder, self.doReplace(fileNaming, replacements))
-
-                    shutil.move(os.path.join(movie['path'], subtitle['filename']), subDest)
+                    old = os.path.join(movie['path'], subtitle['filename'])
+                    if not _move(old, subDest):
+                        break
                     justAdded.append(subDest) # Add to ignore list when removing stuff.
 
             # Add to renaming history
@@ -521,6 +524,14 @@ class RenamerCron(cronBase, Library):
     def replaceDoubles(self, string):
         return string.replace('  ', ' ').replace(' .', '.')
 
+def _move(old, dest, suppress=True):
+    try:
+        shutil.move(old, dest)
+    except shutil.Error as exc:
+        log.error("Couldn't move file '%s' to '%s'." % (old, dest))
+        log.error(traceback.format_exc())
+        if not suppress:
+            raise exc
 
 def startRenamerCron(config, searcher, debug):
     cron = RenamerCron()
