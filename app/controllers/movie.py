@@ -203,3 +203,19 @@ class MovieController(BaseController):
         self.cron.get('yarr').forceCheck(new.id)
 
         self.flash.add('movie-' + str(new.id), '"%s" (%s) added.' % (new.name, new.year))
+
+    @cherrypy.expose
+    def clear_downloaded(self):
+        '''
+        Clear downloaded movies
+        '''
+
+        qMovie = Db.query(Movie)
+        downloaded = qMovie.order_by(desc(Movie.dateChanged), Movie.name).filter_by(status = u'downloaded').all()
+
+        for movie in downloaded:
+          movie.status = u'deleted'
+
+        Db.flush()
+
+        return redirect(url(controller = 'movie', action = 'index'))
