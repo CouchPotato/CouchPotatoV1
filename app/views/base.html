@@ -75,10 +75,10 @@
 					});
 
 					var hasUpdate = $(document.body).getElement('.updateAvailable');
-					var updateNow = function(updateThis){
+					var updateNow = function(updateThis, url){
 						var us = new Spinner(updateThis).show()
 						new Request.HTML({
-							'url': hasUpdate.getElement('a').get('href'),
+							'url': url,
 							'update': updateThis,
 							'onComplete': function(){
 								us.hide();
@@ -95,7 +95,7 @@
 						if (clone.hasClass('git')){
 							$(document.body).getElements('a[href*=config/update]').addEvent('click', function(e){
 								(e).stop()
-								updateNow(e.target.getParent('.updateAvailable'))
+								updateNow(e.target.getParent('.updateAvailable'), e.target.get('href'))
 							})
 						}
 					}
