@@ -433,6 +433,8 @@ def _move(old, dest, suppress=True):
         log.error(traceback.format_exc())
         if not suppress:
             raise exc
+    else:
+        return True
 
 def startRenamerCron(config, searcher, debug):
     cron = RenamerCron()
