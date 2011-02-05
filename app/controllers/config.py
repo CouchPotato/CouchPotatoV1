@@ -49,20 +49,21 @@ class ConfigController(BaseController):
         config = cherrypy.config.get('config')
 
         # catch checkboxes
-        for bool in [
-                        'global.launchbrowser', 'global.updater',
-                        'XBMC.enabled',
-                        'Meta.enabled',
-                        'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
-                        'Torrents.enabled',
-                        'NZB.enabled',
-                        'NZBMatrix.enabled', 'NZBMatrix.english', 'NZBMatrix.ssl',
-                        'NZBsorg.enabled',
-                        'newznab.enabled',
-                        'Subtitles.enabled', 'Subtitles.addLanguage'
-                    ]:
-            if not data.get(bool):
-                data[bool] = False
+        bools = filter(lambda s: not data.get(s),
+            [
+              'global.launchbrowser', 'global.updater',
+              'XBMC.enabled',
+              'Meta.enabled',
+              'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
+              'Torrents.enabled',
+              'NZB.enabled',
+              'NZBMatrix.enabled', 'NZBMatrix.english', 'NZBMatrix.ssl',
+              'NZBsorg.enabled',
+              'newznab.enabled',
+              'Subtitles.enabled', 'Subtitles.addLanguage'
+            ]
+        )
+        data.update(data.fromkeys(bools, False))
 
         # Do quality order
         order = data.get('Quality.order').split(',')
