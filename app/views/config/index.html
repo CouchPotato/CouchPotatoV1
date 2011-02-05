@@ -243,6 +243,13 @@
 					</p>
 				</div>
 				<div class="ctrlHolder">
+					<label for="">Use SSL</label>
+					<input type="checkbox" name="NZBMatrix.ssl" value="True" ${' checked="checked"' if config.get('NZBMatrix', 'ssl') else ''} />
+					<p class="formHint">
+					  Download NZBs via SSL.
+					</p>
+				</div>
+				<div class="ctrlHolder">
 					<label for="">English only</label>
 					<input type="checkbox" name="NZBMatrix.english" value="True" ${' checked="checked"' if config.get('NZBMatrix', 'english') else ''} />
 					<p class="formHint">

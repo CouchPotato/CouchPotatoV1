@@ -52,6 +52,7 @@ class nzbMatrix(nzbBase):
             'apikey': self.conf('apikey'),
             'searchin': 'weblink',
             'english': 1 if self.conf('english') else 0,
+            'ssl': 1 if self.conf('ssl') else 0,
         })
         url = "%s?%s" % (self.searchUrl, arguments)
         cacheId = str(movie.imdb) + '-' + str(catId)

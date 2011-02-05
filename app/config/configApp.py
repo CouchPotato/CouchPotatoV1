@@ -71,6 +71,7 @@ class configApp():
         self.setDefault('NZBMatrix', 'username', '')
         self.setDefault('NZBMatrix', 'apikey', '')
         self.setDefault('NZBMatrix', 'english', False)
+        self.setDefault('NZBMatrix', 'ssl', False)
         self.addSection('newznab')
         self.setDefault('newznab', 'enabled', False)
         self.setDefault('newznab', 'host', '')

@@ -50,14 +50,17 @@ class ConfigController(BaseController):
 
         # catch checkboxes
         for bool in [
-                    'XBMC.enabled', 'Meta.enabled',
-                    'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
-                     'global.launchbrowser', 'global.updater',
-                     'Torrents.enabled',
-                     'NZB.enabled',
-                     'NZBMatrix.enabled', 'NZBMatrix.english', 'NZBsorg.enabled', 'newznab.enabled',
-                     'Subtitles.enabled', 'Subtitles.addLanguage'
-                     ]:
+                        'global.launchbrowser', 'global.updater',
+                        'XBMC.enabled',
+                        'Meta.enabled',
+                        'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
+                        'Torrents.enabled',
+                        'NZB.enabled',
+                        'NZBMatrix.enabled', 'NZBMatrix.english', 'NZBMatrix.ssl',
+                        'NZBsorg.enabled',
+                        'newznab.enabled',
+                        'Subtitles.enabled', 'Subtitles.addLanguage'
+                    ]:
             if not data.get(bool):
                 data[bool] = False
 
