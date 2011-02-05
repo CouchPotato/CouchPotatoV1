@@ -16,11 +16,11 @@ Features:
 * Support for NZBs.org, NZBMatrix, Newznab.com and ThePirateBay.
 
 
-![preview thumb](http://github.com/RuudBurger/CouchPotato/raw/master/media/images/screenshot.png)
+![preview thumb](https://github.com/RuudBurger/CouchPotato/raw/master/media/images/screenshot.png)
 
 UserScript:
 
-![imdb](http://github.com/RuudBurger/CouchPotato/raw/master/media/images/userscriptPreview.png)
+![imdb](https://github.com/RuudBurger/CouchPotato/raw/master/media/images/userscriptPreview.png)
 
 If you find a bug or need a feature that you think is awesome! Let me know!
 
@@ -33,11 +33,11 @@ I'm building CouchPotato in my spare time, so if you want to buy me a coke while
 
 ## Changelog
 
-[Can be found here](http://github.com/RuudBurger/CouchPotato/blob/master/changelog.md)
+[Can be found here](https://github.com/RuudBurger/CouchPotato/blob/master/changelog.md)
 
 ## Todo
 
-[Can be found here](http://github.com/RuudBurger/CouchPotato/blob/master/todo.md)
+[Can be found here](https://github.com/RuudBurger/CouchPotato/blob/master/todo.md)
 
 ## Dependencies
 
@@ -67,7 +67,7 @@ To run CP you will need Python.
 
 Windows:
 
-* Download the latest Windows build [Can be found here](http://github.com/RuudBurger/CouchPotato/downloads)
+* Download the latest Windows build [Can be found here](https://github.com/RuudBurger/CouchPotato/downloads)
 * Extract it wherever you like
 * Start CouchPotato.exe
 * Set your username & password in the settings if you want.
