@@ -48,6 +48,7 @@ class configApp():
         self.setDefault('global', 'urlBase', '')
         self.setDefault('global', 'ignoreWords', '')
         self.setDefault('global', 'preferredWords', '')
+        self.setDefault('global', 'requiredWords', '')
 
         self.addSection('Renamer')
         self.setDefault('Renamer', 'enabled', False)

@@ -66,6 +66,13 @@
 						Comma seperated. NZB/Torrents containing these words are preferred. Example: Diamond, BluRay, DTS
 					</p>
 				</div>
+				<div class="ctrlHolder">
+					<label for="">Required words</label>
+					<input type="text" name="global.requiredWords" value="${config.get('global', 'requiredWords')}" class="textInput large"/>
+					<p class="formHint">
+						Comma seperated. NZB/Torrents must contain these words. Example: GERMAN, DTS
+					</p>
+				</div>
 			</fieldset>
 		</div>
 

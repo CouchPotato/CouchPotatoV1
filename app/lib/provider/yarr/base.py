@@ -107,8 +107,16 @@ class nzbBase(rss):
             log.info('Already tried this one, ignored: %s' % item.name)
             return False
 
-        # Contains ignored word
         nzbWords = re.split('\W+', self.toSearchString(item.name).lower())
+
+        # Must contain any required words
+        requiredWords = self.config.get('global', 'requiredWords').split(',')
+        for word in requiredWords:
+            if word.lower().strip() not in nzbWords:
+                log.info('NZB does not contain required word %s: %s' % (word, item.name))
+                return False
+
+        # Contains ignored word
         ignoredWords = self.config.get('global', 'ignoreWords').split(',')
         for word in ignoredWords:
             if word.strip() and word.strip().lower() in nzbWords:
