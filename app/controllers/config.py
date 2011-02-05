@@ -55,7 +55,7 @@ class ConfigController(BaseController):
                      'global.launchbrowser', 'global.updater',
                      'Torrents.enabled',
                      'NZB.enabled',
-                     'NZBMatrix.enabled', 'NZBsorg.enabled', 'newznab.enabled',
+                     'NZBMatrix.enabled', 'NZBMatrix.english', 'NZBsorg.enabled', 'newznab.enabled',
                      'Subtitles.enabled', 'Subtitles.addLanguage'
                      ]:
             if not data.get(bool):
