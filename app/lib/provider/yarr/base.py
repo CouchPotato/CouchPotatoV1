@@ -112,7 +112,7 @@ class nzbBase(rss):
 
         nzbWords = get_words(item.name)
         requiredWords = get_words(self.config.get('global', 'requiredWords'))
-        missing = set(nzbWords) - set(requiredWords)
+        missing = set(requiredWords) - set(nzbWords)
         if missing:
             log.info("NZB '%s' misses the following required words: %s" %
                             (item.name, ", ".join(missing)))
