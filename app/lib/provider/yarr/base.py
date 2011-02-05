@@ -107,21 +107,23 @@ class nzbBase(rss):
             log.info('Already tried this one, ignored: %s' % item.name)
             return False
 
-        nzbWords = re.split('\W+', self.toSearchString(item.name).lower())
+        def get_words(text):
+            return re.split('\W+', self.toSearchString(text).lower())
 
-        # Must contain any required words
-        requiredWords = self.config.get('global', 'requiredWords').split(',')
-        for word in requiredWords:
-            if word.lower().strip() not in nzbWords:
-                log.info('NZB does not contain required word %s: %s' % (word, item.name))
-                return False
+        nzbWords = get_words(item.name)
+        requiredWords = get_words(self.config.get('global', 'requiredWords'))
+        missing = set(nzbWords) - set(requiredWords)
+        if missing:
+            log.info("NZB '%s' misses the following required words: %s" %
+                            (item.name, ", ".join(missing)))
+            return False
 
-        # Contains ignored word
-        ignoredWords = self.config.get('global', 'ignoreWords').split(',')
-        for word in ignoredWords:
-            if word.strip() and word.strip().lower() in nzbWords:
-                log.info('NZB contains ignored word %s: %s' % (word, item.name))
-                return False
+        ignoredWords = get_words(self.config.get('global', 'ignoreWords'))
+        blacklisted = set(ignoredWords).intersect(set(nzbWords))
+        if blacklisted:
+            log.info("NZB '%s' contains the following blacklisted words: %s" %
+                            (item.name, ", ".join(blacklisted)))
+            return False
 
         q = Qualities()
         type = q.types.get(qualityType)
