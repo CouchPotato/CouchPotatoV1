@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 // ==UserScript==
 // @name        CouchPotato UserScript
 // @description Add movies to your CouchPotato via external sites like IMDB
@@ -409,7 +408,7 @@ tmdb = (function(){
             var TMDB_API_KEY = "31582644f51aa19f8fcd9b2998e17a9d"
 
             mName = document.title.substr(0, document.title.indexOf("TMDb")-3).replace(/ /g, "+");
-            mName = mName.replace(/·/g, "-");
+            //mName = mName.replace(/[^a-zA-Z 0-9\-\+.,!]+/g, "+");
 
             var url = 'http://api.themoviedb.org/2.1/Movie.search/en/xml/' + TMDB_API_KEY + '/' + mName;
 
