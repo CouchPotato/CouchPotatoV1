@@ -108,18 +108,19 @@ class nzbBase(rss):
             return False
 
         def get_words(text):
-            return re.split('\W+', self.toSearchString(text).lower())
+            return filter(None, re.split('\W+', text.lower()))
 
         nzbWords = get_words(item.name)
         requiredWords = get_words(self.config.get('global', 'requiredWords'))
         missing = set(requiredWords) - set(nzbWords)
+        print missing
         if missing:
             log.info("NZB '%s' misses the following required words: %s" %
                             (item.name, ", ".join(missing)))
             return False
 
         ignoredWords = get_words(self.config.get('global', 'ignoreWords'))
-        blacklisted = set(ignoredWords).intersect(set(nzbWords))
+        blacklisted = set(ignoredWords).intersection(set(nzbWords))
         if blacklisted:
             log.info("NZB '%s' contains the following blacklisted words: %s" %
                             (item.name, ", ".join(blacklisted)))
