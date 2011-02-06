@@ -91,10 +91,23 @@ class rss:
 
         return self.available
 
-    def urlopen(self, url, timeout = 10):
+
+    def urlopen(self, url, timeout = 10, username = '', password = ''):
 
         self.wait()
-        data = urllib2.urlopen(url, timeout = timeout)
+        try:
+          if (username != '' and password != ''):
+            passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
+            passman.add_password(None, url, username, password)
+            authhandler = urllib2.HTTPBasicAuthHandler(passman)
+            opener = urllib2.build_opener(authhandler)
+            data = opener.open(url, timeout = timeout)
+          else:
+            data = urllib2.urlopen(url, timeout = timeout)
+
+        except IOError, e:
+          data = ''
+
         self.lastUse = time.time()
 
         return data
