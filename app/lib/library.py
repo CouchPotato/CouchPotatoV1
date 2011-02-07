@@ -21,7 +21,7 @@ class Library:
     ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '.appledb', '.appledesktop', '/._', 'cp.cpnfo'] #unpacking, smb-crap, hidden files
     ignoreNames = ['extract', 'extracting']
     extensions = {
-        'movie': ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso'],
+        'movie': ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso', '*.img', '*.vob', '*.ISO', '*.IMG', '*.VOB'],
         'nfo': ['*.nfo'],
         'subtitle': ['*.sub', '*.srt', '*.ssa', '*.ass'],
         'subtitleExtras': ['*.idx'],
@@ -100,6 +100,9 @@ class Library:
                     'extras': []
                 }
             }
+
+            if movie['folder'] == 'VIDEO_TS':
+                movie['folder'] = movie['path'].split(os.path.sep)[-2:-1].pop()
 
             patterns = []
             for extType in self.extensions.itervalues():
