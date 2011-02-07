@@ -21,7 +21,7 @@ class Library:
     ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '.appledb', '.appledesktop', '/._', 'cp.cpnfo'] #unpacking, smb-crap, hidden files
     ignoreNames = ['extract', 'extracting']
     extensions = {
-        'movie': ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso', '*.img', '*.vob', '*.ISO', '*.IMG', '*.VOB'],
+        'movie': ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso', '*.img', '*.vob'],
         'nfo': ['*.nfo'],
         'subtitle': ['*.sub', '*.srt', '*.ssa', '*.ass'],
         'subtitleExtras': ['*.idx'],
@@ -117,7 +117,7 @@ class Library:
                        'filename': filename,
                        'ext': os.path.splitext(filename)[1].lower()[1:], #[1:]to remove . from extension
                     }
-                    
+
                     #cpnfo
                     if new.get('filename') in self.extensions['cpnfo']:
                         movie['cpnfo'] = new.get('filename')
@@ -261,7 +261,7 @@ class Library:
 
         movieName = self.cleanName(movie['folder'])
         movieYear = self.findYear(movie['folder'])
-        
+
         #check to see if the downloaded movie nfo file agrees with what we thought we were downloading
         if movie['info']['cpnfoImdb'] and movie['info']['imdb']:
             cpnfoimdb = movie['info']['cpnfoImdb'].replace("tt", "")
