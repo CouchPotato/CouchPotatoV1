@@ -20,7 +20,7 @@ class Searcher():
         self.config = config
         self.debug = debug
 
-        for yarr in [newzbin, nzbMatrix, nzbs, newznab, tpb]:
+        for yarr in [nzbMatrix, nzbs, newznab, tpb]:
             m = yarr(config)
             self.sources.append(m)
 
