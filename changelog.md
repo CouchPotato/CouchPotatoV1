@@ -1,8 +1,25 @@
 CouchPotato
 =====
 
-Version 28 (not released):
-* [More](https://github.com/RuudBurger/CouchPotato/compare/59212f6d9b29d7b4db00fe615838f00aa7071264...master)
+Version 29 (not released):
+
+* [More](https://github.com/RuudBurger/CouchPotato/compare/65ade7a0dc978c23ef44a6bb54e8fea3d6c0ae03...master)
+
+Version 28:
+
+* New: Ignore NZB/Torrent with specific words
+* New: Require specific words inside a NZB/Torrent 
+* Enhancement: UserScript, Direct to TV movie support for IMDB
+* Enhancement: UserScript, MovieMeter.nl support
+* Enhancement: UserScript, Whiwa.net support
+* Enhancement: UserScript, Trakt.tv support
+* Enhancement: Firefox only - UserScript, AppleTrailer support
+* Enhancement: Firefox only - UserScript, TMDB support
+* Enhancement: English only support for NZBMatrix feed
+* Enhancement: Allow dvdr inside screener searches
+* Enhancement: Clear all downloaded movies from Wanted page
+* Enhancement: IMDB post processing for renamer
+* [More](https://github.com/RuudBurger/CouchPotato/compare/59212f6d9b29d7b4db00fe615838f00aa7071264...65ade7a0dc978c23ef44a6bb54e8fea3d6c0ae03)
 
 Version 27:
 
