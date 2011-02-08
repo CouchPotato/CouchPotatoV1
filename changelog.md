@@ -1,9 +1,15 @@
 CouchPotato
 =====
 
-Version 29 (not released):
+Version 30 (not released):
 
-* [More](https://github.com/RuudBurger/CouchPotato/compare/65ade7a0dc978c23ef44a6bb54e8fea3d6c0ae03...master)
+* [More](https://github.com/RuudBurger/CouchPotato/compare/e78659c8892619773c64b1249ce40bc4f0f7522a...master)
+
+Version 29:
+
+* Fix: Bug in UserScript crashed Chrome
+* Fix: Bug in ignored words returned empty list
+* [More](https://github.com/RuudBurger/CouchPotato/compare/65ade7a0dc978c23ef44a6bb54e8fea3d6c0ae03...e78659c8892619773c64b1249ce40bc4f0f7522a)
 
 Version 28:
 
