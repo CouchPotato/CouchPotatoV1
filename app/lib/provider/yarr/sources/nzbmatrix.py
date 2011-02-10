@@ -52,7 +52,6 @@ class nzbMatrix(nzbBase):
             'apikey': self.conf('apikey'),
             'searchin': 'weblink',
             'english': 1 if self.conf('english') else 0,
-            'ssl': 1 if self.conf('ssl') else 0,
         })
         url = "%s?%s" % (self.searchUrl, arguments)
         cacheId = str(movie.imdb) + '-' + str(catId)
@@ -102,7 +101,7 @@ class nzbMatrix(nzbBase):
                     new.name = title
                     new.date = int(time.mktime(parse(date).timetuple()))
                     new.size = self.parseSize(size)
-                    new.url = self.downloadLink(id)
+                    new.url = self.downloadLink(id).replace('http://', 'https://')
                     new.detailUrl = self.detailLink(id)
                     new.content = self.gettextelement(nzb, "description")
                     new.score = self.calcScore(new, movie)
