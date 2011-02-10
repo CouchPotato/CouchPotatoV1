@@ -13,10 +13,18 @@ class newzbin(nzbBase):
     name = 'Newzbin'
     searchUrl = 'https://www.newzbin.com/search/'
 
+    formatIds = {
+        2: ['scr'],
+        1: ['cam'],
+        4: ['tc'],
+        8: ['ts'],
+        1024: ['r5'],
+    }
     catIds = {
         2097152: ['1080p'],
         524288: ['720p'],
         262144: ['brrip'],
+        2: ['dvdr'],
     }
     catBackupId = -1
 
@@ -40,6 +48,7 @@ class newzbin(nzbBase):
         if not self.enabled() or not self.isAvailable(self.searchUrl):
             return results
 
+        formatId = self.getFormatId(type)
         catId = self.getCatId(type)
 
         arguments = urlencode({
@@ -53,10 +62,11 @@ class newzbin(nzbBase):
             'feed': 'rss',
             'category': '6',
             'ps_rb_video_format': str(catId),
+            'ps_rb_source': str(formatId),
         })
 
         url = "%s?%s" % (self.searchUrl, arguments)
-        cacheId = str(movie.imdb)
+        cacheId = str('%s %s %s' % (movie.imdb, str(formatId), str(catId)))
         singleCat = True
 
         try:
@@ -95,6 +105,10 @@ class newzbin(nzbBase):
 
                     REPORT_NS = 'http://www.newzbin.com/DTD/2007/feeds/report/';
 
+                    # Add attributes to name
+                    for attr in item.find('{%s}attributes' % REPORT_NS):
+                        title += ' ' + attr.text
+
                     id = int(self.gettextelement(item, '{%s}id' % REPORT_NS))
                     size = str(int(self.gettextelement(item, '{%s}size' % REPORT_NS)) / 1024 / 1024) + ' mb'
                     date = str(self.gettextelement(item, '{%s}postdate' % REPORT_NS))
@@ -121,3 +135,11 @@ class newzbin(nzbBase):
                 log.error('Failed to parse XML response from newzbin.com')
 
         return results
+
+    def getFormatId(self, format):
+        for id, quality in self.formatIds.iteritems():
+            for q in quality:
+                if q == format:
+                    return id
+
+        return self.catBackupId
