@@ -411,7 +411,7 @@ class RenamerCron(cronBase, Library):
         replaced = string
         for x, r in replacements.iteritems():
             if r is not None:
-                replaced = replaced.replace('<' + x + '>', r)
+                replaced = replaced.replace(u'<' + unicode(x) + u'>', unicode(r))
             else:
                 #If information is not available, we don't want the tag in the filename
                 replaced = replaced.replace('<' + x + '>', '')
