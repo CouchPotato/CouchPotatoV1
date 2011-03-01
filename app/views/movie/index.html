@@ -107,6 +107,8 @@
 				qualitySpan.addClass('active')
 				if(qitem.hasClass('completed'))
 					qualitySpan.addClass('completed')
+				if(qitem.getElement('.markComplete').hasClass('active'))
+					qualitySpan.addClass('finished')
 			})
 			el.addEvent('outerClick', function(){
 				el.removeClass('active')
