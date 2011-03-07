@@ -506,29 +506,35 @@
 					<label for="">Update library</label>
 					<input type="checkbox" name="NMJ.enabled" value="True" ${' checked="checked"' if config.get('NMJ', 'enabled') else ''} />
 					<p class="formHint">
-						Sends a notification and updates your NMJ library.
+						Updates your NMJ library.
 					</p>
 				</div>
 				<div class="ctrlHolder">
 					<label for="">Host</label>
 					<input type="text" name="NMJ.host" value="${config.get('NMJ', 'host')}" class="textInput large NMJhost"/>
 					<p class="formHint">
-						Including port. Example: 192.168.1.20:8080
+						Example: 192.168.1.20
 					</p>
 				</div>
 				<div class="ctrlHolder">
 					<a href="#nmjAuto" id="nmjAuto">Autodetect NMJ Database and mount</a>
 					<p class="formHint">
-						Popcorn Hour needs to be on and NMJ must be running.
+						Popcorn Hour needs to be on, and NMJ must be running.
 					</p>
 				</div>
 				<div class="ctrlHolder">
 					<label for="">NMJ Database</label>
 					<input type="database" name="NMJ.database" value="${config.get('NMJ', 'database')}" autocomplete="off" class=" textInput large NMJdatabase"/>
+					<p class="formHint">
+						Path to the NMJ Database.
+					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">NMJ Mount</label>
+					<label for="">NMJ Mount URL</label>
 					<input type="mount" name="NMJ.mount" value="${config.get('NMJ', 'mount')}" autocomplete="off" class="textInput large NMJmount"/>
+					<p class="formHint">
+						Only needed when the database is on a network path.
+					</p>
 				</div>
 				<div class="ctrlHolder">
 					<a href="#nmjTest" id="nmjTest">Update the NMJ database, see if it works.</a>
