@@ -725,6 +725,7 @@
 			new Request.JSON({
 				url: './autoNMJ/',
 				onComplete: function(response){
+					if (response == null) return
 					form.getElement('.NMJdatabase').value = response.database;
 					form.getElement('.NMJmount').value = response.mount;
 				},
