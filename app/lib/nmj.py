@@ -7,6 +7,11 @@ import re
 
 log = CPLog(__name__)
 
+try:
+    import xml.etree.cElementTree as etree
+except ImportError:
+    import xml.etree.ElementTree as etree
+
 class NMJ:
 
     host = ''
