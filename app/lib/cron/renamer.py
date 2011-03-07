@@ -2,9 +2,11 @@ from app import latinToAscii
 from app.config.cplog import CPLog
 from app.config.db import RenameHistory, Session as Db
 from app.lib import xbmc
+from app.lib import nmj
 from app.lib.cron.base import cronBase
 from app.lib.library import Library
 from app.lib.xbmc import XBMC
+from app.lib.nmj import NMJ
 from xmg import xmg
 import cherrypy
 import os
@@ -140,6 +142,11 @@ class RenamerCron(cronBase, Library):
                 xbmc = XBMC()
                 xbmc.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
                 xbmc.updateLibrary()
+
+                # Notify NMJ
+                log.debug('NMJ')
+                NMJ = NMJ()
+                nmj.updateLibrary()
 
             else:
                 path = movie['path'].split(os.sep)

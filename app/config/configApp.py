@@ -131,6 +131,12 @@ class configApp():
         self.setDefault('XBMC', 'password', 'xbmc')
         self.setDefault('XBMC', 'updateOneOnly', False)
 
+        self.addSection('NMJ')
+        self.setDefault('NMJ', 'enabled', False)
+        self.setDefault('NMJ', 'host', '')
+        self.setDefault('NMJ', 'database', '')
+        self.setDefault('NMJ', 'mount', '')
+
         self.addSection('Meta')
         self.setDefault('Meta', 'enabled', False)
         self.setDefault('Meta', 'fanartMinHeight', 0)

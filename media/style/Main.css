@@ -974,7 +974,7 @@ h1 {
 				font-weight: bold;
 			}
 
-		#xbmcFieldset a {
+		#xbmcFieldset a, nmjFieldset a {
 			margin-left: 34%;
 			display: block;
 			text-align: center;

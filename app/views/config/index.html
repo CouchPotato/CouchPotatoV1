@@ -500,7 +500,41 @@
 					</p>
 				</div>
 			</fieldset>
-			<fieldset class="inlineLabels left">
+			<fieldset class="inlineLabels left" id="nmjFieldset">
+				<h3>Networked Media Jukebox</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Update library</label>
+					<input type="checkbox" name="NMJ.enabled" value="True" ${' checked="checked"' if config.get('NMJ', 'enabled') else ''} />
+					<p class="formHint">
+						Sends a notification and updates your NMJ library.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Host</label>
+					<input type="text" name="NMJ.host" value="${config.get('NMJ', 'host')}" class="textInput large NMJhost"/>
+					<p class="formHint">
+						Including port. Example: 192.168.1.20:8080
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<a href="#nmjAuto" id="nmjAuto">Autodetect NMJ Database and mount</a>
+					<p class="formHint">
+						Popcorn Hour needs to be on and NMJ must be running.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">NMJ Database</label>
+					<input type="database" name="NMJ.database" value="${config.get('NMJ', 'database')}" autocomplete="off" class=" textInput large NMJdatabase"/>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">NMJ Mount</label>
+					<input type="mount" name="NMJ.mount" value="${config.get('NMJ', 'mount')}" autocomplete="off" class="textInput large NMJmount"/>
+				</div>
+				<div class="ctrlHolder">
+					<a href="#nmjTest" id="nmjTest">Update the NMJ database, see if it works.</a>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels right">
 				<h3>Metadata</h3>
 				<div class="ctrlHolder checkbox">
 					<label for="">Save metadata</label>
@@ -607,7 +641,7 @@
 	            fieldset.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
 	    }
 		
-		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset'],function(item){
+		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset'],function(item){
 		    var fieldset = $(item)
 		    var checkbox = fieldset.getElement('[type=checkbox]')
 		    isEnabled(checkbox, fieldset)
@@ -672,6 +706,29 @@
 			new Request({
 				'url': './testXBMC/',
 				'data': $('xbmcFieldset')
+			}).send()
+		})
+		$('nmjTest').addEvent('click', function(e){
+			(e).stop()
+			new Request({
+				'url': './testNMJ/',
+				'data': $('nmjFieldset')
+			}).send()
+		})
+		$('nmjAuto').addEvent('click', function(e){
+			(e).stop()
+			if (form.getElement('.NMJhost').value == '') {
+				alert('Please fill in the Popcorn Hour IP address');
+				form.getElement('.NMJhost').focus();
+				return
+			}
+			new Request.JSON({
+				url: './autoNMJ/',
+				onComplete: function(response){
+					form.getElement('.NMJdatabase').value = response.database;
+					form.getElement('.NMJmount').value = response.mount;
+				},
+				data: $('nmjFieldset')
 			}).send()
 		})
 
