@@ -334,11 +334,11 @@
 					<a href="${url(controller='config',action='exit')}" class="submit">Shutdown</a><span class="or">or</span>
 					<a href="${url(controller='config',action='restart')}" class="submit restart">Restart</a>
 				</div>
-				<div id="versionInfo">
-					<h3>Version ${updater.getVersion()}</h3>
-				% if updater.useUpdater():
-					<a href="${url(controller='config', action='checkForUpdate')}">Check for new version</a>
-				% endif
+				<div class="site">
+					<p>
+						Need help, got a question or problem?<br />
+						<a href="http://couchpotato.tenderapp.com/" target="_blank">Find help on the Support Forum</a>
+					</p>
 				</div>
 				<div id="donate">
 					<div>I'm building CouchPotato in my spare time, so if you want to buy me a coke while I'm coding, that would be awesome!</div>
@@ -348,6 +348,12 @@
 				</div>
 				<div class="site">
 					<a href="http://couchpotatoapp.com" target="_blank">CouchPotatoApp.com</a>
+				</div>
+				<div id="versionInfo">
+					<h3>Version ${updater.getVersion()}</h3>
+				% if updater.useUpdater():
+					<a href="${url(controller='config', action='checkForUpdate')}">Check for new version</a>
+				% endif
 				</div>
 			</fieldset>
 		</div>
