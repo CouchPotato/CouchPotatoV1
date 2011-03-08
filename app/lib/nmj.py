@@ -110,7 +110,7 @@ class NMJ:
             return False
 
         if int(result) > 0:
-            log.error(u"Popcorn Hour returned an errorcode: %i" % (result))
+            log.error(u"Popcorn Hour returned an errorcode: %s" % (result))
             return False
         else:
             log.info("NMJ started background scan")
