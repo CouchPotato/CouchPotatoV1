@@ -145,7 +145,7 @@ class RenamerCron(cronBase, Library):
 
                 # Notify NMJ
                 log.debug('NMJ')
-                NMJ = NMJ()
+                nmj = NMJ()
                 nmj.updateLibrary()
 
             else:
