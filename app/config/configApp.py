@@ -48,6 +48,7 @@ class configApp():
         self.setDefault('global', 'urlBase', '')
         self.setDefault('global', 'ignoreWords', '')
         self.setDefault('global', 'preferredWords', '')
+        self.setDefault('global', 'requiredWords', '')
 
         self.addSection('Renamer')
         self.setDefault('Renamer', 'enabled', False)
@@ -79,6 +80,10 @@ class configApp():
         self.setDefault('NZBMatrix', 'username', '')
         self.setDefault('NZBMatrix', 'apikey', '')
         self.setDefault('NZBMatrix', 'english', False)
+        self.addSection('newzbin')
+        self.setDefault('newzbin', 'enabled', False)
+        self.setDefault('newzbin', 'username', '')
+        self.setDefault('newzbin', 'password', '')
         self.addSection('newznab')
         self.setDefault('newznab', 'enabled', False)
         self.setDefault('newznab', 'host', '')
@@ -133,6 +138,12 @@ class configApp():
         self.setDefault('XBMC', 'username', 'xbmc')
         self.setDefault('XBMC', 'password', 'xbmc')
         self.setDefault('XBMC', 'updateOneOnly', False)
+
+        self.addSection('NMJ')
+        self.setDefault('NMJ', 'enabled', False)
+        self.setDefault('NMJ', 'host', '')
+        self.setDefault('NMJ', 'database', '')
+        self.setDefault('NMJ', 'mount', '')
 
         self.addSection('Meta')
         self.setDefault('Meta', 'enabled', False)

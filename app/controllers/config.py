@@ -3,6 +3,7 @@ from app.config.db import QualityTemplate, Session as Db
 from app.controllers import BaseController, redirect
 from app.lib.qualities import Qualities
 from app.lib.xbmc import XBMC
+from app.lib.nmj import NMJ
 import cherrypy
 import json
 import sys
@@ -49,17 +50,23 @@ class ConfigController(BaseController):
         config = cherrypy.config.get('config')
 
         # catch checkboxes
-        for bool in [
-                    'XBMC.enabled', 'Meta.enabled',
-                    'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
-                     'global.launchbrowser', 'global.updater',
-                     'Torrents.enabled',
-                     'NZB.enabled',
-                     'NZBMatrix.enabled', 'NZBsorg.enabled', 'newznab.enabled',
-                     'Subtitles.enabled', 'Subtitles.addLanguage'
-                     ]:
-            if not data.get(bool):
-                data[bool] = False
+        bools = filter(lambda s: not data.get(s),
+            [
+              'global.launchbrowser', 'global.updater',
+              'XBMC.enabled',
+              'NMJ.enabled',
+              'Meta.enabled',
+              'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
+              'Torrents.enabled',
+              'NZB.enabled',
+              'NZBMatrix.enabled', 'NZBMatrix.english', 'NZBMatrix.ssl',
+              'newzbin.enabled',
+              'NZBsorg.enabled',
+              'newznab.enabled',
+              'Subtitles.enabled', 'Subtitles.addLanguage'
+            ]
+        )
+        data.update(data.fromkeys(bools, False))
 
         # Do quality order
         order = data.get('Quality.order').split(',')
@@ -95,6 +102,21 @@ class ConfigController(BaseController):
         xbmc.test(data.get('XBMC.host'), data.get('XBMC.username'), data.get('XBMC.password'))
 
         return ''
+
+    @cherrypy.expose
+    def testNMJ(self, **data):
+
+        nmj = NMJ()
+        nmj.test(data.get('NMJ.host'), data.get('NMJ.database'), data.get('NMJ.mount'))
+
+        return ''
+
+    @cherrypy.expose
+    def autoNMJ(self, **data):
+
+        nmj = NMJ()
+        cherrypy.response.headers['Content-Type'] = 'text/javascript'
+        return nmj.auto(data.get('NMJ.host'))
 
     @cherrypy.expose
     def exit(self):

@@ -47,6 +47,11 @@ class sabNzbd():
             'name': nzb.url
         }
 
+        # sabNzbd complains about "invalid archive file" for newzbin urls 
+        # added using addurl, works fine with addid
+        if nzb.addbyid:
+            params['mode'] = 'addid'
+
         if self.conf('username'):
             params['ma_username'] = self.conf('username')
         if self.conf('password'):

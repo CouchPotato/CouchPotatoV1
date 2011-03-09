@@ -2,9 +2,11 @@ from app import latinToAscii
 from app.config.cplog import CPLog
 from app.config.db import RenameHistory, Session as Db
 from app.lib import xbmc
+from app.lib import nmj
 from app.lib.cron.base import cronBase
 from app.lib.library import Library
 from app.lib.xbmc import XBMC
+from app.lib.nmj import NMJ
 from xmg import xmg
 import cherrypy
 import os
@@ -53,7 +55,6 @@ class RenamerCron(cronBase, Library):
                 except Exception as exc:
                     log.error("!!Uncought exception in renamer thread.")
                     log.error(traceback.format_exc())
-                    raise
             time.sleep(wait)
 
         log.info('Renamer has shutdown.')
@@ -110,12 +111,12 @@ class RenamerCron(cronBase, Library):
                     posterFileNaming = self.config.get('Meta', 'posterFileName')
                     posterMinHeight = self.config.get('Meta', 'posterMinHeight')
                     posterMinWidth = self.config.get('Meta', 'posterMinWidth')
-                    
+
                     try:
                         x = xmg.MetaGen(movie['movie'].imdb)
                         fanartOrigExt = os.path.splitext(x.get_fanart_url(fanartMinHeight, fanartMinWidth))[-1][1:]
                         posterOrigExt = os.path.splitext(x.get_poster_url(posterMinHeight, posterMinWidth))[-1][1:]
-    
+
                         nfo_location = os.path.join(finalDestination['directory'],
                                                     self.genMetaFileName(movie, nfoFileName))
                         fanart_filename = self.genMetaFileName(movie,
@@ -124,29 +125,34 @@ class RenamerCron(cronBase, Library):
                         poster_filename = self.genMetaFileName(movie,
                                                                posterFileNaming,
                                                                add_tags = {'orig_ext': posterOrigExt})
-    
+
                         x.write_nfo(nfo_location)
-    
+
                         x.write_fanart(fanart_filename,
                                        finalDestination['directory'],
                                        fanartMinHeight,
                                        fanartMinWidth)
-    
+
                         x.write_poster(poster_filename,
                                        finalDestination['directory'],
                                        posterMinHeight,
                                        posterMinWidth)
-    
+
                         log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
                     except xmg.ApiError, e:
                         log.error('XMG TMDB API failure.  Please report to developers. API returned: %s' % e)
                         log.error(traceback.format_exc())
-                        
+
                 # Notify XBMC
                 log.debug('XBMC')
                 xbmc = XBMC()
                 xbmc.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
                 xbmc.updateLibrary()
+
+                # Notify NMJ
+                log.debug('NMJ')
+                nmj = NMJ()
+                nmj.updateLibrary()
 
             else:
                 path = movie['path'].split(os.sep)
@@ -155,7 +161,7 @@ class RenamerCron(cronBase, Library):
                 _move(movie['path'], target)
 
                 log.info('No Match found for: %s' % str(movie['info']['name']))
-        
+
         #Cleanup
         if self.conf('cleanup'):
             log.debug('cleanup')
@@ -360,7 +366,7 @@ class RenamerCron(cronBase, Library):
         justAdded = []
         finalDestination = None
         finalFilename = self.doReplace(fileNaming, replacements)
-        
+
         #clean up post-processing script
         ppScriptName = movie['info'].get('ppScriptName')
         ppDirName = self.config.get('Sabnzbd', 'ppDir')
@@ -374,7 +380,7 @@ class RenamerCron(cronBase, Library):
                     log.info("Couldn't remove post-processing script: %s" % ppPath)
             else:
                 log.info("Don't know where the post processing script is located, not removing %s" % ppScriptName)
-        
+
         for file in movie['files']:
             log.info('Trying to find a home for: %s' % latinToAscii(file['filename']))
 
@@ -511,7 +517,7 @@ class RenamerCron(cronBase, Library):
         replaced = string
         for x, r in replacements.iteritems():
             if r is not None:
-                replaced = replaced.replace('<' + x + '>', str(r))
+                replaced = replaced.replace(u'<' + unicode(x) + u'>', unicode(r))
             else:
                 #If information is not available, we don't want the tag in the filename
                 replaced = replaced.replace('<' + x + '>', '')
@@ -524,7 +530,7 @@ class RenamerCron(cronBase, Library):
     def replaceDoubles(self, string):
         return string.replace('  ', ' ').replace(' .', '.')
 
-def _move(old, dest, suppress=True):
+def _move(old, dest, suppress = True):
     try:
         shutil.move(old, dest)
     except shutil.Error as exc:
@@ -532,6 +538,8 @@ def _move(old, dest, suppress=True):
         log.error(traceback.format_exc())
         if not suppress:
             raise exc
+    else:
+        return True
 
 def startRenamerCron(config, searcher, debug):
     cron = RenamerCron()

@@ -11,15 +11,10 @@
 		'Uniform.css',
 		'UniformGeneric.css'
 	]
-	miniCss = Minify.css(cssFiles) 
 %>
-	% if debug:
 	% for cssFile in cssFiles:
 	<link href="${baseUrl}media/style/${cssFile}" media="screen" rel="stylesheet" type="text/css" />
 	% endfor
-	% else:
-	<link href="${baseUrl}${miniCss}" media="screen" rel="stylesheet" type="text/css" />
-	% endif
 </head>
 <body>
 <% 
@@ -36,15 +31,10 @@
 		'Question.js',
 		'Library.js'
 	]
-	miniJs = Minify.js(jsFiles) 
 %>
-% if debug:
 	% for jsFile in jsFiles:
 	<script src="${baseUrl}media/script/${jsFile}" type="text/javascript"></script>
 	% endfor
-% else:
-	<script src="${baseUrl}${miniJs}" type="text/javascript"></script>
-% endif
 
 	<div id="header">
 	    <div class="navigation">
@@ -75,10 +65,10 @@
 					});
 
 					var hasUpdate = $(document.body).getElement('.updateAvailable');
-					var updateNow = function(updateThis){
+					var updateNow = function(updateThis, url){
 						var us = new Spinner(updateThis).show()
 						new Request.HTML({
-							'url': hasUpdate.getElement('a').get('href'),
+							'url': url,
 							'update': updateThis,
 							'onComplete': function(){
 								us.hide();
@@ -93,13 +83,9 @@
 							.inject($(document.body).getElement('.page .content'), 'top')
 							
 						if (clone.hasClass('git')){
-							clone.getElement('a#updateLink').addEvent('click', function(e){
+							$(document.body).getElements('a[href*=config/update]').addEvent('click', function(e){
 								(e).stop()
-								updateNow(clone)
-							})
-							hasUpdate.getElement('a').addEvent('click', function(e){
-								(e).stop()
-								updateNow(hasUpdate)
+								updateNow(e.target.getParent('.updateAvailable'), e.target.get('href'))
 							})
 						}
 					}

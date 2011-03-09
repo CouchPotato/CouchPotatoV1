@@ -11,8 +11,8 @@ class nzbMatrix(nzbBase):
     """Api for NZBMatrix"""
 
     name = 'NZBMatrix'
-    downloadUrl = 'http://nzbmatrix.com/api-nzb-download.php?id=%s%s'
-    detailUrl = 'http://nzbmatrix.com/nzb-details.php?id=%s&hit=1'
+    downloadUrl = 'https://api.nzbmatrix.com/v1.1/download.php?id=%s%s'
+    detailUrl = 'https://nzbmatrix.com/nzb-details.php?id=%s&hit=1'
     searchUrl = 'http://rss.nzbmatrix.com/rss.php'
 
     catIds = {
