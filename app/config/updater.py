@@ -113,12 +113,12 @@ class Updater(SimplePlugin):
                 history = open(self.historyFile, 'r').read()
                 self.updateAvailable = update.get('name').replace('.tar.gz', '') not in history
 
-        if self.updateAvailable: 
-          self.availableString = 'Update available'
-          self.updateVersion = update.get('name').replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
-        else:
-          self.availableString = 'No update available'
- 
+            if self.updateAvailable:
+                self.availableString = 'Update available'
+                self.updateVersion = update.get('name').replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
+            else:
+                self.availableString = 'No update available'
+
         self.lastCheck = time.time()
         log.info(self.availableString)
 
