@@ -107,9 +107,12 @@ class nzbMatrix(nzbBase):
                     new.score = self.calcScore(new, movie)
                     new.checkNZB = True
 
-                    if new.date > time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60) and self.isCorrectMovie(new, movie, type, imdbResults = True, singleCategory = singleCat):
-                        results.append(new)
-                        log.info('Found: %s' % new.name)
+                    if new.date > time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60):
+                        if self.isCorrectMovie(new, movie, type, imdbResults = True, singleCategory = singleCat):
+                            results.append(new)
+                            log.info('Found: %s' % new.name)
+                    else:
+                        log.info('Found outside retention: %s' % new.name)
 
                 return results
             except SyntaxError:
