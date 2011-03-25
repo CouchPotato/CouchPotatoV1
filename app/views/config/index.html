@@ -193,12 +193,21 @@
 					<input type="text" name="Renamer.filenaming" value="${config.get('Renamer', 'filenaming').replace('<', '&lt;').replace('>', '&gt;')}" class="textInput large"/>
 					<p class="formHint">
 						<span id="filenameResult"><strong>Result</strong>: ${filenameResult}</span><br />
-						<span><strong>thename</strong>: The Movie</span>
-						<span><strong>ext</strong>: ext</span>
-						<span><strong>year</strong>: 2010</span>
-						<span><strong>quality</strong>: 1080P</span>
-						<span><strong>namethe</strong>: Movie, The</span><br />
-						<span><strong>first</strong>: First character of movie (without "The")</span><br />
+						<a href="#" onclick="return false" id="showHideFileRenameOptions">Show naming-options</a>
+					</p>
+					<p class="formHint" id="fileRenameOptions" style="display: none">
+						<span><strong>original</strong>: The.Big.Lebowski.1998.1080p.BluRay.x264.DTS-GROUP</span><br />
+						<span><strong>thename</strong>: The Big Lebowski</span><br />
+						<span><strong>namethe</strong>: Big Lebowski, The</span><br />
+						<span><strong>ext</strong>: mkv</span><br />
+						<span><strong>year</strong>: 2008</span><br />
+						<span><strong>quality</strong>: 1080p</span><br />
+						<span><strong>group</strong>: GROUP</span><br />
+						<span><strong>audio</strong>: DTS</span><br />
+						<span><strong>video</strong>: x264</span><br />
+						<span><strong>sourcemedia</strong>: BluRay</span><br />
+						<span><strong>resolution</strong>: 1920x1080</span><br />
+						<span><strong>first</strong>: B (First character of movie (without "The"))</span><br />
 						Only with multiple files:
 						<span><strong>cd</strong>: cd1</span>
 						<span><strong>cdNr</strong>: 1</span>
@@ -623,6 +632,22 @@
 				}]
 			})
 		})
+		
+		var showHideFileRenameOptionsLink = form.getElement('a[id=showHideFileRenameOptions]')
+		
+		var toggleFileRenameOptions = function(){
+			var field = form.getElement('p[id=fileRenameOptions]')
+			if(field.getStyle('display') != 'none'){
+				field.setStyle('display', 'none')
+				showHideFileRenameOptionsLink.innerText = "Show naming-options"
+			}
+			else{
+				field.setStyle('display', 'block')
+				showHideFileRenameOptionsLink.innerText = "Hide naming-options"
+			}
+		}
+		
+		showHideFileRenameOptionsLink.addEvent('click', toggleFileRenameOptions)
 
 		// Replace Userscript IE
 		if (Browser.ie){
