@@ -1,9 +1,19 @@
 CouchPotato
 =====
 
-Version 30 (not released):
+Version 31 (not released):
 
-* [More](https://github.com/RuudBurger/CouchPotato/compare/e78659c8892619773c64b1249ce40bc4f0f7522a...master)
+* [See diff](https://github.com/RuudBurger/CouchPotato/compare/50f84cd6725766b42a5ab3d8e1c4a1af2b2fd018...master)
+
+Version 30:
+
+* New: Safari Extension
+* New: Popcorn Hour notification support
+* New: Newzbin support
+* Enhancement: Firefox only - UserScript: allocine.fr
+* Enhancement: New icon!
+* Enhancement: Log retention messages
+* [More](https://github.com/RuudBurger/CouchPotato/compare/e78659c8892619773c64b1249ce40bc4f0f7522a...50f84cd6725766b42a5ab3d8e1c4a1af2b2fd018)
 
 Version 29:
 
