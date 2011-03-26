@@ -33,7 +33,9 @@ class ConfigController(BaseController):
              'group':'GROUP',
              'audio':'DTS',
              'video':'x264',
-             'quality': '1080P'
+             'quality': '1080p',
+             'sourcemedia': 'BluRay',
+             'resolution' : '1920x1080'
         }
 
         trailerFormats = self.cron.get('trailer').formats

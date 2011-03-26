@@ -428,7 +428,7 @@ class Library:
         medias = []
         for media in self.sourceMedia:
             for mediaAlias in self.sourceMedia[media]:
-                if mediaAlias in file.lower() or mediaAlias in file.lower():
+                if mediaAlias in file.lower():
                     medias.append(media)
 
         try:
