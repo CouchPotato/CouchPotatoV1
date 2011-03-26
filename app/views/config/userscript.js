@@ -9,15 +9,16 @@
 // @include     http://*.moviemeter.nl/film/*
 // @include     http://moviemeter.nl/film/*
 // @include     http://whiwa.net/stats/movie/*
-// @include     http://trakt.tv/movie/*
-// @include     http://*.trak.tv/movie/*
 // @include     http://trailers.apple.com/trailers/*
 // @include     http://www.themoviedb.org/movie/*
+// @include 	http://www.allocine.fr/film/* 
+// @include     http://trakt.tv/movie/*
+// @include     http://*.trak.tv/movie/*
 // @exclude     http://trak.tv/movie/*/*
 // @exclude     http://*.trak.tv/movie/*/*
 // ==/UserScript==
 
-var version = 6;
+var version = 7;
 
 function create() {
     switch (arguments.length) {
@@ -442,6 +443,97 @@ tmdb = (function(){
     return constructor;
 })();
 
+allocine = (function(){
+	function isMovie(){
+		var pattern = /fichefilm_gen_cfilm=\d+?\.html$/;
+		matched = location.href.match(pattern);
+		return null != matched;	
+	}
+	
+	/*
+     *  AJAX post and call 'callback' function
+     */
+    function post(newurl, callback) {
+        GM_xmlhttpRequest({
+            method: 'GET',
+            url: newurl,
+            headers: {
+            'User-agent': 'Mozilla/4.0 (compatible) Greasemonkey',
+            'Accept': 'application/atom+xml,application/xml,text/xml',
+            },
+            onload: function(responseDetails) {
+                callback(responseDetails);
+            }
+        });
+	}
+		
+	function getId(response) {
+        if (!response) {
+            var TMDB_API_KEY = "31582644f51aa19f8fcd9b2998e17a9d"
+
+            var mName = document.title.substr(0, document.title.indexOf(" -")).replace(/ /g, "+");
+
+            var url = 'http://api.themoviedb.org/2.1/Movie.search/en/xml/' + TMDB_API_KEY + '/' + mName;
+    
+            post(url, getId)
+        } else {
+            if (!response.responseXML) {
+                response.responseXML = new DOMParser().parseFromString(response.responseText, "text/xml");
+            }
+
+            var imdb_id = response.responseXML.getElementsByTagName('imdb_id')[0].firstChild.nodeValue; 
+
+            var year = getYear(response.responseXML);
+        }
+
+        // This is here since getId is called asyncronously from ajax call
+        lib.osd(imdb_id, year);
+    }
+	
+	/*
+     *  Gets year of release. First tries to get it from TMDB response.
+     *  If that fails, gets the year from page title.
+     *
+     */
+    function getYear(xml){
+        var year;
+        if (xml) {
+            year = xml.getElementsByTagName('released')[0].firstChild;
+            if (year != null) {
+                year = year.data;
+                year = year.substr(0, 4);
+            } else {
+                year = getYearFromTitle();
+            }
+        } else {
+            year = getYearFromTitle();
+        }
+
+        return year;
+    }
+    
+	function getYearFromTitle(){
+		var year = "";
+		if(document.title)
+		{
+			var mName = document.title.substr(0, document.title.indexOf(" -")).replace(/ /g, "+");
+			year = mName.substr(document.title.indexOf("(")+1).replace(")","");					
+		}
+		GM_log('year =' + year);
+		return year;
+	}
+	
+	function constructor(){
+        if (window.navigator.userAgent.indexOf("Chrome") < 0) {
+	 		if(isMovie()){
+            	lib.osd(getId(), getYear());    
+       		}
+       	}
+	}	
+	
+	return constructor;
+})();
+
 // Start
 (function(){
     factory = {
@@ -451,7 +543,8 @@ tmdb = (function(){
         "whiwa.net" : whiwa,
         "trakt.tv" : trakt,
         "trailers.apple.com" : apple,
-        "themoviedb.org" : tmdb
+        "themoviedb.org" : tmdb,
+        "allocine.fr" : allocine
     };
     for (var i in factory){
         GM_log(i);
