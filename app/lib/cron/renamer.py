@@ -23,7 +23,7 @@ class RenamerCron(cronBase, Library):
     ''' Cronjob for renaming movies '''
 
     lastChecked = 0
-    intervalSec = 60
+    intervalSec = 6
     config = {}
 
     def conf(self, option):
@@ -156,42 +156,41 @@ class RenamerCron(cronBase, Library):
 
                 log.info('No Match found for: %s' % str(movie['info']['name']))
 
-        #Cleanup
-        if self.conf('cleanup'):
-            log.debug('cleanup')
-            path = self.conf('download')
+            #Cleanup
+            if self.conf('cleanup'):
+                log.debug('cleanup')
+                path = movie['path']
 
-            if self.conf('destination') == path:
-                log.error('Download folder and movie destination shouldn\'t be the same. Change it in Settings >> Renaming.')
-                return
+#                if self.conf('destination') == path:
+#                    log.error('Download folder and movie destination shouldn\'t be the same. Change it in Settings >> Renaming.')
+#                    return
 
-            for root, subfiles, filenames in os.walk(path):
-                skip = False
+                for root, subfiles, filenames in os.walk(path):
+                    skip = False
 
-                # Stop if something is in ignored list
-                for ignore in self.ignoredInPath:
-                    if ignore in root.lower():
-                        skip = True
+                    # Stop if something is in ignored list
+                    for ignore in self.ignoredInPath:
+                        if ignore in root.lower():
+                            skip = True
 
-                # Ignore full directory names
-                for dir in os.path.split(root):
-                    if dir in self.ignoreNames:
-                        skip = True
+                    # Ignore full directory names
+                    for dir in os.path.split(root):
+                        if dir in self.ignoreNames:
+                            skip = True
 
-                if skip: continue
+                    if skip: continue
 
-                for filename in filenames:
-                    fullFilePath = os.path.join(root, filename)
-                    fileSize = os.path.getsize(fullFilePath)
+                    for filename in filenames:
+                        fullFilePath = os.path.join(root, filename)
+                        fileSize = os.path.getsize(fullFilePath)
 
-                    if fileSize < 157286400:
-                        try:
-                            os.remove(fullFilePath)
-                            log.info('Removing file %s.' % fullFilePath)
-                        except OSError:
-                            log.error('Couldn\'t remove file %s.' % fullFilePath)
+                        if fileSize < 157286400:
+                            try:
+                                os.remove(fullFilePath)
+                                log.info('Removing file %s.' % fullFilePath)
+                            except OSError:
+                                log.error('Couldn\'t remove file %s. To large.' % fullFilePath)
 
-                if not root in path:
                     try:
                         os.rmdir(root)
                         log.info('Removing dir: %s in download dir.' % root)
