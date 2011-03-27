@@ -23,7 +23,7 @@ class RenamerCron(cronBase, Library):
     ''' Cronjob for renaming movies '''
 
     lastChecked = 0
-    intervalSec = 6
+    intervalSec = 60
     config = {}
 
     def conf(self, option):
