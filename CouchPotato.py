@@ -63,6 +63,19 @@ def server_start():
     ca = configApp(config)
     initDb()
 
+    # Check an see if CP is already running
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    host = ca.get('global', 'host')
+    port = int(ca.get('global', 'port'))
+    try:
+        s.connect((host, port))
+        s.shutdown(0)
+        app.launchBrowser(host, port)
+        return
+    except:
+        pass
+
     # Start threads
     myCrons = CronJobs(cherrypy.engine, ca, debug)
     myCrons.subscribe()
