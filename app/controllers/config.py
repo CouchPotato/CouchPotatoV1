@@ -4,6 +4,7 @@ from app.controllers import BaseController, redirect
 from app.lib.qualities import Qualities
 from app.lib.xbmc import XBMC
 from app.lib.nmj import NMJ
+from app.lib.plex import PLEX
 import cherrypy
 import json
 import sys
@@ -57,6 +58,7 @@ class ConfigController(BaseController):
               'global.launchbrowser', 'global.updater',
               'XBMC.enabled',
               'NMJ.enabled',
+              'PLEX.enabled',
               'Meta.enabled',
               'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
               'Torrents.enabled',
@@ -119,6 +121,14 @@ class ConfigController(BaseController):
         nmj = NMJ()
         cherrypy.response.headers['Content-Type'] = 'text/javascript'
         return nmj.auto(data.get('NMJ.host'))
+
+    @cherrypy.expose
+    def testPLEX(self, **data):
+
+        plex = PLEX()
+        plex.test(data.get('PLEX.host'))
+
+        return ''
 
     @cherrypy.expose
     def exit(self):

@@ -136,6 +136,10 @@ class configApp():
         self.setDefault('NMJ', 'host', '')
         self.setDefault('NMJ', 'database', '')
         self.setDefault('NMJ', 'mount', '')
+        
+        self.addSection('PLEX')
+        self.setDefault('PLEX', 'enabled', False)
+        self.setDefault('PLEX', 'host', '')
 
         self.addSection('Meta')
         self.setDefault('Meta', 'enabled', False)

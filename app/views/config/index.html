@@ -556,6 +556,26 @@
 					<a href="#nmjTest" id="nmjTest">Update the NMJ database, see if it works.</a>
 				</div>
 			</fieldset>
+			<fieldset class="inlineLabels left" id="plexFieldset">
+				<h3>Plex Media Server</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Update library</label>
+					<input type="checkbox" name="PLEX.enabled" value="True" ${' checked="checked"' if config.get('PLEX', 'enabled') else ''} />
+					<p class="formHint">
+						Updates your Plex library.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Host</label>
+					<input type="text" name="PLEX.host" value="${config.get('PLEX', 'host')}" class="textInput large PLEXhost"/>
+					<p class="formHint">
+						Including port. Example: 192.168.1.20:32400
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<a href="#plexTest" id="plexTest">Update the Plex database, see if it works.</a>
+				</div>
+			</fieldset>
 			<fieldset class="inlineLabels right">
 				<h3>Metadata</h3>
 				<div class="ctrlHolder checkbox">
@@ -679,7 +699,7 @@
 	            fieldset.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
 	    }
 		
-		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset'],function(item){
+		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset'],function(item){
 		    var fieldset = $(item)
 		    var checkbox = fieldset.getElement('[type=checkbox]')
 		    isEnabled(checkbox, fieldset)
@@ -744,6 +764,13 @@
 			new Request({
 				'url': './testXBMC/',
 				'data': $('xbmcFieldset')
+			}).send()
+		})
+		$('plexTest').addEvent('click', function(e){
+			(e).stop()
+			new Request({
+				'url': './testPLEX/',
+				'data': $('plexFieldset')
 			}).send()
 		})
 		$('nmjTest').addEvent('click', function(e){

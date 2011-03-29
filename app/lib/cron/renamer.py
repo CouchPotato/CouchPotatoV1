@@ -3,10 +3,12 @@ from app.config.cplog import CPLog
 from app.config.db import RenameHistory, Session as Db
 from app.lib import xbmc
 from app.lib import nmj
+from app.lib import plex
 from app.lib.cron.base import cronBase
 from app.lib.library import Library
 from app.lib.xbmc import XBMC
 from app.lib.nmj import NMJ
+from app.lib.plex import PLEX
 from xmg import xmg
 import cherrypy
 import os
@@ -147,6 +149,11 @@ class RenamerCron(cronBase, Library):
                 log.debug('NMJ')
                 nmj = NMJ()
                 nmj.updateLibrary()
+                
+                # Notify PLEX
+                log.debug('PLEX')
+                plex = PLEX()
+                plex.updateLibrary()
 
             else:
                 path = movie['path'].split(os.sep)
