@@ -556,7 +556,17 @@
 					<a href="#nmjTest" id="nmjTest">Update the NMJ database, see if it works.</a>
 				</div>
 			</fieldset>
-			<fieldset class="inlineLabels left" id="plexFieldset">
+			<fieldset class="inlineLabels right">
+				<h3>Metadata</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Save metadata</label>
+					<input type="checkbox" name="Meta.enabled" value="True" ${' checked="checked"' if config.get('Meta', 'enabled') else ''} />
+					<p class="formHint">
+						Thumbnail, poster and .nfo file.
+					</p>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels right" id="plexFieldset">
 				<h3>Plex Media Server</h3>
 				<div class="ctrlHolder checkbox">
 					<label for="">Update library</label>
@@ -576,7 +586,7 @@
 					<a href="#plexTest" id="plexTest">Update the Plex database, see if it works.</a>
 				</div>
 			</fieldset>
-			<fieldset class="inlineLabels" id="prowlFieldset">
+			<fieldset class="inlineLabels left" id="prowlFieldset">
 				<h3>PROWL</h3>
 				<div class="ctrlHolder checkbox">
 					<label for="">Update library</label>
@@ -604,16 +614,6 @@
 				</div>
 				<div class="ctrlHolder">
 					<a href="#prowlTest" id="prowlTest">Send a message to PROWL, see if it works.</a>
-				</div>
-			</fieldset>
-			<fieldset class="inlineLabels right">
-				<h3>Metadata</h3>
-				<div class="ctrlHolder checkbox">
-					<label for="">Save metadata</label>
-					<input type="checkbox" name="Meta.enabled" value="True" ${' checked="checked"' if config.get('Meta', 'enabled') else ''} />
-					<p class="formHint">
-						Thumbnail, poster and .nfo file.
-					</p>
 				</div>
 			</fieldset>
 		</div>
