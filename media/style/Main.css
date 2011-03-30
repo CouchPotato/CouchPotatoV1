@@ -974,7 +974,7 @@ h1 {
 				font-weight: bold;
 			}
 
-		#xbmcFieldset a, #nmjFieldset a, #plexFieldset a {
+		#xbmcFieldset a, #nmjFieldset a, #plexFieldset a, #prowlFieldset a {
 			margin-left: 34%;
 			display: block;
 			text-align: center;
