@@ -141,6 +141,11 @@ class configApp():
         self.setDefault('PLEX', 'enabled', False)
         self.setDefault('PLEX', 'host', '')
 
+        self.addSection('PROWL')
+        self.setDefault('PROWL', 'enabled', False)
+        self.setDefault('PROWL', 'keys', '')
+        self.setDefault('PROWL', 'priority', '0')
+        
         self.addSection('Meta')
         self.setDefault('Meta', 'enabled', False)
         self.setDefault('Meta', 'fanartMinHeight', 0)

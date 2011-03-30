@@ -576,6 +576,36 @@
 					<a href="#plexTest" id="plexTest">Update the Plex database, see if it works.</a>
 				</div>
 			</fieldset>
+			<fieldset class="inlineLabels" id="prowlFieldset">
+				<h3>PROWL</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Update library</label>
+					<input type="checkbox" name="PROWL.enabled" value="True" ${' checked="checked"' if config.get('PROWL', 'enabled') else ''} />
+					<p class="formHint">
+						Sends a notification to PROWL
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Keys</label>
+					<input type="text" name="PROWL.keys" value="${config.get('PROWL', 'keys')}" class="textInput large"/>
+					<p class="formHint">
+						<a href="https://www.prowlapp.com/api_settings.php" target=_blank>Your Prowl api key</a>
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Priority</label>
+					<select name="PROWL.priority" class="textInput large">
+					<option value="-2"${' selected="selected"' if config.get('PROWL', 'priority') == '-2' else ''}>Very Low</option>
+					<option value="-1"${' selected="selected"' if config.get('PROWL', 'priority') == '-1' else ''}>Moderate</option>
+					<option value="0"${' selected="selected"' if config.get('PROWL', 'priority') == '0' else ''}>Normal</option>
+					<option value="1"${' selected="selected"' if config.get('PROWL', 'priority') == '1' else ''}>High</option>
+					<option value="2"${' selected="selected"' if config.get('PROWL', 'priority') == '2' else ''}>Emergency</option>
+					</select>
+				</div>
+				<div class="ctrlHolder">
+					<a href="#prowlTest" id="prowlTest">Send a message to PROWL, see if it works.</a>
+				</div>
+			</fieldset>
 			<fieldset class="inlineLabels right">
 				<h3>Metadata</h3>
 				<div class="ctrlHolder checkbox">
@@ -699,7 +729,7 @@
 	            fieldset.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
 	    }
 		
-		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset'],function(item){
+		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset', 'prowlFieldset'],function(item){
 		    var fieldset = $(item)
 		    var checkbox = fieldset.getElement('[type=checkbox]')
 		    isEnabled(checkbox, fieldset)
@@ -771,6 +801,13 @@
 			new Request({
 				'url': './testPLEX/',
 				'data': $('plexFieldset')
+			}).send()
+		})
+		$('prowlTest').addEvent('click', function(e){
+			(e).stop()
+			new Request({
+				'url': './testPROWL/',
+				'data': $('prowlFieldset')
 			}).send()
 		})
 		$('nmjTest').addEvent('click', function(e){

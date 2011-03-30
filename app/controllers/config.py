@@ -5,6 +5,7 @@ from app.lib.qualities import Qualities
 from app.lib.xbmc import XBMC
 from app.lib.nmj import NMJ
 from app.lib.plex import PLEX
+from app.lib.prowl import PROWL
 import cherrypy
 import json
 import sys
@@ -59,6 +60,7 @@ class ConfigController(BaseController):
               'XBMC.enabled',
               'NMJ.enabled',
               'PLEX.enabled',
+              'PROWL.enabled',
               'Meta.enabled',
               'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
               'Torrents.enabled',
@@ -128,6 +130,13 @@ class ConfigController(BaseController):
         plex = PLEX()
         plex.test(data.get('PLEX.host'))
 
+        return ''
+
+    @cherrypy.expose
+    def testPROWL(self, **data):
+
+        prowl = PROWL()
+        prowl.test(data.get('PROWL.keys'), data.get('PROWL.priority'))
         return ''
 
     @cherrypy.expose
