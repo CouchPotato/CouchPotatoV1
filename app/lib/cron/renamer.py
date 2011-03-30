@@ -157,7 +157,7 @@ class RenamerCron(cronBase, Library):
                 plex = PLEX()
                 plex.updateLibrary()
                 
-                # Notify XBMC
+                # Notify PROWL
                 log.debug('PROWL')
                 prowl = PROWL()
                 prowl.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year), 'Download Complete')
