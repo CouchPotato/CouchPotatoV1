@@ -19,7 +19,7 @@ class Library:
 
     minimalFileSize = 1024 * 1024 * 200 # 10MB
     ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '.appledb', '.appledesktop', '/._', 'cp.cpnfo'] #unpacking, smb-crap, hidden files
-    ignoreNames = ['extract', 'extracting', 'movie', 'movies', 'film', 'films']
+    ignoreNames = ['extract', 'extracting', 'extracted', 'movie', 'movies', 'film', 'films']
     extensions = {
         'movie': ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso', '*.img', '*.vob'],
         'nfo': ['*.nfo'],
