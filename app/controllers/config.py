@@ -146,7 +146,7 @@ class ConfigController(BaseController):
     def testPROWL(self, **data):
 
         prowl = PROWL()
-        prowl.test(data.get('PROWL.keys'))
+        prowl.test(data.get('PROWL.keys'), data.get('PROWL.priority'))
         return ''
 
     @cherrypy.expose
