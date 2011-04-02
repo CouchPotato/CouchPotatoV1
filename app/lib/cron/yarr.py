@@ -10,6 +10,7 @@ from app.lib import prowl
 from app.lib.xbmc import XBMC
 from app.lib.prowl import PROWL
 from app.lib.growl import GROWL
+from app.lib.notifo import Notifo
 import cherrypy
 import datetime
 import os
@@ -192,6 +193,12 @@ class YarrCron(cronBase, rss):
                             log.debug('GROWL')
                             growl = GROWL()
                             growl.notify('Snatched %s' % highest.name, 'Download Started')
+
+                        # Notify Notifo
+                        if self.config.get('Notifo', 'onSnatch'):
+                            log.debug('Notifo')
+                            notifo = Notifo()
+                            notifo.notify('Snatched %s' % highest.name)
 
                     return True
 

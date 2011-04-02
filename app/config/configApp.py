@@ -153,6 +153,12 @@ class configApp():
         self.setDefault('GROWL', 'onSnatch', False)
         self.setDefault('GROWL', 'host', 'localhost')
         self.setDefault('GROWL', 'password', '')
+
+        self.addSection('Notifo')
+        self.setDefault('Notifo', 'enabled', False)
+        self.setDefault('Notifo', 'onSnatch', False)
+        self.setDefault('Notifo', 'username', '')
+        self.setDefault('Notifo', 'key', '')
         
         self.addSection('Meta')
         self.setDefault('Meta', 'enabled', False)

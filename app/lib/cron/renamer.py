@@ -6,6 +6,7 @@ from app.lib import nmj
 from app.lib import plex
 from app.lib import prowl
 from app.lib import growl
+from app.lib import notifo
 from app.lib.cron.base import cronBase
 from app.lib.library import Library
 from app.lib.xbmc import XBMC
@@ -13,6 +14,7 @@ from app.lib.nmj import NMJ
 from app.lib.plex import PLEX
 from app.lib.prowl import PROWL
 from app.lib.growl import GROWL
+from app.lib.notifo import Notifo
 from xmg import xmg
 import cherrypy
 import os
@@ -168,6 +170,11 @@ class RenamerCron(cronBase, Library):
                 log.debug('GROWL')
                 growl = GROWL()
                 growl.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year), 'Download Complete')
+
+                # Notify Notifo
+                log.debug('Notifo')
+                notifo = Notifo()
+                notifo.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
 
             else:
                 path = movie['path'].split(os.sep)
