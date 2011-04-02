@@ -9,6 +9,7 @@ from app.lib import xbmc
 from app.lib import prowl
 from app.lib.xbmc import XBMC
 from app.lib.prowl import PROWL
+from app.lib.growl import GROWL
 import cherrypy
 import datetime
 import os
@@ -183,6 +184,11 @@ class YarrCron(cronBase, rss):
                         log.debug('XBMC')
                         xbmc = XBMC()
                         xbmc.notify('Snatched %s' % highest.name)
+                        
+                        # Notify GROWL
+                        log.debug('GROWL')
+                        growl = GROWL()
+                        growl.notify('Snatched %s' % highest.name, 'Download Started')
 
                     return True
 

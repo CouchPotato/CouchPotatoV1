@@ -31,7 +31,7 @@ class PROWL:
         data = {'apikey': self.keys,
                 'application': 'CouchPotato',
                 'event': event,
-                'description': message,
+                'description': message.encode("utf-8"),
                 'priority': self.priority }
 
         http_handler.request("POST",

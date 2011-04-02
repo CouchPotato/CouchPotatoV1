@@ -145,6 +145,11 @@ class configApp():
         self.setDefault('PROWL', 'enabled', False)
         self.setDefault('PROWL', 'keys', '')
         self.setDefault('PROWL', 'priority', '0')
+
+        self.addSection('GROWL')
+        self.setDefault('GROWL', 'enabled', False)
+        self.setDefault('GROWL', 'host', 'localhost')
+        self.setDefault('GROWL', 'password', '')
         
         self.addSection('Meta')
         self.setDefault('Meta', 'enabled', False)
