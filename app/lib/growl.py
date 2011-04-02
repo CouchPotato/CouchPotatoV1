@@ -1,3 +1,18 @@
+# Based on netprowl by the following authors.
+
+# Altered 1st October 2010 - Tim Child.
+# Have added the ability for the command line arguments to take a password.
+
+# Altered 1-17-2010 - Tanner Stokes - www.tannr.com
+# Added support for command line arguments
+
+# ORIGINAL CREDITS
+# """Growl 0.6 Network Protocol Client for Python"""
+# __version__ = "0.6.3"
+# __author__ = "Rui Carmo (http://the.taoofmac.com)"
+# __copyright__ = "(C) 2004 Rui Carmo. Code under BSD License."
+# __contributors__ = "Ingmar J Stein (Growl Team), John Morrissey (hashlib patch)"
+
 from app.config.cplog import CPLog
 import base64
 import cherrypy
