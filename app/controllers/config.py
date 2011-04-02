@@ -130,7 +130,7 @@ class ConfigController(BaseController):
     def testPLEX(self, **data):
 
         plex = PLEX()
-        plex.test(data.get('GROWL.host'), data.get('GROWL.password'))
+        plex.test(data.get('PLEX.host'))
 
         return ''
 
