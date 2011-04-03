@@ -77,6 +77,7 @@ class GROWL:
             # send notification packet
             s.sendto(p.payload(), addr)
             s.close()
+            log.info(u"Growl notifications sent.")
 
     def updateLibrary(self):
         #For uniformity reasons not removed
@@ -96,14 +97,15 @@ class GrowlRegistrationPacket:
   """Builds a Growl Network Registration packet.
      Defaults to emulating the command-line growlnotify utility."""
 
-  def __init__(self, application="NetGrowl", password = None ):
+  def __init__(self, application="CouchPotato", password = None ):
     self.notifications = []
     self.defaults = [] # array of indexes into notifications
     self.application = application.encode("utf-8")
     self.password = password
+    print password
   # end def
 
-  def addNotification(self, notification="Command-Line Growl Notification", enabled=True):
+  def addNotification(self, notification="General Notification", enabled=True):
     """Adds a notification type and sets whether it is enabled on the GUI"""
     self.notifications.append(notification)
     if enabled:
@@ -139,8 +141,8 @@ class GrowlNotificationPacket:
   """Builds a Growl Network Notification packet.
      Defaults to emulating the command-line growlnotify utility."""
 
-  def __init__(self, application="NetGrowl",
-               notification="Command-Line Growl Notification", title="Title",
+  def __init__(self, application="CouchPotato",
+               notification="General Notification", title="Title",
                description="Description", priority = 0, sticky = False, password = None ):
 
     self.application  = application.encode("utf-8")
