@@ -125,7 +125,7 @@ class YarrCron(cronBase, rss):
 
         for queue in movie.queue:
 
-            # Movie already found, don't search further 
+            # Movie already found, don't search further
             if queue.completed:
                 log.debug('%s already completed for "%s". Not searching for any qualities below.' % (queue.qualityType, movie.name))
                 return True
@@ -174,21 +174,24 @@ class YarrCron(cronBase, rss):
                         h.status = u'snatched'
                         Db.add(h)
                         Db.flush()
-                        
+
                         # Notify PROWL
-                        log.debug('PROWL')
-                        prowl = PROWL()
-                        prowl.notify(highest.name, 'Download Started')
-                        
+                        if self.config.get('PROWL', 'onSnatch'):
+                            log.debug('PROWL')
+                            prowl = PROWL()
+                            prowl.notify(highest.name, 'Download Started')
+
                         # Notify XBMC
-                        log.debug('XBMC')
-                        xbmc = XBMC()
-                        xbmc.notify('Snatched %s' % highest.name)
-                        
+                        if self.config.get('XBMC', 'onSnatch'):
+                            log.debug('XBMC')
+                            xbmc = XBMC()
+                            xbmc.notify('Snatched %s' % highest.name)
+
                         # Notify GROWL
-                        log.debug('GROWL')
-                        growl = GROWL()
-                        growl.notify('Snatched %s' % highest.name, 'Download Started')
+                        if self.config.get('GROWL', 'onSnatch'):
+                            log.debug('GROWL')
+                            growl = GROWL()
+                            growl.notify('Snatched %s' % highest.name, 'Download Started')
 
                     return True
 

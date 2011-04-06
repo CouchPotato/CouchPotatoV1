@@ -126,6 +126,7 @@ class configApp():
 
         self.addSection('XBMC')
         self.setDefault('XBMC', 'enabled', False)
+        self.setDefault('XBMC', 'onSnatch', False)
         self.setDefault('XBMC', 'host', 'localhost')
         self.setDefault('XBMC', 'username', 'xbmc')
         self.setDefault('XBMC', 'password', 'xbmc')
@@ -143,11 +144,13 @@ class configApp():
 
         self.addSection('PROWL')
         self.setDefault('PROWL', 'enabled', False)
+        self.setDefault('PROWL', 'onSnatch', False)
         self.setDefault('PROWL', 'keys', '')
         self.setDefault('PROWL', 'priority', '0')
 
         self.addSection('GROWL')
         self.setDefault('GROWL', 'enabled', False)
+        self.setDefault('GROWL', 'onSnatch', False)
         self.setDefault('GROWL', 'host', 'localhost')
         self.setDefault('GROWL', 'password', '')
         

@@ -510,6 +510,13 @@
 						Sends a notification and updates your XBMC library.
 					</p>
 				</div>
+				<div class="ctrlHolder checkbox">
+					<label for="">Also on snatched</label>
+					<input type="checkbox" name="XBMC.onSnatch" value="True" ${' checked="checked"' if config.get('XBMC', 'onSnatch') else ''} />
+					<p class="formHint">
+						Also send a notification when a movie is snatched.
+					</p>
+				</div>
 				<div class="ctrlHolder">
 					<label for="">Host</label>
 					<input type="text" name="XBMC.host" value="${config.get('XBMC', 'host')}" class="textInput large"/>
@@ -598,6 +605,13 @@
 						Sends a notification to Prowl
 					</p>
 				</div>
+				<div class="ctrlHolder checkbox">
+					<label for="">Also on snatched</label>
+					<input type="checkbox" name="PROWL.onSnatch" value="True" ${' checked="checked"' if config.get('PROWL', 'onSnatch') else ''} />
+					<p class="formHint">
+						Also send a notification when a movie is snatched.
+					</p>
+				</div>
 				<div class="ctrlHolder">
 					<label for="">Keys</label>
 					<input type="text" name="PROWL.keys" value="${config.get('PROWL', 'keys')}" class="textInput large"/>
@@ -626,6 +640,13 @@
 					<input type="checkbox" name="GROWL.enabled" value="True" ${' checked="checked"' if config.get('GROWL', 'enabled') else ''} />
 					<p class="formHint">
 						Sends a notification to Growl.
+					</p>
+				</div>
+				<div class="ctrlHolder checkbox">
+					<label for="">Also on snatched</label>
+					<input type="checkbox" name="GROWL.onSnatch" value="True" ${' checked="checked"' if config.get('GROWL', 'onSnatch') else ''} />
+					<p class="formHint">
+						Also send a notification when a movie is snatched.
 					</p>
 				</div>
 				<div class="ctrlHolder">
@@ -754,9 +775,9 @@
 		// Renaming disabled stuff
 	    var isEnabled = function(checkbox, fieldset){
 	        if (checkbox.get('checked')) 
-	            fieldset.getElements('div.ctrlHolder').setStyle('opacity', 1)
+	            fieldset.getElements('.ctrlHolder').setStyle('opacity', 1)
 	        else 
-	            fieldset.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
+	            fieldset.getElements('.ctrlHolder').setStyle('opacity', 0.5)
 	    }
 		
 		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset', 'prowlFieldset', 'growlFieldset'],function(item){
