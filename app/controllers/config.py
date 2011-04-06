@@ -4,6 +4,9 @@ from app.controllers import BaseController, redirect
 from app.lib.qualities import Qualities
 from app.lib.xbmc import XBMC
 from app.lib.nmj import NMJ
+from app.lib.plex import PLEX
+from app.lib.prowl import PROWL
+from app.lib.growl import GROWL
 import cherrypy
 import json
 import sys
@@ -57,6 +60,9 @@ class ConfigController(BaseController):
               'global.launchbrowser', 'global.updater',
               'XBMC.enabled',
               'NMJ.enabled',
+              'PLEX.enabled',
+              'PROWL.enabled',
+              'GROWL.enabled',
               'Meta.enabled',
               'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
               'Torrents.enabled',
@@ -119,6 +125,29 @@ class ConfigController(BaseController):
         nmj = NMJ()
         cherrypy.response.headers['Content-Type'] = 'text/javascript'
         return nmj.auto(data.get('NMJ.host'))
+
+    @cherrypy.expose
+    def testPLEX(self, **data):
+
+        plex = PLEX()
+        plex.test(data.get('PLEX.host'))
+
+        return ''
+
+    @cherrypy.expose
+    def testGROWL(self, **data):
+
+        growl = GROWL()
+        growl.test(data.get('GROWL.host'), data.get('GROWL.password'))
+
+        return ''
+
+    @cherrypy.expose
+    def testPROWL(self, **data):
+
+        prowl = PROWL()
+        prowl.test(data.get('PROWL.keys'), data.get('PROWL.priority'))
+        return ''
 
     @cherrypy.expose
     def exit(self):

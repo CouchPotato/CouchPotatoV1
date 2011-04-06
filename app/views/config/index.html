@@ -6,6 +6,7 @@
 		<li><a href="#quality">Quality</a></li>
 		<li><a href="#renaming">Renaming</a></li>
 		<li><a href="#extra">Extras</a></li>
+		<li><a href="#notifications">Notifications</a></li>
 		<li><a href="#userscript">Userscript</a></li>
 		<li><a href="#about">About</a></li>
 	</ul>
@@ -434,35 +435,7 @@
 		</div>
 
 		<div class="group extra">
-			<fieldset class="inlineLabels" id="xbmcFieldset">
-				<h3>XBMC</h3>
-				<div class="ctrlHolder checkbox">
-					<label for="">Update library</label>
-					<input type="checkbox" name="XBMC.enabled" value="True" ${' checked="checked"' if config.get('XBMC', 'enabled') else ''} />
-					<p class="formHint">
-						Sends a notification and updates your XBMC library.
-					</p>
-				</div>
-				<div class="ctrlHolder">
-					<label for="">Host</label>
-					<input type="text" name="XBMC.host" value="${config.get('XBMC', 'host')}" class="textInput large"/>
-					<p class="formHint">
-						Including port. Example: 192.168.1.20:8080
-					</p>
-				</div>
-				<div class="ctrlHolder">
-					<label for="">Username</label>
-					<input type="text" name="XBMC.username" value="${config.get('XBMC', 'username')}" autocomplete="off" class="textInput large"/>
-				</div>
-				<div class="ctrlHolder">
-					<label for="">Password</label>
-					<input type="password" name="XBMC.password" value="${config.get('XBMC', 'password')}" autocomplete="off" class="textInput large"/>
-				</div>
-				<div class="ctrlHolder">
-					<a href="#xbmcTest" id="xbmcTest">Send a message to XBMC, see if it works.</a>
-				</div>
-			</fieldset>
-			<fieldset class="inlineLabels right">
+			<fieldset class="inlineLabels">
 				<h3>Trailers</h3>
 				<div class="ctrlHolder">
 					<label for="">Download trailer</label>
@@ -484,7 +457,7 @@
 					</select>
 				</div>
 			</fieldset>
-			<fieldset class="inlineLabels right" id="subtitleFieldset">
+			<fieldset class="inlineLabels" id="subtitleFieldset">
 				<h3>Subtitles</h3>
 				<div class="ctrlHolder checkbox">
 					<label for="">Enable</label>
@@ -516,7 +489,47 @@
 					</p>
 				</div>
 			</fieldset>
-			<fieldset class="inlineLabels left" id="nmjFieldset">
+			<fieldset class="inlineLabels">
+				<h3>Metadata</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Save metadata</label>
+					<input type="checkbox" name="Meta.enabled" value="True" ${' checked="checked"' if config.get('Meta', 'enabled') else ''} />
+					<p class="formHint">
+						Thumbnail, poster and .nfo file.
+					</p>
+				</div>
+			</fieldset>
+		</div>
+		<div class="group notifications">
+			<fieldset class="inlineLabels" id="xbmcFieldset">
+				<h3>XBMC</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Update library</label>
+					<input type="checkbox" name="XBMC.enabled" value="True" ${' checked="checked"' if config.get('XBMC', 'enabled') else ''} />
+					<p class="formHint">
+						Sends a notification and updates your XBMC library.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Host</label>
+					<input type="text" name="XBMC.host" value="${config.get('XBMC', 'host')}" class="textInput large"/>
+					<p class="formHint">
+						Including port. Example: 192.168.1.20:8080
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Username</label>
+					<input type="text" name="XBMC.username" value="${config.get('XBMC', 'username')}" autocomplete="off" class="textInput large"/>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Password</label>
+					<input type="password" name="XBMC.password" value="${config.get('XBMC', 'password')}" autocomplete="off" class="textInput large"/>
+				</div>
+				<div class="ctrlHolder">
+					<a href="#xbmcTest" id="xbmcTest">Send a message to XBMC, see if it works.</a>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels" id="nmjFieldset">
 				<h3>Networked Media Jukebox</h3>
 				<div class="ctrlHolder checkbox">
 					<label for="">Update library</label>
@@ -556,14 +569,78 @@
 					<a href="#nmjTest" id="nmjTest">Update the NMJ database, see if it works.</a>
 				</div>
 			</fieldset>
-			<fieldset class="inlineLabels right">
-				<h3>Metadata</h3>
+			<fieldset class="inlineLabels" id="plexFieldset">
+				<h3>Plex Media Server</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Save metadata</label>
-					<input type="checkbox" name="Meta.enabled" value="True" ${' checked="checked"' if config.get('Meta', 'enabled') else ''} />
+					<label for="">Update library</label>
+					<input type="checkbox" name="PLEX.enabled" value="True" ${' checked="checked"' if config.get('PLEX', 'enabled') else ''} />
 					<p class="formHint">
-						Thumbnail, poster and .nfo file.
+						Updates your Plex library.
 					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Host</label>
+					<input type="text" name="PLEX.host" value="${config.get('PLEX', 'host')}" class="textInput large PLEXhost"/>
+					<p class="formHint">
+						Including port. Example: 192.168.1.20:32400
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<a href="#plexTest" id="plexTest">Update the Plex database, see if it works.</a>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels" id="prowlFieldset">
+				<h3>Prowl</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Enable</label>
+					<input type="checkbox" name="PROWL.enabled" value="True" ${' checked="checked"' if config.get('PROWL', 'enabled') else ''} />
+					<p class="formHint">
+						Sends a notification to Prowl
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Keys</label>
+					<input type="text" name="PROWL.keys" value="${config.get('PROWL', 'keys')}" class="textInput large"/>
+					<div class="ctrlHolder"> 
+						<a href="https://www.prowlapp.com/api_settings.php" target=_blank>Get your Prowl api key here</a>
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Priority</label>
+					<select name="PROWL.priority" class="textInput large">
+					<option value="-2"${' selected="selected"' if config.get('PROWL', 'priority') == '-2' else ''}>Very Low</option>
+					<option value="-1"${' selected="selected"' if config.get('PROWL', 'priority') == '-1' else ''}>Moderate</option>
+					<option value="0"${' selected="selected"' if config.get('PROWL', 'priority') == '0' else ''}>Normal</option>
+					<option value="1"${' selected="selected"' if config.get('PROWL', 'priority') == '1' else ''}>High</option>
+					<option value="2"${' selected="selected"' if config.get('PROWL', 'priority') == '2' else ''}>Emergency</option>
+					</select>
+				</div>
+				<div class="ctrlHolder">
+					<a href="#prowlTest" id="prowlTest">Send a message to Prowl, see if it works.</a>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels" id="growlFieldset">
+				<h3>Growl</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Enable</label>
+					<input type="checkbox" name="GROWL.enabled" value="True" ${' checked="checked"' if config.get('GROWL', 'enabled') else ''} />
+					<p class="formHint">
+						Sends a notification to Growl.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Host</label>
+					<input type="text" name="GROWL.host" value="${config.get('GROWL', 'host')}" class="textInput large"/>
+					<p class="formHint">
+						Example: 192.168.1.20
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label for="">Password</label>
+					<input type="password" name="GROWL.password" value="${config.get('GROWL', 'password')}" autocomplete="off" class="textInput large"/>
+				</div>
+				<div class="ctrlHolder">
+					<a href="#growlTest" id="growlTest">Send a message to Growl, see if it works.</a>
 				</div>
 			</fieldset>
 		</div>
@@ -679,7 +756,7 @@
 	            fieldset.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
 	    }
 		
-		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset'],function(item){
+		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset', 'prowlFieldset', 'growlFieldset'],function(item){
 		    var fieldset = $(item)
 		    var checkbox = fieldset.getElement('[type=checkbox]')
 		    isEnabled(checkbox, fieldset)
@@ -744,6 +821,27 @@
 			new Request({
 				'url': './testXBMC/',
 				'data': $('xbmcFieldset')
+			}).send()
+		})
+		$('plexTest').addEvent('click', function(e){
+			(e).stop()
+			new Request({
+				'url': './testPLEX/',
+				'data': $('plexFieldset')
+			}).send()
+		})
+		$('prowlTest').addEvent('click', function(e){
+			(e).stop()
+			new Request({
+				'url': './testPROWL/',
+				'data': $('prowlFieldset')
+			}).send()
+		})
+		$('growlTest').addEvent('click', function(e){
+			(e).stop()
+			new Request({
+				'url': './testGROWL/',
+				'data': $('growlFieldset')
 			}).send()
 		})
 		$('nmjTest').addEvent('click', function(e){

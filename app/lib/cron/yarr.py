@@ -5,6 +5,11 @@ from app.lib.cron.base import cronBase
 from app.lib.provider.rss import rss
 from app.lib.qualities import Qualities
 from sqlalchemy.sql.expression import or_
+from app.lib import xbmc
+from app.lib import prowl
+from app.lib.xbmc import XBMC
+from app.lib.prowl import PROWL
+from app.lib.growl import GROWL
 import cherrypy
 import datetime
 import os
@@ -169,6 +174,21 @@ class YarrCron(cronBase, rss):
                         h.status = u'snatched'
                         Db.add(h)
                         Db.flush()
+                        
+                        # Notify PROWL
+                        log.debug('PROWL')
+                        prowl = PROWL()
+                        prowl.notify(highest.name, 'Download Started')
+                        
+                        # Notify XBMC
+                        log.debug('XBMC')
+                        xbmc = XBMC()
+                        xbmc.notify('Snatched %s' % highest.name)
+                        
+                        # Notify GROWL
+                        log.debug('GROWL')
+                        growl = GROWL()
+                        growl.notify('Snatched %s' % highest.name, 'Download Started')
 
                     return True
 
