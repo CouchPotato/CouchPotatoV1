@@ -526,7 +526,7 @@
 					<input type="password" name="XBMC.password" value="${config.get('XBMC', 'password')}" autocomplete="off" class="textInput large"/>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#xbmcTest" id="xbmcTest">Send a message to XBMC, see if it works.</a>
+					<a href="#xbmcTest" id="xbmcTest" class="testNotification">Send a message to XBMC, see if it works.</a>
 				</div>
 			</fieldset>
 			<fieldset class="inlineLabels" id="nmjFieldset">
@@ -546,7 +546,7 @@
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#nmjAuto" id="nmjAuto">Autodetect NMJ Database and mount</a>
+					<a href="#nmjAuto" id="nmjAuto" class="testNotification">Autodetect NMJ Database and mount</a>
 					<p class="formHint">
 						Popcorn Hour needs to be on, and NMJ must be running.
 					</p>
@@ -566,7 +566,7 @@
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#nmjTest" id="nmjTest">Update the NMJ database, see if it works.</a>
+					<a href="#nmjTest" id="nmjTest" class="testNotification">Update the NMJ database, see if it works.</a>
 				</div>
 			</fieldset>
 			<fieldset class="inlineLabels" id="plexFieldset">
@@ -586,7 +586,7 @@
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#plexTest" id="plexTest">Update the Plex database, see if it works.</a>
+					<a href="#plexTest" id="plexTest" class="testNotification">Update the Plex database, see if it works.</a>
 				</div>
 			</fieldset>
 			<fieldset class="inlineLabels" id="prowlFieldset">
@@ -602,7 +602,7 @@
 					<label for="">Keys</label>
 					<input type="text" name="PROWL.keys" value="${config.get('PROWL', 'keys')}" class="textInput large"/>
 					<div class="ctrlHolder"> 
-						<a href="https://www.prowlapp.com/api_settings.php" target=_blank>Get your Prowl api key here</a>
+						<a href="https://www.prowlapp.com/api_settings.php" target="_blank" class="testNotification">Get your Prowl api key here</a>
 					</p>
 				</div>
 				<div class="ctrlHolder">
@@ -616,7 +616,7 @@
 					</select>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#prowlTest" id="prowlTest">Send a message to Prowl, see if it works.</a>
+					<a href="#prowlTest" id="prowlTest" class="testNotification">Send a message to Prowl, see if it works.</a>
 				</div>
 			</fieldset>
 			<fieldset class="inlineLabels" id="growlFieldset">
@@ -640,8 +640,11 @@
 					<input type="password" name="GROWL.password" value="${config.get('GROWL', 'password')}" autocomplete="off" class="textInput large"/>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#growlTest" id="growlTest">Send a message to Growl, see if it works.</a>
+					<a href="#growlTest" id="growlTest" class="testNotification">Send a message to Growl, see if it works.</a>
 				</div>
+				<p class="formHint">
+					Be sure to enable "Listen for incoming notifications" in your Growl Settings, under Network.
+				</p>
 			</fieldset>
 		</div>
 		<div class="buttonHolder">
