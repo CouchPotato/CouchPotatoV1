@@ -663,7 +663,7 @@
 				<div class="ctrlHolder">
 					<a href="#growlTest" id="growlTest" class="testNotification">Send a message to Growl, see if it works.</a>
 				</div>
-				<p class="formHint">
+				<p class="ctrlHolder formHint">
 					Be sure to enable "Listen for incoming notifications" in your Growl Settings, under Network.
 				</p>
 			</fieldset>
@@ -696,7 +696,7 @@
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#notifoTest" id="notifoTest">Send a message to Notifo, see if it works.</a>
+					<a href="#notifoTest" id="notifoTest" class="testNotification">Send a message to Notifo, see if it works.</a>
 				</div>
 			</fieldset>
 		</div>
@@ -808,11 +808,15 @@
 	    var isEnabled = function(checkbox, fieldset){
 	        if (checkbox.get('checked')) 
 	            fieldset.getElements('.ctrlHolder').setStyle('opacity', 1)
-	        else 
-	            fieldset.getElements('.ctrlHolder').setStyle('opacity', 0.5)
+	        else {
+	        	var first = fieldset.getElement('.ctrlHolder');
+	            fieldset.getElements('.ctrlHolder').each(function(el){
+	            	if(el != first) el.setStyle('opacity', 0.5)
+	            });
+	        }
 	    }
 		
-		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset', 'prowlFieldset', 'growlFieldset'],function(item){
+		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset', 'prowlFieldset', 'growlFieldset', 'notifoFieldset'],function(item){
 		    var fieldset = $(item)
 		    var checkbox = fieldset.getElement('[type=checkbox]')
 		    isEnabled(checkbox, fieldset)
