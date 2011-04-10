@@ -1,9 +1,18 @@
 CouchPotato
 =====
 
-Version 31 (not released):
+Version 32 (not released):
 
-* [See diff](https://github.com/RuudBurger/CouchPotato/compare/50f84cd6725766b42a5ab3d8e1c4a1af2b2fd018...master)
+* [See diff](https://github.com/RuudBurger/CouchPotato/compare/604f2b516bfc6991ab5bece75cc6794b26d18ac4...master)
+
+Version 31:
+
+* New: Plex Media Server support
+* New: Growl support
+* New: Prowl support
+* New: Notifo support
+* New: Newzbin support
+* [More](https://github.com/RuudBurger/CouchPotato/compare/50f84cd6725766b42a5ab3d8e1c4a1af2b2fd018...604f2b516bfc6991ab5bece75cc6794b26d18ac4)
 
 Version 30:
 
