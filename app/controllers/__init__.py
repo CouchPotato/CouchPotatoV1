@@ -15,7 +15,7 @@ def url(*args, **kwargs):
 def redirect(url):
     b = base()
     if b and not url.startswith(('http://', 'https://')):
-        url = url[len(b):] if url.startswith(b) else url
+        url = url[len(b) + 1:] if url.startswith(b) else url
         url = '/' + url if url else b
     raise cherrypy.HTTPRedirect(url)
 
