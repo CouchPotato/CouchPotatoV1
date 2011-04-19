@@ -90,6 +90,7 @@ class configApp():
         self.addSection('Torrents')
         self.setDefault('Torrents', 'enabled', False)
         self.setDefault('Torrents', 'wait', 24)
+        self.setDefault('Torrents', 'sendTo', 'Transmission')
         self.setDefault('Torrents', 'blackhole', '')
 
         self.addSection('Sabnzbd')
@@ -99,6 +100,12 @@ class configApp():
         self.setDefault('Sabnzbd', 'password', '')
         self.setDefault('Sabnzbd', 'category', '')
         self.setDefault('Sabnzbd', 'ppDir', '')
+        
+        self.addSection('Transmission')
+        self.setDefault('Transmission', 'host', 'localhost')
+        self.setDefault('Transmission', 'port', '9091')
+        self.setDefault('Transmission', 'username', '')
+        self.setDefault('Transmission', 'password', '')
 
         self.addSection('TheMovieDB')
         self.setDefault('TheMovieDB', 'key', '9b939aee0aaafc12a65bf448e4af9543')
