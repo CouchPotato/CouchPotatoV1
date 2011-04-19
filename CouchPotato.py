@@ -43,22 +43,37 @@ def server_start():
     options, args = p.parse_args()
     
     if options.datadir:
-        datadir=options.datadir
+        datadir = options.datadir
+
+        if not os.path.isdir(datadir):
+            os.makedirs(datadir)
+
     else:
-        datadir=rundir
+        datadir = rundir
+	
+    datadir = os.path.abspath(datadir)
     
-    datadir=os.path.abspath(datadir)
+    if not os.access(datadir, os.W_OK):
+        raise SystemExit("Data dir must be writeable '" + datadir + "'")
+    
     import app.config
-    app.config.DATADIR=datadir
+    app.config.DATADIR = datadir
    
     if options.config:
         config = options.config
     else:
         config = os.path.join(datadir, 'config.ini')
 
+    config = os.path.abspath(config)
+
+    if not os.access(os.path.dirname(config), os.W_OK) and not os.access(config, os.W_OK):
+        if not os.path.exists(os.path.dirname(config)):
+            os.makedirs(os.path.dirname(config))
+        else:
+            raise SystemExit("Directory for config file must be writeable")
+
     import cherrypy
     import app.config.render
-
 
     # Configure logging
     from app.config.cplog import CPLog
