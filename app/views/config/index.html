@@ -632,7 +632,7 @@
 					<label for="">Host</label>
 					<input type="text" name="GROWL.host" value="${config.get('GROWL', 'host')}" class="textInput large"/>
 					<p class="formHint">
-						Example: 192.168.1.20
+						Example: 192.168.1.20. Be sure to enable notification over the network, in Growl > Network on the computer running Growl.
 					</p>
 				</div>
 				<div class="ctrlHolder">
@@ -641,6 +641,22 @@
 				</div>
 				<div class="ctrlHolder">
 					<a href="#growlTest" id="growlTest">Send a message to Growl, see if it works.</a>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels" id="twitterFieldset">
+				<h3>Twitter</h3>
+				<div class="ctrlHolder checkbox">
+					<label for="">Enable</label>
+					<input type="checkbox" name="TWITTER.enabled" value="True" ${' checked="checked"' if config.get('TWITTER', 'enabled') else ''} />
+					<p class="formHint">
+						Sends a notification to Twitter.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					${'Twitter is already configured, <a href="#twitterReset" id="twitterReset">click here</a> to reset.' if config.get('TWITTER', 'access_key') else 'Twitter is not configured, <a href="">click here</a> to begin.'}
+				</div>
+				<div class="ctrlHolder">
+					<a href="#twitterTest" id="twitterTest">Send a message to Twitter, see if it works.</a>
 				</div>
 			</fieldset>
 		</div>
@@ -756,7 +772,7 @@
 	            fieldset.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
 	    }
 		
-		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset', 'prowlFieldset', 'growlFieldset'],function(item){
+		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset', 'prowlFieldset', 'growlFieldset', 'twitterFieldset'],function(item){
 		    var fieldset = $(item)
 		    var checkbox = fieldset.getElement('[type=checkbox]')
 		    isEnabled(checkbox, fieldset)
@@ -842,6 +858,19 @@
 			new Request({
 				'url': './testGROWL/',
 				'data': $('growlFieldset')
+			}).send()
+		})
+		$('twitterTest').addEvent('click', function(e){
+			(e).stop()
+			new Request({
+				'url': './testTWITTER/',
+				'data': $('twitterFieldset')
+			}).send()
+		})
+		$('twitterReset').addEvent('click', function(e){
+			(e).stop()
+			new Request({
+				'url': './resetTWITTER/'
 			}).send()
 		})
 		$('nmjTest').addEvent('click', function(e){

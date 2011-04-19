@@ -7,6 +7,7 @@ from app.lib.nmj import NMJ
 from app.lib.plex import PLEX
 from app.lib.prowl import PROWL
 from app.lib.growl import GROWL
+from app.lib.twitter import TWITTER
 import cherrypy
 import json
 import sys
@@ -63,6 +64,7 @@ class ConfigController(BaseController):
               'PLEX.enabled',
               'PROWL.enabled',
               'GROWL.enabled',
+              'TWITTER.enabled',
               'Meta.enabled',
               'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
               'Torrents.enabled',
@@ -147,6 +149,25 @@ class ConfigController(BaseController):
 
         prowl = PROWL()
         prowl.test(data.get('PROWL.keys'), data.get('PROWL.priority'))
+        return ''
+
+    @cherrypy.expose
+    def testTWITTER(self, **data):
+
+        twitter = TWITTER()
+        twitter.test()
+        
+        return ''
+
+    @cherrypy.expose
+    def resetTWITTER(self):
+
+        config = cherrypy.config.get('config')
+        
+        config.set('TWITTER', 'access_key', '')
+        config.set('TWITTER', 'access_secret', '')
+        
+        config.save()
         return ''
 
     @cherrypy.expose

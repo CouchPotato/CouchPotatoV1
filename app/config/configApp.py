@@ -158,6 +158,11 @@ class configApp():
         self.setDefault('GROWL', 'host', 'localhost')
         self.setDefault('GROWL', 'password', '')
         
+        self.addSection('TWITTER')
+        self.setDefault('TWITTER', 'enabled', False)
+        self.setDefault('TWITTER', 'access_key', '')
+        self.setDefault('TWITTER', 'access_secret', '')
+        
         self.addSection('Meta')
         self.setDefault('Meta', 'enabled', False)
         self.setDefault('Meta', 'fanartMinHeight', 0)
