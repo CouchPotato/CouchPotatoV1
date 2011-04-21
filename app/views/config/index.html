@@ -145,11 +145,38 @@
 					<input type="checkbox" name="Torrents.enabled" value="True" ${' checked="checked"' if config.get('Torrents', 'enabled') else ''} />
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Download to</label>
-					<input type="text" name="Torrents.blackhole" value="${config.get('Torrents', 'blackhole')}" class="textInput large"/>
-					<p class="formHint">
-						Your .torrent watch folder
-					</p>
+					<label for="torrentSendTo">Download to</label>
+					<select name="Torrents.sendTo" id="torrentSendTo" class="textInput large">
+						% for sendTo in ['Transmission','Blackhole']:
+						<option value="${sendTo}"${' selected="selected"' if str(sendTo) == config.get('Torrents', 'sendTo') else ''}>${sendTo}</option>
+						% endfor
+					</select>
+				</div>
+				<div class="transmission">
+					<div class="ctrlHolder">
+						<label for="">Host</label>
+						<input type="text" name="Transmission.host" value="${config.get('Transmission', 'host')}" class="textInput large"/>
+						<p class="formHint">
+							Where does Transmission run? Usually <i>localhost:9091</i>
+						</p>
+					</div>
+					<div class="ctrlHolder">
+						<label for="">Username</label>
+						<input type="text" name="Transmission.username" value="${config.get('Transmission', 'username')}" autocomplete="off" class="textInput large"/>
+					</div>
+					<div class="ctrlHolder">
+						<label for="">Password</label>
+						<input type="password" name="Transmission.password" value="${config.get('Transmission', 'password')}" autocomplete="off" class="textInput large"/>
+					</div>
+				</div>
+				<div class="blackhole sendTo">
+					<div class="ctrlHolder">
+					    <label for="">Torrent Directory</label>
+					    <input type="text" name="Torrents.blackhole" value="${config.get('Torrents', 'blackhole')}" class="textInput large"/>
+					    <p class="formHint">
+						    Your .torrent watch folder
+					    </p>
+				    </div>
 				</div>
 				<div class="ctrlHolder">
 					<label for="">Wait</label>

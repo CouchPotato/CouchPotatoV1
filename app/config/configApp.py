@@ -102,10 +102,10 @@ class configApp():
         self.setDefault('Sabnzbd', 'ppDir', '')
         
         self.addSection('Transmission')
-        self.setDefault('Transmission', 'host', 'localhost')
-        self.setDefault('Transmission', 'port', '9091')
+        self.setDefault('Transmission', 'host', 'localhost:9091')
         self.setDefault('Transmission', 'username', '')
         self.setDefault('Transmission', 'password', '')
+        self.setDefault('Transmission', 'paused', '')
 
         self.addSection('TheMovieDB')
         self.setDefault('TheMovieDB', 'key', '9b939aee0aaafc12a65bf448e4af9543')
