@@ -7,11 +7,9 @@ from app.lib.qualities import Qualities
 from sqlalchemy.sql.expression import or_
 from app.lib import xbmc
 from app.lib import prowl
-from app.lib import twitter
 from app.lib.xbmc import XBMC
 from app.lib.prowl import PROWL
 from app.lib.growl import GROWL
-from app.lib.twitter import TWITTER
 import cherrypy
 import datetime
 import os
@@ -194,11 +192,6 @@ class YarrCron(cronBase, rss):
                         log.debug('GROWL')
                         growl = GROWL()
                         growl.notify('Snatched %s' % highest.name, 'Download Started')
-                        
-                        # Notify TWITTER
-                        log.debug('TWITTER')
-                        twitter = TWITTER()
-                        twitter.notify('Snatched %s' % highest.name)
 
                     return True
 
