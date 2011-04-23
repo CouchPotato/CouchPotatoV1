@@ -96,17 +96,18 @@ class movieSearcher():
         if overwrite or not exists:
             xml = self.theMovieDb.getXML(theMovieDbId)
 
-            # Make dir
-            if not os.path.isdir(xmlCache):
-                os.mkdir(xmlCache)
+            if xml:
+                # Make dir
+                if not os.path.isdir(xmlCache):
+                    os.mkdir(xmlCache)
 
-            # Remove old
-            if exists:
-                os.remove(xmlFile)
+                # Remove old
+                if exists:
+                    os.remove(xmlFile)
 
-            # Write file
-            with open(xmlFile, 'wb') as f:
-                f.write(xml.read())
+                # Write file
+                with open(xmlFile, 'wb') as f:
+                    f.write(xml.read())
 
     def getExtraInfo(self, movie, overwrite = False):
 

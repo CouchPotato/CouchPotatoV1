@@ -47,7 +47,7 @@ class theMovieDb(movieBase):
 
         xml = self.getXML(id)
         if xml:
-            results = self.parseXML(self.getXML(id), limit = 8)
+            results = self.parseXML(xml, limit = 8)
             return results.pop(0)
         else:
             return False
