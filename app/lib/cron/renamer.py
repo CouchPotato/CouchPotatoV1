@@ -141,7 +141,7 @@ class RenamerCron(cronBase, Library):
                                        posterMinWidth)
 
                         log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
-                    except xmg.ApiError, e:
+                    except Exception, e:
                         log.error('XMG TMDB API failure.  Please report to developers. API returned: %s' % e)
                         log.error(traceback.format_exc())
 
@@ -155,17 +155,17 @@ class RenamerCron(cronBase, Library):
                 log.debug('NMJ')
                 nmj = NMJ()
                 nmj.updateLibrary()
-                
+
                 # Notify PLEX
                 log.debug('PLEX')
                 plex = PLEX()
                 plex.updateLibrary()
-                
+
                 # Notify PROWL
                 log.debug('PROWL')
                 prowl = PROWL()
                 prowl.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year), 'Download Complete')
-                
+
                 # Notify GROWL
                 log.debug('GROWL')
                 growl = GROWL()
