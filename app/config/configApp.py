@@ -130,6 +130,7 @@ class configApp():
         self.setDefault('XBMC', 'host', 'localhost')
         self.setDefault('XBMC', 'username', 'xbmc')
         self.setDefault('XBMC', 'password', 'xbmc')
+        self.setDefault('XBMC', 'dbpath', '')
         self.setDefault('XBMC', 'updateOneOnly', False)
 
         self.addSection('NMJ')

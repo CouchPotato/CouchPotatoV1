@@ -543,6 +543,13 @@
 					<input type="password" name="XBMC.password" value="${config.get('XBMC', 'password')}" autocomplete="off" class="textInput large"/>
 				</div>
 				<div class="ctrlHolder">
+					<label>DB Path</label>
+					<input type="text" name="XBMC.dbpath" value="${config.get('XBMC', 'dbpath')}" autocomplete="off" class="textInput large"/>
+					<p class="formHint">
+						Example: C:\Users\Username\AppData\Roaming\XBMC\userdata\Database
+					</p>
+				</div>
+				<div class="ctrlHolder">
 					<a href="#xbmcTest" id="xbmcTest" class="testNotification">Send a message to XBMC, see if it works.</a>
 				</div>
 			</fieldset>
