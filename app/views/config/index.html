@@ -446,6 +446,27 @@
 
 		<div class="group extra">
 			<fieldset class="inlineLabels">
+				<h3>Blu-Ray.com RSS</h3>
+				<div class="ctrlHolder checkbox">
+					<label>Enable</label>
+					<input type="checkbox" name="MovieRSS.enabled" value="True" ${' checked="checked"' if config.get('MovieRSS', 'enabled') else ''} />
+				</div>
+				<div class="ctrlHolder">
+					<label>Minimum movie year</label>
+					<input type="text" name="MovieRSS.minyear" value="${config.get('MovieRSS', 'minyear')}" class="textInput large"/>
+					<p class="formHint">
+						Movies released after and including this year will added to the wanted list
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label>Minimum IMDB rating</label>
+					<input type="text" name="MovieRSS.minrating" value="${config.get('MovieRSS','minrating')}" class="textInput large"/>
+					<p class="formHint">
+						The minimum IMDB rating for a movie to be added
+					</p>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels">
 				<h3>Trailers</h3>
 				<div class="ctrlHolder">
 					<label>Download trailer</label>
