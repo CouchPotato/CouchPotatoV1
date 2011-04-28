@@ -466,28 +466,6 @@
 					</p>
 				</div>
 			</fieldset>
-			<fieldset class="inlineLabels">
-				<h3>Trailers</h3>
-				<div class="ctrlHolder">
-					<label>Download trailer</label>
-					<select name="Trailer.quality" class="textInput large">
-						<option value="">None</option>
-						% for format in trailerFormats:
-						<option value="${format}"${' selected="selected"' if format == config.get('Trailer', 'quality') else ''}>${format}</option>
-						% endfor
-					</select>
-					<p class="formHint">
-						If None, no trailer will be downloaded.
-					</p>
-				</div>
-				<div class="ctrlHolder">
-					<label>Naming</label>
-					<select name="Trailer.name" class="textInput large">
-						<option value="movie-trailer"${' selected="selected"' if 'movie-trailer' == config.get('Trailer', 'name') else ''}>movie-trailer.ext</option>
-						<option value="moviename-trailer"${' selected="selected"' if 'moviename-trailer' == config.get('Trailer', 'name') else ''}>&lt;filename&gt;-trailer.ext</option>
-					</select>
-				</div>
-			</fieldset>
 			<fieldset class="inlineLabels" id="subtitleFieldset">
 				<h3>Subtitles</h3>
 				<div class="ctrlHolder checkbox">
@@ -518,6 +496,28 @@
 					<p class="formHint">
 						Add language shortcode to end of subtitle name. Example: &quot;There Will Be Blood.en.srt&quot;
 					</p>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels">
+				<h3>Trailers</h3>
+				<div class="ctrlHolder">
+					<label>Download trailer</label>
+					<select name="Trailer.quality" class="textInput large">
+						<option value="">None</option>
+						% for format in trailerFormats:
+						<option value="${format}"${' selected="selected"' if format == config.get('Trailer', 'quality') else ''}>${format}</option>
+						% endfor
+					</select>
+					<p class="formHint">
+						If None, no trailer will be downloaded.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label>Naming</label>
+					<select name="Trailer.name" class="textInput large">
+						<option value="movie-trailer"${' selected="selected"' if 'movie-trailer' == config.get('Trailer', 'name') else ''}>movie-trailer.ext</option>
+						<option value="moviename-trailer"${' selected="selected"' if 'moviename-trailer' == config.get('Trailer', 'name') else ''}>&lt;filename&gt;-trailer.ext</option>
+					</select>
 				</div>
 			</fieldset>
 			<fieldset class="inlineLabels">
