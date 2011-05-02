@@ -1,21 +1,14 @@
-from app import latinToAscii
 from app.config.cplog import CPLog
-from app.config.db import RenameHistory, Session as Db
+from app.config.db import Session as Db, QualityTemplate
 from app.controllers.movie import MovieController
 from app.lib.cron.base import cronBase
 from app.lib.library import Library
 from app.lib.provider.rss import rss
-
-from xmg import xmg
-import cherrypy
-import os
-import re
-import shutil
 import time
 import traceback
 
-
 log = CPLog(__name__)
+
 
 class MovieRSSCron(cronBase, Library, rss):
 
@@ -84,10 +77,10 @@ class MovieRSSCron(cronBase, Library, rss):
             RSSMovie['year'] = self.gettextelement(RSSItem, "description").split("|")[1].strip("(").strip() #find movie year in description
 
             if not RSSMovie['name'].find("/") == -1: # make sure it is not a double movie release
-                continue 
+                continue
 
             if int(RSSMovie['year']) < int(self.conf('minyear')): #do year filtering
-                continue  
+                continue
 
             for test in RSSMovies:
                 if test.values() == RSSMovie.values(): # make sure we did not already include it...
@@ -112,40 +105,41 @@ class MovieRSSCron(cronBase, Library, rss):
             result = self.searcher['movie'].find(RSSMovie['name'] + ' ' + RSSMovie['year'], limit = 1)
 
             if not result:
-                log.info('Movie not found: "%s".' % RSSMovie )
+                log.info('Movie not found: "%s".' % RSSMovie)
                 continue
 
             try:
                 imdbmovie = self.searcher['movie'].imdb.findByImdbId(result.imdb, True)
             except:
-                log.info('Cannot find movie on IMDB: "%s".' % RSSMovie )
+                log.info('Cannot find movie on IMDB: "%s".' % RSSMovie)
                 continue
 
-            if not ( imdbmovie.get('kind') == 'movie' ):
-                log.info('This is a '+ imdbmovie.get('kind') + ' not a movie: "%s"' % RSSMovie )
+            if not (imdbmovie.get('kind') == 'movie'):
+                log.info('This is a ' + imdbmovie.get('kind') + ' not a movie: "%s"' % RSSMovie)
                 continue
 
             if not imdbmovie.get('year'):
-                log.info('IMDB has trouble with the year, skipping: "%s".' % RSSMovie )
+                log.info('IMDB has trouble with the year, skipping: "%s".' % RSSMovie)
                 continue
 
             if not int(imdbmovie.get('year')) == int(RSSMovie['year']):
-                log.info('IMDB movie year is wrong for: "%s".' % RSSMovie )
+                log.info('IMDB movie year is wrong for: "%s".' % RSSMovie)
                 continue
 
             if not imdbmovie.get('rating'):
-                log.info('Rating is unknown for this movie: "%s".' % RSSMovie )
+                log.info('Rating is unknown for this movie: "%s".' % RSSMovie)
                 continue
 
             if float(imdbmovie.get('rating')) < float(self.conf('minrating')):
-                log.info('Rating is too low for this movie: "%s".' % RSSMovie )
+                log.info('Rating is too low for this movie: "%s".' % RSSMovie)
                 continue
 
             log.info('Adding movie to queue: %s.' % imdbmovie.get('title') + ' (' + str(imdbmovie.get('year')) + ') Rating: ' + str(imdbmovie.get('rating')))
             try:
-                MyMovieController._addMovie(result, 8)
+                quality = Db.query(QualityTemplate).filter_by(name = self.config.get('Quality', 'default')).one()
+                MyMovieController._addMovie(result, quality.id)
             except:
-                log.info('MovieController unable to add this movie: "%s".' % RSSMovie )
+                log.info('MovieController unable to add this movie: "%s". %s' % (RSSMovie, traceback.format_exc()))
 
 def startMovieRSSCron(config, searcher, debug):
     cron = MovieRSSCron()
