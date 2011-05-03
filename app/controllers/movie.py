@@ -3,6 +3,7 @@ from app.config.db import Session as Db, Movie, QualityTemplate, MovieQueue
 from app.controllers import BaseController, url, redirect
 from sqlalchemy.sql.expression import or_, desc
 import cherrypy
+import os.path
 import sqlite3 as MySqlite
 
 log = CPLog(__name__)
@@ -155,9 +156,9 @@ class MovieController(BaseController):
 
     def _addMovie(self, movie, quality, year = None):
 
-        if cherrypy.config.get('config').get('XBMC','dbpath'):
+        if cherrypy.config.get('config').get('XBMC', 'dbpath'):
             log.debug('Checking if movie exists in XBMC by IMDB id:' + movie.imdb)
-            dbfile = cherrypy.config.get('config').get('XBMC','dbpath') + "\MyVideos34.db"
+            dbfile = os.path.join(cherrypy.config.get('config').get('XBMC', 'dbpath'), 'MyVideos34.db')
             #------Opening connection to XBMC DB------
             connXbmc = MySqlite.connect(dbfile)
             if connXbmc:
@@ -179,7 +180,7 @@ class MovieController(BaseController):
                     log.info('Movie already exists in XBMC, skipping.')
                     return
             else:
-                log.info('Could not connect to the XBMC database at ' + cherrypy.config.get('config').get('XBMC','dbpath'))
+                log.info('Could not connect to the XBMC database at ' + cherrypy.config.get('config').get('XBMC', 'dbpath'))
 
         log.info('Adding movie to database: %s' % movie.name)
 
