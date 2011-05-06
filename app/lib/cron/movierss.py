@@ -1,5 +1,5 @@
 from app.config.cplog import CPLog
-from app.config.db import Session as Db, QualityTemplate
+from app.config.db import Session as Db, QualityTemplate, Movie
 from app.controllers.movie import MovieController
 from app.lib.cron.base import cronBase
 from app.lib.library import Library
@@ -136,6 +136,12 @@ class MovieRSSCron(cronBase, Library, rss):
 
             log.info('Adding movie to queue: %s.' % imdbmovie.get('title') + ' (' + str(imdbmovie.get('year')) + ') Rating: ' + str(imdbmovie.get('rating')))
             try:
+                # Check and see if the movie is in CP already, if so, ignore it.
+                cpMovie = Db.query(Movie).filter_by(imdb = result.imdb).first()
+                if cpMovie:
+                    log.info('Movie found in CP Database, ignore: "%s".' % RSSMovie)
+                    continue
+
                 quality = Db.query(QualityTemplate).filter_by(name = self.config.get('Quality', 'default')).one()
                 MyMovieController._addMovie(result, quality.id)
             except:
