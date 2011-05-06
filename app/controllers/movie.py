@@ -138,7 +138,7 @@ class MovieController(BaseController):
         Add movie by imdbId
         '''
 
-        id = data.get('id')
+        id = 'tt' + data.get('id').replace('tt', '')
         success = False
 
         result = Db.query(Movie).filter_by(imdb = id, status = u'want').first()

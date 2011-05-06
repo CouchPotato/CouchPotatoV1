@@ -264,15 +264,11 @@ class Library:
 
         #check to see if the downloaded movie nfo file agrees with what we thought we were downloading
         if movie['info']['cpnfoImdb'] and movie['info']['imdb']:
-            cpnfoimdb = movie['info']['cpnfoImdb'].replace("tt", "")
-            nfoimdb = movie['info']['imdb'].replace("tt", "")
+            cpnfoimdb = 'tt' + movie['info']['cpnfoImdb'].replace("tt", '')
+            nfoimdb = 'tt' + movie['info']['imdb'].replace("tt", '')
             if cpnfoimdb != nfoimdb:
                 log.info("Downloaded movie's nfo has imdb id that doesn't match what we though we downloaded")
-                #Would be nice to develop some sort of 'holding area' for "iffy" movies like this
-                #For now, assume the movie's nfo is wrong...
-                movie['info']['imdb'] = cpnfoimdb
-            else:
-                movie['info']['imdb'] = cpnfoimdb
+            movie['info']['imdb'] = cpnfoimdb
 
         if movie['info']['imdb']:
             byImdb = self.getMovieByIMDB(movie['info']['imdb'])
