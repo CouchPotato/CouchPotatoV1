@@ -30,24 +30,20 @@ class MovieRSSCron(cronBase, Library, rss):
         time.sleep(10)
         while True and not self.abort:
             now = time.time()
+
             if (self.lastChecked + self.intervalSec) < now:
                 try:
                     self.running = True
                     self.lastChecked = now
                     self.doRSSCheck()
                     self.running = False
-                except Exception as exc:
-                    log.error("!!Uncought exception in movie RSS thread.")
-                    log.error(traceback.format_exc())
+                except:
+                    log.error("!!Uncought exception in movie RSS thread: %s" % traceback.format_exc())
+
             time.sleep(wait)
 
-        log.info('Movie RSS has shutdown.')
-
     def isDisabled(self):
-        if self.conf('enabled'):
-            return False
-        else:
-            return True
+        return not self.conf('enabled')
 
     def doRSSCheck(self):
         '''
