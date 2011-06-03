@@ -86,7 +86,7 @@ class newznab(nzbBase):
                         xml = self.getItems(data)
                         self.cache[cacheId]['xml'] = xml
                 except:
-                    log.debug('No valid xml or to many requests.' % self.name)
+                    log.debug('No valid xml or to many requests for %s.' % self.name)
                     return results
 
                 results = []
