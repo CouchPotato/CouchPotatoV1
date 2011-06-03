@@ -4,6 +4,7 @@ from dateutil.parser import parse
 from urllib import urlencode
 from urllib2 import URLError
 import time
+import traceback
 
 log = CPLog(__name__)
 
@@ -115,8 +116,8 @@ class nzbMatrix(nzbBase):
                         log.info('Found outside retention: %s' % new.name)
 
                 return results
-            except SyntaxError:
-                log.error('Failed to parse XML response from NZBMatrix.com')
+            except:
+                log.error('Failed to parse XML response from NZBMatrix.com: %s' % traceback.format_exc())
 
         return results
 

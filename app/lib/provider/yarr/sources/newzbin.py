@@ -4,6 +4,7 @@ from dateutil.parser import parse
 from urllib import urlencode
 from urllib2 import URLError
 import time
+import traceback
 
 log = CPLog(__name__)
 
@@ -131,8 +132,8 @@ class newzbin(nzbBase):
                         log.info('Found: %s' % new.name)
 
                 return results
-            except SyntaxError:
-                log.error('Failed to parse XML response from newzbin.com')
+            except:
+                log.error('Failed to parse XML response from newzbin.com: %s' % traceback.format_exc())
 
         return results
 

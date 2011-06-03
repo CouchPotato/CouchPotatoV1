@@ -5,6 +5,7 @@ from dateutil.parser import parse
 from urllib import urlencode
 from urllib2 import URLError
 import time
+import traceback
 
 log = CPLog(__name__)
 
@@ -53,7 +54,6 @@ class newznab(nzbBase):
             'imdbid': movie.imdb.replace('tt', ''),
             'cat': catId,
             'apikey': self.conf('apikey'),
-            't': self.searchUrl,
             'extended': 1
         })
         url = "%s&%s" % (self.getUrl(self.searchUrl), arguments)
@@ -92,6 +92,7 @@ class newznab(nzbBase):
                 results = []
                 for nzb in xml:
 
+                    date = self.gettextelement(nzb, "pubDate")
                     for item in nzb:
                         if item.attrib.get('name') == 'size':
                             size = item.attrib.get('value')
@@ -114,8 +115,8 @@ class newznab(nzbBase):
                         log.info('Found: %s' % new.name)
 
                 return results
-            except SyntaxError:
-                log.error('Failed to parse XML response from Newznab')
+            except:
+                log.error('Failed to parse XML response from Newznab: %s' % traceback.format_exc())
                 return False
 
         return results
