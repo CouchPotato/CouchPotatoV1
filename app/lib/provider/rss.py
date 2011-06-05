@@ -72,7 +72,7 @@ class rss:
         wait = math.ceil(self.lastUse - now + self.timeBetween)
         if wait > 0:
             log.debug('Waiting for %s, %d seconds' % (self.name, wait))
-            time.sleep(self.lastUse - now + self.timeBetween)
+            time.sleep(wait)
 
     def isAvailable(self, testUrl):
 
