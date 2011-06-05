@@ -39,20 +39,26 @@ class YarrCron(cronBase, rss):
         if not self.debug:
             time.sleep(10)
 
-        wait = 0.1 if self.debug else 1
+        wait = 0.1 if self.debug else 10
         while True and not self.abort:
 
             #check single movie
-            for movieId in self.checkTheseMovies:
-                movie = Db.query(Movie).filter_by(id = movieId).one()
-                self._search(movie, True)
-                self.checkTheseMovies.pop(0)
+            try:
+                for movieId in self.checkTheseMovies:
+                    movie = Db.query(Movie).filter_by(id = movieId).one()
+                    self._search(movie, True)
+                    self.checkTheseMovies.pop(0)
+            except Exception, e:
+                log.error('Something went wrong with checkTheseMovies: %s' % e)
 
             #check all movies
-            now = time.time()
-            if (self.lastChecked + self.intervalSec) < now: # and not self.debug:
-                self.lastChecked = now
-                self.searchAll()
+            try:
+                now = time.time()
+                if (self.lastChecked + self.intervalSec) < now: # and not self.debug:
+                    self.lastChecked = now
+                    self.searchAll()
+            except Exception, e:
+                log.error('Something went wrong with searchAll: %s' % e)
 
             time.sleep(wait)
 
@@ -96,6 +102,7 @@ class YarrCron(cronBase, rss):
         now = int(time.time())
 
         # Search all if ETA is unknow, but try update ETA for next time.
+        log.debug('Calculate ETA')
         checkETA = False
         if not movie.eta or force:
             checkETA = True
@@ -135,13 +142,17 @@ class YarrCron(cronBase, rss):
             if queue.active and not queue.completed and not self.abort and not self.stop:
 
                 #skip if no search is set
+                log.debug('Needs a search?')
                 if (not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases))) and not queue.lastCheck < (now - int(self.config.get('Intervals', 'search')) * 7200):
                     continue
 
+                log.debug('Start searching for movie: %s' % movie.name)
                 highest = self.provider.find(movie, queue)
+                log.debug('End searching for movie: %s' % movie.name)
 
                 #send highest to SABnzbd & mark as snatched
                 if highest:
+                    log.debug('Found highest')
 
                     #update what I found
                     queue.name = latinToAscii(highest.name)
@@ -162,6 +173,7 @@ class YarrCron(cronBase, rss):
 
                     # Set status
                     if success:
+                        log.debug('Success')
                         movie.status = u'snatched' if queue.markComplete else u'waiting'
                         movie.dateChanged = datetime.datetime.now()
                         queue.lastCheck = now

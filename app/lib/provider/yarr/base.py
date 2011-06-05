@@ -230,15 +230,17 @@ class nzbBase(rss):
         return ''
 
     def cleanCache(self):
+        try:
+            tempcache = {}
+            for x, cache in self.cache.iteritems():
+                if cache['time'] + 300 > time.time():
+                    tempcache[x] = self.cache[x]
+                else:
+                    log.debug('Removing cache %s' % x)
 
-        tempcache = {}
-        for x, cache in self.cache.iteritems():
-            if cache['time'] + 300 > time.time():
-                tempcache[x] = self.cache[x]
-            else:
-                log.debug('Removing cache %s' % x)
-
-        self.cache = tempcache
+            self.cache = tempcache
+        except:
+            self.cache = {}
 
 class torrentBase(nzbBase):
 

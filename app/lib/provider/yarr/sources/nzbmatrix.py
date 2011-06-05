@@ -60,7 +60,7 @@ class nzbMatrix(nzbBase):
 
         try:
             cached = False
-            if(self.cache.get(cacheId)):
+            if self.cache.get(cacheId):
                 data = True
                 cached = True
                 log.info('Getting RSS from cache: %s.' % cacheId)
@@ -70,8 +70,7 @@ class nzbMatrix(nzbBase):
                 self.cache[cacheId] = {
                     'time': time.time()
                 }
-
-        except (IOError, URLError):
+        except IOError, URLError:
             log.error('Failed to open %s.' % url)
             return results
 
