@@ -21,7 +21,7 @@ class Library:
     ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '.appledb', '.appledesktop', '/._', 'cp.cpnfo'] #unpacking, smb-crap, hidden files
     ignoreNames = ['extract', 'extracting', 'extracted', 'movie', 'movies', 'film', 'films']
     extensions = {
-        'movie': ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso', '*.img', '*.vob'],
+        'movie': ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m4v', '*.m2ts', '*.iso', '*.img', '*.vob'],
         'nfo': ['*.nfo'],
         'subtitle': ['*.sub', '*.srt', '*.ssa', '*.ass'],
         'subtitleExtras': ['*.idx'],
