@@ -444,7 +444,7 @@ class Library:
         libraryDir = os.path.join(cherrypy.config.get('basePath'), 'library')
         script = os.path.join(libraryDir, 'getmeta.py')
 
-        p = subprocess.Popen(["python", script, filename], stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = libraryDir)
+        p = subprocess.Popen(["python2", script, filename], stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = libraryDir)
         z = p.communicate()[0]
 
         try:
