@@ -65,7 +65,15 @@ class Library:
             return movies
 
         log.debug('os.walk(movieFolder) %s' % movieFolder)
-        for root, subfiles, filenames in os.walk(movieFolder):
+        # Walk the tree once to catch any UnicodeDecodeErrors that might arise
+        # from malformed file and directory names. Use the non-unicode version
+        # of movieFolder if so.
+        try:
+            for x in os.walk(movieFolder): pass
+            walker = os.walk(movieFolder)
+        except UnicodeDecodeError:
+            walker = os.walk(str(movieFolder))
+        for root, subfiles, filenames in walker:
             if self.abort:
                 log.debug('Aborting moviescan')
                 return movies
