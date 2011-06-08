@@ -452,7 +452,12 @@ class Library:
         libraryDir = os.path.join(cherrypy.config.get('basePath'), 'library')
         script = os.path.join(libraryDir, 'getmeta.py')
 
-        p = subprocess.Popen(["python2", script, filename], stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = libraryDir)
+        # Use the current python interpreter, if possible. Cannot rely on just using "python" because on some
+        # system (ie. ArchLinux), the default "python" interpreter is python 3, and that will not work here.
+        pyinterp = sys.executable
+        if not pyinterp: pyinterp = "python"
+
+        p = subprocess.Popen([pyinterp, script, filename], stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = libraryDir)
         z = p.communicate()[0]
 
         try:
