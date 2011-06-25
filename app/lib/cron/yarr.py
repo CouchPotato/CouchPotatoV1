@@ -217,7 +217,7 @@ class YarrCron(cronBase, rss):
                         if self.config.get('NMA','onSnatch'):
                             log.debug('NotifyMyAndroid')
                             nma = NMA()
-                            nma.notify('Movie Snatched', 'Snatched %s' % highest.name)
+                            nma.notify('Download Started', 'Snatched %s' % highest.name)
 
                     return True
 
