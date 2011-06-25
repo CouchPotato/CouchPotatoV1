@@ -738,6 +738,27 @@
 					<a href="#notifoTest" id="notifoTest" class="testNotification">Send a message to Notifo, see if it works.</a>
 				</div>
 			</fieldset>
+			<fieldset class="inlineLabels" id="nmaFieldset">
+				<h3>NotifyMyAndroid</h3>
+				<div class="ctrlHolder checkbox">
+					<label>Enabled</label>
+					<input type="checkbox" name="NMA.enabled" value="True" ${' checked="checked"' if config.get('NMA', 'enabled') else ''} />
+					<p class="formHint">
+						Sends a notification to NotifyMyAndroid
+					</p>
+				</div>
+				<div class="ctrlHolder checkbox">
+					<label>Also on snatched</label>
+					<input type="checkbox" name="NMA.onSnatch" value="True" ${' checked="checked"' if config.get('NMA', 'onSnatch') else ''} />
+					<p class="formHint">
+						Also send a notification when a movie is snatched.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label>API Key</label>
+					<input type="text" name="NMA.apikey" value="${config.get('NMA', 'apikey')}" class="textInput large" />
+				</div>
+			</fieldset>
 		</div>
 		<div class="buttonHolder">
 			<span class="cancel"><a href="#cancel">Cancel</a> or</span> 
