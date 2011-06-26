@@ -170,6 +170,7 @@ class configApp():
         self.setDefault('NMA', 'enabled', False)
         self.setDefault('NMA', 'onSnatch', False)
         self.setDefault('NMA', 'apikey', '')
+        self.setDefault('NMA', 'devkey', '')
         
         self.addSection('Meta')
         self.setDefault('Meta', 'enabled', False)
