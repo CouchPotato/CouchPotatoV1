@@ -768,6 +768,16 @@
 				<div class="ctrlHolder">
 					<a href="#nmaTest" id="nmaTest" class="testNotification">Send a message to NotifyMyAndroid, see if it works.</a>
 				</div>
+				<div class="ctrlHolder">
+					<label>Priority</label>
+					<select name="NMA.priority" class="textInput large">
+					<option value="-2"${' selected="selected"' if config.get('NMA', 'priority') == '-2' else ''}>Very Low</option>
+					<option value="-1"${' selected="selected"' if config.get('NMA', 'priority') == '-1' else ''}>Moderate</option>
+					<option value="0"${' selected="selected"' if config.get('NMA', 'priority') == '0' else ''}>Normal</option>
+					<option value="1"${' selected="selected"' if config.get('NMA', 'priority') == '1' else ''}>High</option>
+					<option value="2"${' selected="selected"' if config.get('NMA', 'priority') == '2' else ''}>Emergency</option>
+					</select>
+				</div>
 			</fieldset>
 		</div>
 		<div class="buttonHolder">

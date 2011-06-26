@@ -12,6 +12,7 @@ class NMA:
         self.enabled = self.conf('enabled')
         self.apikey = self.conf('apikey')
         self.devkey = self.conf('devkey')
+        self.priority = self.conf('priority')
     
     def conf(self, options):
         return cherrypy.config['config'].get('NMA', options)
@@ -30,7 +31,7 @@ class NMA:
         
         if len(keys) > 1: batch = True
         
-        response = p.push(self.app_name, event, message, batch_mode=batch)
+        response = p.push(self.app_name, event, message, priority=self.priority, batch_mode=batch)
         
         for key in keys:
             if not response[str(key)]['code'] == u'200':
@@ -38,10 +39,11 @@ class NMA:
                 
         return response
         
-    def test(self, apikey, devkey):
+    def test(self, apikey, devkey, priority):
         
         self.enabled = True
         self.apikey = apikey
         self.devkey = devkey
+        self.priority = priority
         
         self.notify('CouchPotato Test', 'ZOMG Lazors Pewpewpew')

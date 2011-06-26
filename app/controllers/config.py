@@ -166,7 +166,7 @@ class ConfigController(BaseController):
     def testNMA(self, **data):
         
         nma = NMA()
-        nma.test(data.get('NMA.apikey'), data.get('NMA.devkey'))
+        nma.test(data.get('NMA.apikey'), data.get('NMA.devkey'), data.get('NMA.priority'))
         return ''
 
     @cherrypy.expose
