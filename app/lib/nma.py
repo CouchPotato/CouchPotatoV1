@@ -20,11 +20,13 @@ class NMA:
         if not self.enabled:
             return
         
-        p = pynma.PyNMA(self.apikey)
+        p = pynma.PyNMA()
+        p.addkey(self.apikey)
         response = p.push(self.app_name, event, message)
         
-        if not response['code'] == 200:
-            log.error('Could not send notification to NotifyMyAndroid. %s' % response['message'])
+        # only check the first error, chances are they will all be the same
+        if not response['a']['code'] == u'200':
+            log.error('Could not send notification to NotifyMyAndroid. %s' % response['a']['message'])
             return False
         
         return response
