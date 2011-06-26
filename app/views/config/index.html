@@ -879,7 +879,7 @@
 	        }
 	    }
 		
-		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset', 'prowlFieldset', 'growlFieldset', 'notifoFieldset'],function(item){
+		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset', 'prowlFieldset', 'growlFieldset', 'notifoFieldset', 'nmaFieldset'],function(item){
 		    var fieldset = $(item)
 		    var checkbox = fieldset.getElement('[type=checkbox]')
 		    isEnabled(checkbox, fieldset)
@@ -998,7 +998,13 @@
 				data: $('nmjFieldset')
 			}).send()
 		})
-
+		$('nmaTest').addEvent('click',function(e){
+			(e).stop()
+			new Request({
+				'url': './testNMA/',
+				'data': $('nmaFieldset')
+			}).send()
+		})
 	});
 
 </script>
