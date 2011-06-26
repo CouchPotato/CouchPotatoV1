@@ -167,6 +167,7 @@ class ConfigController(BaseController):
         
         nma = NMA()
         nma.test(data.get('NMA.apikey'))
+        return ''
 
     @cherrypy.expose
     def exit(self):
