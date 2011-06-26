@@ -21,16 +21,21 @@ class NMA:
         if not self.enabled:
             return
         
+        batch = False
+        
         p = pynma.PyNMA()
-        p.addkey(str(self.apikey))
+        keys = self.apikey.split(',')
+        p.addkey(keys)
         p.developerkey(str(self.devkey))
-        response = p.push(self.app_name, event, message)
         
-        # only check the first error, chances are they will all be the same
-        if not response[str(self.apikey)]['code'] == u'200':
-            log.error('Could not send notification to NotifyMyAndroid. %s' % response[str(self.apikey)]['message'])
-            return False
+        if len(keys) > 1: batch = True
         
+        response = p.push(self.app_name, event, message, batch_mode=batch)
+        
+        for key in keys:
+            if not response[str(key)]['code'] == u'200':
+                log.error('Could not send notification to NotifyMyAndroid (%s). %s' % (key,response[key]['message']))
+                
         return response
         
     def test(self, apikey, devkey):
