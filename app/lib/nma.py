@@ -27,8 +27,8 @@ class NMA:
         response = p.push(self.app_name, event, message)
         
         # only check the first error, chances are they will all be the same
-        if not response['code'] == u'200':
-            log.error('Could not send notification to NotifyMyAndroid. %s' % response['message'])
+        if not response[str(self.apikey)]['code'] == u'200':
+            log.error('Could not send notification to NotifyMyAndroid. %s' % response[str(self.apikey)]['message'])
             return False
         
         return response
