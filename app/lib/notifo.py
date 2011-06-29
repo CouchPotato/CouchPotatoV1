@@ -63,4 +63,4 @@ class Notifo:
         self.username = username
         self.key = key
 
-        self.notify('This is a test notification from Couch Potato')
+        self.notify('This is a test notification from Couch Potato', "Testing:")
