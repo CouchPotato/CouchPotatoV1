@@ -31,16 +31,29 @@ class transmission():
         
         # Set parameters for Transmission
         params = {}
+        change_params = {}
+        
+        if not (self.conf('ratio') == ''):
+            change_params['seedRatioLimit'] = self.conf('ratio')
+            change_params['seedRatioMode'] = 1
         
         if not (self.conf('paused') == ''):
             params['paused'] = self.conf('paused')
 
-        if self.config.get('Renamer', 'enabled'):
-            params['download_dir'] = self.config.get('Renamer', 'download')
-        
+        if not (self.conf('directory') == ''):
+            params['download_dir'] = self.conf('directory')
+
         try:
             tc = transmissionrpc.Client(host[0], port = host[1], user = self.conf('username'), password = self.conf('password'))
-            tc.add_uri(torrent.url, **params)
+            tr_id = tc.add_uri(torrent.url, **params)
+            
+            # Change settings of added torrents 
+            for item in tr_id:
+                try:
+                    tc.change(item, timeout=None, **change_params)
+                except transmissionrpc.TransmissionError, e:
+                    log.error('Failed to change settings for transfer in transmission: ' +str(e))
+
             return True
 
         except transmissionrpc.TransmissionError, e:

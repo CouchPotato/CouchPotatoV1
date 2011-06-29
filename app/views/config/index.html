@@ -168,6 +168,21 @@
 						<label for="">Password</label>
 						<input type="password" name="Transmission.password" value="${config.get('Transmission', 'password')}" autocomplete="off" class="textInput large"/>
 					</div>
+					<div class="ctrlHolder">
+						<label for="">Download Directory</label>
+						<input type="text" name="Transmission.directory" value="${config.get('Transmission', 'directory')}" autocomplete="off" class="textInput large"/>
+						<p class="formHint">
+						Where should Transmission saved the downloaded files?
+					</p>
+					</div>
+					<div class="ctrlHolder">
+						<label for="">Seeding ratio</label>
+						<input type="text" name="Transmission.ratio" value="${config.get('Transmission', 'ratio')}" autocomplete="off" class="textInput xsmall"/>
+						<p class="formHint">
+						    Stop transfer when reaching ratio 
+					    </p>
+						
+					</div>
 				</div>
 				<div class="torrentsblackhole sendTotorrents">
 					<div class="ctrlHolder">

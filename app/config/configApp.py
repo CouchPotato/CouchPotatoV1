@@ -106,6 +106,8 @@ class configApp():
         self.setDefault('Transmission', 'username', '')
         self.setDefault('Transmission', 'password', '')
         self.setDefault('Transmission', 'paused', '')
+        self.setDefault('Transmission', 'directory', '')
+        self.setDefault('Transmission', 'ratio', '')
 
         self.addSection('TheMovieDB')
         self.setDefault('TheMovieDB', 'key', '9b939aee0aaafc12a65bf448e4af9543')
