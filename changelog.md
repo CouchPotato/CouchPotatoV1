@@ -1,7 +1,12 @@
 CouchPotato
 =====
 
-Version 33 (not released):
+Version 34 (not released):
+
+* [See diff](https://github.com/RuudBurger/CouchPotato/compare/ba91f05a58d29e490368aafc6b6f0c6dcfde0bf9...master)
+
+
+Version 33:
 
 * New: Bluray.com automated movie downloading, based on score and year
 * Fix: Catch unicode decoding error when walking through download folder
