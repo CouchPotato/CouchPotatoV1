@@ -80,6 +80,10 @@ class configApp():
         self.setDefault('newznab', 'enabled', False)
         self.setDefault('newznab', 'host', '')
         self.setDefault('newznab', 'apikey', '')
+        self.addSection('NZBsRUS')
+        self.setDefault('NZBsRUS', 'enabled', False)
+        self.setDefault('NZBsRUS', 'userid', '')
+        self.setDefault('NZBsRUS', 'userhash', '')
 
         self.addSection('NZB')
         self.setDefault('NZB', 'enabled', True)
@@ -124,6 +128,9 @@ class configApp():
         self.setDefault('Subtitles', 'addLanguage', True)
         self.setDefault('Subtitles', 'name', 'filename') #filename, subtitle
 
+        self.addSection('MovieETA')
+        self.setDefault('MovieETA', 'enabled', True)
+
         self.addSection('MovieRSS')
         self.setDefault('MovieRSS', 'enabled', False)
         self.setDefault('MovieRSS', 'minyear', '2000')
@@ -143,7 +150,7 @@ class configApp():
         self.setDefault('NMJ', 'host', '')
         self.setDefault('NMJ', 'database', '')
         self.setDefault('NMJ', 'mount', '')
-        
+
         self.addSection('PLEX')
         self.setDefault('PLEX', 'enabled', False)
         self.setDefault('PLEX', 'host', '')
@@ -172,7 +179,7 @@ class configApp():
         self.setDefault('NMA', 'apikey', '')
         self.setDefault('NMA', 'devkey', '')
         self.setDefault('NMA', 'priority', '0')
-        
+
         self.addSection('Meta')
         self.setDefault('Meta', 'enabled', False)
         self.setDefault('Meta', 'fanartMinHeight', 0)

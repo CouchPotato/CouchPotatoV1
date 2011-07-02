@@ -175,7 +175,7 @@ class RenamerCron(cronBase, Library):
                 # Notify Notifo
                 log.debug('Notifo')
                 notifo = Notifo()
-                notifo.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
+                notifo.notify('%s (%s)' % (movie['movie'].name, movie['movie'].year), "Downloaded:")
                 
                 #Notify NotifyMyAndroid
                 log.debug('NotifyMyAndroid')
@@ -211,6 +211,10 @@ class RenamerCron(cronBase, Library):
                     for dir in os.path.split(root):
                         if dir in self.ignoreNames:
                             skip = True
+                            
+                    # ignore if the current dir is the blackhole
+                    if root in self.conf('download'):
+                        skip = True
 
                     if skip: continue
 

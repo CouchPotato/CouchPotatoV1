@@ -211,7 +211,7 @@ class YarrCron(cronBase, rss):
                         if self.config.get('Notifo', 'onSnatch'):
                             log.debug('Notifo')
                             notifo = Notifo()
-                            notifo.notify('Snatched %s' % highest.name)
+                            notifo.notify('%s' % highest.name, "Snatched:")
                             
                         # Notify NotifyMyAndroid
                         if self.config.get('NMA','onSnatch'):
