@@ -180,7 +180,7 @@ class RenamerCron(cronBase, Library):
                 #Notify NotifyMyAndroid
                 log.debug('NotifyMyAndroid')
                 nma = NMA()
-                nma.notify('Download Complete', 'Downloaded %s (%s)' & (movie['movie'].name, movie['movie'].year))
+                nma.notify('Download Complete', 'Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
 
             else:
                 path = movie['path'].split(os.sep)
