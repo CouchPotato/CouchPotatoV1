@@ -154,29 +154,29 @@
 				</div>
 				<div class="transmission sendTotorrents">
 					<div class="ctrlHolder">
-						<label for="">Host</label>
+						<label>Host</label>
 						<input type="text" name="Transmission.host" value="${config.get('Transmission', 'host')}" class="textInput large"/>
 						<p class="formHint">
 							Where does Transmission run? Usually <i>localhost:9091</i>
 						</p>
 					</div>
 					<div class="ctrlHolder">
-						<label for="">Username</label>
+						<label>Username</label>
 						<input type="text" name="Transmission.username" value="${config.get('Transmission', 'username')}" autocomplete="off" class="textInput large"/>
 					</div>
 					<div class="ctrlHolder">
-						<label for="">Password</label>
+						<label>Password</label>
 						<input type="password" name="Transmission.password" value="${config.get('Transmission', 'password')}" autocomplete="off" class="textInput large"/>
 					</div>
 					<div class="ctrlHolder">
-						<label for="">Download Directory</label>
+						<label>Download Directory</label>
 						<input type="text" name="Transmission.directory" value="${config.get('Transmission', 'directory')}" autocomplete="off" class="textInput large"/>
 						<p class="formHint">
 						Where should Transmission saved the downloaded files?
 					</p>
 					</div>
 					<div class="ctrlHolder">
-						<label for="">Seeding ratio</label>
+						<label>Seeding ratio</label>
 						<input type="text" name="Transmission.ratio" value="${config.get('Transmission', 'ratio')}" autocomplete="off" class="textInput xsmall"/>
 						<p class="formHint">
 						    Stop transfer when reaching ratio 
@@ -186,7 +186,7 @@
 				</div>
 				<div class="torrentsblackhole sendTotorrents">
 					<div class="ctrlHolder">
-					    <label for="">Torrent Directory</label>
+					    <label>Torrent Directory</label>
 					    <input type="text" name="Torrents.blackhole" value="${config.get('Torrents', 'blackhole')}" class="textInput large"/>
 					    <p class="formHint">
 						    Your .torrent watch folder
