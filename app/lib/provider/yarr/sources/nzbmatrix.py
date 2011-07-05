@@ -4,6 +4,7 @@ from dateutil.parser import parse
 from urllib import urlencode
 from urllib2 import URLError
 import time
+import traceback
 
 log = CPLog(__name__)
 
@@ -59,7 +60,7 @@ class nzbMatrix(nzbBase):
 
         try:
             cached = False
-            if(self.cache.get(cacheId)):
+            if self.cache.get(cacheId):
                 data = True
                 cached = True
                 log.info('Getting RSS from cache: %s.' % cacheId)
@@ -69,8 +70,7 @@ class nzbMatrix(nzbBase):
                 self.cache[cacheId] = {
                     'time': time.time()
                 }
-
-        except (IOError, URLError):
+        except IOError, URLError:
             log.error('Failed to open %s.' % url)
             return results
 
@@ -115,8 +115,8 @@ class nzbMatrix(nzbBase):
                         log.info('Found outside retention: %s' % new.name)
 
                 return results
-            except SyntaxError:
-                log.error('Failed to parse XML response from NZBMatrix.com')
+            except:
+                log.error('Failed to parse XML response from NZBMatrix.com: %s' % traceback.format_exc())
 
         return results
 

@@ -48,7 +48,7 @@
 	    		] %>
 	        <ul>
 	    	% for tab in tabs:
-	            <li><a href="${url(controller=tab.get('href'), action='index')}" title="${tab.get('title')}" id="${tab.get('id', '')}" class="${tab.get('class', '')}">${tab.get('label', '')}</a></li>
+	            <li><a href="${url(controller=tab.get('href'), action='index')}" title="${tab.get('title')}" id="${tab.get('id', 'tab'+tab.get('href'))}" class="${tab.get('class', 'tab'+tab.get('href'))}">${tab.get('label', '')}</a></li>
 	        % endfor
 	        </ul>
 

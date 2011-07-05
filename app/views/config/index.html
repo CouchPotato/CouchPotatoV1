@@ -16,27 +16,27 @@
 			<fieldset class="inlineLabels">
 				<h3>General (need manual restart)</h3>
 				<div class="ctrlHolder">
-					<label for="">Host</label>
+					<label>Host</label>
 					<input type="text" name="global.host" value="${config.get('global', 'host')}" class="textInput large"/>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Port</label>
+					<label>Port</label>
 					<input type="text" name="global.port" value="${config.get('global', 'port')}" class="textInput large"/>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Username</label>
+					<label>Username</label>
 					<input type="text" name="global.username" value="${config.get('global', 'username')}" autocomplete="off" class="textInput large"/>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Password</label>
+					<label>Password</label>
 					<input type="password" name="global.password" value="${config.get('global', 'password')}" autocomplete="off" class="textInput large"/>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Launch browser</label>
+					<label>Launch browser</label>
 					<input type="checkbox" name="global.launchbrowser" value="True" ${' checked="checked"' if config.get('global', 'launchbrowser') else ''} />
 				</div>
 				<div class="ctrlHolder checkbox">
-					<label for="">Use updater</label>
+					<label>Use updater</label>
 					<% hasGit = updater.hasGit() %>
 					<input type="checkbox" name="global.updater" value="True" ${' checked="checked"' if config.get('global', 'updater') and not hasGit else ''} ${' disabled="disabled"' if hasGit else ''} />
 					% if hasGit:
@@ -50,25 +50,25 @@
 			<fieldset class="inlineLabels">
 				<h3>Search</h3>
 				<div class="ctrlHolder">
-					<label for="">Search every</label>
+					<label>Search every</label>
 					<input type="text" name="Intervals.search" value="${config.get('Intervals', 'search')}" class="textInput xsmall"/> hour(s)
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Ignore words</label>
+					<label>Ignore words</label>
 					<input type="text" name="global.ignoreWords" value="${config.get('global', 'ignoreWords')}" class="textInput large"/>
 					<p class="formHint">
 						Comma seperated. NZB/Torrents containing these words are ignored. Example: GERMAN, DUBBED, HDTV
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Preferred words</label>
+					<label>Preferred words</label>
 					<input type="text" name="global.preferredWords" value="${config.get('global', 'preferredWords')}" class="textInput large"/>
 					<p class="formHint">
 						Comma seperated. NZB/Torrents containing these words are preferred. Example: Diamond, BluRay, DTS
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Required words</label>
+					<label>Required words</label>
 					<input type="text" name="global.requiredWords" value="${config.get('global', 'requiredWords')}" class="textInput large"/>
 					<p class="formHint">
 						Comma seperated. NZB/Torrents must contain these words. Example: GERMAN, DTS
@@ -81,11 +81,11 @@
 			<fieldset class="inlineLabels" id="nzbsFieldset">
 				<h3>NZBs</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Enable</label>
+					<label>Enable</label>
 					<input type="checkbox" name="NZB.enabled" value="True" ${' checked="checked"' if config.get('NZB', 'enabled') else ''} />
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Retention</label>
+					<label>Retention</label>
 					<input type="text" name="NZB.retention" value="${config.get('NZB', 'retention')}" class="textInput xsmall"/> day(s)
 				</div>
 				<div class="ctrlHolder">
@@ -98,29 +98,29 @@
 				</div>
 				<div class="sabnzbd sendTonzb">
 					<div class="ctrlHolder">
-						<label for="">Host</label>
+						<label>Host</label>
 						<input type="text" name="Sabnzbd.host" value="${config.get('Sabnzbd', 'host')}" class="textInput large"/>
 						<p class="formHint">
 							Where does SABnzbd run? Usually <i>localhost:8080</i>
 						</p>
 					</div>
 					<div class="ctrlHolder">
-						<label for="">Apikey</label>
+						<label>Apikey</label>
 						<input type="text" name="Sabnzbd.apikey" value="${config.get('Sabnzbd', 'apikey')}" class="textInput large"/>
 						<p class="formHint">
 							Can be found in general config on SABnzbd
 						</p>
 					</div>
 					<div class="ctrlHolder">
-						<label for="">Username</label>
+						<label>Username</label>
 						<input type="text" name="Sabnzbd.username" value="${config.get('Sabnzbd', 'username')}" autocomplete="off" class="textInput large"/>
 					</div>
 					<div class="ctrlHolder">
-						<label for="">Password</label>
+						<label>Password</label>
 						<input type="password" name="Sabnzbd.password" value="${config.get('Sabnzbd', 'password')}" autocomplete="off" class="textInput large"/>
 					</div>
 					<div class="ctrlHolder">
-						<label for="">Category</label>
+						<label>Category</label>
 						<input type="text" name="Sabnzbd.category" value="${config.get('Sabnzbd', 'category')}" class="textInput large"/>
 						<p class="formHint">
 							Category where NZBs should be put.
@@ -129,7 +129,7 @@
 				</div>
 				<div class="nzbblackhole sendTonzb">
 					<div class="ctrlHolder">
-						<label for="">NZB Directory</label>
+						<label>NZB Directory</label>
 						<input type="text" name="NZB.blackhole" value="${config.get('NZB', 'blackhole')}" class="textInput large"/>
 						<p class="formHint">
 							Folder your download program watches for new .nzb files.
@@ -141,7 +141,7 @@
 			<fieldset class="inlineLabels" id="torrentsFieldset">
 				<h3>Torrents</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Enable</label>
+					<label>Enable</label>
 					<input type="checkbox" name="Torrents.enabled" value="True" ${' checked="checked"' if config.get('Torrents', 'enabled') else ''} />
 				</div>
 				<div class="ctrlHolder">
@@ -194,7 +194,7 @@
 				    </div>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Wait</label>
+					<label>Wait</label>
 					<input type="text" name="Torrents.wait" value="${config.get('Torrents', 'wait')}" class="textInput xsmall"/> hour(s) for nzb
 					<p class="formHint">
 						Only if NZB download is enabled.
@@ -206,18 +206,18 @@
 		<div class="group renaming" id="renamingFieldset">
 			<fieldset class="inlineLabels">
 				<div class="ctrlHolder checkbox">
-					<label for="">Enable</label>
+					<label>Enable</label>
 					<input type="checkbox" name="Renamer.enabled" value="True" ${' checked="checked"' if config.get('Renamer', 'enabled') else ''} />
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Download folder</label>
+					<label>Download folder</label>
 					<input type="text" name="Renamer.download" value="${config.get('Renamer', 'download')}" class="textInput large"/>
 					<p class="formHint">
 						Your SABnzbd movie download folder
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Movie destination</label>
+					<label>Movie destination</label>
 					<input type="text" name="Renamer.destination" value="${config.get('Renamer', 'destination')}" class="textInput large"/>
 					<p class="formHint">
 						Where the movies should be moved to. <br />
@@ -225,14 +225,15 @@
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Folder naming</label>
+					<label>Folder naming</label>
 					<input type="text" name="Renamer.foldernaming" value="${config.get('Renamer', 'foldernaming').replace('<', '&lt;').replace('>', '&gt;')}" class="textInput large"/>
 					<p class="formHint">
 						<span id="foldernameResult"><strong>Result</strong>: ${foldernameResult}</span>
+						<span style="color:red;">Use <strong>at least</strong> the movie name like &lt;thename&gt;/&lt;namethe&gt; in your foldername, or the world is going to end and lots of movies might get deleted..</span>
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">File naming</label>
+					<label>File naming</label>
 					<input type="text" name="Renamer.filenaming" value="${config.get('Renamer', 'filenaming').replace('<', '&lt;').replace('>', '&gt;')}" class="textInput large"/>
 					<p class="formHint">
 						<span id="filenameResult"><strong>Result</strong>: ${filenameResult}</span><br />
@@ -259,7 +260,7 @@
 			</fieldset>
 			<fieldset class="inlineLabels">
 				<div class="ctrlHolder">
-					<label for="">Name separator</label>
+					<label>Name separator</label>
 					<select name="Renamer.separator" class="textInput large">
 						% for sep, label in {' ':'space', '.':'dot', '-':'dash'}.iteritems():
 						<option value="${sep}"${' selected="selected"' if sep == config.get('Renamer', 'separator') else ''}>${label}</option>
@@ -270,7 +271,7 @@
 					</p>
 				</div>
 				<div class="ctrlHolder checkbox">
-					<label for="">Cleanup</label>
+					<label>Cleanup</label>
 					<input type="checkbox" name="Renamer.cleanup" value="True" ${' checked="checked"' if config.get('Renamer', 'cleanup') else ''} />
 					<p class="formHint">
 						Remove leftover files/folders in the Download folder.
@@ -283,33 +284,33 @@
 			<fieldset class="inlineLabels" id="newzbinFieldset">
 				<h3>Newzbin</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Enable</label>
+					<label>Enable</label>
 					<input type="checkbox" name="newzbin.enabled" value="True" ${' checked="checked"' if config.get('newzbin', 'enabled') else ''} />
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Username</label>
+					<label>Username</label>
 					<input type="text" name="newzbin.username" value="${config.get('newzbin', 'username')}" class="textInput large"/>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Password</label>
+					<label>Password</label>
 					<input type="password" name="newzbin.password" value="${config.get('newzbin', 'password')}" class="textInput large"/>
 				</div>
 			</fieldset>
 			<fieldset class="inlineLabels" id="nzbmatrixFieldset">
 				<h3>NZBMatrix.com</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Enable</label>
+					<label>Enable</label>
 					<input type="checkbox" name="NZBMatrix.enabled" value="True" ${' checked="checked"' if config.get('NZBMatrix', 'enabled') else ''} />
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Username</label>
+					<label>Username</label>
 					<input type="text" name="NZBMatrix.username" value="${config.get('NZBMatrix', 'username')}" autocomplete="off" class="textInput large"/>
 					<p class="formHint">
 						Can be found <a href="http://nzbmatrix.com/account.php" target="_blank">here</a>, "User Name"
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Apikey</label>
+					<label>Apikey</label>
 					<input type="text" name="NZBMatrix.apikey" value="${config.get('NZBMatrix', 'apikey')}" class="textInput large"/>
 					<p class="formHint">
 						Can be found <a href="http://nzbmatrix.com/account.php" target="_blank">here</a>, "Current API Key" <br />
@@ -317,7 +318,7 @@
 					</p>
 				</div>
 				<div class="ctrlHolder checkbox">
-					<label for="">English only</label>
+					<label>English only</label>
 					<input type="checkbox" name="NZBMatrix.english" value="True" ${' checked="checked"' if config.get('NZBMatrix', 'english') else ''} />
 					<p class="formHint">
 					  Restrict search to English or unknown NZBs.
@@ -327,18 +328,18 @@
 			<fieldset class="inlineLabels" id="newznabFieldset">
 				<h3>Newznab</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Enable</label>
+					<label>Enable</label>
 					<input type="checkbox" name="newznab.enabled" value="True" ${' checked="checked"' if config.get('newznab', 'enabled') else ''} />
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Host</label>
+					<label>Host</label>
 					<input type="text" name="newznab.host" value="${config.get('newznab', 'host')}" class="textInput large"/>
 					<p class="formHint">
 						The hostname of your newznab provider. Example: "provider.com" or "provider.com/newznab".
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Apikey</label>
+					<label>Apikey</label>
 					<input type="text" name="newznab.apikey" value="${config.get('newznab', 'apikey')}" class="textInput large"/>
 					<p class="formHint">
 						Can be found after login on the "API" page, bottom left. The string after "&amp;apikey=".
@@ -351,21 +352,42 @@
 			<fieldset class="inlineLabels" id="nzbsorgFieldset">
 				<h3>NZBs.org</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Enable</label>
+					<label>Enable</label>
 					<input type="checkbox" name="NZBsorg.enabled" value="True" ${' checked="checked"' if config.get('NZBsorg', 'enabled') else ''} />
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Id</label>
+					<label>Id</label>
 					<input type="text" name="NZBsorg.id" value="${config.get('NZBsorg', 'id')}" class="textInput large"/>
 					<p class="formHint">
 						Can be found <a href="http://nzbs.org/index.php?action=rss" target="_blank">here</a>, number after "&amp;i="
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Key</label>
+					<label>Key</label>
 					<input type="text" name="NZBsorg.key" value="${config.get('NZBsorg', 'key')}" class="textInput large"/>
 					<p class="formHint">
 						Can be found <a href="http://nzbs.org/index.php?action=rss" target="_blank">here</a>, string after "&amp;h="
+					</p>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels" id="nzbsrusFieldset">
+				<h3>NZBsRus.com</h3>
+				<div class="ctrlHolder checkbox">
+					<label>Enable</label>
+					<input type="checkbox" name="NZBsRUS.enabled" value="True" ${' checked="checked"' if config.get('NZBsRUS','enabled') else''} />
+				</div>
+				<div class="ctrlHolder">
+					<label>Id</label>
+					<input type="text" name="NZBsRUS.userid" value="${config.get('NZBsRUS', 'userid')}" class="textInput large" />
+					<p class="formHint">
+						Can be found at the bottom of <a href="https://www.nzbsrus.com/rss.php" target="_blank">this</a> page, number after "&amp;i="
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label>Hash</label>
+					<input type="text" name="NZBsRUS.userhash" value="${config.get('NZBsRUS', 'userhash')}" class="textInput large" />
+					<p class="formHint">
+						Can be found at the bottom of <a href="https://www.nzbsrus.com/rss.php" target="_blank">this</a> page, number after "&amp;h="
 					</p>
 				</div>
 			</fieldset>
@@ -377,7 +399,7 @@
 				<p style="font-size:11px">
 					To use this UserScript, you need <a href="http://www.google.com/chrome/" target="_blank">Google Chrome</a> or the <a href="https://addons.mozilla.org/en-US/firefox/addon/748/" target="_blank">Greasemonkey addon</a> when using Firefox.
 				</p>
-				<p style="font-size:11px">If your on Safari, see <a href="http://couchpotato.fafoulon.fr/" target="_blank">this (unsupported) Safari extension by Fafoulon</a></p>
+				<p style="font-size:11px">If you're on Safari, see <a href="http://couchpotato.fafoulon.fr/" target="_blank">this (unsupported) Safari extension by Fafoulon</a></p>
 			</fieldset>
 		</div>
 
@@ -393,10 +415,19 @@
 						<a href="http://couchpotato.tenderapp.com/" target="_blank">Find help on the Support Forum</a>
 					</p>
 				</div>
+				
+				<div class="site" style="margin:40px 0 0; font-size: 20px;">
+					<div>Don't have a usenet account yet? Check these out: </div>
+					<a href="https://usenetserver.com/partners/?a_aid=couchpotato&amp;a_bid=3f357c6f">UsenetServer</a>,
+					<a href="http://www.newshosting.com/partners/?a_aid=couchpotato&amp;a_bid=a0b022df">Newshosting</a><!-- or
+					<a href="http://easynews.com/free-account?a_aid=couchpotato&amp;a_bid=443b8133">14 day free Easynews trial</a> -->
+					<span style="color:#aaa; font-size: 15px;">Help support CouchPotato and save some money for yourself by signing up for an account!</span>
+				</div>
+				
 				<div id="donate">
 					<div>I'm building CouchPotato in my spare time, so if you want to buy me a coke while I'm coding, that would be awesome!</div>
-					<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=GFWSRM6L43T2S&lc=US&item_name=A%20more%20awesome%20CouchPotato&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted" target="_blank">
-						<img src="${baseUrl}media/images/donate.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+					<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&amp;business=GFWSRM6L43T2S&amp;lc=US&amp;item_name=A%20more%20awesome%20CouchPotato&amp;currency_code=EUR&amp;bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted" target="_blank">
+						<img src="${baseUrl}media/images/donate.gif" alt="PayPal - The safer, easier way to pay online!" />
 					</a>
 				</div>
 				<div class="site">
@@ -429,7 +460,7 @@
 			<fieldset class="inlineLabels">
 				<h3>Default Qualities</h3>
 				<div class="ctrlHolder">
-					<label for="">Default quality</label>
+					<label>Default quality</label>
 					<select name="Quality.default" class="textInput large">
 						% for qualityItem in Qualities.all():
 						<option value="${qualityItem.name}"${' selected="selected"' if qualityItem.name == config.get('Quality', 'default') else ''}>${qualityItem.label}</option>
@@ -437,7 +468,7 @@
 					</select>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Order &amp; hide</label>
+					<label>Order &amp; hide</label>
 					<div class="standardQualities">
 						<% hide = Qualities.conf('hide') %>
 						<input type="hidden" name="Quality.order" value="" />
@@ -466,7 +497,7 @@
 				</div>
 				% for key, quality in Qualities.getTypes():
 				<div class="ctrlHolder">
-					<label for="">${quality['label']}</label>
+					<label>${quality['label']}</label>
 					<span class="size">
 						<span><input type="text" name="Quality.sMin-${key}" value="${config.get('Quality', 'sMin-'+key)}" class="textInput small"/>MB</span>
 						<span><input type="text" name="Quality.sMax-${key}" value="${config.get('Quality', 'sMax-'+key)}" class="textInput small"/>MB</span>
@@ -478,9 +509,62 @@
 
 		<div class="group extra">
 			<fieldset class="inlineLabels">
+				<h3>Blu-Ray.com RSS</h3>
+				<div class="ctrlHolder checkbox">
+					<label>Enable</label>
+					<input type="checkbox" name="MovieRSS.enabled" value="True" ${' checked="checked"' if config.get('MovieRSS', 'enabled') else ''} />
+				</div>
+				<div class="ctrlHolder">
+					<label>Minimum movie year</label>
+					<input type="text" name="MovieRSS.minyear" value="${config.get('MovieRSS', 'minyear')}" class="textInput large"/>
+					<p class="formHint">
+						Movies released after and including this year will added to the wanted list
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label>Minimum IMDB rating</label>
+					<input type="text" name="MovieRSS.minrating" value="${config.get('MovieRSS','minrating')}" class="textInput large"/>
+					<p class="formHint">
+						The minimum IMDB rating for a movie to be added
+					</p>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels" id="subtitleFieldset">
+				<h3>Subtitles</h3>
+				<div class="ctrlHolder checkbox">
+					<label>Enable</label>
+					<input type="checkbox" name="Subtitles.enabled" value="True" ${' checked="checked"' if config.get('Subtitles', 'enabled') else ''} />
+				</div>
+				<div class="ctrlHolder">
+					<label>Language</label>
+					<input type="text" name="Subtitles.languages" value="${config.get('Subtitles', 'languages')}" class="textInput large"/>
+					<p class="formHint">
+						Comma seperated 2-letter language code (<a href="http://en.wikipedia.org/wiki/ISO_639-1_language_matrix" target="_blank">ISO 639-1</a>). <br />
+						Example: &quot;en, nl&quot;. Most importent first.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label>Naming</label>
+					<select name="Subtitles.name" class="textInput large">
+						<option value="filename"${' selected="selected"' if 'filename' == config.get('Subtitles', 'name') else ''}>filename.ext</option>
+						<option value="subtitle"${' selected="selected"' if 'subtitle' == config.get('Subtitles', 'name') else ''}>subtitle.ext</option>
+					</select>
+					<p class="formHint">
+						&quot;There Will Be Blood.srt&quot; or &quot;Subtitle.srt&quot;
+					</p>
+				</div>
+				<div class="ctrlHolder checkbox">
+					<label>Add language to name</label>
+					<input type="checkbox" name="Subtitles.addLanguage" value="True" ${' checked="checked"' if config.get('Subtitles', 'addLanguage') else ''} />
+					<p class="formHint">
+						Add language shortcode to end of subtitle name. Example: &quot;There Will Be Blood.en.srt&quot;
+					</p>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels">
 				<h3>Trailers</h3>
 				<div class="ctrlHolder">
-					<label for="">Download trailer</label>
+					<label>Download trailer</label>
 					<select name="Trailer.quality" class="textInput large">
 						<option value="">None</option>
 						% for format in trailerFormats:
@@ -492,53 +576,28 @@
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Naming</label>
+					<label>Naming</label>
 					<select name="Trailer.name" class="textInput large">
 						<option value="movie-trailer"${' selected="selected"' if 'movie-trailer' == config.get('Trailer', 'name') else ''}>movie-trailer.ext</option>
 						<option value="moviename-trailer"${' selected="selected"' if 'moviename-trailer' == config.get('Trailer', 'name') else ''}>&lt;filename&gt;-trailer.ext</option>
 					</select>
 				</div>
 			</fieldset>
-			<fieldset class="inlineLabels" id="subtitleFieldset">
-				<h3>Subtitles</h3>
-				<div class="ctrlHolder checkbox">
-					<label for="">Enable</label>
-					<input type="checkbox" name="Subtitles.enabled" value="True" ${' checked="checked"' if config.get('Subtitles', 'enabled') else ''} />
-				</div>
-				<div class="ctrlHolder">
-					<label for="">Language</label>
-					<input type="text" name="Subtitles.languages" value="${config.get('Subtitles', 'languages')}" class="textInput large"/>
-					<p class="formHint">
-						Comma seperated 2-letter language code (<a href="http://en.wikipedia.org/wiki/ISO_639-1_language_matrix" target="_blank">ISO 639-1</a>). <br />
-						Example: &quot;en, nl&quot;. Most importent first.
-					</p>
-				</div>
-				<div class="ctrlHolder">
-					<label for="">Naming</label>
-					<select name="Subtitles.name" class="textInput large">
-						<option value="filename"${' selected="selected"' if 'filename' == config.get('Subtitles', 'name') else ''}>filename.ext</option>
-						<option value="subtitle"${' selected="selected"' if 'subtitle' == config.get('Subtitles', 'name') else ''}>subtitle.ext</option>
-					</select>
-					<p class="formHint">
-						&quot;There Will Be Blood.srt&quot; or &quot;Subtitle.srt&quot;
-					</p>
-				</div>
-				<div class="ctrlHolder checkbox">
-					<label for="">Add language to name</label>
-					<input type="checkbox" name="Subtitles.addLanguage" value="True" ${' checked="checked"' if config.get('Subtitles', 'addLanguage') else ''} />
-					<p class="formHint">
-						Add language shortcode to end of subtitle name. Example: &quot;There Will Be Blood.en.srt&quot;
-					</p>
-				</div>
-			</fieldset>
 			<fieldset class="inlineLabels">
 				<h3>Metadata</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Save metadata</label>
+					<label>Save metadata</label>
 					<input type="checkbox" name="Meta.enabled" value="True" ${' checked="checked"' if config.get('Meta', 'enabled') else ''} />
 					<p class="formHint">
 						Thumbnail, poster and .nfo file.
 					</p>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels">
+				<h3>MovieETA</h3>
+				<div class="ctrlHolder checkbox">
+					<label>Check VideoETA</label>
+					<input type="checkbox" name="MovieETA.enabled" value="True" ${' checked="checked"' if config.get('MovieETA', 'enabled') else ''} />
 				</div>
 			</fieldset>
 		</div>
@@ -546,109 +605,131 @@
 			<fieldset class="inlineLabels" id="xbmcFieldset">
 				<h3>XBMC</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Update library</label>
+					<label>Update library</label>
 					<input type="checkbox" name="XBMC.enabled" value="True" ${' checked="checked"' if config.get('XBMC', 'enabled') else ''} />
 					<p class="formHint">
 						Sends a notification and updates your XBMC library.
 					</p>
 				</div>
+				<div class="ctrlHolder checkbox">
+					<label>Also on snatched</label>
+					<input type="checkbox" name="XBMC.onSnatch" value="True" ${' checked="checked"' if config.get('XBMC', 'onSnatch') else ''} />
+					<p class="formHint">
+						Also send a notification when a movie is snatched.
+					</p>
+				</div>
 				<div class="ctrlHolder">
-					<label for="">Host</label>
+					<label>Host</label>
 					<input type="text" name="XBMC.host" value="${config.get('XBMC', 'host')}" class="textInput large"/>
 					<p class="formHint">
 						Including port. Example: 192.168.1.20:8080
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Username</label>
+					<label>Username</label>
 					<input type="text" name="XBMC.username" value="${config.get('XBMC', 'username')}" autocomplete="off" class="textInput large"/>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Password</label>
+					<label>Password</label>
 					<input type="password" name="XBMC.password" value="${config.get('XBMC', 'password')}" autocomplete="off" class="textInput large"/>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#xbmcTest" id="xbmcTest">Send a message to XBMC, see if it works.</a>
+					<a href="#xbmcTest" id="xbmcTest" class="testNotification">Send a message to XBMC, see if it works.</a>
+				</div>
+				<div class="ctrlHolder">
+					<label>DB Path</label>
+					<input type="text" name="XBMC.dbpath" value="${config.get('XBMC', 'dbpath')}" autocomplete="off" class="textInput large"/>
+					<p class="formHint">
+						Used for checking if you already have a movie in you library, before adding it to your wanted list.
+						Example: C:\Users\Username\AppData\Roaming\XBMC\userdata\Database
+					</p>
 				</div>
 			</fieldset>
 			<fieldset class="inlineLabels" id="nmjFieldset">
 				<h3>Networked Media Jukebox</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Update library</label>
+					<label>Update library</label>
 					<input type="checkbox" name="NMJ.enabled" value="True" ${' checked="checked"' if config.get('NMJ', 'enabled') else ''} />
 					<p class="formHint">
 						Updates your NMJ library.
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Host</label>
+					<label>Host</label>
 					<input type="text" name="NMJ.host" value="${config.get('NMJ', 'host')}" class="textInput large NMJhost"/>
 					<p class="formHint">
 						Example: 192.168.1.20
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#nmjAuto" id="nmjAuto">Autodetect NMJ Database and mount</a>
+					<a href="#nmjAuto" id="nmjAuto" class="testNotification">Autodetect NMJ Database and mount</a>
 					<p class="formHint">
 						Popcorn Hour needs to be on, and NMJ must be running.
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">NMJ Database</label>
-					<input type="database" name="NMJ.database" value="${config.get('NMJ', 'database')}" autocomplete="off" class=" textInput large NMJdatabase"/>
+					<label>NMJ Database</label>
+					<input type="text" name="NMJ.database" value="${config.get('NMJ', 'database')}" autocomplete="off" class="textInput large NMJdatabase" />
 					<p class="formHint">
 						Path to the NMJ Database.
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">NMJ Mount URL</label>
-					<input type="mount" name="NMJ.mount" value="${config.get('NMJ', 'mount')}" autocomplete="off" class="textInput large NMJmount"/>
+					<label>NMJ Mount URL</label>
+					<input type="text" name="NMJ.mount" value="${config.get('NMJ', 'mount')}" autocomplete="off" class="textInput large NMJmount"/>
 					<p class="formHint">
 						Only needed when the database is on a network path.
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#nmjTest" id="nmjTest">Update the NMJ database, see if it works.</a>
+					<a href="#nmjTest" id="nmjTest" class="testNotification">Update the NMJ database, see if it works.</a>
 				</div>
 			</fieldset>
 			<fieldset class="inlineLabels" id="plexFieldset">
 				<h3>Plex Media Server</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Update library</label>
+					<label>Update library</label>
 					<input type="checkbox" name="PLEX.enabled" value="True" ${' checked="checked"' if config.get('PLEX', 'enabled') else ''} />
 					<p class="formHint">
 						Updates your Plex library.
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Host</label>
+					<label>Host</label>
 					<input type="text" name="PLEX.host" value="${config.get('PLEX', 'host')}" class="textInput large PLEXhost"/>
 					<p class="formHint">
 						Including port. Example: 192.168.1.20:32400
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#plexTest" id="plexTest">Update the Plex database, see if it works.</a>
+					<a href="#plexTest" id="plexTest" class="testNotification">Update the Plex database, see if it works.</a>
 				</div>
 			</fieldset>
 			<fieldset class="inlineLabels" id="prowlFieldset">
 				<h3>Prowl</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Enable</label>
+					<label>Enable</label>
 					<input type="checkbox" name="PROWL.enabled" value="True" ${' checked="checked"' if config.get('PROWL', 'enabled') else ''} />
 					<p class="formHint">
 						Sends a notification to Prowl
 					</p>
 				</div>
-				<div class="ctrlHolder">
-					<label for="">Keys</label>
-					<input type="text" name="PROWL.keys" value="${config.get('PROWL', 'keys')}" class="textInput large"/>
-					<div class="ctrlHolder"> 
-						<a href="https://www.prowlapp.com/api_settings.php" target=_blank>Get your Prowl api key here</a>
+				<div class="ctrlHolder checkbox">
+					<label>Also on snatched</label>
+					<input type="checkbox" name="PROWL.onSnatch" value="True" ${' checked="checked"' if config.get('PROWL', 'onSnatch') else ''} />
+					<p class="formHint">
+						Also send a notification when a movie is snatched.
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Priority</label>
+					<label>Keys</label>
+					<input type="text" name="PROWL.keys" value="${config.get('PROWL', 'keys')}" class="textInput large"/>
+					<p class="ctrlHolder"> 
+						<a href="https://www.prowlapp.com/api_settings.php" target="_blank" class="testNotification">Get your Prowl api key here</a>
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label>Priority</label>
 					<select name="PROWL.priority" class="textInput large">
 					<option value="-2"${' selected="selected"' if config.get('PROWL', 'priority') == '-2' else ''}>Very Low</option>
 					<option value="-1"${' selected="selected"' if config.get('PROWL', 'priority') == '-1' else ''}>Moderate</option>
@@ -658,31 +739,110 @@
 					</select>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#prowlTest" id="prowlTest">Send a message to Prowl, see if it works.</a>
+					<a href="#prowlTest" id="prowlTest" class="testNotification">Send a message to Prowl, see if it works.</a>
 				</div>
 			</fieldset>
 			<fieldset class="inlineLabels" id="growlFieldset">
 				<h3>Growl</h3>
 				<div class="ctrlHolder checkbox">
-					<label for="">Enable</label>
+					<label>Enable</label>
 					<input type="checkbox" name="GROWL.enabled" value="True" ${' checked="checked"' if config.get('GROWL', 'enabled') else ''} />
 					<p class="formHint">
 						Sends a notification to Growl.
 					</p>
 				</div>
+				<div class="ctrlHolder checkbox">
+					<label>Also on snatched</label>
+					<input type="checkbox" name="GROWL.onSnatch" value="True" ${' checked="checked"' if config.get('GROWL', 'onSnatch') else ''} />
+					<p class="formHint">
+						Also send a notification when a movie is snatched.
+					</p>
+				</div>
 				<div class="ctrlHolder">
-					<label for="">Host</label>
+					<label>Host</label>
 					<input type="text" name="GROWL.host" value="${config.get('GROWL', 'host')}" class="textInput large"/>
 					<p class="formHint">
 						Example: 192.168.1.20
 					</p>
 				</div>
 				<div class="ctrlHolder">
-					<label for="">Password</label>
+					<label>Password</label>
 					<input type="password" name="GROWL.password" value="${config.get('GROWL', 'password')}" autocomplete="off" class="textInput large"/>
 				</div>
 				<div class="ctrlHolder">
-					<a href="#growlTest" id="growlTest">Send a message to Growl, see if it works.</a>
+					<a href="#growlTest" id="growlTest" class="testNotification">Send a message to Growl, see if it works.</a>
+				</div>
+				<p class="ctrlHolder formHint">
+					Be sure to enable "Listen for incoming notifications" in your Growl Settings, under Network.
+				</p>
+			</fieldset>
+			<fieldset class="inlineLabels" id="notifoFieldset">
+				<h3>Notifo</h3>
+				<div class="ctrlHolder checkbox">
+					<label>Enabled</label>
+					<input type="checkbox" name="Notifo.enabled" value="True" ${' checked="checked"' if config.get('Notifo', 'enabled') else ''} />
+					<p class="formHint">
+						Sends a notification to Notifo
+					</p>
+				</div>
+				<div class="ctrlHolder checkbox">
+					<label>Also on snatched</label>
+					<input type="checkbox" name="Notifo.onSnatch" value="True" ${' checked="checked"' if config.get('Notifo', 'onSnatch') else ''} />
+					<p class="formHint">
+						Also send a notification when a movie is snatched.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label>Username</label>
+					<input type="text" name="Notifo.username" value="${config.get('Notifo', 'username')}" class="textInput large" />
+				</div>
+				<div class="ctrlHolder">
+					<label>API Secret</label>
+					<input type="text" name="Notifo.key" value="${config.get('Notifo', 'key')}" class="textInput large" />
+					<p class="formHint">
+						Get your API secret at:
+						<a href="http://notifo.com/user/settings" target="blank">http://notifo.com/user/settings</a>
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<a href="#notifoTest" id="notifoTest" class="testNotification">Send a message to Notifo, see if it works.</a>
+				</div>
+			</fieldset>
+			<fieldset class="inlineLabels" id="nmaFieldset">
+				<h3>NotifyMyAndroid</h3>
+				<div class="ctrlHolder checkbox">
+					<label>Enabled</label>
+					<input type="checkbox" name="NMA.enabled" value="True" ${' checked="checked"' if config.get('NMA', 'enabled') else ''} />
+					<p class="formHint">
+						Sends a notification to NotifyMyAndroid
+					</p>
+				</div>
+				<div class="ctrlHolder checkbox">
+					<label>Also on snatched</label>
+					<input type="checkbox" name="NMA.onSnatch" value="True" ${' checked="checked"' if config.get('NMA', 'onSnatch') else ''} />
+					<p class="formHint">
+						Also send a notification when a movie is snatched.
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<label>API Key</label>
+					<input type="text" name="NMA.apikey" value="${config.get('NMA', 'apikey')}" class="textInput large" />
+					<p class="formHint">
+					Multiple keys must be seperated by a , (comma). Up to a maximum of 5
+					</p>
+				</div>
+				<div class="ctrlHolder">
+					<a href="#nmaTest" id="nmaTest" class="testNotification">Send a message to NotifyMyAndroid, see if it works.</a>
+				</div>
+				<div class="ctrlHolder">
+					<label>Priority</label>
+					<select name="NMA.priority" class="textInput large">
+					<option value="-2"${' selected="selected"' if config.get('NMA', 'priority') == '-2' else ''}>Very Low</option>
+					<option value="-1"${' selected="selected"' if config.get('NMA', 'priority') == '-1' else ''}>Moderate</option>
+					<option value="0"${' selected="selected"' if config.get('NMA', 'priority') == '0' else ''}>Normal</option>
+					<option value="1"${' selected="selected"' if config.get('NMA', 'priority') == '1' else ''}>High</option>
+					<option value="2"${' selected="selected"' if config.get('NMA', 'priority') == '2' else ''}>Emergency</option>
+					</select>
 				</div>
 			</fieldset>
 		</div>
@@ -793,12 +953,16 @@
 		// Renaming disabled stuff
 	    var isEnabled = function(checkbox, fieldset){
 	        if (checkbox.get('checked')) 
-	            fieldset.getElements('div.ctrlHolder').setStyle('opacity', 1)
-	        else 
-	            fieldset.getElements('div[class=ctrlHolder]').setStyle('opacity', 0.5)
+	            fieldset.getElements('.ctrlHolder').setStyle('opacity', 1)
+	        else {
+	        	var first = fieldset.getElement('.ctrlHolder');
+	            fieldset.getElements('.ctrlHolder').each(function(el){
+	            	if(el != first) el.setStyle('opacity', 0.5)
+	            });
+	        }
 	    }
 		
-		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset', 'prowlFieldset', 'growlFieldset'],function(item){
+		Array.each(['renamingFieldset','torrentsFieldset','nzbsFieldset','nzbmatrixFieldset','nzbsorgFieldset','newznabFieldset','subtitleFieldset', 'xbmcFieldset', 'nmjFieldset', 'plexFieldset', 'prowlFieldset', 'growlFieldset', 'notifoFieldset', 'nmaFieldset'],function(item){
 		    var fieldset = $(item)
 		    var checkbox = fieldset.getElement('[type=checkbox]')
 		    isEnabled(checkbox, fieldset)
@@ -898,6 +1062,13 @@
 				'data': $('growlFieldset')
 			}).send()
 		})
+		$('notifoTest').addEvent('click', function(e){
+			(e).stop()
+			new Request({
+				'url': './testNotifo/',
+				'data': $('notifoFieldset')
+			}).send()
+		})
 		$('nmjTest').addEvent('click', function(e){
 			(e).stop()
 			new Request({
@@ -922,7 +1093,13 @@
 				data: $('nmjFieldset')
 			}).send()
 		})
-
+		$('nmaTest').addEvent('click',function(e){
+			(e).stop()
+			new Request({
+				'url': './testNMA/',
+				'data': $('nmaFieldset')
+			}).send()
+		})
 	});
 
 </script>

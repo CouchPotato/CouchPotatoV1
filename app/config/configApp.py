@@ -80,6 +80,10 @@ class configApp():
         self.setDefault('newznab', 'enabled', False)
         self.setDefault('newznab', 'host', '')
         self.setDefault('newznab', 'apikey', '')
+        self.addSection('NZBsRUS')
+        self.setDefault('NZBsRUS', 'enabled', False)
+        self.setDefault('NZBsRUS', 'userid', '')
+        self.setDefault('NZBsRUS', 'userhash', '')
 
         self.addSection('NZB')
         self.setDefault('NZB', 'enabled', True)
@@ -133,11 +137,21 @@ class configApp():
         self.setDefault('Subtitles', 'addLanguage', True)
         self.setDefault('Subtitles', 'name', 'filename') #filename, subtitle
 
+        self.addSection('MovieETA')
+        self.setDefault('MovieETA', 'enabled', True)
+
+        self.addSection('MovieRSS')
+        self.setDefault('MovieRSS', 'enabled', False)
+        self.setDefault('MovieRSS', 'minyear', '2000')
+        self.setDefault('MovieRSS', 'minrating', '6.0')
+
         self.addSection('XBMC')
         self.setDefault('XBMC', 'enabled', False)
+        self.setDefault('XBMC', 'onSnatch', False)
         self.setDefault('XBMC', 'host', 'localhost')
         self.setDefault('XBMC', 'username', 'xbmc')
         self.setDefault('XBMC', 'password', 'xbmc')
+        self.setDefault('XBMC', 'dbpath', '')
         self.setDefault('XBMC', 'updateOneOnly', False)
 
         self.addSection('NMJ')
@@ -145,21 +159,36 @@ class configApp():
         self.setDefault('NMJ', 'host', '')
         self.setDefault('NMJ', 'database', '')
         self.setDefault('NMJ', 'mount', '')
-        
+
         self.addSection('PLEX')
         self.setDefault('PLEX', 'enabled', False)
         self.setDefault('PLEX', 'host', '')
 
         self.addSection('PROWL')
         self.setDefault('PROWL', 'enabled', False)
+        self.setDefault('PROWL', 'onSnatch', False)
         self.setDefault('PROWL', 'keys', '')
         self.setDefault('PROWL', 'priority', '0')
 
         self.addSection('GROWL')
         self.setDefault('GROWL', 'enabled', False)
+        self.setDefault('GROWL', 'onSnatch', False)
         self.setDefault('GROWL', 'host', 'localhost')
         self.setDefault('GROWL', 'password', '')
+
+        self.addSection('Notifo')
+        self.setDefault('Notifo', 'enabled', False)
+        self.setDefault('Notifo', 'onSnatch', False)
+        self.setDefault('Notifo', 'username', '')
+        self.setDefault('Notifo', 'key', '')
         
+        self.addSection('NMA')
+        self.setDefault('NMA', 'enabled', False)
+        self.setDefault('NMA', 'onSnatch', False)
+        self.setDefault('NMA', 'apikey', '')
+        self.setDefault('NMA', 'devkey', '')
+        self.setDefault('NMA', 'priority', '0')
+
         self.addSection('Meta')
         self.setDefault('Meta', 'enabled', False)
         self.setDefault('Meta', 'fanartMinHeight', 0)

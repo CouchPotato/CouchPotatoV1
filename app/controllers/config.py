@@ -7,6 +7,8 @@ from app.lib.nmj import NMJ
 from app.lib.plex import PLEX
 from app.lib.prowl import PROWL
 from app.lib.growl import GROWL
+from app.lib.notifo import Notifo
+from app.lib.nma import NMA
 import cherrypy
 import json
 import sys
@@ -58,20 +60,25 @@ class ConfigController(BaseController):
         bools = filter(lambda s: not data.get(s),
             [
               'global.launchbrowser', 'global.updater',
-              'XBMC.enabled',
+              'XBMC.enabled', 'XBMC.onSnatch',
               'NMJ.enabled',
               'PLEX.enabled',
-              'PROWL.enabled',
-              'GROWL.enabled',
+              'PROWL.enabled', 'PROWL.onSnatch',
+              'GROWL.enabled', 'GROWL.onSnatch',
+              'Notifo.enabled', 'Notifo.onSnatch',
+              'NMA.enable', 'NMA.onSnatch',
               'Meta.enabled',
+              'MovieETA.enabled',
               'Renamer.enabled', 'Renamer.trailerQuality', 'Renamer.cleanup',
               'Torrents.enabled',
               'NZB.enabled',
               'NZBMatrix.enabled', 'NZBMatrix.english', 'NZBMatrix.ssl',
+              'NZBsRUS.enabled',
               'newzbin.enabled',
               'NZBsorg.enabled',
               'newznab.enabled',
-              'Subtitles.enabled', 'Subtitles.addLanguage'
+              'Subtitles.enabled', 'Subtitles.addLanguage',
+              'MovieRSS.enabled',
             ]
         )
         data.update(data.fromkeys(bools, False))
@@ -147,6 +154,21 @@ class ConfigController(BaseController):
 
         prowl = PROWL()
         prowl.test(data.get('PROWL.keys'), data.get('PROWL.priority'))
+        return ''
+
+    @cherrypy.expose
+    def testNotifo(self, **data):
+
+        notifo = Notifo()
+        notifo.test(data.get('Notifo.username'), data.get('Notifo.key'))
+
+        return ''
+    
+    @cherrypy.expose
+    def testNMA(self, **data):
+        
+        nma = NMA()
+        nma.test(data.get('NMA.apikey'), data.get('NMA.devkey'), data.get('NMA.priority'))
         return ''
 
     @cherrypy.expose

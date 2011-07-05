@@ -50,30 +50,30 @@ class MetaGen():
 
         '''
 
-
         if imdbid[:2].lower() == 'tt':
             self.imdbid = imdbid[2:]
         else:
             self.imdbid = imdbid
 
         self.nfo_string = 'http://www.imdb.com/title/' + imdbid + '/'
+
         self.tmdb_data = self._get_tmdb_imdb()
         self._validate_tmdb_json()
-        
+
         #TODO: Search by movie name
         #TODO: Search by tmdb_id
         #TODO: Search by movie hash
-        
-    
+
+
     def _validate_tmdb_json(self):
         try:
-            _ = self._get_fanart(0,0)
+            _ = self._get_fanart(0, 0)
         except:
             try:
-                _ = self._get_poster(0,0)
+                _ = self._get_poster(0, 0)
             except:
                 raise ApiError("Unknown TMDB data format: %s" % self.tmdb_data)
-                
+
     def write_nfo(self, path):
         try:
             f = open(path, 'w')
@@ -147,8 +147,7 @@ class MetaGen():
         return True
 
     def _get_tmdb_imdb(self):
-        url = "http://api.themoviedb.org/2.1/Movie.imdbLookup/en/json/%s/%s" % (__tmdb_apikey__, "tt" + self.imdbid)
-        
+        url = "http://api.themoviedb.org/2.1/Movie.imdbLookup/en/json/%s/%s" % (__tmdb_apikey__, self.imdbid)
         count = 0
         while 1:
             count += 1
@@ -199,7 +198,7 @@ if __name__ == "__main__":
         id = sys.argv[1]
     except:
         id = 'tt0111161'
-    
+
     x = MetaGen(id)
     x.write_nfo(".\movie.nfo")
     x.write_fanart("fanart", ".", 0, 0)

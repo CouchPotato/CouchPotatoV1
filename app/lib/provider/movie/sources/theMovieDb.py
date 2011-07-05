@@ -32,11 +32,12 @@ class theMovieDb(movieBase):
 
         url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.search', self.conf('key'), quote_plus(self.toSearchString(q)))
 
-        log.info('Searching: %s' % url)
-
-        data = urllib2.urlopen(url, timeout = self.timeout)
-
-        return self.parseXML(data, limit, alternative = alternative)
+        try:
+            log.info('Searching: %s' % url)
+            data = urllib2.urlopen(url, timeout = self.timeout)
+            return self.parseXML(data, limit, alternative = alternative)
+        except:
+            return []
 
     def findById(self, id):
         ''' Find movie by TheMovieDB ID '''
@@ -44,9 +45,12 @@ class theMovieDb(movieBase):
         if self.isDisabled():
             return False
 
-        results = self.parseXML(self.getXML(id), limit = 8)
-
-        return results.pop(0)
+        xml = self.getXML(id)
+        if xml:
+            results = self.parseXML(xml, limit = 8)
+            return results.pop(0)
+        else:
+            return False
 
     def findByImdbId(self, id):
         ''' Find movie by IMDB ID '''
@@ -124,8 +128,11 @@ class theMovieDb(movieBase):
         if self.isDisabled():
             return False
 
-        url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.conf('key'), id)
-        data = urllib2.urlopen(url, timeout = self.timeout)
+        try:
+            url = "%s/%s/en/xml/%s/%s" % (self.apiUrl, 'Movie.getInfo', self.conf('key'), id)
+            data = urllib2.urlopen(url, timeout = self.timeout)
+        except:
+            data = False
 
         return data
 

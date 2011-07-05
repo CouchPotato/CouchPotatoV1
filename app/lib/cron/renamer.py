@@ -6,6 +6,7 @@ from app.lib import nmj
 from app.lib import plex
 from app.lib import prowl
 from app.lib import growl
+from app.lib import notifo
 from app.lib.cron.base import cronBase
 from app.lib.library import Library
 from app.lib.xbmc import XBMC
@@ -13,6 +14,8 @@ from app.lib.nmj import NMJ
 from app.lib.plex import PLEX
 from app.lib.prowl import PROWL
 from app.lib.growl import GROWL
+from app.lib.notifo import Notifo
+from app.lib.nma import NMA
 from xmg import xmg
 import cherrypy
 import os
@@ -139,7 +142,7 @@ class RenamerCron(cronBase, Library):
                                        posterMinWidth)
 
                         log.info('XBMC metainfo for imdbid, %s, generated' % movie['movie'].imdb)
-                    except xmg.ApiError, e:
+                    except Exception, e:
                         log.error('XMG TMDB API failure.  Please report to developers. API returned: %s' % e)
                         log.error(traceback.format_exc())
 
@@ -153,21 +156,31 @@ class RenamerCron(cronBase, Library):
                 log.debug('NMJ')
                 nmj = NMJ()
                 nmj.updateLibrary()
-                
+
                 # Notify PLEX
                 log.debug('PLEX')
                 plex = PLEX()
                 plex.updateLibrary()
-                
+
                 # Notify PROWL
                 log.debug('PROWL')
                 prowl = PROWL()
                 prowl.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year), 'Download Complete')
-                
+
                 # Notify GROWL
                 log.debug('GROWL')
                 growl = GROWL()
                 growl.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year), 'Download Complete')
+
+                # Notify Notifo
+                log.debug('Notifo')
+                notifo = Notifo()
+                notifo.notify('%s (%s)' % (movie['movie'].name, movie['movie'].year), "Downloaded:")
+                
+                #Notify NotifyMyAndroid
+                log.debug('NotifyMyAndroid')
+                nma = NMA()
+                nma.notify('Download Complete', 'Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
 
             else:
                 path = movie['path'].split(os.sep)
@@ -198,6 +211,10 @@ class RenamerCron(cronBase, Library):
                     for dir in os.path.split(root):
                         if dir in self.ignoreNames:
                             skip = True
+                            
+                    # ignore if the current dir is the blackhole
+                    if root in self.conf('download'):
+                        skip = True
 
                     if skip: continue
 
@@ -354,7 +371,10 @@ class RenamerCron(cronBase, Library):
                     log.info('Moving matching subtitle.')
 
                     subtitle = movie['subtitles'][type].pop(0)
+
+                    replacements['original'] = subtitle['filename']
                     replacements['ext'] = subtitle['ext']
+
                     subDest = os.path.join(destination, folder, self.doReplace(fileNaming, replacements))
                     old = os.path.join(movie['path'], subtitle['filename'])
                     if not _move(old, subDest):

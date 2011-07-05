@@ -4,6 +4,7 @@ from dateutil.parser import parse
 from urllib import urlencode
 from urllib2 import URLError
 import time
+import traceback
 
 log = CPLog(__name__)
 
@@ -114,8 +115,8 @@ class nzbs(nzbBase):
                         log.info('Found: %s' % new.name)
 
                 return results
-            except SyntaxError:
-                log.error('Failed to parse XML response from NZBs.org')
+            except:
+                log.error('Failed to parse XML response from NZBs.org: %s' % traceback.format_exc())
                 return False
 
         return results

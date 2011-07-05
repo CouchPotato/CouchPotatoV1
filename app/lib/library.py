@@ -19,9 +19,9 @@ class Library:
 
     minimalFileSize = 1024 * 1024 * 200 # 10MB
     ignoredInPath = ['_unpack', '_failed_', '_unknown_', '_exists_', '.appledouble', '.appledb', '.appledesktop', '/._', 'cp.cpnfo'] #unpacking, smb-crap, hidden files
-    ignoreNames = ['extract', 'extracting']
+    ignoreNames = ['extract', 'extracting', 'extracted', 'movie', 'movies', 'film', 'films']
     extensions = {
-        'movie': ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m2ts', '*.iso', '*.img', '*.vob'],
+        'movie': ['*.mkv', '*.wmv', '*.avi', '*.mpg', '*.mpeg', '*.mp4', '*.m4v', '*.m2ts', '*.iso', '*.img', '*.vob'],
         'nfo': ['*.nfo'],
         'subtitle': ['*.sub', '*.srt', '*.ssa', '*.ass'],
         'subtitleExtras': ['*.idx'],
@@ -65,7 +65,15 @@ class Library:
             return movies
 
         log.debug('os.walk(movieFolder) %s' % movieFolder)
-        for root, subfiles, filenames in os.walk(movieFolder):
+        # Walk the tree once to catch any UnicodeDecodeErrors that might arise
+        # from malformed file and directory names. Use the non-unicode version
+        # of movieFolder if so.
+        try:
+            for x in os.walk(movieFolder): pass
+            walker = os.walk(movieFolder)
+        except UnicodeDecodeError:
+            walker = os.walk(str(movieFolder))
+        for root, subfiles, filenames in walker:
             if self.abort:
                 log.debug('Aborting moviescan')
                 return movies
@@ -264,15 +272,11 @@ class Library:
 
         #check to see if the downloaded movie nfo file agrees with what we thought we were downloading
         if movie['info']['cpnfoImdb'] and movie['info']['imdb']:
-            cpnfoimdb = movie['info']['cpnfoImdb'].replace("tt", "")
-            nfoimdb = movie['info']['imdb'].replace("tt", "")
+            cpnfoimdb = 'tt' + movie['info']['cpnfoImdb'].replace("tt", '')
+            nfoimdb = 'tt' + movie['info']['imdb'].replace("tt", '')
             if cpnfoimdb != nfoimdb:
                 log.info("Downloaded movie's nfo has imdb id that doesn't match what we though we downloaded")
-                #Would be nice to develop some sort of 'holding area' for "iffy" movies like this
-                #For now, assume the movie's nfo is wrong...
-                movie['info']['imdb'] = cpnfoimdb
-            else:
-                movie['info']['imdb'] = cpnfoimdb
+            movie['info']['imdb'] = cpnfoimdb
 
         if movie['info']['imdb']:
             byImdb = self.getMovieByIMDB(movie['info']['imdb'])
@@ -303,7 +307,7 @@ class Library:
 
             # Try and match the movies via filenaming
             for file in movie['files']:
-                dirnames = movie['path'].replace(unicode(self.config.get('Renamer', 'download')), '').split(os.path.sep)
+                dirnames = movie['path'].lower().replace(unicode(self.config.get('Renamer', 'download')).lower(), '').split(os.path.sep)
                 dirnames.append(file['filename'])
                 dirnames.reverse()
 
@@ -448,7 +452,12 @@ class Library:
         libraryDir = os.path.join(cherrypy.config.get('basePath'), 'library')
         script = os.path.join(libraryDir, 'getmeta.py')
 
-        p = subprocess.Popen(["python", script, filename], stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = libraryDir)
+        # Use the current python interpreter, if possible. Cannot rely on just using "python" because on some
+        # system (ie. ArchLinux), the default "python" interpreter is python 3, and that will not work here.
+        pyinterp = sys.executable
+        if not pyinterp: pyinterp = "python"
+
+        p = subprocess.Popen([pyinterp, script, filename], stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = libraryDir)
         z = p.communicate()[0]
 
         try:

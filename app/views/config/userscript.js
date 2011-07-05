@@ -168,7 +168,7 @@ sharethetv = (function(){
         var pattern = /imdb\.com\/title\/tt(\d+)/;
         var html = document.getElementsByTagName('html')[0].innerHTML;
         var imdb_id = html.match(pattern)[1];
-        return imdb_id;
+        return 'tt'+imdb_id;
         
     }
     
@@ -201,7 +201,7 @@ moviemeter = (function(){
         var pattern = /imdb\.com\/title\/tt(\d+)/;
         var html = document.getElementsByTagName('html')[0].innerHTML;
         var imdb_id = html.match(pattern)[1];
-        return imdb_id;
+        return 'tt'+imdb_id;
         
     }
     
@@ -234,7 +234,7 @@ whiwa = (function(){
         var pattern = /imdb\.com\/title\/tt(\d+)/;
         var html = document.getElementsByTagName('html')[0].innerHTML;
         var imdb_id = html.match(pattern)[1];
-        return imdb_id;
+        return 'tt'+imdb_id;
         
     }
     
@@ -265,7 +265,7 @@ trakt = (function(){
     }
     
     function getId(){
-        return imdb_input.value.substr(2);
+        return imdb_input.value;
     }
     
     function getYear(){

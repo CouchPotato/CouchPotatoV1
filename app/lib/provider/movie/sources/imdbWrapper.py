@@ -70,6 +70,7 @@ class imdbWrapper(movieBase):
             self.p.update(r)
             self.p.update(r, info = 'release dates')
             self.p.update(r, info = 'taglines')
+            self.p.update(r, info = 'vote details')
             return r
 
     def get_IMDb_instance(self):

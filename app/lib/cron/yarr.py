@@ -10,6 +10,8 @@ from app.lib import prowl
 from app.lib.xbmc import XBMC
 from app.lib.prowl import PROWL
 from app.lib.growl import GROWL
+from app.lib.notifo import Notifo
+from app.lib.nma import NMA
 import cherrypy
 import datetime
 import os
@@ -38,20 +40,26 @@ class YarrCron(cronBase, rss):
         if not self.debug:
             time.sleep(10)
 
-        wait = 0.1 if self.debug else 1
+        wait = 0.1 if self.debug else 10
         while True and not self.abort:
 
             #check single movie
-            for movieId in self.checkTheseMovies:
-                movie = Db.query(Movie).filter_by(id = movieId).one()
-                self._search(movie, True)
-                self.checkTheseMovies.pop(0)
+            try:
+                for movieId in self.checkTheseMovies:
+                    movie = Db.query(Movie).filter_by(id = movieId).one()
+                    self._search(movie, True)
+                    self.checkTheseMovies.pop(0)
+            except Exception, e:
+                log.error('Something went wrong with checkTheseMovies: %s' % e)
 
             #check all movies
-            now = time.time()
-            if (self.lastChecked + self.intervalSec) < now: # and not self.debug:
-                self.lastChecked = now
-                self.searchAll()
+            try:
+                now = time.time()
+                if (self.lastChecked + self.intervalSec) < now: # and not self.debug:
+                    self.lastChecked = now
+                    self.searchAll()
+            except Exception, e:
+                log.error('Something went wrong with searchAll: %s' % e)
 
             time.sleep(wait)
 
@@ -95,6 +103,7 @@ class YarrCron(cronBase, rss):
         now = int(time.time())
 
         # Search all if ETA is unknow, but try update ETA for next time.
+        log.debug('Calculate ETA')
         checkETA = False
         if not movie.eta or force:
             checkETA = True
@@ -125,7 +134,7 @@ class YarrCron(cronBase, rss):
 
         for queue in movie.queue:
 
-            # Movie already found, don't search further 
+            # Movie already found, don't search further
             if queue.completed:
                 log.debug('%s already completed for "%s". Not searching for any qualities below.' % (queue.qualityType, movie.name))
                 return True
@@ -134,13 +143,17 @@ class YarrCron(cronBase, rss):
             if queue.active and not queue.completed and not self.abort and not self.stop:
 
                 #skip if no search is set
+                log.debug('Needs a search?')
                 if (not ((preReleaseSearch and queue.qualityType in Qualities.preReleases) or (dvdReleaseSearch and not queue.qualityType in Qualities.preReleases))) and not queue.lastCheck < (now - int(self.config.get('Intervals', 'search')) * 7200):
                     continue
 
+                log.debug('Start searching for movie: %s' % movie.name)
                 highest = self.provider.find(movie, queue)
+                log.debug('End searching for movie: %s' % movie.name)
 
                 #send highest to SABnzbd & mark as snatched
                 if highest:
+                    log.debug('Found highest')
 
                     #update what I found
                     queue.name = latinToAscii(highest.name)
@@ -164,6 +177,7 @@ class YarrCron(cronBase, rss):
 
                     # Set status
                     if success:
+                        log.debug('Success')
                         movie.status = u'snatched' if queue.markComplete else u'waiting'
                         movie.dateChanged = datetime.datetime.now()
                         queue.lastCheck = now
@@ -177,21 +191,36 @@ class YarrCron(cronBase, rss):
                         h.status = u'snatched'
                         Db.add(h)
                         Db.flush()
-                        
+
                         # Notify PROWL
-                        log.debug('PROWL')
-                        prowl = PROWL()
-                        prowl.notify(highest.name, 'Download Started')
-                        
+                        if self.config.get('PROWL', 'onSnatch'):
+                            log.debug('PROWL')
+                            prowl = PROWL()
+                            prowl.notify(highest.name, 'Download Started')
+
                         # Notify XBMC
-                        log.debug('XBMC')
-                        xbmc = XBMC()
-                        xbmc.notify('Snatched %s' % highest.name)
-                        
+                        if self.config.get('XBMC', 'onSnatch'):
+                            log.debug('XBMC')
+                            xbmc = XBMC()
+                            xbmc.notify('Snatched %s' % highest.name)
+
                         # Notify GROWL
-                        log.debug('GROWL')
-                        growl = GROWL()
-                        growl.notify('Snatched %s' % highest.name, 'Download Started')
+                        if self.config.get('GROWL', 'onSnatch'):
+                            log.debug('GROWL')
+                            growl = GROWL()
+                            growl.notify('Snatched %s' % highest.name, 'Download Started')
+
+                        # Notify Notifo
+                        if self.config.get('Notifo', 'onSnatch'):
+                            log.debug('Notifo')
+                            notifo = Notifo()
+                            notifo.notify('%s' % highest.name, "Snatched:")
+                            
+                        # Notify NotifyMyAndroid
+                        if self.config.get('NMA','onSnatch'):
+                            log.debug('NotifyMyAndroid')
+                            nma = NMA()
+                            nma.notify('Download Started', 'Snatched %s' % highest.name)
 
                     return True
 
