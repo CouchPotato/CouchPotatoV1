@@ -222,6 +222,12 @@ class YarrCron(cronBase, rss):
                             nma = NMA()
                             nma.notify('Download Started', 'Snatched %s' % highest.name)
 
+                        # Notify Twitter
+                        if self.config.get('Twitter','onSnatch'):
+                            log.debug('Twitter')
+                            twitter = Twitter()
+                            twitter.notify('Download Started', 'Snatched %s' % highest.name)
+                            
                     return True
 
                 queue.lastCheck = now

@@ -182,6 +182,11 @@ class RenamerCron(cronBase, Library):
                 nma = NMA()
                 nma.notify('Download Complete', 'Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
 
+                # Notify Twitter
+                log.debug('Twitter')
+                twitter = Twitter()
+                twitter.notify('Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year), 'Downloaded:')
+                
             else:
                 path = movie['path'].split(os.sep)
                 path.extend(['_UNKNOWN_' + path.pop()])
