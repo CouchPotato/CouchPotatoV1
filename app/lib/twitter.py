@@ -20,7 +20,6 @@ class Twitter:
     REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
     ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
     AUTHORIZATION_URL = 'https://api.twitter.com/oauth/authorize'
-    SIGNIN_URL = 'https://api.twitter.com/oauth/authenticate'
 
     def __init__(self):
         self.enabled = self.get_conf('enabled')
@@ -56,6 +55,7 @@ class Twitter:
             log.error('Error sending tweet: '+str(e))
             return False
 
+        log.info('Tweet sent')
         return True
 
     def test(self):
@@ -67,9 +67,11 @@ class Twitter:
         oauth_consumer = oauth.Consumer(self.consumer_key, self.consumer_secret)
         oauth_client = oauth.Client(oauth_consumer)
 
-        log.info('Requesting access token from Twitter')
+        log.info('Getting authentication url from Twitter')
 
-        callbackURL = 'http://127.0.0.1:5000/config/twitterAuth/'
+        host = cherrypy.config['config'].get('global', 'host')
+        port = cherrypy.config['config'].get('global', 'port')
+        callbackURL = 'http://'+host+':'+port+'/config/twitterAuth/'
         
         resp, content = oauth_client.request(self.REQUEST_TOKEN_URL, 'POST', body=urllib.urlencode({'oauth_callback':callbackURL}))
 
@@ -82,7 +84,10 @@ class Twitter:
             self.set_conf('password', request_token['oauth_token_secret'])
             self.save_conf()
 
-            return self.AUTHORIZATION_URL+"?oauth_token="+ request_token['oauth_token']
+            auth_url = self.AUTHORIZATION_URL+"?oauth_token="+ request_token['oauth_token']
+
+            log.info('Your Twitter authentication url is "%s"' % auth_url)
+            return auth_url
 
     def get_credentials(self, key):
             request_token = {}
@@ -97,22 +102,19 @@ class Twitter:
             log.info('Generating and signing request for an access token using key '+key)
 
             oauth_consumer = oauth.Consumer(key=self.consumer_key, secret=self.consumer_secret)
-            log.info('oauth_consumer: '+str(oauth_consumer))
             oauth_client = oauth.Client(oauth_consumer, token)
-            log.info('oauth_client: '+str(oauth_client))
+
             resp, content = oauth_client.request(self.ACCESS_TOKEN_URL, method='POST', body='oauth_verifier=%s' % key)
-            log.info('resp, content: '+str(resp)+','+str(content))
 
             access_token = dict(parse_qsl(content))
-            log.info('access_token: '+str(access_token))
 
-            log.info('resp[status] = '+str(resp['status']))
             if resp['status'] != '200':
-                log.error('The request for a token did not succeed: '+str(resp['status']))
+                log.error('The request for an access token did not succeed: '+str(resp['status']))
                 return False
             else:
                 log.info('Your Twitter access token is %s' % access_token['oauth_token'])
                 log.info('Access token secret is %s' % access_token['oauth_token_secret'])
+
                 self.set_conf('username', access_token['oauth_token'])
                 self.set_conf('password', access_token['oauth_token_secret'])
                 self.set_conf('isAuthenticated', True)
