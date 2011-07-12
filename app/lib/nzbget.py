@@ -50,13 +50,10 @@ class nzbGet():
 
         try:
             r = urllib2.urlopen(nzb.url).read().strip()
-            log.info(r)
         except:
             log.error("Unable to get NZB file.")
 
         nzbcontent64 = standard_b64encode(r)
-
-        log.info("Sending NZB to nzbGet")
 
         if nzbGetRPC.append(nzb.name + ".nzb", self.conf('category'), False, nzbcontent64):
             log.info("NZB sent successfully to nzbGet")
