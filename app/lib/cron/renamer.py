@@ -16,6 +16,7 @@ from app.lib.prowl import PROWL
 from app.lib.growl import GROWL
 from app.lib.notifo import Notifo
 from app.lib.nma import NMA
+from app.lib.twitter import Twitter
 from xmg import xmg
 import cherrypy
 import os

@@ -12,6 +12,7 @@ from app.lib.prowl import PROWL
 from app.lib.growl import GROWL
 from app.lib.notifo import Notifo
 from app.lib.nma import NMA
+from app.lib.twitter import Twitter
 import cherrypy
 import datetime
 import os
