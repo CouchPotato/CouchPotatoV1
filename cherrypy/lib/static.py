@@ -10,9 +10,9 @@ import os
 import re
 import stat
 import time
-from urllib import unquote
 
 import cherrypy
+from cherrypy._cpcompat import ntob, unquote
 from cherrypy.lib import cptools, httputil, file_generator_limited
 
 
@@ -174,8 +174,8 @@ def _serve_fileobj(fileobj, content_type, content_length, debug=False):
             else:
                 # Return a multipart/byteranges response.
                 response.status = "206 Partial Content"
-                import mimetools
-                boundary = mimetools.choose_boundary()
+                from mimetools import choose_boundary
+                boundary = choose_boundary()
                 ct = "multipart/byteranges; boundary=%s" % boundary
                 response.headers['Content-Type'] = ct
                 if "Content-Length" in response.headers:
@@ -184,25 +184,25 @@ def _serve_fileobj(fileobj, content_type, content_length, debug=False):
                 
                 def file_ranges():
                     # Apache compatibility:
-                    yield "\r\n"
+                    yield ntob("\r\n")
                     
                     for start, stop in r:
                         if debug:
                             cherrypy.log('Multipart; start: %r, stop: %r' % (start, stop),
                                          'TOOLS.STATIC')
-                        yield "--" + boundary
-                        yield "\r\nContent-type: %s" % content_type
-                        yield ("\r\nContent-range: bytes %s-%s/%s\r\n\r\n"
-                               % (start, stop - 1, content_length))
+                        yield ntob("--" + boundary, 'ascii')
+                        yield ntob("\r\nContent-type: %s" % content_type, 'ascii')
+                        yield ntob("\r\nContent-range: bytes %s-%s/%s\r\n\r\n"
+                                   % (start, stop - 1, content_length), 'ascii')
                         fileobj.seek(start)
                         for chunk in file_generator_limited(fileobj, stop-start):
                             yield chunk
-                        yield "\r\n"
+                        yield ntob("\r\n")
                     # Final boundary
-                    yield "--" + boundary + "--"
+                    yield ntob("--" + boundary + "--", 'ascii')
                     
                     # Apache compatibility:
-                    yield "\r\n"
+                    yield ntob("\r\n")
                 response.body = file_ranges()
             return response.body
         else:
@@ -245,18 +245,21 @@ def staticdir(section, dir, root="", match="", content_types=None, index="",
               debug=False):
     """Serve a static resource from the given (root +) dir.
     
-    If 'match' is given, request.path_info will be searched for the given
-    regular expression before attempting to serve static content.
+    match
+        If given, request.path_info will be searched for the given
+        regular expression before attempting to serve static content.
     
-    If content_types is given, it should be a Python dictionary of
-    {file-extension: content-type} pairs, where 'file-extension' is
-    a string (e.g. "gif") and 'content-type' is the value to write
-    out in the Content-Type response header (e.g. "image/gif").
+    content_types
+        If given, it should be a Python dictionary of
+        {file-extension: content-type} pairs, where 'file-extension' is
+        a string (e.g. "gif") and 'content-type' is the value to write
+        out in the Content-Type response header (e.g. "image/gif").
     
-    If 'index' is provided, it should be the (relative) name of a file to
-    serve for directory requests. For example, if the dir argument is
-    '/home/me', the Request-URI is 'myapp', and the index arg is
-    'index.html', the file '/home/me/myapp/index.html' will be sought.
+    index
+        If provided, it should be the (relative) name of a file to
+        serve for directory requests. For example, if the dir argument is
+        '/home/me', the Request-URI is 'myapp', and the index arg is
+        'index.html', the file '/home/me/myapp/index.html' will be sought.
     """
     request = cherrypy.serving.request
     if request.method not in ('GET', 'HEAD'):
@@ -314,13 +317,16 @@ def staticdir(section, dir, root="", match="", content_types=None, index="",
 def staticfile(filename, root=None, match="", content_types=None, debug=False):
     """Serve a static resource from the given (root +) filename.
     
-    If 'match' is given, request.path_info will be searched for the given
-    regular expression before attempting to serve static content.
+    match
+        If given, request.path_info will be searched for the given
+        regular expression before attempting to serve static content.
     
-    If content_types is given, it should be a Python dictionary of
-    {file-extension: content-type} pairs, where 'file-extension' is
-    a string (e.g. "gif") and 'content-type' is the value to write
-    out in the Content-Type response header (e.g. "image/gif").
+    content_types
+        If given, it should be a Python dictionary of
+        {file-extension: content-type} pairs, where 'file-extension' is
+        a string (e.g. "gif") and 'content-type' is the value to write
+        out in the Content-Type response header (e.g. "image/gif").
+    
     """
     request = cherrypy.serving.request
     if request.method not in ('GET', 'HEAD'):

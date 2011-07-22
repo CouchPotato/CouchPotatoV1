@@ -1,10 +1,9 @@
 """
-httpauth modules defines functions to implement HTTP Digest Authentication (RFC 2617).
+This module defines functions to implement HTTP Digest Authentication (:rfc:`2617`).
 This has full compliance with 'Digest' and 'Basic' authentication methods. In
 'Digest' it supports both MD5 and MD5-sess algorithms.
 
 Usage:
-
     First use 'doAuth' to request the client authentication for a
     certain resource. You should send an httplib.UNAUTHORIZED response to the
     client so he knows he has to authenticate itself.
@@ -59,14 +58,9 @@ __all__ = ("digestAuth", "basicAuth", "doAuth", "checkResponse",
            "calculateNonce", "SUPPORTED_QOP")
 
 ################################################################################
-try:
-    # Python 2.5+
-    from hashlib import md5
-except ImportError:
-    from md5 import new as md5
 import time
-import base64
-from urllib2 import parse_http_list, parse_keqv_list
+from cherrypy._cpcompat import base64_decode, ntob, md5
+from cherrypy._cpcompat import parse_http_list, parse_keqv_list
 
 MD5 = "MD5"
 MD5_SESS = "MD5-sess"
@@ -80,9 +74,9 @@ SUPPORTED_QOP = (AUTH, AUTH_INT)
 # doAuth
 #
 DIGEST_AUTH_ENCODERS = {
-    MD5: lambda val: md5(val).hexdigest(),
-    MD5_SESS: lambda val: md5(val).hexdigest(),
-#    SHA: lambda val: sha.new (val).hexdigest (),
+    MD5: lambda val: md5(ntob(val)).hexdigest(),
+    MD5_SESS: lambda val: md5(ntob(val)).hexdigest(),
+#    SHA: lambda val: sha.new(ntob(val)).hexdigest (),
 }
 
 def calculateNonce (realm, algorithm = MD5):
@@ -159,7 +153,7 @@ def _parseDigestAuthorization (auth_params):
 
 
 def _parseBasicAuthorization (auth_params):
-    username, password = base64.decodestring (auth_params).split (":", 1)
+    username, password = base64_decode(auth_params).split(":", 1)
     return {"username": username, "password": password}
 
 AUTH_SCHEMES = {
@@ -340,19 +334,18 @@ def checkResponse (auth_map, password, method = "GET", encrypt=None, **kwargs):
     other arguments that each implementation might need.
     
     If the response is of type 'Basic' then the function has the following
-    signature:
+    signature::
     
-    checkBasicResponse (auth_map, password) -> bool
+        checkBasicResponse (auth_map, password) -> bool
     
     If the response is of type 'Digest' then the function has the following
-    signature:
+    signature::
     
-    checkDigestResponse (auth_map, password, method = 'GET', A1 = None) -> bool
+        checkDigestResponse (auth_map, password, method = 'GET', A1 = None) -> bool
     
     The 'A1' argument is only used in MD5_SESS algorithm based responses.
     Check md5SessionKey() for more info.
     """
-    global AUTH_RESPONSES
     checker = AUTH_RESPONSES[auth_map["auth_scheme"]]
     return checker (auth_map, password, method=method, encrypt=encrypt, **kwargs)
  
