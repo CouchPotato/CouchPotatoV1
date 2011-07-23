@@ -45,7 +45,7 @@ class Updater(SimplePlugin):
 
         self.checkForUpdateWindows()
 
-    start.priority = 60
+    start.priority = 70
 
     def useUpdater(self):
         return cherrypy.config['config'].get('global', 'updater') and not self.hasGit()

@@ -80,4 +80,4 @@ class CronJobs(plugins.SimplePlugin):
                 t.quit()
             t.join()
 
-    start.priority = 60
+    start.priority = 70
