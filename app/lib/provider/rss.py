@@ -4,6 +4,8 @@ from string import ascii_letters, digits
 from urllib2 import URLError
 import cherrypy
 import math
+import os
+import platform
 import re
 import time
 import unicodedata
@@ -21,6 +23,12 @@ class rss:
 
     available = True
     availableCheck = 0
+
+    userAgents = {
+        'linux': 'Mozilla/5.0 (X11; Linux x86_64; rv:5.0) Gecko/20100101 Firefox/5.0 Firefox/5.0',
+        'windows': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:5.0) Gecko/20110619 Firefox/5.0',
+        'osx': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:5.0) Gecko/20100101 Firefox/5.0'
+    }
 
     def toSaveString(self, string):
         string = latinToAscii(string)
@@ -106,7 +114,19 @@ class rss:
                 data = opener.open(url, timeout = timeout)
             else:
                 log.debug('Opening "%s"' % url)
-                data = urllib2.urlopen(url, timeout = timeout)
+
+                req = urllib2.Request(url)
+
+                # User Agent based on OS
+                if os.name == 'nt':
+                    userAgent = self.userAgents['windows']
+                elif 'Darwin' in platform.platform():
+                    userAgent = self.userAgents['osx']
+                else:
+                    userAgent = self.userAgents['linux']
+
+                req.add_header('User-Agent', userAgent)
+                data = urllib2.urlopen(req, timeout = self.timeout)
 
         except IOError, e:
             log.error('Something went wrong in urlopen: %s' % e)

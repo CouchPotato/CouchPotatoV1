@@ -4,14 +4,12 @@ from app.lib.cron.base import cronBase
 from app.lib.provider.rss import rss
 from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup, SoupStrainer
 from sqlalchemy.sql.expression import or_
-from urllib2 import URLError
 import Queue
 import cherrypy
 import re
 from dateutil.parser import parse
 import time
 import urllib
-import urllib2
 
 etaQueue = Queue.Queue()
 log = CPLog(__name__)
@@ -93,8 +91,8 @@ class etaCron(rss, cronBase):
         log.debug('Search url: %s.' % url)
 
         try:
-            data = urllib2.urlopen(url, timeout = self.timeout).read()
-        except (IOError, URLError):
+            data = self.urlopen(url).read()
+        except:
             log.error('Failed to open %s.' % url)
             return False
 
@@ -117,8 +115,8 @@ class etaCron(rss, cronBase):
         log.info('Scanning %s.' % url)
 
         try:
-            data = urllib2.urlopen(url, timeout = self.timeout).read()
-        except (IOError, URLError):
+            data = self.urlopen(url).read()
+        except:
             log.error('Failed to open %s.' % url)
             return False
 
