@@ -5,7 +5,7 @@
 	<title>CouchPotato</title>
 	<link href="${baseUrl}media/images/favicon.ico" rel="icon" type="image/x-icon" />
 	<link rel="apple-touch-icon" href="${baseUrl}media/images/homescreen.png"/>
-<% 
+<%
 	cssFiles = [
 		'Base.css',
 		'Main.css',
@@ -18,11 +18,12 @@
 	% endfor
 </head>
 <body>
-<% 
+<%
 	import time
 	if updater.lastCheck < time.time()-7200:
-		updater.checkForUpdate() 
-	
+		import thread
+		thread.start_new_thread(updater.checkForUpdate, ())
+
 	jsFiles = [
 		'Mootools.js',
 		'MootoolsMore.js',
@@ -55,7 +56,7 @@
 			<div id="addForm">
 		    	<%include file="/movie/add.html" />
 			</div>
-			
+
 			<script type="text/javascript">
 
 				window.addEvent('domready', function(){
@@ -82,7 +83,7 @@
 						var clone = hasUpdate.clone()
 							.addClass('noticeMe')
 							.inject($(document.body).getElement('.page .content'), 'top')
-							
+
 						if (clone.hasClass('git')){
 							$(document.body).getElements('a[href*=config/update]').addEvent('click', function(e){
 								(e).stop()
@@ -92,7 +93,7 @@
 					}
 
 				})
-				
+
 			</script>
 	    </div>
 	</div>
