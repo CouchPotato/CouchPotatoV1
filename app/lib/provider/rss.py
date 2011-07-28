@@ -30,6 +30,15 @@ class rss:
         'osx': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:5.0) Gecko/20100101 Firefox/5.0'
     }
 
+    headers = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-us,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate',
+        'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+        'Connection': 'keep-alive',
+        'Cache-Control': 'max-age=0'
+    }
+
     def toSaveString(self, string):
         string = latinToAscii(string)
         string = ''.join((c for c in unicodedata.normalize('NFD', unicode(string)) if unicodedata.category(c) != 'Mn'))
@@ -126,6 +135,10 @@ class rss:
                     userAgent = self.userAgents['linux']
 
                 req.add_header('User-Agent', userAgent)
+
+                for type, value in self.headers.iteritems():
+                    req.add_header(type, value)
+
                 data = urllib2.urlopen(req, timeout = self.timeout)
 
         except IOError, e:
