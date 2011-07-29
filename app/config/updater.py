@@ -129,7 +129,11 @@ class Updater(SimplePlugin):
             log.error('Failed to open %s.' % self.url)
             return False
 
-        name = data.info().get('Content-Disposition').split('filename=')[-1]
+        try:
+            name = data.info().get('Content-Disposition').split('filename=')[-1]
+        except:
+            name = data.geturl().split('/')[-1]
+
         return {'name':name, 'data':data}
 
 
