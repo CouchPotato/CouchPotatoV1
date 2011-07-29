@@ -1,5 +1,6 @@
 from app import version
 from app.config.cplog import CPLog
+from app.lib.provider.rss import rss
 from cherrypy.process.plugins import SimplePlugin
 from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup
 from urllib2 import URLError
@@ -13,10 +14,10 @@ import urllib2
 
 log = CPLog(__name__)
 
-class Updater(SimplePlugin):
+class Updater(rss, SimplePlugin):
 
-    url = 'http://github.com/RuudBurger/CouchPotato/tarball/master'
-    downloads = 'http://github.com/RuudBurger/CouchPotato/downloads'
+    url = 'https://github.com/RuudBurger/CouchPotato/tarball/master'
+    downloads = 'https://github.com/RuudBurger/CouchPotato/downloads'
     timeout = 10
     running = False
     version = None
@@ -42,8 +43,6 @@ class Updater(SimplePlugin):
 
         if not os.path.isfile(self.historyFile):
             self.history('UNKNOWN Build.')
-
-        self.checkForUpdateWindows()
 
     start.priority = 70
 
@@ -124,15 +123,19 @@ class Updater(SimplePlugin):
 
     def checkGitHubForUpdate(self):
         try:
-            data = urllib2.urlopen(self.url, timeout = self.timeout)
+            data = self.urlopen(self.url)
         except (IOError, URLError):
             log.error('Failed to open %s.' % self.url)
             return False
 
         try:
-            name = data.info().get('Content-Disposition').split('filename=')[-1]
+            try:
+                name = data.info().get('Content-Disposition').split('filename=')[-1]
+            except:
+                name = data.geturl().split('/')[-1]
         except:
-            name = data.geturl().split('/')[-1]
+            name = 'UNKNOWN Build.'
+            log.error('Something is wrong with the updater.')
 
         return {'name':name, 'data':data}
 
