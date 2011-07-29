@@ -112,8 +112,6 @@ class etaCron(rss, cronBase):
     def getDetails(self, id):
         url = self.detailUrl + str(id)
 
-        log.info('Scanning %s.' % url)
-
         try:
             data = self.urlopen(url).read()
         except:
@@ -165,7 +163,7 @@ class etaCron(rss, cronBase):
             'theater': theaterDate,
             'bluray': len(bluray) > 0
         }
-        log.debug('Found: %s' % dates)
+        log.info('Found: %s in %s' % (dates, url))
         return dates
 
     def getItems(self, data):

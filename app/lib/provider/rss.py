@@ -127,17 +127,18 @@ class rss:
                 req = urllib2.Request(url)
 
                 # User Agent based on OS
-                if os.name == 'nt':
-                    userAgent = self.userAgents['windows']
-                elif 'Darwin' in platform.platform():
-                    userAgent = self.userAgents['osx']
-                else:
-                    userAgent = self.userAgents['linux']
+                if 'videoeta.com' in url.lower():
+                    if os.name == 'nt':
+                        userAgent = self.userAgents['windows']
+                    elif 'Darwin' in platform.platform():
+                        userAgent = self.userAgents['osx']
+                    else:
+                        userAgent = self.userAgents['linux']
 
-                req.add_header('User-Agent', userAgent)
+                    req.add_header('User-Agent', userAgent)
 
-                for type, value in self.headers.iteritems():
-                    req.add_header(type, value)
+                    for type, value in self.headers.iteritems():
+                        req.add_header(type, value)
 
                 data = urllib2.urlopen(req, timeout = self.timeout)
 
