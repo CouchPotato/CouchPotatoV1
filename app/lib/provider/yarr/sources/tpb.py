@@ -16,7 +16,7 @@ class tpb(torrentBase):
     """Api for the Pirate Bay"""
 
     name = 'The Pirate Bay'
-    downloadUrl = 'https://torrents.thepiratebay.org/%s/%s.torrent'
+    downloadUrl = 'http://torrents.thepiratebay.org/%s/%s.torrent'
     nfoUrl = 'https://thepiratebay.org/torrent/%s'
     detailUrl = 'https://thepiratebay.org/torrent/%s'
     apiUrl = 'https://thepiratebay.org/search/%s/0/7/%d'
