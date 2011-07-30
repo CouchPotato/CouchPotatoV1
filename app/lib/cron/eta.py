@@ -83,7 +83,7 @@ class etaCron(rss, cronBase):
         # Do search
         log.info('Searching page:%d VideoETA for %s.' % (page, movie.name))
         arguments = urllib.urlencode({
-            'search_query':self.toSearchString(movie.name),
+            'q':self.toSearchString(movie.name),
             'page': page
         })
         url = "%s?%s" % (self.searchUrl, arguments)
