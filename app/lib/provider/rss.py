@@ -33,7 +33,7 @@ class rss:
     headers = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en-us,en;q=0.5',
-        'Accept-Encoding': 'deflate',
+        'Accept-Encoding': '',
         'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
         'Connection': 'keep-alive',
         'Cache-Control': 'max-age=0'
