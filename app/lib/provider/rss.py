@@ -109,7 +109,7 @@ class rss:
         return self.available
 
 
-    def urlopen(self, url, timeout = 10, username = '', password = ''):
+    def urlopen(self, url, timeout = 10, referer = '', username = '', password = ''):
 
         self.wait()
 
@@ -140,6 +140,7 @@ class rss:
                     for type, value in self.headers.iteritems():
                         req.add_header(type, value)
 
+                req.add_header('Referer', referer)
                 data = urllib2.urlopen(req, timeout = self.timeout)
 
         except IOError, e:

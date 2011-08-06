@@ -19,6 +19,8 @@ class etaCron(rss, cronBase):
     searchUrl = 'http://videoeta.com/search/'
     detailUrl = 'http://videoeta.com/movie/'
 
+    referer = 'http://videoeta.com'
+
     def run(self):
         log.info('MovieETA thread is running.')
 
@@ -82,16 +84,19 @@ class etaCron(rss, cronBase):
 
         # Do search
         log.info('Searching page:%d VideoETA for %s.' % (page, movie.name))
-        arguments = urllib.urlencode({
-            'q':self.toSearchString(movie.name),
-            'page': page
-        })
-        url = "%s?%s" % (self.searchUrl, arguments)
+        arguments = {
+            'q': self.toSearchString(movie.name)
+        }
+        if page > 1:
+            arguments['page'] = page
+
+        url = "%s?%s" % (self.searchUrl, urllib.urlencode(arguments))
 
         log.debug('Search url: %s.' % url)
 
         try:
-            data = self.urlopen(url).read()
+            data = self.urlopen(url, referer = self.referer).read()
+            self.referer = url
         except:
             log.error('Failed to open %s.' % url)
             return False
@@ -113,7 +118,8 @@ class etaCron(rss, cronBase):
         url = self.detailUrl + str(id)
 
         try:
-            data = self.urlopen(url).read()
+            data = self.urlopen(url, referer = self.referer).read()
+            self.referer = url
         except:
             log.error('Failed to open %s.' % url)
             return False
