@@ -110,7 +110,7 @@ class newznab(nzbBase):
                     new.content = self.gettextelement(nzb, "description")
                     new.score = self.calcScore(new, movie)
 
-                    if new.date > time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60) and self.isCorrectMovie(new, movie, type, imdbResults = True, singleCategory = singleCat):
+                    if self.isCorrectMovie(new, movie, type, imdbResults = True, singleCategory = singleCat):
                         results.append(new)
                         log.info('Found: %s' % new.name)
 

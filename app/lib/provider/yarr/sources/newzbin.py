@@ -127,7 +127,7 @@ class newzbin(nzbBase):
                     new.addbyid = True
                     new.checkNZB = False
 
-                    if new.date > time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60) and self.isCorrectMovie(new, movie, type, imdbResults = True, singleCategory = singleCat):
+                    if self.isCorrectMovie(new, movie, type, imdbResults = True, singleCategory = singleCat):
                         results.append(new)
                         log.info('Found: %s' % new.name)
 

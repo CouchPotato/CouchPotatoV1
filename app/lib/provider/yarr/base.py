@@ -134,6 +134,12 @@ class nzbBase(rss):
             log.info('Wrong: %s, contains other quality, looking for %s' % (item.name, type['label']))
             return False
 
+        # Outsize retention
+        if item.type is 'nzb':
+            if item.date < time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60):
+                log.info('Found but outside %s retention: %s' % (self.config.get('NZB', 'retention'), item.name))
+                return False
+
         # File to small
         minSize = q.minimumSize(qualityType)
         if minSize > item.size:
@@ -161,7 +167,7 @@ class nzbBase(rss):
         if len(movie.name.split(' ')) == 2 and self.correctYear([item.name], movie.year, 0) and self.correctName(item.name, movie.name):
             return True
 
-        log.info("Wrong: %s, undetermined naming. Maybe missing/incorrect year." % item.name)
+        log.info("Wrong: %s, undetermined naming. Looking for '%s (%s)'" % (item.name, movie.name, movie.year))
         return False
 
     def alreadyTried(self, nzb, movie):

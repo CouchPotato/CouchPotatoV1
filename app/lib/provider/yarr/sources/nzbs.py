@@ -52,7 +52,6 @@ class nzbs(nzbBase):
             'catid': catId,
             'i': self.conf('id'),
             'h': self.conf('key'),
-            'age': self.config.get('NZB', 'retention')
         })
         url = "%s?%s" % (self.apiUrl, arguments)
         cacheId = str(movie.imdb) + '-' + str(catId)
