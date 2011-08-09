@@ -131,7 +131,7 @@ class nzbBase(rss):
 
         # Contains lower quality string
         if self.containsOtherQuality(item.name, type, singleCategory):
-            log.info('Wrong: %s, looking for %s' % (item.name, type['label']))
+            log.info('Wrong: %s, contains other quality, looking for %s' % (item.name, type['label']))
             return False
 
         # File to small
@@ -161,6 +161,7 @@ class nzbBase(rss):
         if len(movie.name.split(' ')) == 2 and self.correctYear([item.name], movie.year, 0) and self.correctName(item.name, movie.name):
             return True
 
+        log.info("Wrong: %s, undetermined naming. Maybe missing/incorrect year." % item.name)
         return False
 
     def alreadyTried(self, nzb, movie):
