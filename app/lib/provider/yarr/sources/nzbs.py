@@ -12,10 +12,10 @@ class nzbs(nzbBase):
     """Api for nzbs"""
 
     name = 'NZBs.org'
-    downloadUrl = 'http://nzbs.org/index.php?action=getnzb&nzbid=%s%s'
-    nfoUrl = 'http://nzbs.org/index.php?action=view&nzbid=%s&nfo=1'
-    detailUrl = 'http://nzbs.org/index.php?action=view&nzbid=%s'
-    apiUrl = 'http://nzbs.org/rss.php'
+    downloadUrl = 'https://nzbs.org/index.php?action=getnzb&nzbid=%s%s'
+    nfoUrl = 'https://nzbs.org/index.php?action=view&nzbid=%s&nfo=1'
+    detailUrl = 'https://nzbs.org/index.php?action=view&nzbid=%s'
+    apiUrl = 'https://nzbs.org/rss.php'
 
     catIds = {
         4: ['720p', '1080p'],
