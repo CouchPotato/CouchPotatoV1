@@ -104,7 +104,7 @@ class configApp():
         self.setDefault('Sabnzbd', 'password', '')
         self.setDefault('Sabnzbd', 'category', '')
         self.setDefault('Sabnzbd', 'ppDir', '')
-        
+
         self.addSection('Transmission')
         self.setDefault('Transmission', 'host', 'localhost:9091')
         self.setDefault('Transmission', 'username', '')
@@ -116,10 +116,13 @@ class configApp():
         self.addSection('Nzbget')
         self.setDefault('Nzbget', 'host', '')
         self.setDefault('Nzbget', 'password', 'tegbzn6789')
-        self.setDefault('Nzbget', 'category', 'Movies')        
+        self.setDefault('Nzbget', 'category', 'Movies')
 
         self.addSection('TheMovieDB')
         self.setDefault('TheMovieDB', 'key', '9b939aee0aaafc12a65bf448e4af9543')
+
+        self.addSection('RottenTomatoes')
+        self.setDefault('RottenTomatoes', 'key', 'ht6hjvs5ez52am3tar58qxah')
 
         self.addSection('IMDB')
 
@@ -186,7 +189,7 @@ class configApp():
         self.setDefault('Notifo', 'onSnatch', False)
         self.setDefault('Notifo', 'username', '')
         self.setDefault('Notifo', 'key', '')
-        
+
         self.addSection('NMA')
         self.setDefault('NMA', 'enabled', False)
         self.setDefault('NMA', 'onSnatch', False)

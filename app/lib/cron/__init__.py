@@ -51,7 +51,7 @@ class CronJobs(plugins.SimplePlugin):
         self.threads['subtitle'] = subtitleCronJob
         self.searchers['subtitleQueue'] = subtitleQueue
 
-        etaCron = startEtaCron(self.debug)
+        etaCron = startEtaCron(config, self.debug)
         self.threads['eta'] = etaCron
         self.searchers['etaQueue'] = etaQueue
 

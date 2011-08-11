@@ -2,27 +2,26 @@ from app.config.cplog import CPLog
 from app.config.db import Movie, MovieETA, Session as Db
 from app.lib.cron.base import cronBase
 from app.lib.provider.rss import rss
-from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup, SoupStrainer
+from dateutil.parser import parse
 from sqlalchemy.sql.expression import or_
+from urllib import urlencode
 import Queue
 import cherrypy
-import re
-from dateutil.parser import parse
 import time
-import urllib
+import json
 
 etaQueue = Queue.Queue()
 log = CPLog(__name__)
 
 class etaCron(rss, cronBase):
 
-    searchUrl = 'http://videoeta.com/search/'
-    detailUrl = 'http://videoeta.com/movie/'
+    apiUrl = 'http://api.rottentomatoes.com/api/public/v1.0/movie_alias.json'
 
-    referer = 'http://videoeta.com'
+    def conf(self, option):
+        return self.config.get('RottenTomatoes', option)
 
     def run(self):
-        log.info('MovieETA thread is running.')
+        log.info('ETA thread is running.')
 
         timeout = 0.1 if self.debug else 1
         while True and not self.abort:
@@ -53,7 +52,7 @@ class etaCron(rss, cronBase):
             except Queue.Empty:
                 pass
 
-        log.info('MovieETA thread shutting down.')
+        log.info('ETA thread shutting down.')
 
     def all(self):
         activeMovies = Db.query(Movie).filter(or_(Movie.status == u'want', Movie.status == u'waiting')).all()
@@ -71,143 +70,55 @@ class etaCron(rss, cronBase):
         row.videoEtaId = result.get('id', 0)
         row.theater = result.get('theater', 0)
         row.dvd = result.get('dvd', 0)
-        row.bluray = result.get('bluray', 0)
+        #row.bluray = result.get('bluray', 0)
         row.lastCheck = int(time.time())
         Db.flush()
 
     def search(self, movie, page = 1):
 
         # Already found it, just update the stuff
-        if movie.eta and movie.eta.videoEtaId > 0:
+        if movie.imdb:
             log.debug('Updating VideoETA for %s.' % movie.name)
-            return self.getDetails(movie.eta.videoEtaId)
+            return self.getDetails(movie.imdb)
 
-        # Do search
-        log.info('Searching page:%d VideoETA for %s.' % (page, movie.name))
-        arguments = {
-            'q': self.toSearchString(movie.name)
-        }
-        if page > 1:
-            arguments['page'] = page
-
-        url = "%s?%s" % (self.searchUrl, urllib.urlencode(arguments))
-
-        log.debug('Search url: %s.' % url)
-
-        try:
-            data = self.urlopen(url, referer = self.referer).read()
-            self.referer = url
-        except:
-            log.error('Failed to open %s.' % url)
-            return False
-
-        results = self.getItems(data)
-
-        if results:
-            for result in results:
-                if str(movie.year).lower() != 'none' and self.toSearchString(result.get('name')).lower() == self.toSearchString(movie.name).lower() and result.get('year') == int(movie.year):
-                    log.debug('MovieETA perfect match!')
-                    return self.getDetails(result.get('id'))
-
-        if page == 1 and len(results) > 29:
-            return self.search(movie, page = 2)
-
-        return {}
+        log.info('No IMDBid available for ETA searching')
 
     def getDetails(self, id):
-        url = self.detailUrl + str(id)
+
+        arguments = urlencode({
+            'type': 'imdb',
+            'apikey': self.conf('key'),
+            'id': id.replace('tt', ''),
+        })
+        url = "%s?%s" % (self.apiUrl, arguments)
 
         try:
-            data = self.urlopen(url, referer = self.referer).read()
-            self.referer = url
+            data = self.urlopen(url).read()
         except:
             log.error('Failed to open %s.' % url)
             return False
 
-        # Search for theater release
-        theaterDate = 0
         try:
-            theaterLink = SoupStrainer('a', href = re.compile('/month_theaters.html\?'))
-            theater = BeautifulSoup(data, parseOnlyThese = theaterLink)
-            theaterDate = int(time.mktime(parse(theater.a.contents[0]).timetuple()))
-        except AttributeError:
-            log.debug('No Theater release info found.')
+            data = json.loads(data)
+            dates = data.get('release_dates')
 
-        # Search for dvd release date
-        dvdDate = 0
-        try:
-            try:
-                dvdLink = SoupStrainer('a', href = re.compile('/month_video.html\?'))
-                dvd = BeautifulSoup(data, parseOnlyThese = dvdLink)
-                dvdDate = int(time.mktime(parse(dvd.a.contents[0]).timetuple()))
-            except:
-                pass
+            dates = {
+                'id': int(data.get('id', 0)),
+                'dvd': int(time.mktime(parse(dates.get('dvd', '')).timetuple())),
+                'theater': int(time.mktime(parse(dates.get('theater', '')).timetuple())),
+            }
+            dates['bluray'] = dates.get('dvd', 0) if data.get('year') > 2005 else 0
 
-            # Try left column
-            if not dvdDate:
-                dvdReleases = SoupStrainer('p', text = re.compile('Released'))
-                dvd = BeautifulSoup(data, parseOnlyThese = dvdReleases)
-                for date in dvd:
-                    foundDate = int(time.mktime(parse(date.replace('Released', '')).timetuple()))
-                    dvdDate = foundDate if foundDate > dvdDate else dvdDate
+            log.info('Found: %s in %s' % (dates, url))
+        except:
+            log.error('Error getting ETA for %s' % id)
 
-        except AttributeError:
-            log.debug('No DVD release info found.')
-
-        # Does it have blu-ray release?
-        bluray = []
-        try:
-            bees = SoupStrainer('b')
-            soup = BeautifulSoup(data, parseOnlyThese = bees)
-            bluray = soup.findAll('b', text = re.compile('Blu-ray'))
-        except AttributeError:
-            log.info('No Bluray release info found.')
-
-        dates = {
-            'id': id,
-            'dvd': dvdDate,
-            'theater': theaterDate,
-            'bluray': len(bluray) > 0
-        }
-        log.info('Found: %s in %s' % (dates, url))
         return dates
 
-    def getItems(self, data):
 
-        results = []
-
-        soup = BeautifulSoup(data)
-        table = soup.find("table", { "class" : "chart" })
-
-        try:
-            for tr in table.findAll("tr"):
-                item = {}
-
-                for td in tr.findAll('td'):
-
-                    # Get title and ID from <a>
-                    if td.a and not td.a.img:
-                        item['id'] = int(td.a['href'].split('/')[-1])
-                        item['name'] = str(td.a.contents[0])
-
-                    # Get year from <td>
-                    if not td.h3 and not td.a:
-                        if len(td.contents) == 1:
-                            for y in td.contents:
-                                try:
-                                    item['year'] = int(y)
-                                except ValueError:
-                                    pass
-                if item:
-                    results.append(item)
-        except AttributeError:
-            log.error('No search results.')
-
-        return results
-
-
-def startEtaCron(debug):
+def startEtaCron(config, debug):
     c = etaCron()
+    c.config = config
     c.debug = debug
     c.start()
 
