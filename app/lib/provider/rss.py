@@ -24,21 +24,6 @@ class rss:
     available = True
     availableCheck = 0
 
-    userAgents = {
-        'linux': 'Mozilla/5.0 (X11; Linux x86_64; rv:5.0) Gecko/20100101 Firefox/5.0 Firefox/5.0',
-        'windows': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:5.0) Gecko/20110619 Firefox/5.0',
-        'osx': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:5.0) Gecko/20100101 Firefox/5.0'
-    }
-
-    headers = {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-us,en;q=0.5',
-        'Accept-Encoding': '',
-        'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-        'Connection': 'keep-alive',
-        'Cache-Control': 'max-age=0'
-    }
-
     def toSaveString(self, string):
         string = latinToAscii(string)
         string = ''.join((c for c in unicodedata.normalize('NFD', unicode(string)) if unicodedata.category(c) != 'Mn'))
@@ -109,7 +94,7 @@ class rss:
         return self.available
 
 
-    def urlopen(self, url, timeout = 10, referer = '', username = '', password = ''):
+    def urlopen(self, url, timeout = 10, username = '', password = ''):
 
         self.wait()
 
@@ -126,21 +111,12 @@ class rss:
 
                 req = urllib2.Request(url)
 
-                # User Agent based on OS
-                if 'videoeta.com' in url.lower():
-                    if os.name == 'nt':
-                        userAgent = self.userAgents['windows']
-                    elif 'Darwin' in platform.platform():
-                        userAgent = self.userAgents['osx']
-                    else:
-                        userAgent = self.userAgents['linux']
+                # Add CP version to request
+                if os.name == 'nt': platf = 'windows'
+                elif 'Darwin' in platform.platform(): platf = 'osx'
+                else: platf = 'linux'
+                req.add_header('cp_version', '%s ;; %s' % (platf, cherrypy.config.get('updater').getVersion()))
 
-                    req.add_header('User-Agent', userAgent)
-
-                    for type, value in self.headers.iteritems():
-                        req.add_header(type, value)
-
-                req.add_header('Referer', referer)
                 data = urllib2.urlopen(req, timeout = self.timeout)
 
         except IOError, e:
