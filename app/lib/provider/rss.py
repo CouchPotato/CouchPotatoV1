@@ -115,7 +115,7 @@ class rss:
                 if os.name == 'nt': platf = 'windows'
                 elif 'Darwin' in platform.platform(): platf = 'osx'
                 else: platf = 'linux'
-                #req.add_header('cp_version', '%s ;; %s' % (platf, cherrypy.config.get('updater').getVersion()))
+                req.add_header('X-CP-Version', '%s - %s' % (platf, cherrypy.config.get('updater').getVersion()))
 
                 data = urllib2.urlopen(req, timeout = self.timeout)
 
