@@ -15,7 +15,7 @@ log = CPLog(__name__)
 
 class etaCron(rss, cronBase):
 
-    apiUrl = 'http://api.rottentomatoes.com/api/public/v1.0/movie_alias.json'
+    apiUrl = 'http://couchpotatoapp.com/api/eta/%s/'
 
     def conf(self, option):
         return self.config.get('RottenTomatoes', option)
@@ -25,12 +25,6 @@ class etaCron(rss, cronBase):
 
         timeout = 0.1 if self.debug else 1
         while True and not self.abort:
-
-            config = cherrypy.config.get('config')
-
-            if not config.get('MovieETA', 'enabled'):
-                log.info('MovieETA disabled')
-                break
 
             try:
                 queue = etaQueue.get(timeout = timeout)
@@ -67,11 +61,10 @@ class etaCron(rss, cronBase):
             Db.add(row)
 
         row.movieId = movie.id
-        row.videoEtaId = result.get('id', 0)
-        row.theater = result.get('theater', 0)
-        row.dvd = result.get('dvd', 0)
-        row.bluray = result.get('bluray', 0)
-        row.lastCheck = int(time.time())
+        row.theater = result.get('theater')
+        row.dvd = result.get('dvd')
+        row.bluray = result.get('bluray')
+        row.lastCheck = result.get('expires')
         Db.flush()
 
     def search(self, movie, page = 1):
@@ -85,12 +78,7 @@ class etaCron(rss, cronBase):
 
     def getDetails(self, id):
 
-        arguments = urlencode({
-            'type': 'imdb',
-            'apikey': self.conf('key'),
-            'id': id.replace('tt', ''),
-        })
-        url = "%s?%s" % (self.apiUrl, arguments)
+        url = self.apiUrl % id
 
         try:
             data = self.urlopen(url).read()
@@ -99,17 +87,8 @@ class etaCron(rss, cronBase):
             return False
 
         try:
-            data = json.loads(data)
-            dates = data.get('release_dates')
-
-            dates = {
-                'id': int(data.get('id', 0)),
-                'dvd': int(time.mktime(parse(dates.get('dvd')).timetuple())) if dates.get('dvd') else 0,
-                'theater': int(time.mktime(parse(dates.get('theater')).timetuple())) if dates.get('theater') else 0,
-            }
-            dates['bluray'] = data.get('year') > 2005 and dates.get('dvd') > 0
-
-            log.info('Found: %s in %s' % (dates, url))
+            dates = json.loads(data)
+            log.info('Found ETA: %s' % dates)
         except:
             log.error('Error getting ETA for %s' % id)
 

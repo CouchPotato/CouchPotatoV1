@@ -123,15 +123,14 @@ class YarrCron(cronBase, rss):
 
             # Dvd date is unknown but movie is in theater already
             if movie.eta.dvd == 0 and movie.eta.theater > now:
-                checkETA = True
                 dvdReleaseSearch = False
 
-            # Force ETA check once a week or 3 weeks
-            if ((movie.eta.dvd == 0 or movie.eta.theater == 0) and movie.eta.lastCheck < now - 604800) or (movie.eta.lastCheck < now - 1814400):
+            # Force ETA check
+            if movie.eta.lastCheck < now:
                 checkETA = True
 
         # Minimal week interval for ETA check
-        if checkETA:
+        if checkETA and self.config.get('MovieETA', 'enabled'):
             cherrypy.config.get('searchers').get('etaQueue').put({'id':movie.id})
 
         for queue in movie.queue:
@@ -174,7 +173,7 @@ class YarrCron(cronBase, rss):
                             success = self.transmission.send(highest, movie.imdb)
                         else:
                             success = self.blackHole(highest)
- 
+
                     else:
                         success = False
                         log.info('Found %s but waiting for %d hours.' % (highest.name, ((highest.date + waitFor) - time.time()) / (60 * 60)))
@@ -219,19 +218,19 @@ class YarrCron(cronBase, rss):
                             log.debug('Notifo')
                             notifo = Notifo()
                             notifo.notify('%s' % highest.name, "Snatched:")
-                            
+
                         # Notify NotifyMyAndroid
-                        if self.config.get('NMA','onSnatch'):
+                        if self.config.get('NMA', 'onSnatch'):
                             log.debug('NotifyMyAndroid')
                             nma = NMA()
                             nma.notify('Download Started', 'Snatched %s' % highest.name)
 
                         # Notify Twitter
-                        if self.config.get('Twitter','onSnatch'):
+                        if self.config.get('Twitter', 'onSnatch'):
                             log.debug('Twitter')
                             twitter = Twitter()
                             twitter.notify('Download Started', 'Snatched %s' % highest.name)
-                            
+
                     return True
 
                 queue.lastCheck = now
