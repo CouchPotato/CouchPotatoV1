@@ -70,7 +70,7 @@ class etaCron(rss, cronBase):
         row.videoEtaId = result.get('id', 0)
         row.theater = result.get('theater', 0)
         row.dvd = result.get('dvd', 0)
-        #row.bluray = result.get('bluray', 0)
+        row.bluray = result.get('bluray', 0)
         row.lastCheck = int(time.time())
         Db.flush()
 
@@ -104,10 +104,10 @@ class etaCron(rss, cronBase):
 
             dates = {
                 'id': int(data.get('id', 0)),
-                'dvd': int(time.mktime(parse(dates.get('dvd', '')).timetuple())),
-                'theater': int(time.mktime(parse(dates.get('theater', '')).timetuple())),
+                'dvd': int(time.mktime(parse(dates.get('dvd')).timetuple())) if dates.get('dvd') else 0,
+                'theater': int(time.mktime(parse(dates.get('theater')).timetuple())) if dates.get('theater') else 0,
             }
-            dates['bluray'] = dates.get('dvd', 0) if data.get('year') > 2005 else 0
+            dates['bluray'] = data.get('year') > 2005 and dates.get('dvd') > 0
 
             log.info('Found: %s in %s' % (dates, url))
         except:
