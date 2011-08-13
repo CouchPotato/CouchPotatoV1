@@ -23,11 +23,11 @@ if sys.version_info >= (3, 0):
     unicodestr = str
     nativestr = unicodestr
     basestring = (bytes, str)
-    def ntob(n, encoding='ISO-8859-1'):
+    def ntob(n, encoding = 'ISO-8859-1'):
         """Return the given native string as a byte string in the given encoding."""
         # In Python 3, the native string type is unicode
         return n.encode(encoding)
-    def ntou(n, encoding='ISO-8859-1'):
+    def ntou(n, encoding = 'ISO-8859-1'):
         """Return the given native string as a unicode string with the given encoding."""
         # In Python 3, the native string type is unicode
         return n
@@ -41,13 +41,13 @@ else:
     unicodestr = unicode
     nativestr = bytestr
     basestring = basestring
-    def ntob(n, encoding='ISO-8859-1'):
+    def ntob(n, encoding = 'ISO-8859-1'):
         """Return the given native string as a byte string in the given encoding."""
         # In Python 2, the native string type is bytes. Assume it's already
         # in the given encoding, which for ISO-8859-1 is almost always what
         # was intended.
         return n
-    def ntou(n, encoding='ISO-8859-1'):
+    def ntou(n, encoding = 'ISO-8859-1'):
         """Return the given native string as a unicode string with the given encoding."""
         # In Python 2, the native string type is bytes. Assume it's already
         # in the given encoding, which for ISO-8859-1 is almost always what
@@ -76,7 +76,7 @@ except ImportError:
     # the legacy API of base64
     from base64 import decodestring as _base64_decodebytes
 
-def base64_decode(n, encoding='ISO-8859-1'):
+def base64_decode(n, encoding = 'ISO-8859-1'):
     """Return the native string base64-decoded (as a native string)."""
     if isinstance(n, unicodestr):
         b = n.encode(encoding)
@@ -117,13 +117,13 @@ except NameError:
             i -= 1
             yield x[i]
 
-try:
+if sys.version_info >= (3, 0):
     # Python 3
     from urllib.parse import urljoin, urlencode
     from urllib.parse import quote, quote_plus
     from urllib.request import unquote, urlopen
     from urllib.request import parse_http_list, parse_keqv_list
-except ImportError:
+else:
     # Python 2
     from urlparse import urljoin
     from urllib import urlencode, urlopen
@@ -207,20 +207,20 @@ else:
 
 try:
     from email.utils import formatdate
-    def HTTPDate(timeval=None):
-        return formatdate(timeval, usegmt=True)
+    def HTTPDate(timeval = None):
+        return formatdate(timeval, usegmt = True)
 except ImportError:
     from rfc822 import formatdate as HTTPDate
 
-try:
+if sys.version_info >= (3, 0):
     # Python 3
     from urllib.parse import unquote as parse_unquote
-    def unquote_qs(atom, encoding, errors='strict'):
-        return parse_unquote(atom.replace('+', ' '), encoding=encoding, errors=errors)
-except ImportError:
+    def unquote_qs(atom, encoding, errors = 'strict'):
+        return parse_unquote(atom.replace('+', ' '), encoding = encoding, errors = errors)
+else:
     # Python 2
     from urllib import unquote as parse_unquote
-    def unquote_qs(atom, encoding, errors='strict'):
+    def unquote_qs(atom, encoding, errors = 'strict'):
         return parse_unquote(atom.replace('+', ' ')).decode(encoding, errors)
 
 try:
