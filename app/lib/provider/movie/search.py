@@ -33,14 +33,29 @@ class movieSearcher():
 
             # Fix db errors
             try:
-                if movie.imdb[:2] != 'tt' and movie.imdb != '':
+
+                # Clear wrong value
+                imdb_is_int = False
+                try:
+                    imdb_is_int = float(movie.imdb)
+                except ValueError:
+                    pass
+
+                if not imdb_is_int and movie.imdb[:2] != 'tt':
+                    movie.imdb = None
+                    Db.flush()
+
+                if movie.imdb and movie.imdb[:2] != 'tt':
                     movie.imdb = 'tt%s' % movie.imdb
                     Db.flush()
-                if movie.imdb == '' and movie.movieDb != '':
+                elif not movie.imdb and movie.movieDb:
                     results = self.findById(movie.movieDb)
                     if results.get('imdb'):
                         movie.imdb = results.get('imdb')
                         Db.flush()
+
+                if not movie.imdb:
+                    log.error('Errors in your database, try and remove & re-add: %s' % movie.name)
             except:
                 pass
 
