@@ -2,12 +2,13 @@ from app import version
 from app.config.cplog import CPLog
 from app.lib.provider.rss import rss
 from cherrypy.process.plugins import SimplePlugin
+from git.repository import LocalRepository
 from imdb.parser.http.bsouplxml._bsoup import BeautifulSoup
 from urllib2 import URLError
 import cherrypy
 import os
 import re
-import subprocess
+import shutil
 import tarfile
 import time
 import urllib2
@@ -16,6 +17,7 @@ log = CPLog(__name__)
 
 class Updater(rss, SimplePlugin):
 
+    git = 'git://github.com/RuudBurger/CouchPotato.git'
     url = 'https://github.com/RuudBurger/CouchPotato/tarball/master'
     downloads = 'https://github.com/RuudBurger/CouchPotato/downloads'
     timeout = 10
@@ -38,6 +40,21 @@ class Updater(rss, SimplePlugin):
         self.updatePath = os.path.join(self.cachePath, 'updates')
         self.historyFile = os.path.join(self.updatePath, 'history.txt')
 
+        self.repo = LocalRepository(self.basePath)
+
+        # get back the .git dir
+        if self.hasGit() and not self.isRepo():
+            try:
+                log.info('Updating CP to git version.')
+                path = os.path.join(self.cachePath, 'temp_git')
+                self.removeDir(path)
+                repo = LocalRepository(path)
+                repo.clone(self.git)
+                self.replaceWith(path)
+                self.removeDir(path)
+            except Exception, e:
+                log.error('Trying to rebuild the .git dir: %s' % e)
+
         if not os.path.isdir(self.updatePath):
             os.mkdir(self.updatePath)
 
@@ -47,7 +64,7 @@ class Updater(rss, SimplePlugin):
     start.priority = 70
 
     def useUpdater(self):
-        return cherrypy.config['config'].get('global', 'updater') and not self.hasGit()
+        return cherrypy.config['config'].get('global', 'updater')
 
     def isRunning(self):
         return self.running
@@ -60,7 +77,10 @@ class Updater(rss, SimplePlugin):
             log.info("Updating")
             self.running = True
 
-            result = self.doUpdate()
+            if self.hasGit() and self.isRepo():
+                result = self.doGitUpdate()
+            else:
+                result = self.doUpdate()
 
             time.sleep(1)
             cherrypy.engine.restart()
@@ -69,6 +89,15 @@ class Updater(rss, SimplePlugin):
             return result
 
     def hasGit(self):
+        try:
+            version = self.repo.getGitVersion()
+            return version[:2] == '1.'
+        except:
+            pass
+
+        return False
+
+    def isRepo(self):
         return os.path.isdir(os.path.join(self.runPath, '.git'))
 
     def getVersion(self, force = False, tryGit = True):
@@ -77,12 +106,9 @@ class Updater(rss, SimplePlugin):
             if self.isFrozen:
                 self.version = 'Windows build r%d' % version.windows
             else:
-                if self.hasGit() and tryGit:
+                if self.hasGit() and tryGit and self.isRepo():
                     try:
-                        gitPath = cherrypy.config['config'].get('global', 'git')
-                        p = subprocess.Popen(gitPath + ' rev-parse HEAD', stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True, cwd = os.getcwd())
-                        output, err = p.communicate()
-                        if err or 'fatal' in output.lower(): raise RuntimeError(err)
+                        output = self.repo.getHead().hash
                         log.debug('Git version output: %s' % output.strip())
                         self.version = 'git-' + output[:7]
                     except Exception, e:
@@ -108,13 +134,17 @@ class Updater(rss, SimplePlugin):
             self.updateAvailable = self.checkForUpdateWindows()
         else:
             update = self.checkGitHubForUpdate()
-            if update:
+            latest_commit = update.get('name').replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
+
+            if self.hasGit() and self.isRepo():
+                self.updateAvailable = latest_commit not in self.version
+            elif update:
                 history = open(self.historyFile, 'r').read()
                 self.updateAvailable = update.get('name').replace('.tar.gz', '') not in history
 
             if self.updateAvailable:
                 self.availableString = 'Update available'
-                self.updateVersion = update.get('name').replace('RuudBurger-CouchPotato-', '').replace('.tar.gz', '')
+                self.updateVersion = latest_commit
             else:
                 self.availableString = 'No update available'
 
@@ -166,6 +196,16 @@ class Updater(rss, SimplePlugin):
 
         return False
 
+    def doGitUpdate(self):
+        try:
+            self.repo.saveStash(time.time())
+            self.repo.pull()
+            return True
+        except Exception, e:
+            log.error('Failed updating via GIT: %s' % e)
+
+        return False
+
     def doUpdate(self):
         update = self.checkGitHubForUpdate()
         if not update:
@@ -195,18 +235,7 @@ class Updater(rss, SimplePlugin):
         log.info('Moving updated files to CouchPotato root.')
         name = name.replace('.tar.gz', '')
         extractedPath = os.path.join(self.updatePath, name)
-        for root, subfiles, filenames in os.walk(extractedPath):
-            log.debug(subfiles)
-            for filename in filenames:
-                fromfile = os.path.join(root, filename)
-                tofile = os.path.join(self.runPath, fromfile.replace(extractedPath + os.path.sep, ''))
-
-                if not self.debug:
-                    try:
-                        os.remove(tofile)
-                    except:
-                        pass
-                    os.renames(fromfile, tofile)
+        self.replaceWith(extractedPath)
 
         self.history(name)
         log.info('Update to %s successful.' % name)
@@ -216,3 +245,29 @@ class Updater(rss, SimplePlugin):
         handle = open(self.historyFile, "a")
         handle.write(version + "\n")
         handle.close()
+
+    def replaceWith(self, path):
+        for root, subfiles, filenames in os.walk(path):
+            #log.debug(subfiles)
+            for filename in filenames:
+                fromfile = os.path.join(root, filename)
+                tofile = os.path.join(self.runPath, fromfile.replace(path + os.path.sep, ''))
+
+                if not self.debug:
+                    try:
+                        os.remove(tofile)
+                    except:
+                        pass
+
+                    try:
+                        os.renames(fromfile, tofile)
+                    except Exception, e:
+                        log.error('Failed overwriting file: %s' % e)
+
+    def removeDir(self, dir):
+        try:
+            if os.path.isdir(dir):
+                shutil.rmtree(dir)
+        except OSError, inst:
+            os.chmod(inst.filename, 0777)
+            self.removeDir(dir)
