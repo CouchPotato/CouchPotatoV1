@@ -31,6 +31,19 @@ class movieSearcher():
             if not movie.extra:
                 self.getExtraInfo(movie)
 
+            # Fix db errors
+            try:
+                if movie.imdb[:2] != 'tt' and movie.imdb != '':
+                    movie.imdb = 'tt%s' % movie.imdb
+                    Db.flush()
+                if movie.imdb == '' and movie.movieDb != '':
+                    results = self.findById(movie.movieDb)
+                    if results.get('imdb'):
+                        movie.imdb = results.get('imdb')
+                        Db.flush()
+            except:
+                pass
+
     def find(self, q, limit = 8, alternative = True):
         ''' Find movie by name '''
 
