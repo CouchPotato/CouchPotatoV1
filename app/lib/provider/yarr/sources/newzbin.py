@@ -5,6 +5,8 @@ from urllib import urlencode
 from urllib2 import URLError
 import time
 import traceback
+import urllib
+import urllib2
 
 log = CPLog(__name__)
 
@@ -13,6 +15,7 @@ class newzbin(nzbBase):
 
     name = 'Newzbin'
     searchUrl = 'https://www.newzbin.com/search/'
+    downloadUrl = 'http://www.newzbin.com/api/dnzb/'
 
     formatIds = {
         2: ['scr'],
@@ -117,7 +120,6 @@ class newzbin(nzbBase):
                     new = self.feedItem()
                     new.id = id
                     new.type = 'nzb'
-                    new.source = 'newzbin'
                     new.name = title
                     new.date = int(time.mktime(parse(date).timetuple()))
                     new.size = self.parseSize(size)
@@ -127,6 +129,23 @@ class newzbin(nzbBase):
                     new.score = self.calcScore(new, movie)
                     new.addbyid = True
                     new.checkNZB = False
+
+                    def download():
+                        try:
+                            log.info('Download nzb from newzbin, report id: %s ' % new.id)
+                            newzbindata = urllib.urlencode({
+                                'username' : self.conf('username'),
+                                'password' : self.conf('password'),
+                                'reportid' : str(new.id)
+                            })
+                            nzburl = urllib2.Request(self.downloadUrl, newzbindata)
+
+                            return urllib2.urlopen(nzburl).read().strip()
+                        except Exception, e:
+                            log.error('Failed downloading from newzbin, check credit: %s' % e)
+                            return False
+
+                    new.download = download
 
                     if self.isCorrectMovie(new, movie, type, imdbResults = True, singleCategory = singleCat):
                         results.append(new)

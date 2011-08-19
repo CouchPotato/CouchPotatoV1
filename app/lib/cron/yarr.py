@@ -246,8 +246,15 @@ class YarrCron(cronBase, rss):
             fullPath = os.path.join(blackhole, self.toSaveString(item.name) + '.' + item.type)
 
             if not os.path.isfile(fullPath):
-                log.info('Downloading %s to %s.' % (item.type, fullPath))
-                file = urllib.urlopen(item.url).read()
+                if item.download:
+                    file = item.download()
+
+                    if not file:
+                        return False
+                else:
+                    log.info('Downloading %s to %s.' % (item.type, fullPath))
+                    file = urllib.urlopen(item.url).read()
+
                 with open(fullPath, 'wb') as f:
                     f.write(file)
 
