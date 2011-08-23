@@ -1,4 +1,7 @@
-/* @override http://localhost:5000/media/style/Main.css */
+/* @override 
+	http://localhost:5000/media/style/Main.css
+	http://192.168.1.20:5000/media/style/Main.css
+*/
 
 html {
 	color: #343434;
@@ -1016,6 +1019,28 @@ h1 {
 				font-size: 16px;
 				margin: 20px;
 			}
+		
+		#configForm .iphone fieldset {
+			display: block;
+			width: 100%;
+			background: transparent;
+		}
+		
+			#configForm .iphone img {
+				margin: 0;
+				padding: 0;
+				width: 33.3%;
+			}
+			
+			#configForm .iphone div {
+				font-size: 20px;
+				padding: 20px 0 40px;
+				text-align: center;
+			}
+			
+				#configForm .iphone span {
+					font-size: 15px;
+				}
 
 .question {
 	display: block;
