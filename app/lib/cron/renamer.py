@@ -178,7 +178,7 @@ class RenamerCron(cronBase, Library):
                 log.debug('Notifo')
                 notifo = Notifo()
                 notifo.notify('%s (%s)' % (movie['movie'].name, movie['movie'].year), "Downloaded:")
-                
+
                 #Notify NotifyMyAndroid
                 log.debug('NotifyMyAndroid')
                 nma = NMA()
@@ -188,12 +188,12 @@ class RenamerCron(cronBase, Library):
                 log.debug('Twitter')
                 twitter = Twitter()
                 twitter.notify('Download Finished', 'Downloaded %s (%s)' % (movie['movie'].name, movie['movie'].year))
-                
+
                 # Notify Synoindex
                 log.debug('Synoindex')
                 synoindex = Synoindex()
                 synoindex.addToLibrary(finalDestination['directory'])
-                
+
             else:
                 path = movie['path'].split(os.sep)
                 path.extend(['_UNKNOWN_' + path.pop()])
@@ -223,7 +223,7 @@ class RenamerCron(cronBase, Library):
                     for dir in os.path.split(root):
                         if dir in self.ignoreNames:
                             skip = True
-                            
+
                     # ignore if the current dir is the blackhole
                     if root in self.conf('download'):
                         skip = True
@@ -370,14 +370,17 @@ class RenamerCron(cronBase, Library):
                     break
                 justAdded.append(dest)
             else:
-                log.error('File %s already exists or not better.' % latinToAscii(filename))
-                path = file['path'].split(os.sep)
-                path.extend(['_EXISTS_' + path.pop()])
-                old = file['path']
-                dest = os.sep.join(path)
-                _move(old, dest)
-                # Break in any case, why did you do that Ruud?
-                break
+                try:
+                    log.error('File %s already exists or not better.' % latinToAscii(filename))
+                    path = movie['path'].split(os.sep)
+                    path.extend(['_EXISTS_' + path.pop()])
+                    old = movie['path']
+                    dest = os.sep.join(path)
+                    _move(old, dest)
+                    break
+                except:
+                    log.error('Could not extend path name.')
+                    break
 
             #get subtitle if any & move
             for type in movie['subtitles']:
@@ -451,7 +454,7 @@ class RenamerCron(cronBase, Library):
                         files.append(fullPath)
 
         log.info('Quality Old: %d, New %d.' % (int(oldSize) / 1024 / 1024, int(newSize) / 1024 / 1024))
-        if oldSize < newSize:
+        if int(oldSize) < int(newSize):
             for file in files:
                 try:
                     os.remove(file)

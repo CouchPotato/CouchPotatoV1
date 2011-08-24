@@ -107,7 +107,7 @@ class YarrCron(cronBase, rss):
         # Search all if ETA is unknow, but try update ETA for next time.
         log.debug('Calculate ETA')
         checkETA = False
-        if not movie.eta or force:
+        if not movie.eta:
             checkETA = True
             preReleaseSearch = True
             dvdReleaseSearch = True
