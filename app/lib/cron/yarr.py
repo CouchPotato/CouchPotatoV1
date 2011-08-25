@@ -247,7 +247,7 @@ class YarrCron(cronBase, rss):
 
             if not os.path.isfile(fullPath):
                 if item.download:
-                    file = item.download()
+                    file = item.download(item.id)
 
                     if not file:
                         return False

@@ -47,7 +47,7 @@ class nzbGet():
 
         try:
             if nzb.download:
-                r = nzb.download()
+                r = nzb.download(nzb.id)
 
                 if not r:
                     return False

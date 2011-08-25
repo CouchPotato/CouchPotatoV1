@@ -129,23 +129,7 @@ class newzbin(nzbBase):
                     new.score = self.calcScore(new, movie)
                     new.addbyid = True
                     new.checkNZB = False
-
-                    def download():
-                        try:
-                            log.info('Download nzb from newzbin, report id: %s ' % new.id)
-                            newzbindata = urllib.urlencode({
-                                'username' : self.conf('username'),
-                                'password' : self.conf('password'),
-                                'reportid' : str(new.id)
-                            })
-                            nzburl = urllib2.Request(self.downloadUrl, newzbindata)
-
-                            return urllib2.urlopen(nzburl).read().strip()
-                        except Exception, e:
-                            log.error('Failed downloading from newzbin, check credit: %s' % e)
-                            return False
-
-                    new.download = download
+                    new.download = self.download
 
                     if self.isCorrectMovie(new, movie, type, imdbResults = True, singleCategory = singleCat):
                         results.append(new)
@@ -156,6 +140,21 @@ class newzbin(nzbBase):
                 log.error('Failed to parse XML response from newzbin.com: %s' % traceback.format_exc())
 
         return results
+
+    def download(self, id):
+        try:
+            log.info('Download nzb from newzbin, report id: %s ' % id)
+            newzbindata = urllib.urlencode({
+                'username' : self.conf('username'),
+                'password' : self.conf('password'),
+                'reportid' : str(id)
+            })
+            nzburl = urllib2.Request(self.downloadUrl, newzbindata)
+
+            return urllib2.urlopen(nzburl).read().strip()
+        except Exception, e:
+            log.error('Failed downloading from newzbin, check credit: %s' % e)
+            return False
 
     def getFormatId(self, format):
         for id, quality in self.formatIds.iteritems():
