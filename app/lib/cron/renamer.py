@@ -372,15 +372,14 @@ class RenamerCron(cronBase, Library):
             else:
                 try:
                     log.error('File %s already exists or not better.' % latinToAscii(filename))
-                    path = movie['path'].split(os.sep)
+                    path = file['path'].split(os.sep)
                     path.extend(['_EXISTS_' + path.pop()])
-                    old = movie['path']
+                    old = file['path']
                     dest = os.sep.join(path)
                     _move(old, dest)
-                    break
                 except:
                     log.error('Could not extend path name.')
-                    break
+                break
 
             #get subtitle if any & move
             for type in movie['subtitles']:
