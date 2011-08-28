@@ -452,8 +452,8 @@ class RenamerCron(cronBase, Library):
                     if ('*.' + ext in self.extensions['movie'] or '*.' + ext in self.extensions['subtitle']) and not '-trailer' in filename:
                         files.append(fullPath)
 
-        log.info('Quality Old: %d, New %d.' % (int(oldSize) / 1024 / 1024, int(newSize) / 1024 / 1024))
-        if int(oldSize) < int(newSize):
+        log.info('Quality Old: %d, New %d.' % (long(oldSize) / 1024 / 1024, long(newSize) / 1024 / 1024))
+        if long(oldSize) < long(newSize):
             for file in files:
                 try:
                     os.remove(file)
