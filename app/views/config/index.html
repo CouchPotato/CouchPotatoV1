@@ -538,6 +538,9 @@
 				<div class="ctrlHolder checkbox">
 					<label>Enable</label>
 					<input type="checkbox" name="MovieRSS.enabled" value="True" ${' checked="checked"' if config.get('MovieRSS', 'enabled') else ''} />
+					<p class="formHint">
+						This will magically add movies to your wanted list that match the options below.
+					</p>
 				</div>
 				<div class="ctrlHolder">
 					<label>Minimum movie year</label>
