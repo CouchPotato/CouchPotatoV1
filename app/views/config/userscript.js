@@ -562,13 +562,14 @@ rotten = (function(){
      *
      */
     function getId(response) {
+        var year = getYear();
         if (!response) {
             var TMDB_API_KEY = "31582644f51aa19f8fcd9b2998e17a9d"
 
             mName = document.title.substr(0, document.title.indexOf("Rotten")-3).replace(/ /g, "+");
             //mName = mName.replace(/[^a-zA-Z 0-9\-\+.,!]+/g, "+");
 
-            var url = 'http://api.themoviedb.org/2.1/Movie.search/en/xml/' + TMDB_API_KEY + '/' + mName;
+            var url = 'http://api.themoviedb.org/2.1/Movie.search/en/xml/' + TMDB_API_KEY + '/' + mName + ' ' + year;
 
             post(url, getId);
         } else {
@@ -577,7 +578,6 @@ rotten = (function(){
             }
 
             var imdb_id = response.responseXML.getElementsByTagName('imdb_id')[0].firstChild.nodeValue; 
-            var year = getYear();
 
             // This is here since getId is called asyncronously from ajax call
             lib.osd(imdb_id, year);    
