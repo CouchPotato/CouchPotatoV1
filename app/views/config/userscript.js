@@ -585,10 +585,8 @@ rotten = (function(){
     }
 
     function getYear(){
-        var allDivs;
-        allDivs = document.evaluate("//span[@property='v:initialReleaseDate']", document,
-            null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null);
-        return allDivs.snapshotItem(0).attributes[0].nodeValue.substr(0, 4);
+    	var title = document.getElementsByTagName('h1')[0].getElementsByTagName('span')[0].innerHTML;
+    	return title.match(/\((19|20)[\d]{2,2}\)/)[0].substr(1, 4);
     }
 
     function constructor(){
