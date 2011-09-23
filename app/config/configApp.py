@@ -194,7 +194,7 @@ class configApp():
         self.setDefault('Boxcar', 'enabled', False)
         self.setDefault('Boxcar', 'onSnatch', False)
         self.setDefault('Boxcar', 'username', '')
-        self.setDefault('Boxcar', 'key', '')
+        self.setDefault('Boxcar', 'password', '')
 
         self.addSection('NMA')
         self.setDefault('NMA', 'enabled', False)
