@@ -379,9 +379,9 @@ class RenamerCron(cronBase, Library):
             else:
                 try:
                     log.error('File %s already exists or not better.' % latinToAscii(filename))
-                    path = file['path'].split(os.sep)
+                    path = movie['path'].split(os.sep)
                     path.extend(['_EXISTS_' + path.pop()])
-                    old = file['path']
+                    old = movie['path']
                     dest = os.sep.join(path)
                     _move(old, dest)
                 except:
