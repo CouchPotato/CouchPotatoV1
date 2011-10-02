@@ -44,7 +44,7 @@ class Searcher():
 
             #search for highest score
             highest = None
-            highestScore = 0
+            highestScore = -1000
             if results:
                 for result in results:
                     if result.score > highestScore:
