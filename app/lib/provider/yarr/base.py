@@ -137,9 +137,6 @@ class nzbBase(rss):
         # Outsize retention
         if item.type is 'nzb':
             if item.date < time.time() - (int(self.config.get('NZB', 'retention')) * 24 * 60 * 60):
-                log.info('item.date: ' + str(item.date))
-                log.info('time.time(): ' + str(time.time()))
-                log.info('laatste: ' + int(self.config.get('NZB', 'retention')) * 24 * 60 * 60)
                 log.info('Found but outside %s retention: %s' % (self.config.get('NZB', 'retention'), item.name))
                 return False
 
