@@ -84,6 +84,8 @@ class configApp():
         self.setDefault('NZBsRUS', 'enabled', False)
         self.setDefault('NZBsRUS', 'userid', '')
         self.setDefault('NZBsRUS', 'userhash', '')
+        self.addSection('x264')
+        self.setDefault('x264', 'enabled', False)
 
         self.addSection('NZB')
         self.setDefault('NZB', 'enabled', True)

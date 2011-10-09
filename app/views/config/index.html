@@ -408,6 +408,15 @@
 					</p>
 				</div>
 			</fieldset>
+
+                     <fieldset class="inlineLabels" id="nzbsrusFieldset">
+				<h3>#alt.binaries.hdtv.x264@EFnet</h3>
+				<div class="ctrlHolder checkbox">
+					<label>Enable</label>
+					<input type="checkbox" name="x264.enabled" value="True" ${' checked="checked"' if config.get('x264','enabled') else''} />
+				</div>
+			</fieldset>
+
 		</div>
 
 		<div class="group userscript">
