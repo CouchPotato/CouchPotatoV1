@@ -260,11 +260,14 @@ class YarrCron(cronBase, rss):
                         return False
                 else:
                     file = urllib.urlopen(item.url).read()
+
                     if "DOCTYPE nzb" not in file:
-                       fullPath = os.path.join(blackhole, self.toSaveString(item.name) + '.' + 'rar')
+                        fullPath = os.path.join(blackhole, self.toSaveString(item.name) + '.' + 'rar')
+
                     log.info('Downloading %s to %s.' % (item.type, fullPath))
                     with open(fullPath, 'wb') as f:
-                       f.write(file)
+                        f.write(file)
+
                 return True
             else:
                 log.error('File %s already exists.' % fullPath)

@@ -73,12 +73,12 @@ class KinepolisRSSCron(cronBase, Library, rss):
 
         for RSSItem in RSSItems:
             if self.gettextelement(RSSItem, "title").find("Kinepolis Top 10") == -1:
-                 if rssurl == self.KinepolisRSSUrl:
-                     RSSMovie['name'] = self.gettextelement(RSSItem, "title").lower().split(".")[1].rstrip()
-                 else:
-                     RSSMovie['name'] = self.gettextelement(RSSItem, "title").lower().rstrip(" ov")
-                 currentYear = datetime.datetime.now().strftime("%Y")
-                 RSSMovie['year'] = currentYear
+                if rssurl == self.KinepolisRSSUrl:
+                    RSSMovie['name'] = self.gettextelement(RSSItem, "title").lower().split(".")[1].rstrip()
+                else:
+                    RSSMovie['name'] = self.gettextelement(RSSItem, "title").lower().rstrip(" ov")
+                currentYear = datetime.datetime.now().strftime("%Y")
+                RSSMovie['year'] = currentYear
 
             if not RSSMovie['name'].find("/") == -1: # make sure it is not a double movie release
                 continue
