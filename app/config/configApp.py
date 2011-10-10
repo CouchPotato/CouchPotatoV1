@@ -155,6 +155,11 @@ class configApp():
         self.setDefault('MovieRSS', 'minyear', '2000')
         self.setDefault('MovieRSS', 'minrating', '6.0')
 
+        self.addSection('KinepolisRSS')
+        self.setDefault('KinepolisRSS', 'enabled', False)
+        self.setDefault('KinepolisRSS', 'minyear', '2000')
+        self.setDefault('KinepolisRSS', 'minrating', '6.0')
+
         self.addSection('Trakt')
         self.setDefault('Trakt', 'enabled', False)
         self.setDefault('Trakt', 'apikey', '')

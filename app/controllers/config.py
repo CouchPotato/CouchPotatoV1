@@ -84,6 +84,7 @@ class ConfigController(BaseController):
               'x264.enabled',
               'Subtitles.enabled', 'Subtitles.addLanguage',
               'MovieRSS.enabled',
+              'KinepolisRSS.enabled',
             ]
         )
         data.update(data.fromkeys(bools, False))
