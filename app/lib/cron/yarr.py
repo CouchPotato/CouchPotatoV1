@@ -261,7 +261,7 @@ class YarrCron(cronBase, rss):
                 else:
                     file = urllib.urlopen(item.url).read()
 
-                    if "DOCTYPE nzb" not in file:
+                    if item.type == 'nzb' and "DOCTYPE nzb" not in file:
                         fullPath = os.path.join(blackhole, self.toSaveString(item.name) + '.' + 'rar')
 
                     log.info('Downloading %s to %s.' % (item.type, fullPath))
