@@ -52,7 +52,7 @@ class TraktCron(cronBase, Library):
         '''
 
         if self.isDisabled():
-            log.info('Trakt has been disabled')
+            log.debug('Trakt has been disabled')
             return
 
         log.info('Starting Trakt check')
