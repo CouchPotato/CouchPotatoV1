@@ -15,11 +15,15 @@
 // @include     http://trakt.tv/movie/*
 // @include     http://*.trak.tv/movie/*
 // @include     http://www.rottentomatoes.com/m/*
+// @include     http://www.youtheater.com/view.php?*
+// @include     http://youtheater.com/view.php?*
+// @include     http://www.sratim.co.il/view.php?*
+// @include     http://sratim.co.il/view.php?*
 // @exclude     http://trak.tv/movie/*/*
 // @exclude     http://*.trak.tv/movie/*/*
 // ==/UserScript==
 
-var version = 8;
+var version = 9;
 
 function create() {
     switch (arguments.length) {
@@ -586,6 +590,43 @@ rotten = (function(){
     return constructor;
 })();
 
+youtheater = (function(){
+    var obj = this;
+
+    function isMovie(){
+        return true;
+    }
+
+    /*
+     *      Search TheMovieDB for IMDB ID, year of release and open OSD
+     *
+     */
+    function getId() {
+        var pattern = /imdb\.com\/title\/tt(\d+)/;
+        var html = document.getElementsByTagName('html')[0].innerHTML;
+        var imdb_id = html.match(pattern)[1];
+        return 'tt'+imdb_id;
+    }
+
+    function getYear(){
+        var spans = document.getElementsByTagName('span');
+        var obj = null;
+        for (i = 0; i < spans.length; i ++) {
+            obj = spans[i];
+            if ( obj.className == 'yearpronobold' ) {
+                return obj.innerText.match(/\((19|20)[\d]{2,2}\)/)[0].substr(1, 4);
+            }
+        }
+    }
+
+    function constructor(){
+        if(isMovie()){            
+            lib.osd(getId(), getYear());  
+        }
+    }
+    return constructor;
+})();
+
 
 // Start
 (function(){
@@ -598,7 +639,9 @@ rotten = (function(){
         "trailers.apple.com" : apple,
         "themoviedb.org" : tmdb,
         "allocine.fr" : allocine,
-        "rottentomatoes.com" : rotten
+        "rottentomatoes.com" : rotten,
+        "youtheater.com": youtheater,
+        "sratim.co.il": youtheater
     };
     for (var i in factory){
         GM_log(i);
