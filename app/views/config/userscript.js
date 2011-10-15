@@ -123,6 +123,94 @@ lib = (function(){
     return _public
 })();
 
+/*
+ * TMDB's Api object to be used in all of the sites needed it.
+ */
+tmdb_api = (function(){
+    var _public = {};
+    var TMDB_API_KEY = "31582644f51aa19f8fcd9b2998e17a9d";
+    var TMDB_BASE_URL = "http://api.themoviedb.org/2.1/";
+    var saved_year = null;
+    
+    /*
+     *  AJAX post and call 'callback' function
+     */
+    function post(newurl, callback) {
+        GM_xmlhttpRequest({
+            method: 'GET',
+            url: newurl,
+            headers: {
+            'User-agent': 'Mozilla/4.0 (compatible) Greasemonkey',
+                'Accept': 'application/atom+xml,application/xml,text/xml'
+            },
+            onload: function(responseDetails) {
+                callback(responseDetails);
+            }
+        });
+    }
+    
+    var _BuildTmdbUrl = function(Func, Arg) {
+        return TMDB_BASE_URL + Func + '/en/xml/' + TMDB_API_KEY + '/' + Arg;
+    }
+        
+    var _PostFromTmdbXml = function(response) {
+        var Movies = null;
+        var i = 0;
+        var curMovie = null;
+        var year = null;
+        var imdb_id = null;
+        
+        if ( !response ) {
+            return;
+        }
+        
+        if ((window.navigator.userAgent.indexOf("Chrome") > 0) || (!response.responseXML)) {
+            response.responseXML = new DOMParser().parseFromString(response.responseText, "text/xml");
+        }
+        
+        // Makes sure i choose the right choice.
+        Movies = response.responseXML.getElementsByTagName('movie');
+        for ( i = 0 ; i < Movies.length ; i ++ ) {
+            curMovie = Movies[i];
+            imdb_id = curMovie.getElementsByTagName('imdb_id')[0].firstChild.nodeValue; 
+            year = curMovie.getElementsByTagName('released')[0].firstChild.nodeValue.substr(0, 4);
+            
+            // if year selected, i'll choose the right year only.
+            if ( saved_year == year ) {
+                lib.osd(imdb_id, year);
+                return;
+            }
+        }
+        
+        // if there is no saved year, i'll choose the last choice.
+        if ( !saved_year ) {
+            lib.osd(imdb_id, year);
+        }
+    }
+        
+    var _MovieSearch = function(Name, Year) {
+        var escapedName = Name.replace(/ /g, "+").replace(/\//g,"-");
+        escapedName = escapedName.replace(/\(.+?\)/g, ""); // Strip ()
+        var url = _BuildTmdbUrl('Movie.search', escapedName);
+        
+        // Saves the year to query later on.
+        if ( Year ) {
+            saved_year = Year;
+        }
+        
+        post(url, _PostFromTmdbXml);
+    }
+        
+    var _MovieSearchById   = function(TmdbId) {
+        var url = _BuildTmdbUrl('Movie.getInfo', TmdbId);
+        post(url, _PostFromTmdbXml);
+    }
+    
+    _public.MovieSearch = _MovieSearch;
+    _public.MovieSearchById = _MovieSearchById;
+    return _public;
+})();
+    
 imdb = (function(){
     function isMovie(){
         var series = document.getElementsByTagName('h5')
@@ -294,75 +382,18 @@ apple = (function(){
     }
 
     /*
-     *  AJAX post and call 'callback' function
-     */
-    function post(newurl, callback) {
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: newurl,
-            headers: {
-            'User-agent': 'Mozilla/4.0 (compatible) Greasemonkey',
-                'Accept': 'application/atom+xml,application/xml,text/xml'
-            },
-            onload: function(responseDetails) {
-                callback(responseDetails);
-            }
-        });
-    }
-
-    /*
-     *  Search TheMovieDB for IMDB ID, year of release and open OSD
+     *  returns movie's name from page's title.
      *
      */
-    function getId(response) {
-        if (!response) {
-            var TMDB_API_KEY = "31582644f51aa19f8fcd9b2998e17a9d"
-
-            var mName = document.title.substr(0, document.title.indexOf(" -")).replace(/ /g, "+").replace(/\//g,"-");
-
-            var url = 'http://api.themoviedb.org/2.1/Movie.search/en/xml/' + TMDB_API_KEY + '/' + mName;
-
-            post(url, getId)
-        } else {
-            if ((window.navigator.userAgent.indexOf("Chrome") > 0) || (!response.responseXML)) {
-                response.responseXML = new DOMParser().parseFromString(response.responseText, "text/xml");
-            }
-
-            var imdb_id = response.responseXML.getElementsByTagName('imdb_id')[0].firstChild.nodeValue; 
-            var year = getYear(response.responseXML);
-            
-            // This is here since getId is called asyncronously from ajax call
-            lib.osd(imdb_id, year);    
-        }
+    function getName() {
+        return document.title.substr(0, document.title.indexOf(" -"));
     }
 
     /*
-     *  Gets year of release. First tries to get it from TMDB response.
-     *  If that fails, gets the year from page copyright notice.
-     *
-     */
-    function getYear(xml){
-        var year;
-        if (xml) {
-            year = xml.getElementsByTagName('released')[0].firstChild;
-            if (year != null) {
-                year = year.data;
-                year = year.substr(0, 4);
-            } else {
-                year = getYearFromPage();
-            }
-        } else {
-            year = getYearFromPage();
-        }
-
-        return year;
-    }
-
-    /*
-     *  Retrieves year from movie copyright notice.
+     *  returns year from movie copyright notice.
      *
      */ 
-    function getYearFromPage() {
+    function getYear() {
         var fullReleaseDate = document.getElementById("view-showtimes").parentNode.innerHTML;
         var justYear = fullReleaseDate.substr(fullReleaseDate.indexOf("Copyright", 0)+12, 4);
 
@@ -371,8 +402,8 @@ apple = (function(){
 
     function constructor(){
         if(isMovie()){
-            // lib.osd will be called by AJAX request in getId()
-            getId();    
+            // Do a search using tmdb_api.
+            tmdb_api.MovieSearch(getName(), getYear());
         }
     }
     return constructor;
@@ -386,54 +417,16 @@ tmdb = (function(){
     }
 
     /*
-     *      AJAX post and call 'callback' function
+     *      Returns TMDB id from the url.
      */
-    function post(newurl, callback) {
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: newurl,
-            headers: {
-               'User-agent': 'Mozilla/4.0 (compatible) Greasemonkey',
-               'Accept': 'application/atom+xml,application/xml,text/xml'
-            },
-            onload: function(responseDetails) {
-               callback(responseDetails);
-            }
-        });
-    }
-
-    /*
-     *      Search TheMovieDB for IMDB ID, year of release and open OSD
-     *
-     */
-    function getId(response) {
-        if (!response) {
-            var TMDB_API_KEY = "31582644f51aa19f8fcd9b2998e17a9d"
-	    var tmdb_id = location.href.match(/movie\/(\d+)/g)[0].substr(6);
-            var url = 'http://api.themoviedb.org/2.1/Movie.getInfo/en/xml/' + TMDB_API_KEY + '/' + tmdb_id;
-            post(url, getId);
-        } else {
-            if ((window.navigator.userAgent.indexOf("Chrome") > 0) || (!response.responseXML)) {
-                response.responseXML = new DOMParser().parseFromString(response.responseText, "text/xml");
-            }
-
-            var imdb_id = response.responseXML.getElementsByTagName('imdb_id')[0].firstChild.nodeValue; 
-            var year = getYear();
-
-            // This is here since getId is called asyncronously from ajax call
-            lib.osd(imdb_id, year);    
-        }
-    }
-
-    function getYear(){
-        var year = document.getElementById("year").innerHTML;
-        year = year.substr(1, year.length-2);
-        return year;
+    function getTmdbId() {
+	var tmdb_id = location.href.match(/movie\/(\d+)/g)[0].substr(6);
+        return tmdb_id;
     }
 
     function constructor(){
         if(isMovie()){
-            getId();    
+            tmdb_api.MovieSearchById(getTmdbId());
         }
     }
     return constructor;
@@ -446,69 +439,12 @@ allocine = (function(){
         return null != matched;
     }
 
-    /*
-     *  AJAX post and call 'callback' function
-     */
-    function post(newurl, callback) {
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: newurl,
-            headers: {
-            'User-agent': 'Mozilla/4.0 (compatible) Greasemonkey',
-            'Accept': 'application/atom+xml,application/xml,text/xml'
-            },
-            onload: function(responseDetails) {
-                callback(responseDetails);
-            }
-        });
+    function getName() {
+            var mName = document.title.substr(0, document.title.indexOf(" -"));
+            return mName;
     }
-
-    function getId(response) {
-        if (!response) {
-            var TMDB_API_KEY = "31582644f51aa19f8fcd9b2998e17a9d"
-
-            var mName = document.title.substr(0, document.title.indexOf(" -")).replace(/ /g, "+").replace(/\//g,"-");
-
-            var url = 'http://api.themoviedb.org/2.1/Movie.search/en/xml/' + TMDB_API_KEY + '/' + mName;
-
-            post(url, getId)
-        } else {
-            if ((window.navigator.userAgent.indexOf("Chrome") > 0) || (!response.responseXML)) {
-                response.responseXML = new DOMParser().parseFromString(response.responseText, "text/xml");
-            }
-
-            var imdb_id = response.responseXML.getElementsByTagName('imdb_id')[0].firstChild.nodeValue; 
-
-            var year = getYear(response.responseXML);
-            
-            // This is here since getId is called asyncronously from ajax call
-            lib.osd(imdb_id, year);
-        }
-    }
-
-    /*
-     *  Gets year of release. First tries to get it from TMDB response.
-     *  If that fails, gets the year from page title.
-     *
-     */
-    function getYear(xml){
-        var year;
-        if (xml) {
-            year = xml.getElementsByTagName('released')[0].firstChild;
-            if (year != null) {
-                year = year.data;
-                year = year.substr(0, 4);
-            } else {
-                year = getYearFromTitle();
-            }
-        } else {
-            year = getYearFromTitle();
-        }
-
-        return year;
-    }
-
-    function getYearFromTitle(){
+    
+    function getYear(){
         var year = "";
         if(document.title)
         {
@@ -520,7 +456,7 @@ allocine = (function(){
 
     function constructor(){
         if(isMovie()){
-            getId();
+            tmdb_api.MovieSearch(getName(), getYear());
         }
     }
 
@@ -535,46 +471,12 @@ rotten = (function(){
     }
 
     /*
-     *      AJAX post and call 'callback' function
-     */
-    function post(newurl, callback) {
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: newurl,
-            headers: {
-               'User-agent': 'Mozilla/4.0 (compatible) Greasemonkey',
-               'Accept': 'application/atom+xml,application/xml,text/xml'
-            },
-            onload: function(responseDetails) {
-               callback(responseDetails);
-            }
-        });
-    }
-
-    /*
      *      Search TheMovieDB for IMDB ID, year of release and open OSD
      *
      */
-    function getId(response) {
-        var year = getYear();
-        if (!response) {
-            var TMDB_API_KEY = "31582644f51aa19f8fcd9b2998e17a9d"
-
-            mName = document.title.substr(0, document.title.indexOf("Rotten")-3).replace(/ /g, "+").replace(/\//g,"-");
-
-            var url = 'http://api.themoviedb.org/2.1/Movie.search/en/xml/' + TMDB_API_KEY + '/' + mName + ' ' + year;
-
-            post(url, getId);
-        } else {
-            if ((window.navigator.userAgent.indexOf("Chrome") > 0) || (!response.responseXML)) {
-                response.responseXML = new DOMParser().parseFromString(response.responseText, "text/xml");
-            }
-
-            var imdb_id = response.responseXML.getElementsByTagName('imdb_id')[0].firstChild.nodeValue; 
-
-            // This is here since getId is called asyncronously from ajax call
-            lib.osd(imdb_id, year);    
-        }
+    function getName() {
+        var mName = document.title.substr(0, document.title.indexOf("Rotten")-3);
+        return mName;
     }
 
     function getYear(){
@@ -584,7 +486,7 @@ rotten = (function(){
 
     function constructor(){
         if(isMovie()){
-            getId();    
+            tmdb_api.MovieSearch(getName(), getYear());
         }
     }
     return constructor;
@@ -643,6 +545,7 @@ youtheater = (function(){
         "youtheater.com": youtheater,
         "sratim.co.il": youtheater
     };
+    
     for (var i in factory){
         GM_log(i);
         if(location.href.indexOf(i) != -1){
