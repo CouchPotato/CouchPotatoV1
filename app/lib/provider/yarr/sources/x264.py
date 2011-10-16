@@ -61,6 +61,8 @@ class x264(torrentBase):
 
         except AttributeError:
             log.debug('No search results found.')
+        
+        return results
 
     def makeIgnoreString(self, type):
         return ''
