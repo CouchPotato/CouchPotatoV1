@@ -6,7 +6,7 @@ import urllib2
 
 from hashlib import sha1
 
-import simplejson as json
+import json
 
 log = CPLog(__name__)
 
@@ -50,7 +50,7 @@ class Trakt:
             
             if ("error" in resp):
                 raise Exception(resp["error"])
-        except (IOError, json.JSONDecodeError):
+        except (IOError, Exception):
             log.info("Failed calling method")
             return False
 
