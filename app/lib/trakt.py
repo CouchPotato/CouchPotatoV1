@@ -58,6 +58,7 @@ class Trakt:
             log.info("Method call successful")
             return True
 
+        log.info("Method call unsuccessful: " + resp["status"])
         return False
 
     def notify(self, name, year, imdb_id):
