@@ -41,10 +41,11 @@ class Boxcar:
                 raise Exception
 
         except Exception, e:
-            print 'Boxcar notification failed.'
+            log.info(e)
+            log.error('Boxcar notification failed.')
             return False
 
-        print 'Boxcar notification successful.'
+        log.info('Boxcar notification successful.')
         return
 
     def notify(self, message, status):
