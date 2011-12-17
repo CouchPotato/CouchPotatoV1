@@ -134,7 +134,7 @@ class RenamerCron(cronBase, Library):
                                                                posterFileNaming,
                                                                add_tags = {'orig_ext': posterOrigExt})
 
-                        x.write_nfo(nfo_location)
+                        x.write_nfo(nfo_location, url = False)
 
                         x.write_fanart(fanart_filename,
                                        finalDestination['directory'],
