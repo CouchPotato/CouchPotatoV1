@@ -238,6 +238,7 @@ class configApp():
 
         self.addSection('Meta')
         self.setDefault('Meta', 'enabled', False)
+        self.setDefault('Meta', 'urlOnly', False)
         self.setDefault('Meta', 'fanartMinHeight', 0)
         self.setDefault('Meta', 'fanartMinWidth', 0)
         self.setDefault('Meta', 'posterMinHeight', 0)
