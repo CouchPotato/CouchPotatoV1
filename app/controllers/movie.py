@@ -192,14 +192,18 @@ class MovieController(BaseController):
 
         if cherrypy.config.get('config').get('XBMC', 'useWebAPIExistingCheck'):
            xbmc = XBMC()
-           xbmcResults = xbmc.queryVideoDatabase('select c09 from movie where c09="' + movie.imdb + '"')
+           xbmcResultsHosts = xbmc.queryVideoDatabase('select c09 from movie where c09="' + movie.imdb + '"')
 
-           if xbmcResults:
-              for xmbcResult in xbmcResults:
-                   c09 = xmbcResult.replace("<field>", "").replace("</field>", "").strip()
-                   if c09==movie.imdb:
-                       log.info('Movie already exists in XBMC (web API call), skipping.')
-                       return True
+           if xbmcResultsHosts:
+              for xmbcResults in xbmcResultsHosts:
+                   for xmbcResult in [x.strip() for x in xmbcResults.strip().split('\n')]:
+                       if xmbcResult == "":
+                           continue
+                 
+                       c09 = xmbcResult.replace("<record><field>", "").replace("</field></record>", "").replace("<field>", "").replace("</field>", "").strip()
+                       if c09==movie.imdb:
+                           log.info('Movie already exists in XBMC (web API call), skipping.')
+                           return True
 
         return False
 
