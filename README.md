@@ -89,20 +89,20 @@ Linux:
 * Set your username & password in the settings if you want.
 * Fill in all the config stuff
 
-Ubuntu (init.d script):
-* Copy "initd.ubuntu" to /etc/init.d/couchpotato - > "sudo cp initd.ubuntu /etc/init.d/couchpotato"
-* Copy "default.ubuntu" to /etc/default/couchpotato - > "sudo cp default.ubuntu /etc/default/couchpotato"
-* Edit the required daemon settings in /etc/default/couchpotato - > editor /etc/default/couchpotato
-* If your CP installation isn't in "/opt/couchpotato/", make sure to change the path there also!
-* Make executable "sudo chmod a+x /etc/init.d/couchpotato"
-* Add it to the startup items: "sudo update-rc.d couchpotato defaults"
-* Start with "sudo service couchpotato start"
+Ubuntu (init.d script):  
+* Copy "initd.ubuntu" to /etc/init.d/couchpotato - > "sudo cp initd.ubuntu /etc/init.d/couchpotato"  
+* Copy "default.ubuntu" to /etc/default/couchpotato - > "sudo cp default.ubuntu /etc/default/couchpotato"  
+* Edit the required daemon settings in /etc/default/couchpotato - > editor /etc/default/couchpotato  
+* If your CP installation isn't in "/opt/couchpotato/", make sure to change the path there also!  
+* Make executable "sudo chmod a+x /etc/init.d/couchpotato"  
+* Add it to the startup items: "sudo update-rc.d couchpotato defaults"  
+* Start with "sudo service couchpotato start"  
 
 Other:
-* [Synology Guide can be found here](http://synology.brickman.nl/syn_howto/HowTo%20-%20install%20CouchPotato.txt)
-* [Synology Package can be found here](http://synoblog.superzebulon.org/category/cp/)
-* [QNAP Guide can be found here](http://forums.sabnzbd.org/index.php?topic=4636.msg33541#msg33541)
-* [QNAP Package can be found here](http://forum.qnap.com/viewtopic.php?f=269&t=40596)
+* [Synology Guide can be found here](http://synology.brickman.nl/syn_howto/HowTo%20-%20install%20CouchPotato.txt)  
+* [Synology Package can be found here](http://synoblog.superzebulon.org/category/cp/)  
+* [QNAP Guide can be found here](http://forums.sabnzbd.org/index.php?topic=4636.msg33541#msg33541)  
+* [QNAP Package can be found here](http://forum.qnap.com/viewtopic.php?f=269&t=40596)  
 
 ## Update
 
