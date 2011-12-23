@@ -90,9 +90,8 @@ Linux:
 * Fill in all the config stuff
 
 Ubuntu (init.d script):
-* sudo git clone https://github.com/RuudBurger/CouchPotato.git /opt/couchpotato
-* Copy "initd.ubuntu" to /etc/init.d/couchpotato - > "sudo cp /opt/couchpotato/initd /etc/init.d/couchpotato"
-* Copy "default.ubuntu" to /etc/default/couchpotato - > "sudo cp /opt/couchpotato/default.ubuntu /etc/default/couchpotato"
+* Copy "initd.ubuntu" to /etc/init.d/couchpotato - > "sudo cp initd.ubuntu /etc/init.d/couchpotato"
+* Copy "default.ubuntu" to /etc/default/couchpotato - > "sudo cp default.ubuntu /etc/default/couchpotato"
 * Edit the required daemon settings in /etc/default/couchpotato - > editor /etc/default/couchpotato
 * If your CP installation isn't in "/opt/couchpotato/", make sure to change the path there also!
 * Make executable "sudo chmod a+x /etc/init.d/couchpotato"
