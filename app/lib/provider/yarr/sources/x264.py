@@ -2,6 +2,7 @@ from app.config.cplog import CPLog
 from app.lib.provider.yarr.base import torrentBase
 from imdb.parser.http.bsouplxml._bsoup import SoupStrainer, BeautifulSoup
 from urllib import quote_plus
+from urllib2 import URLError
 import time
 import urllib
 import urllib2
@@ -38,7 +39,7 @@ class x264(torrentBase):
         try:
             data = urllib2.urlopen(url, timeout = self.timeout).read()
         except (IOError, URLError):
-            log.error('Failed to open %s.' % url )
+            log.error('Failed to open %s.' % url)
             return results
 
         try:
@@ -66,7 +67,7 @@ class x264(torrentBase):
 
         except AttributeError:
             log.debug('No search results found.')
-        
+
         return results
 
     def makeIgnoreString(self, type):
