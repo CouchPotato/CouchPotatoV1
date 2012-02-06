@@ -135,7 +135,7 @@ class RenamerCron(cronBase, Library):
                                                                add_tags = {'orig_ext': posterOrigExt})
 
                         urlOnly = self.config.get('Meta', 'urlOnly')
-                        x.write_nfo(nfo_location, url = urlOnly, xml = not urlOnly)
+                        x.write_nfo(nfo_location, url = True, xml = False)
 
                         x.write_fanart(fanart_filename,
                                        finalDestination['directory'],

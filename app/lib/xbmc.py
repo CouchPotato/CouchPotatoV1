@@ -57,8 +57,10 @@ class XBMC:
         ret = []
         for curHost in self.hosts:
             command = {'command': 'QueryVideoDatabase(%s)' % query}
-            response = self.send(command, curHost).replace("<html>", "").replace("</html>", "")
-            ret.append(response)
+            rawResponse = self.send(command, curHost)
+            if rawResponse:
+                response = rawResponse.replace("<html>", "").replace("</html>", "")
+                ret.append(response)
 
         return ret
 
