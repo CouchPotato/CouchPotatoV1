@@ -48,6 +48,7 @@ class nzbsRus(nzbBase):
             return results
 
         catId = self.getCatId(type)
+        subCatId = None
         if catId in self.subCats:
             subCatId = self.getCatId(type)
 
