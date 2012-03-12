@@ -30,7 +30,7 @@ class ImdbWl:
             # Check if user has provided watchlist webpage, rather than export URL
             try:
                 url_parts = url.split("/")
-                if url_parts[3] == "user" or url_parts[5] == "watchlist":
+                if url_parts[3] == "user" and url_parts[5].startswith("watchlist"):
                     url = "http://www.imdb.com/list/export?list_id=watchlist&author_id=%s" % (url_parts[4])
             except(IndexError):
                 pass
