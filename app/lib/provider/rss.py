@@ -106,7 +106,7 @@ class rss:
             else: platf = 'linux'                                                                                      
                                                                                                                        
             req = urllib2.Request(url)                                                                                 
-            req.add_header('User-Agent', 'CouchPotato')                                                                
+            req.add_header('User-Agent', 'CouchPotato v1')                                                                
             req.add_header('X-CP-Version', 'CouchPotato (%s - %s)' % (platf, cherrypy.config.get('updater').getVersion().rstrip()))
 
             if username is not '' and password is not '':
