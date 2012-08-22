@@ -28,10 +28,7 @@ If you find a bug or need a feature that you think is awesome! Let me know!
 
 ## Donate
 
-[![PayPal - Donate](https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=GFWSRM6L43T2S&lc=US&item_name=A%20more%20awesome%20CouchPotato&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted)
-
-I'm building CouchPotato in my spare time, so if you want to buy me a coke while I'm coding, that would be awesome!
-
+PayPal is playing internet police, so they blocked my account.. But you can donate by sending me an awesome 'thank you' email ;)
 
 ## Changelog
 
