@@ -1,9 +1,7 @@
 CouchPotato
 =====
 
-Version 37 (not release):
-
-* [See diff](https://github.com/RuudBurger/CouchPotato/compare/8d652f7044cffd28c88bbcf14897c8fe4a9de5c7...master)
+# Please use the new version of CP (v2), which can be found on the main site.
 
 Version 36:
 

@@ -92,6 +92,56 @@
 						}
 					}
 
+					// Show popup
+					var cookie_name = 'seen_update';
+					if(!Cookie.read(cookie_name)){
+						new Element('div', {
+							'styles': {
+								'background': 'rgba(0,0,0,.8)',
+								'position': 'fixed',
+								'height': '100%',
+								'width': '100%',
+								'z-index': 2000,
+								'cursor': 'pointer'
+							},
+							'events': {
+								'click': function(e){
+									Cookie.write(cookie_name, '1', {
+										'duration': 31
+									})
+
+									e.target.destroy();
+								}
+							}
+						}).adopt(
+							new Element('div', {
+								'styles': {
+									'color': '#FFF',
+									'padding': '20px',
+									'font-size': '24px',
+									'position': 'fixed',
+									'left': '50%',
+									'top': '50%',
+									'height': '200px',
+									'width': '500px',
+									'margin': '-110px 0 0 -260px',
+									'text-align': 'center',
+									'cursor': 'default'
+								},
+								'events': {
+									'click': function(e){
+										(e).stopPropagation();
+										if(e.target.get('tag') != 'a')
+											return false
+									}
+								},
+								'html': 'There is a new version of CouchPotato, it\'s called "v2" and it\'s awesome, sexy and more. <br/>' +
+									'Please go to <a href="https://couchpota.to/">the CouchPotato site</a> to get it. <br />' +
+									'<span style="display:block; font-size: 14px; margin-top: 10px;">You will be able to import your existing wanted list, but need a few extra minutes to fill in your settings though.</span>'
+							})
+						).inject(document.body, 'top');
+					}
+
 				})
 
 			</script>
